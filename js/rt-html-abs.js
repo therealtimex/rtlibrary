@@ -83,6 +83,40 @@ NOTE:${contact.description}
 END:VCARD`;
 }
 
+function copyContactPhone() {{
+    const phone = '{phone}';
+    const tempInput = document.createElement('input');
+    tempInput.value = phone;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+    alert('Phone number has been copied!');
+}}
+
+function copyContactEmail() {{
+    const email = '{email}';
+    const tempInput = document.createElement('input');
+    tempInput.value = email;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+    alert('Email has been copied!');
+}}
+
+function callActionSMS() {{
+    const actionData = {{
+            actionID: 9998,
+            defaultMsg: 'Hi!',
+            orderNumber: 2,
+            phone: '{phone}',
+            type: 'act_sms'
+        }};
+    var json = JSON.stringify(actionData);
+    App.callActionButton(json);
+}}
+
 async function addToContacts() {
     try {
         const vcard = generateVCard();
