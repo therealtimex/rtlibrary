@@ -65,6 +65,22 @@
     transition: opacity 0.2s;
 }
 
+.btn-add-contact {
+    background-color: var(--secondary-color);
+}
+
+.btn-copy-contact {
+    background-color: var(--primary-color);
+}
+
+.btn-share-contact {
+    background-color: var(--accent-color);
+}
+
+.btn-download-contact {
+    background-color: #FF9800;
+}
+
 @media screen and (max-width: 600px) {
     .btn {
         flex: 1 1 100%;
