@@ -15,6 +15,7 @@
         :root {
             --primary-color: ##__COLOR_THEME_PRIMARY__##;
             --secondary-color: ##__COLOR_THEME_SECONDARY__##;
+            --accent-color: ##__COLOR_THEME_ACCENT__##;
             --background-color: ##__COLOR_THEME_BACKGROUND__##;
         }
     </style>
@@ -56,22 +57,35 @@
         </section>
 
         <footer class="action-buttons">
-            <button class="btn" onclick="copyToClipboard()" aria-label="Copy message">
-                <span aria-hidden="true">📋</span> Copy
+            <button id="copyToClipboardBtn" class="btn" onclick="copyToClipboard()" aria-label="Sao chép Email">
+                <span aria-hidden="true">📋</span> Sao chép Email
             </button>
-            <button class="btn" onclick="sendEmail()" aria-label="Send Email">
+            <button id="sendEmailBtn" class="btn" onclick="sendEmail()" aria-label="Gửi Email">
                 <span aria-hidden="true">📧</span> Gửi Email
             </button>
-            <button class="btn" onclick="sendSMS()" aria-label="Send SMS">
+            <button id="sendSMSBtn" class="btn" onclick="sendSMS()" aria-label="Gửi SMS">
                 <span aria-hidden="true">💬</span> Gửi SMS
             </button>
-            <button class="btn" onclick="callCP()" aria-label="Call CP">
-                <span aria-hidden="true">📞</span> Gọi Cloud
+            <button id="callCPBtn" class="btn" onclick="callCloudPhone()" aria-label="Gọi Internet">
+                <span aria-hidden="true">🌐📞</span> Gọi Internet
             </button>
-            <button class="btn" onclick="callSIM()" aria-label="Call SIM">
-                <span aria-hidden="true">📱</span> Gọi SIM
+            <button id="callSIMBtn" class="btn" onclick="callSIM()" aria-label="Gọi điện">
+                <span aria-hidden="true">📱</span> Gọi điện
             </button>
         </footer>
+    
     </main>
+    <dialog id="rtDialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>RealTime</h3>
+                <button class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <p id="rtMessage"></p>
+            </div>
+        </div>
+    </dialog>    
+
 </body>
 </html>
