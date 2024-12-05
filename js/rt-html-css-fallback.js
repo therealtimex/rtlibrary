@@ -14,5 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--primary-color', '#2c3e50');
         root.style.setProperty('--secondary-color', '#3498db');
         root.style.setProperty('--background-color', '#f8f9fa');
+        root.style.setProperty('--access-color', '#f5f5f5');
     }
 });
