@@ -68,18 +68,53 @@ function sendSMS() {
         showRTDialog('No valid phone number found');
     }
 }
-
-function callPhone(useEasySIM = false) {
-    const phoneNumber = document.querySelector('.email-field:nth-child(4)').textContent.trim();
-    const cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
-    if (cleanPhone) {
-        if (useEasySIM && 'EasySIM' in window) {
-            window.EasySIM.dial(cleanPhone);
-        } else {
-            window.open(`tel:${cleanPhone}`);
+// Utility function to extract and clean phone number
+function getCleanPhoneNumber(selector = '.email-field:nth-child(4)') {
+    try {
+        const element = document.querySelector(selector);
+        if (!element) {
+            throw new Error('Phone number element not found');
         }
-    } else {
-        showRTDialog('No valid phone number found');
+        
+        const phoneNumber = element.textContent.trim();
+        const cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
+        
+        if (!cleanPhone) {
+            throw new Error('No valid phone number found');
+        }
+        
+        return cleanPhone;
+    } catch (error) {
+        showRTDialog(error.message);
+        return null;
+    }
+}
+
+// VOIP cloud phone call function
+function callCloudPhone() {
+    const phoneNumber = getCleanPhoneNumber();
+    if (phoneNumber) {
+        try {
+            window.open(`tel:${phoneNumber}`);
+        } catch (error) {
+            showRTDialog('Failed to initiate cloud phone call');
+        }
+    }
+}
+
+// SIM card call function
+function callSIM() {
+    const phoneNumber = getCleanPhoneNumber();
+    if (phoneNumber) {
+        try {
+            if ('EasySIM' in window) {
+                window.EasySIM.dial(phoneNumber);
+            } else {
+                window.open(`tel:${phoneNumber}`);
+            }
+        } catch (error) {
+            showRTDialog('Failed to initiate phone call');
+        }
     }
 }
 
@@ -218,3 +253,4 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('copyContactBtn').addEventListener('click', copyContact);
     document.getElementById('shareContactBtn').addEventListener('click', shareContact);
 });
+
