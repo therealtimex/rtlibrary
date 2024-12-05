@@ -51,6 +51,14 @@ function callSIM() {
     }
 }
 
+function sendEmail() {
+    const recipient = document.querySelector('[aria-labelledby="to-label"]').textContent;
+    const subject = document.querySelector('[aria-labelledby="subject-label"]').textContent;
+    const body = document.getElementById('message').value;
+    const mailtoUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+}
+
 // Add event listeners for better keyboard accessibility
 document.addEventListener('DOMContentLoaded', () => {
     const buttons = document.querySelectorAll('.btn');
