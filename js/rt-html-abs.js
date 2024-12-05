@@ -101,6 +101,25 @@ async function addToContacts() {
     }
 }
 
+async function downloadContact() {
+    try {
+        const contact = getContactData();
+        const vcard = generateVCard();
+        const blob = new Blob([vcard], { type: 'text/vcard' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${contact.name || 'contact'}.vcf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error downloading contact:', error);
+        alert('Failed to download contact. Please try again.');
+    }
+}
+
 async function copyContact() {
     try {
         const vcard = generateVCard();
