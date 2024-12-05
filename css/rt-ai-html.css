@@ -66,11 +66,11 @@
 }
 
 .btn-add-contact {
-    background-color: var(--secondary-color);
+    background-color: var(--primary-color);
 }
 
 .btn-copy-contact {
-    background-color: var(--primary-color);
+    background-color: var(--secondary-color);
 }
 
 .btn-share-contact {
@@ -78,7 +78,7 @@
 }
 
 .btn-download-contact {
-    background-color: #FF9800;
+    background-color: var(--primary-color);
 }
 
 @media screen and (max-width: 600px) {
