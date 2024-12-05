@@ -63,7 +63,11 @@
     justify-content: center;
     gap: 0.5rem;
     transition: opacity 0.2s;
-    background-color: color-mix(in srgb, var(--primary-color), black var(--btn-shade));
+    background-color: color-mix(in srgb, 
+        var(--primary-color), 
+        color-mix(in srgb, var(--primary-color), blue 30%) 
+        var(--btn-shade)
+    );
 }
 
 @media screen and (max-width: 600px) {
