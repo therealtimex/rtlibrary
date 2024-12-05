@@ -1,64 +1,19 @@
-function copyToClipboard() {
-    const messageContent = document.getElementById('message').value;
-    navigator.clipboard.writeText(messageContent)
-        .then(() => {
-            const copyBtn = document.querySelector('.btn');
-            const originalText = copyBtn.innerHTML;
-            copyBtn.innerHTML = '<span>✓</span> Copied!';
-            setTimeout(() => {
-                copyBtn.innerHTML = originalText;
-            }, 2000);
-        })
-        .catch(err => {
-            console.error('Failed to copy text: ', err);
-            alert('Failed to copy text to clipboard');
-        });
+// Replace alert() with showRTDialog()
+function showRTDialog(message) {
+    const dialog = document.getElementById('rtDialog');
+    const closeBtn = dialog.querySelector('.close-btn');
+    const messageEl = dialog.querySelector('#rtMessage');
+
+    messageEl.textContent = message;
+    dialog.showModal();
+
+    closeBtn.onclick = () => dialog.close();
+    dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) dialog.close();
+    });
 }
 
-function sendSMS() {
-    const phoneNumber = document.querySelector('.email-field:nth-child(4)').textContent.trim();
-    const messageContent = document.getElementById('message').value;
-    const cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
-
-    if (cleanPhone) {
-        const smsUrl = `sms:${cleanPhone}?body=${encodeURIComponent(messageContent)}`;
-        window.open(smsUrl);
-    } else {
-        alert('No valid phone number found');
-    }
-}
-
-function callCP() {
-    const phoneNumber = document.querySelector('.email-field:nth-child(4)').textContent.trim();
-    const cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
-
-    if (cleanPhone) {
-        window.open(`tel:${cleanPhone}`);
-    } else {
-        alert('No valid phone number found');
-    }
-}
-
-function callSIM() {
-    const phoneNumber = document.querySelector('.email-field:nth-child(4)').textContent.trim();
-    const cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
-
-    if ('EasySIM' in window) {
-        window.EasySIM.dial(cleanPhone);
-    } else {
-        // Fallback to regular call if EasySIM is not available
-        window.open(`tel:${cleanPhone}`);
-    }
-}
-
-function sendEmail() {
-    const recipient = document.querySelector('[aria-labelledby="to-label"]').textContent;
-    const subject = document.querySelector('[aria-labelledby="subject-label"]').textContent;
-    const body = document.getElementById('message').value;
-    const mailtoUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoUrl;
-}
-
+// Utility Functions
 function getContactData() {
     return {
         id: document.getElementById('contactId').textContent,
@@ -74,38 +29,111 @@ function getContactData() {
 function generateVCard() {
     const contact = getContactData();
     return `BEGIN:VCARD
-        VERSION:3.0
-        FN:${contact.name}
-        TEL;TYPE=CELL:${contact.phone}
-        EMAIL;TYPE=WORK:${contact.email}
-        ADR;TYPE=WORK:;;${contact.address}
-        NOTE:${contact.description}
-        END:VCARD`;
+VERSION:3.0
+FN:${contact.name}
+TEL;TYPE=CELL:${contact.phone}
+EMAIL;TYPE=WORK:${contact.email}
+ADR;TYPE=WORK:;;${contact.address}
+NOTE:${contact.description}
+END:VCARD`;
 }
 
-function copyContactPhone() {
-    {
-        const phone = '{phone}';
-        const tempInput = document.createElement('input');
-        tempInput.value = phone;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        alert('Phone number has been copied!');
+// Clipboard Operations
+async function copyToClipboard(text) {
+    try {
+        await navigator.clipboard.writeText(text);
+        return true;
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+        return false;
     }
 }
 
-function copyContactEmail() {
-    {
-        const email = '{email}';
-        const tempInput = document.createElement('input');
-        tempInput.value = email;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        alert('Email has been copied!');
+function updateCopyButton(button, originalText) {
+    button.innerHTML = '✓ Copied!';
+    setTimeout(() => {
+        button.innerHTML = originalText;
+    }, 2000);
+}
+
+// Communication Functions
+function sendSMS() {
+    const phoneNumber = document.querySelector('.email-field:nth-child(4)').textContent.trim();
+    const messageContent = document.getElementById('message').value;
+    const cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
+    if (cleanPhone) {
+        const smsUrl = `sms:${cleanPhone}?body=${encodeURIComponent(messageContent)}`;
+        window.open(smsUrl);
+    } else {
+        showRTDialog('No valid phone number found');
+    }
+}
+// Utility function to extract and clean phone number
+function getCleanPhoneNumber(selector = '.email-field:nth-child(4)') {
+    try {
+        const element = document.querySelector(selector);
+        if (!element) {
+            throw new Error('Phone number element not found');
+        }
+        
+        const phoneNumber = element.textContent.trim();
+        const cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
+        
+        if (!cleanPhone) {
+            throw new Error('No valid phone number found');
+        }
+        
+        return cleanPhone;
+    } catch (error) {
+        showRTDialog(error.message);
+        return null;
+    }
+}
+
+// VOIP cloud phone call function
+function callCloudPhone() {
+    const phoneNumber = getCleanPhoneNumber();
+    if (phoneNumber) {
+        try {
+            window.open(`tel:${phoneNumber}`);
+        } catch (error) {
+            showRTDialog('Failed to initiate cloud phone call');
+        }
+    }
+}
+
+// SIM card call function
+function callSIM() {
+    const phoneNumber = getCleanPhoneNumber();
+    if (phoneNumber) {
+        try {
+            if ('EasySIM' in window) {
+                window.EasySIM.dial(phoneNumber);
+            } else {
+                window.open(`tel:${phoneNumber}`);
+            }
+        } catch (error) {
+            showRTDialog('Failed to initiate phone call');
+        }
+    }
+}
+
+function sendEmail() {
+    const recipient = document.querySelector('[aria-labelledby="to-label"]').textContent;
+    const subject = document.querySelector('[aria-labelledby="subject-label"]').textContent;
+    const body = document.getElementById('message').value;
+    const mailtoUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+}
+
+// Contact Operations
+async function copyContactInfo(type) {
+    const content = type === 'phone' ? '{phone}' : '{email}';
+    const success = await copyToClipboard(content);
+    if (success) {
+        showRTDialog(`${type.charAt(0).toUpperCase() + type.slice(1)} has been copied!`);
+    } else {
+        showRTDialog(`Failed to copy ${type}. Please try again.`);
     }
 }
 
@@ -123,7 +151,7 @@ async function addToContacts() {
         URL.revokeObjectURL(vcfUrl);
     } catch (error) {
         console.error('Error adding contact:', error);
-        alert('Failed to add contact. Please try again.');
+        showRTDialog('Failed to add contact. Please try again.');
     }
 }
 
@@ -142,18 +170,20 @@ async function downloadContact() {
         window.URL.revokeObjectURL(url);
     } catch (error) {
         console.error('Error downloading contact:', error);
-        alert('Failed to download contact. Please try again.');
+        showRTDialog('Failed to download contact. Please try again.');
     }
 }
 
 async function copyContact() {
     try {
         const vcard = generateVCard();
-        await navigator.clipboard.writeText(vcard);
-        alert('Contact information copied to clipboard!');
+        const success = await copyToClipboard(vcard);
+        if (!success) {
+            throw new Error('Clipboard operation failed');
+        }
     } catch (error) {
         console.error('Error copying contact:', error);
-        alert('Failed to copy contact. Please try again.');
+        showRTDialog('Failed to copy contact. Please try again.');
     }
 }
 
@@ -182,15 +212,26 @@ async function shareContact() {
     } catch (error) {
         console.error('Error sharing contact:', error);
         if (error.message === 'Sharing not supported') {
-            alert('Sharing is not supported on this device');
+            showRTDialog('Sharing is not supported on this device');
         } else {
-            alert('Failed to share contact. Please try again.');
+            showRTDialog('Failed to share contact. Please try again.');
         }
     }
 }
 
-// Add event listeners for better keyboard accessibility
+// Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+    const copyBtn = document.querySelector('.btn');
+    copyBtn.addEventListener('click', async () => {
+        const messageContent = document.getElementById('message').value;
+        const success = await copyToClipboard(messageContent);
+        if (success) {
+            updateCopyButton(copyBtn, copyBtn.innerHTML);
+        } else {
+            showRTDialog('Failed to copy text to clipboard');
+        }
+    });
+
     const buttons = document.querySelectorAll('.btn');
     buttons.forEach(button => {
         button.addEventListener('keypress', (e) => {
@@ -200,4 +241,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    document.getElementById('sendSMSBtn').addEventListener('click', sendSMS);
+    document.getElementById('callCPBtn').addEventListener('click', () => callPhone(false));
+    document.getElementById('callSIMBtn').addEventListener('click', () => callPhone(true));
+    document.getElementById('sendEmailBtn').addEventListener('click', sendEmail);
+    document.getElementById('copyPhoneBtn').addEventListener('click', () => copyContactInfo('phone'));
+    document.getElementById('copyEmailBtn').addEventListener('click', () => copyContactInfo('email'));
+    document.getElementById('addToContactsBtn').addEventListener('click', addToContacts);
+    document.getElementById('downloadContactBtn').addEventListener('click', downloadContact);
+    document.getElementById('copyContactBtn').addEventListener('click', copyContact);
+    document.getElementById('shareContactBtn').addEventListener('click', shareContact);
 });
+
