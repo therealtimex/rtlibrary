@@ -63,22 +63,7 @@
     justify-content: center;
     gap: 0.5rem;
     transition: opacity 0.2s;
-}
-
-.btn-add-contact {
-    background-color: var(--primary-color);
-}
-
-.btn-copy-contact {
-    background-color: var(--secondary-color);
-}
-
-.btn-share-contact {
-    background-color: var(--accent-color);
-}
-
-.btn-download-contact {
-    background-color: var(--primary-color);
+    background-color: color-mix(in srgb, var(--primary-color), black var(--btn-shade));
 }
 
 @media screen and (max-width: 600px) {
