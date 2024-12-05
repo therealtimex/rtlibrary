@@ -1,7 +1,7 @@
 function initDebtChart(groupData) {
     data = groupData;
     raw = JSON.parse(data).buckets;
-	document.write(data)
+	// document.write(data)
     
     delete (cutomdtaset);
     cutomdtaset = [];
