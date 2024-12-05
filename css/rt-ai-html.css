@@ -49,7 +49,7 @@
     margin-top: 1.5rem;
 }
 
-.btn-noshade {
+.btn {
     flex: 1 1 auto;
     min-width: 120px;
     padding: 0.75rem;
@@ -65,7 +65,7 @@
     transition: opacity 0.2s;
 }
 
-.btn {
+.btn-shade {
     flex: 1 1 auto;
     min-width: 120px;
     padding: 0.75rem;
