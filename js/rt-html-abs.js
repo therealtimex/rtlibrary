@@ -97,7 +97,7 @@ function callCloudPhone() {
         try {
             window.open(`tel:${phoneNumber}`);
         } catch (error) {
-            showRTDialog('Failed to initiate cloud phone call');
+            showRTDialog('Failed to initiate Internet call');
         }
     }
 }
