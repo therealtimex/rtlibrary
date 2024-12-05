@@ -243,8 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('sendSMSBtn').addEventListener('click', sendSMS);
-    document.getElementById('callCPBtn').addEventListener('click', () => callPhone(false));
-    document.getElementById('callSIMBtn').addEventListener('click', () => callPhone(true));
+    document.getElementById('callCPBtn').addEventListener('click', () => callCloudPhone);
+    document.getElementById('callSIMBtn').addEventListener('click', () => callSIM);
     document.getElementById('sendEmailBtn').addEventListener('click', sendEmail);
     document.getElementById('copyPhoneBtn').addEventListener('click', () => copyContactInfo('phone'));
     document.getElementById('copyEmailBtn').addEventListener('click', () => copyContactInfo('email'));
