@@ -23,30 +23,30 @@
 <body>
     <main class="email-container" role="main">
         <header class="email-header">
-            <h1>Email Details</h1>
+            <h1>Nội dung Email</h1>
         </header>
 
         <section class="email-info-box" aria-label="Email Information">
             <div class="email-field">
-                <span class="email-label" id="from-label">From:</span>
+                <span class="email-label" id="from-label">Từ:</span>
                 <span aria-labelledby="from-label">{sender_email}</span>
             </div>
             <div class="email-field">
-                <span class="email-label" id="to-label">To:</span>
+                <span class="email-label" id="to-label">Đến:</span>
                 <span aria-labelledby="to-label">{recipient}</span>
             </div>
             <div class="email-field">
-                <span class="email-label" id="subject-label">Subject:</span>
+                <span class="email-label" id="subject-label">Tiêu đề:</span>
                 <span aria-labelledby="subject-label">{subject}</span>
             </div>
             <div class="email-field">
-                <span class="email-label" id="phone-label">Phone:</span>
+                <span class="email-label" id="phone-label">Điện thoại:</span>
                 <span aria-labelledby="phone-label">{phone}</span>
             </div>
         </section>
 
         <section aria-label="Message Content">
-            <label for="message" class="email-label">Message:</label>
+            <label for="message" class="email-label">Nội dung email:</label>
             <textarea 
                 id="message" 
                 class="message-area" 
@@ -60,16 +60,16 @@
                 <span aria-hidden="true">📋</span> Copy
             </button>
             <button class="btn" onclick="sendEmail()" aria-label="Send Email">
-                <span aria-hidden="true">📧</span> Send Email
+                <span aria-hidden="true">📧</span> Gửi Email
             </button>
             <button class="btn" onclick="sendSMS()" aria-label="Send SMS">
-                <span aria-hidden="true">💬</span> Send SMS
+                <span aria-hidden="true">💬</span> Gửi SMS
             </button>
-            <button class="btn" onclick="callCP()" aria-label="Call Cloud">
-                <span aria-hidden="true">📞</span> Call CP
+            <button class="btn" onclick="callCP()" aria-label="Call CP">
+                <span aria-hidden="true">📞</span> Gọi Cloud
             </button>
             <button class="btn" onclick="callSIM()" aria-label="Call SIM">
-                <span aria-hidden="true">📱</span> Call SIM
+                <span aria-hidden="true">📱</span> Gọi SIM
             </button>
         </footer>
     </main>
