@@ -1,3 +1,20 @@
+// Define messages 
+const nophone_messages = {
+    'en': {
+        noPhone: 'No valid phone number found',
+    },
+    'vi': {
+        noPhone: 'Không tìm thấy số điện thoại hợp lệ',
+    },
+    'fr': {
+        noPhone: 'Aucun numéro de téléphone valide trouvé',
+    },
+    'el': {
+        noPhone: 'Δεν βρέθηκε έγκυρος αριθμός τηλεφώνου',
+    }
+};
+
+
 // Replace alert() with showRTDialog()
 function showRTDialog(message) {
     const dialog = document.getElementById('rtDialog');
@@ -57,17 +74,23 @@ function updateCopyButton(button, originalText) {
 }
 
 // Communication Functions
+
 function sendSMS() {
     const phoneNumber = document.querySelector('.email-field:nth-child(4)').textContent.trim();
     const messageContent = document.getElementById('message').value;
     const cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
+    
     if (cleanPhone) {
         const smsUrl = `sms:${cleanPhone}?body=${encodeURIComponent(messageContent)}`;
         window.open(smsUrl);
     } else {
-        showRTDialog('No valid phone number found');
+        const lang = document.documentElement.lang || 'en';
+        const message = nophone_messages[lang]?.noPhone || nophone_messages['en'].noPhone;
+        showRTDialog(message);
     }
 }
+
+
 // Utility function to extract and clean phone number
 function getCleanPhoneNumber(selector = '.email-field:nth-child(4)') {
     try {
