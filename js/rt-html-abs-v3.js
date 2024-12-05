@@ -1,3 +1,18 @@
+// Replace alert() with showRTDialog()
+function showRTDialog(message) {
+    const dialog = document.getElementById('rtDialog');
+    const closeBtn = dialog.querySelector('.close-btn');
+    const messageEl = dialog.querySelector('#rtMessage');
+    
+    messageEl.textContent = message;
+    dialog.showModal();
+
+    closeBtn.onclick = () => dialog.close();
+    dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) dialog.close();
+    });
+}
+
 // Utility Functions
 function getContactData() {
     return {
@@ -50,7 +65,7 @@ function sendSMS() {
         const smsUrl = `sms:${cleanPhone}?body=${encodeURIComponent(messageContent)}`;
         window.open(smsUrl);
     } else {
-        alert('No valid phone number found');
+        showRTDialog('No valid phone number found');
     }
 }
 
@@ -64,7 +79,7 @@ function callPhone(useEasySIM = false) {
             window.open(`tel:${cleanPhone}`);
         }
     } else {
-        alert('No valid phone number found');
+        showRTDialog('No valid phone number found');
     }
 }
 
@@ -81,9 +96,9 @@ async function copyContactInfo(type) {
     const content = type === 'phone' ? '{phone}' : '{email}';
     const success = await copyToClipboard(content);
     if (success) {
-        alert(`${type.charAt(0).toUpperCase() + type.slice(1)} has been copied!`);
+        showRTDialog(`${type.charAt(0).toUpperCase() + type.slice(1)} has been copied!`);
     } else {
-        alert(`Failed to copy ${type}. Please try again.`);
+        showRTDialog(`Failed to copy ${type}. Please try again.`);
     }
 }
 
@@ -101,7 +116,7 @@ async function addToContacts() {
         URL.revokeObjectURL(vcfUrl);
     } catch (error) {
         console.error('Error adding contact:', error);
-        alert('Failed to add contact. Please try again.');
+        showRTDialog('Failed to add contact. Please try again.');
     }
 }
 
@@ -120,7 +135,7 @@ async function downloadContact() {
         window.URL.revokeObjectURL(url);
     } catch (error) {
         console.error('Error downloading contact:', error);
-        alert('Failed to download contact. Please try again.');
+        showRTDialog('Failed to download contact. Please try again.');
     }
 }
 
@@ -129,13 +144,13 @@ async function copyContact() {
         const vcard = generateVCard();
         const success = await copyToClipboard(vcard);
         if (success) {
-            alert('Contact information copied to clipboard!');
+            showRTDialog('Contact information copied to clipboard!');
         } else {
             throw new Error('Clipboard operation failed');
         }
     } catch (error) {
         console.error('Error copying contact:', error);
-        alert('Failed to copy contact. Please try again.');
+        showRTDialog('Failed to copy contact. Please try again.');
     }
 }
 
@@ -164,9 +179,9 @@ async function shareContact() {
     } catch (error) {
         console.error('Error sharing contact:', error);
         if (error.message === 'Sharing not supported') {
-            alert('Sharing is not supported on this device');
+            showRTDialog('Sharing is not supported on this device');
         } else {
-            alert('Failed to share contact. Please try again.');
+            showRTDialog('Failed to share contact. Please try again.');
         }
     }
 }
@@ -180,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (success) {
             updateCopyButton(copyBtn, copyBtn.innerHTML);
         } else {
-            alert('Failed to copy text to clipboard');
+            showRTDialog('Failed to copy text to clipboard');
         }
     });
 
