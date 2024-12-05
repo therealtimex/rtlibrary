@@ -74,48 +74,40 @@ function getContactData() {
 function generateVCard() {
     const contact = getContactData();
     return `BEGIN:VCARD
-VERSION:3.0
-FN:${contact.name}
-TEL;TYPE=CELL:${contact.phone}
-EMAIL;TYPE=WORK:${contact.email}
-ADR;TYPE=WORK:;;${contact.address}
-NOTE:${contact.description}
-END:VCARD`;
+        VERSION:3.0
+        FN:${contact.name}
+        TEL;TYPE=CELL:${contact.phone}
+        EMAIL;TYPE=WORK:${contact.email}
+        ADR;TYPE=WORK:;;${contact.address}
+        NOTE:${contact.description}
+        END:VCARD`;
 }
 
-function copyContactPhone() {{
-    const phone = '{phone}';
-    const tempInput = document.createElement('input');
-    tempInput.value = phone;
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempInput);
-    alert('Phone number has been copied!');
-}}
+function copyContactPhone() {
+    {
+        const phone = '{phone}';
+        const tempInput = document.createElement('input');
+        tempInput.value = phone;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Phone number has been copied!');
+    }
+}
 
-function copyContactEmail() {{
-    const email = '{email}';
-    const tempInput = document.createElement('input');
-    tempInput.value = email;
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempInput);
-    alert('Email has been copied!');
-}}
-
-function callActionSMS() {{
-    const actionData = {{
-            actionID: 9998,
-            defaultMsg: 'Hi!',
-            orderNumber: 2,
-            phone: '{phone}',
-            type: 'act_sms'
-        }};
-    var json = JSON.stringify(actionData);
-    App.callActionButton(json);
-}}
+function copyContactEmail() {
+    {
+        const email = '{email}';
+        const tempInput = document.createElement('input');
+        tempInput.value = email;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Email has been copied!');
+    }
+}
 
 async function addToContacts() {
     try {
@@ -196,6 +188,7 @@ async function shareContact() {
         }
     }
 }
+
 // Add event listeners for better keyboard accessibility
 document.addEventListener('DOMContentLoaded', () => {
     const buttons = document.querySelectorAll('.btn');
