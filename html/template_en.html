@@ -1,0 +1,79 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Email details viewer and communication interface">
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://therealtimex.github.io">
+    <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-ai-html.css">
+    <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-abs.js" defer></script>
+    <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
+
+    <style>
+        :root {
+            --primary-color: ##__COLOR_THEME_PRIMARY__##;
+            --secondary-color: ##__COLOR_THEME_SECONDARY__##;
+            --background-color: ##__COLOR_THEME_BACKGROUND__##;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="email-container" role="main">
+        <header class="email-header">
+            <h1>Email Details</h1>
+            <div class="status-badge" role="status" aria-live="polite">Status: Success</div>
+        </header>
+
+        <section class="email-info-box" aria-label="Email Information">
+            <div class="email-field">
+                <span class="email-label" id="from-label">From:</span>
+                <span aria-labelledby="from-label">{sender_email}</span>
+            </div>
+            <div class="email-field">
+                <span class="email-label" id="to-label">To:</span>
+                <span aria-labelledby="to-label">{recipient}</span>
+            </div>
+            <div class="email-field">
+                <span class="email-label" id="subject-label">Subject:</span>
+                <span aria-labelledby="subject-label">{subject}</span>
+            </div>
+            <div class="email-field">
+                <span class="email-label" id="phone-label">Phone:</span>
+                <span aria-labelledby="phone-label">{phone}</span>
+            </div>
+        </section>
+
+        <section aria-label="Message Content">
+            <label for="message" class="email-label">Message:</label>
+            <textarea 
+                id="message" 
+                class="message-area" 
+                spellcheck="true" 
+                aria-label="Email message content"
+            >{body}</textarea>
+        </section>
+
+        <footer class="action-buttons">
+            <button class="btn" onclick="copyToClipboard()" aria-label="Copy message">
+                <span aria-hidden="true">📋</span> Copy
+            </button>
+            <button class="btn" onclick="sendEmail()" aria-label="Send Email">
+                <span aria-hidden="true">📧</span> Send Email
+            </button>
+            <button class="btn" onclick="sendSMS()" aria-label="Send SMS">
+                <span aria-hidden="true">💬</span> Send SMS
+            </button>
+            <button class="btn" onclick="callCP()" aria-label="Call CP">
+                <span aria-hidden="true">📞</span> Call CP
+            </button>
+            <button class="btn" onclick="callSIM()" aria-label="Call SIM">
+                <span aria-hidden="true">📱</span> Call SIM
+            </button>
+        </footer>
+    </main>
+</body>
+</html>
