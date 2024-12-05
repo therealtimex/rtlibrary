@@ -143,9 +143,7 @@ async function copyContact() {
     try {
         const vcard = generateVCard();
         const success = await copyToClipboard(vcard);
-        if (success) {
-            showRTDialog('Contact information copied to clipboard!');
-        } else {
+        if (!success) {
             throw new Error('Clipboard operation failed');
         }
     } catch (error) {
