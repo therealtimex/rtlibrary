@@ -202,9 +202,15 @@ function sendEmail() {
     const subject = document.querySelector('[aria-labelledby="subject-label"]').textContent;
     const body = document.getElementById('message').value;
     const mailtoUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoUrl;
+    
+    if (navigator && navigator.app && navigator.app.loadUrl) {
+        // Android
+        navigator.app.loadUrl(mailtoUrl, { openExternal: true });
+    } else {
+        // iOS and others
+        window.open(mailtoUrl, '_system');
+    }
 }
-
 // Contact Operations
 async function copyContactInfo(type) {
     const content = type === 'phone' ? '{phone}' : '{email}';
