@@ -1,19 +1,41 @@
 // Define messages 
-const nophone_messages = {
+const phoneMessages = {
     'en': {
-        noPhone: 'No valid phone number found',
+        notFound: 'Phone number element not found',
+        invalid: 'No valid phone number found'
     },
     'vi': {
-        noPhone: 'Không tìm thấy số điện thoại hợp lệ',
+        notFound: 'Không tìm thấy phần tử số điện thoại',
+        invalid: 'Không tìm thấy số điện thoại hợp lệ'
     },
     'fr': {
-        noPhone: 'Aucun numéro de téléphone valide trouvé',
+        notFound: 'Élément de numéro de téléphone introuvable',
+        invalid: 'Aucun numéro de téléphone valide trouvé'
     },
     'el': {
-        noPhone: 'Δεν βρέθηκε έγκυρος αριθμός τηλεφώνου',
+        notFound: 'Το στοιχείο αριθμού τηλεφώνου δεν βρέθηκε',
+        invalid: 'Δεν βρέθηκε έγκυρος αριθμός τηλεφώνου'
     }
 };
 
+const callMessages = {
+    'en': {
+        cloudFailed: 'Failed to initiate Internet call',
+        simFailed: 'Failed to initiate phone call'
+    },
+    'vi': {
+        cloudFailed: 'Không thể thực hiện cuộc gọi Internet',
+        simFailed: 'Không thể thực hiện cuộc gọi điện thoại'
+    },
+    'fr': {
+        cloudFailed: 'Échec de l\'initiation de l\'appel Internet',
+        simFailed: 'Échec de l\'initiation de l\'appel téléphonique'
+    },
+    'el': {
+        cloudFailed: 'Αποτυχία έναρξης κλήσης διαδικτύου',
+        simFailed: 'Αποτυχία έναρξης τηλεφωνικής κλήσης'
+    }
+};
 
 // Replace alert() with showRTDialog()
 function showRTDialog(message) {
@@ -85,7 +107,7 @@ function sendSMS() {
         window.open(smsUrl);
     } else {
         const lang = document.documentElement.lang || 'en';
-        const message = nophone_messages[lang]?.noPhone || nophone_messages['en'].noPhone;
+        const message = phoneMessages[lang]?.invalid || nophone_messages['en'].invalid;
         showRTDialog(message);
     }
 }
@@ -96,19 +118,22 @@ function getCleanPhoneNumber(selector = '.email-field:nth-child(4)') {
     try {
         const element = document.querySelector(selector);
         if (!element) {
-            throw new Error('Phone number element not found');
+            throw new Error('notFound');
         }
         
         const phoneNumber = element.textContent.trim();
         const cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
         
         if (!cleanPhone) {
-            throw new Error('No valid phone number found');
+            throw new Error('invalid');
         }
         
         return cleanPhone;
     } catch (error) {
-        showRTDialog(error.message);
+        const lang = document.documentElement.lang || 'en';
+        const messages = phoneMessages[lang] || phoneMessages['en'];
+        const message = messages[error.message] || error.message;
+        showRTDialog(message);
         return null;
     }
 }
@@ -120,7 +145,9 @@ function callCloudPhone() {
         try {
             window.open(`tel:${phoneNumber}`);
         } catch (error) {
-            showRTDialog('Failed to initiate Internet call');
+            const lang = document.documentElement.lang || 'en';
+            const message = callMessages[lang]?.cloudFailed || callMessages['en'].cloudFailed;
+            showRTDialog(message);
         }
     }
 }
@@ -136,7 +163,9 @@ function callSIM() {
                 window.open(`tel:${phoneNumber}`);
             }
         } catch (error) {
-            showRTDialog('Failed to initiate phone call');
+            const lang = document.documentElement.lang || 'en';
+            const message = callMessages[lang]?.simFailed || callMessages['en'].simFailed;
+            showRTDialog(message);
         }
     }
 }
