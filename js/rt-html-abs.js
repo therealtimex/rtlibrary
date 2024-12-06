@@ -208,15 +208,38 @@ function sendEmail() {
 // Contact Operations
 async function copyContactInfo(type) {
     const content = type === 'phone' ? '{phone}' : '{email}';
-    const success = await copyToClipboard(content);
     
     const lang = document.documentElement.lang || 'en';
     const messages = copyMessages[lang] || copyMessages['en'];
     
-    if (success) {
-        const successKey = type === 'phone' ? 'phoneCopied' : 'emailCopied';
-        showRTDialog(messages[successKey]);
-    } else {
+    try {
+        // Try modern Clipboard API first
+        if (navigator.clipboard && navigator.permissions) {
+            const permission = await navigator.permissions.query({ name: 'clipboard-write' });
+            if (permission.state === 'granted') {
+                await navigator.clipboard.writeText(content);
+                const successKey = type === 'phone' ? 'phoneCopied' : 'emailCopied';
+                showRTDialog(messages[successKey]);
+                return;
+            }
+        }
+        
+        // Fallback to execCommand for iframe support
+        const tempInput = document.createElement('input');
+        tempInput.value = content;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        
+        if (success) {
+            const successKey = type === 'phone' ? 'phoneCopied' : 'emailCopied';
+            showRTDialog(messages[successKey]);
+        } else {
+            throw new Error('Copy failed');
+        }
+    } catch (error) {
+        console.error('Copy error:', error);
         const failKey = type === 'phone' ? 'phoneFailed' : 'emailFailed';
         showRTDialog(messages[failKey]);
     }
