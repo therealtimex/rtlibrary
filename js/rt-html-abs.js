@@ -198,19 +198,53 @@ function callSIM() {
 }
 
 function sendEmail() {
-    const recipient = document.querySelector('[aria-labelledby="to-label"]').textContent;
-    const subject = document.querySelector('[aria-labelledby="subject-label"]').textContent;
-    const body = document.getElementById('message').value;
-    const mailtoUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    
-    if (navigator && navigator.app && navigator.app.loadUrl) {
-        // Android
-        navigator.app.loadUrl(mailtoUrl, { openExternal: true });
-    } else {
-        // iOS and others
-        window.open(mailtoUrl, '_system');
+    try {
+        // Get elements with error handling
+        const recipientEl = document.querySelector('[aria-labelledby="to-label"]');
+        const subjectEl = document.querySelector('[aria-labelledby="subject-label"]');
+        const bodyEl = document.getElementById('message');
+
+        if (!recipientEl || !subjectEl || !bodyEl) {
+            throw new Error('Required email elements not found');
+        }
+
+        // Validate email format
+        const recipient = recipientEl.textContent.trim();
+        if (!recipient.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            throw new Error('Invalid email address');
+        }
+
+        // Build mailto URL with sanitized inputs
+        const mailtoUrl = new URL('mailto:' + recipient);
+        mailtoUrl.searchParams.append('subject', subjectEl.textContent.trim());
+        mailtoUrl.searchParams.append('body', bodyEl.value.trim());
+
+        // Handle different platforms
+        if ('canShare' in navigator && navigator.canShare()) {
+            // Modern sharing API if available
+            navigator.share({
+                url: mailtoUrl.toString()
+            }).catch(() => {
+                // Fallback to traditional mailto
+                openMailto(mailtoUrl.toString());
+            });
+        } else {
+            openMailto(mailtoUrl.toString());
+        }
+    } catch (error) {
+        console.error('Email error:', error);
+        showRTDialog(error.message);
     }
 }
+
+function openMailto(url) {
+    if (navigator?.app?.loadUrl) {
+        navigator.app.loadUrl(url, { openExternal: true });
+    } else {
+        window.open(url, '_system');
+    }
+}
+
 // Contact Operations
 async function copyContactInfo(type) {
     const content = type === 'phone' ? '{phone}' : '{email}';
