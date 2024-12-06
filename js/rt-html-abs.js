@@ -37,6 +37,33 @@ const callMessages = {
     }
 };
 
+const copyMessages = {
+    'en': {
+        phoneCopied: 'Phone number has been copied!',
+        emailCopied: 'Email has been copied!',
+        phoneFailed: 'Failed to copy phone number. Please try again.',
+        emailFailed: 'Failed to copy email. Please try again.'
+    },
+    'vi': {
+        phoneCopied: 'Đã sao chép số điện thoại!',
+        emailCopied: 'Đã sao chép email!',
+        phoneFailed: 'Không thể sao chép số điện thoại. Vui lòng thử lại.',
+        emailFailed: 'Không thể sao chép email. Vui lòng thử lại.'
+    },
+    'fr': {
+        phoneCopied: 'Le numéro de téléphone a été copié!',
+        emailCopied: 'L\'email a été copié!',
+        phoneFailed: 'Échec de la copie du numéro de téléphone. Veuillez réessayer.',
+        emailFailed: 'Échec de la copie de l\'email. Veuillez réessayer.'
+    },
+    'el': {
+        phoneCopied: 'Ο αριθμός τηλεφώνου αντιγράφηκε!',
+        emailCopied: 'Το email αντιγράφηκε!',
+        phoneFailed: 'Αποτυχία αντιγραφής αριθμού τηλεφώνου. Παρακαλώ προσπαθήστε ξανά.',
+        emailFailed: 'Αποτυχία αντιγραφής email. Παρακαλώ προσπαθήστε ξανά.'
+    }
+};
+
 // Replace alert() with showRTDialog()
 function showRTDialog(message) {
     const dialog = document.getElementById('rtDialog');
@@ -182,10 +209,16 @@ function sendEmail() {
 async function copyContactInfo(type) {
     const content = type === 'phone' ? '{phone}' : '{email}';
     const success = await copyToClipboard(content);
+    
+    const lang = document.documentElement.lang || 'en';
+    const messages = copyMessages[lang] || copyMessages['en'];
+    
     if (success) {
-        showRTDialog(`${type.charAt(0).toUpperCase() + type.slice(1)} has been copied!`);
+        const successKey = type === 'phone' ? 'phoneCopied' : 'emailCopied';
+        showRTDialog(messages[successKey]);
     } else {
-        showRTDialog(`Failed to copy ${type}. Please try again.`);
+        const failKey = type === 'phone' ? 'phoneFailed' : 'emailFailed';
+        showRTDialog(messages[failKey]);
     }
 }
 
