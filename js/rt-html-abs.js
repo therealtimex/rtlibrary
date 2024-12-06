@@ -275,14 +275,34 @@ async function copyContact() {
 async function shareContact() {
     try {
         const contact = getContactData();
+        const vcard = generateVCard();
         
-        // Basic share check
+        // Check if navigator.share is available
         if (!navigator.share) {
             throw new Error('Sharing not supported');
         }
 
-        // Android doesn't handle vCard files well through Web Share API
-        // So we'll use text sharing for all cases
+        // Try sharing with file first
+        const blob = new Blob([vcard], { type: 'text/vcard' });
+        const file = new File([blob], `${contact.name || 'contact'}.vcf`, {
+            type: 'text/vcard'
+        });
+
+        // Check if file sharing is supported
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({
+                    files: [file],
+                    title: `Contact: ${contact.name}`,
+                });
+                return; // Exit if file share succeeds
+            } catch (fileError) {
+                console.log('File sharing failed, falling back to text share');
+                // Continue to text sharing if file sharing fails
+            }
+        }
+
+        // Fallback to text sharing
         await navigator.share({
             title: `Contact: ${contact.name}`,
             text: `Name: ${contact.name}\nPhone: ${contact.phone}\nEmail: ${contact.email}\nAddress: ${contact.address}`
@@ -293,7 +313,7 @@ async function shareContact() {
         if (error.message === 'Sharing not supported') {
             showRTDialog('Sharing is not supported on this device');
         } else if (error.name === 'NotAllowedError') {
-            // User cancelled sharing - don't show error
+            // Don't show error dialog if user cancelled sharing
             return;
         } else {
             showRTDialog('Failed to share contact. Please try again.');
