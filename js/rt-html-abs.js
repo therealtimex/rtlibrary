@@ -276,47 +276,25 @@ async function shareContact() {
     try {
         const contact = getContactData();
         
-        // Check if sharing is supported
+        // Basic share check
         if (!navigator.share) {
             throw new Error('Sharing not supported');
         }
 
-        // Try text sharing first for Android
-        if (/Android/i.test(navigator.userAgent)) {
-            await navigator.share({
-                title: `Contact: ${contact.name}`,
-                text: `Name: ${contact.name}\nPhone: ${contact.phone}\nEmail: ${contact.email}\nAddress: ${contact.address}`
-            });
-            return;
-        }
-
-        // For iOS and other platforms, try file sharing first
-        const vcard = generateVCard();
-        const blob = new Blob([vcard], { type: 'text/vcard' });
-        const file = new File([blob], `${contact.name || 'contact'}.vcf`, {
-            type: 'text/vcard'
+        // Android doesn't handle vCard files well through Web Share API
+        // So we'll use text sharing for all cases
+        await navigator.share({
+            title: `Contact: ${contact.name}`,
+            text: `Name: ${contact.name}\nPhone: ${contact.phone}\nEmail: ${contact.email}\nAddress: ${contact.address}`
         });
 
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                files: [file],
-                title: `Contact: ${contact.name}`,
-            });
-        } else {
-            // Fallback to text sharing
-            await navigator.share({
-                title: `Contact: ${contact.name}`,
-                text: `Name: ${contact.name}\nPhone: ${contact.phone}\nEmail: ${contact.email}\nAddress: ${contact.address}`
-            });
-        }
     } catch (error) {
         console.error('Error sharing contact:', error);
-        if (error.name === 'NotAllowedError') {
-            // User cancelled sharing - don't show error
-            return;
-        }
         if (error.message === 'Sharing not supported') {
             showRTDialog('Sharing is not supported on this device');
+        } else if (error.name === 'NotAllowedError') {
+            // User cancelled sharing - don't show error
+            return;
         } else {
             showRTDialog('Failed to share contact. Please try again.');
         }
