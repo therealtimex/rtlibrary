@@ -271,7 +271,6 @@ async function copyContact() {
         showRTDialog('Failed to copy contact. Please try again.');
     }
 }
-
 async function shareContact() {
     try {
         const contact = getContactData();
