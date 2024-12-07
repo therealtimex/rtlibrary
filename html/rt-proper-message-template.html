@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Card Notification Evolution</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/theme/white.css">
+    <style>
+        .notification-box {
+            margin: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .slide-title {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        pre {
+            font-size: 0.5em !important;
+            line-height: 1.2em !important;
+        }
+        .code-preview {
+            max-height: 800px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Version 1 Slides -->
+            <section>
+                <section>
+                    <h3 class="slide-title">Version 1: Basic Notification</h3>
+                    <div class="notification-box">
+                        <font color="#009933">##DATA.FULLNAME##</font> has just created 
+                        <b>SELF BUSINESS CARD</b> with name 
+                        <font color="#ff8000"><strong>##DATA.BC_CONTACT_LB##</strong></font> 
+                        at <b>##DATA.ENDTIME##</b>
+                    </div>
+                </section>
+                <section>
+                    <h3>Version 1: Source Code</h3>
+                    <div class="code-preview">
+                        <pre><code class="html">
+&lt;font color = #009933&gt;##DATA.FULLNAME##&lt;/font&gt; has just created 
+&lt;b&gt;SELF BUSINESS CARD&lt;/b&gt; with name 
+&lt;font color = #ff8000&gt;&lt;strong&gt;##DATA.BC_CONTACT_LB##&lt;/strong&gt;&lt;/font&gt;  
+at &lt;b&gt;##DATA.ENDTIME##&lt;/b&gt;
+                        </code></pre>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Version 2 Slides -->
+            <section>
+                <section>
+                    <h3 class="slide-title">Version 2: Enhanced Styling</h3>
+                    <div class="notification-box">
+                        <div style="font-size: 1.1em; margin-bottom: 5px;">
+                            New <span style="background: #e8f5e9; padding: 2px 6px; border-radius: 3px; font-weight: bold;">SELF BUSINESS CARD</span> 
+                            has been created at <span style="color: #666;">##DATA.ENDTIME##</span>
+                        </div>
+                        <div style="padding: 15px; border-left: 3px solid #009933; background: #fff; box-shadow: 0 1px 3px #0003; margin-top: 10px;">
+                            Name: <span style="color: #ff8000; font-weight: bold;">##DATA.BC_CONTACT_LB##</span>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h3>Version 2: Source Code</h3>
+                    <div class="code-preview">
+                        <pre><code class="html">
+&lt;div style="font-size: 1.1em; margin-bottom: 5px;"&gt;
+    New &lt;span style="background: #e8f5e9; padding: 2px 6px; border-radius: 3px; font-weight: bold;"&gt;SELF BUSINESS CARD&lt;/span&gt;
+    has been created at &lt;span style="color: #666;"&gt;##DATA.ENDTIME##&lt;/span&gt;
+&lt;/div&gt;
+&lt;div style="padding: 15px; border-left: 3px solid #009933; background: #fff; box-shadow: 0 1px 3px #0003; margin-top: 10px;"&gt;
+    Name: &lt;span style="color: #ff8000; font-weight: bold;"&gt;##DATA.BC_CONTACT_LB##&lt;/span&gt;
+&lt;/div&gt;
+                        </code></pre>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Version 3 Slides -->
+            <section>
+                <section>
+                    <h3 class="slide-title">Version 3: Design Token Support</h3>
+                    <div class="notification-box">
+                        <div style="font-size: 1.1em; margin-bottom: 5px;">
+                            New <span style="background: ##__COLOR_THEME_NEUTRAL_LIGHT__##; padding: 2px 6px; border-radius: 3px; font-weight: bold;">SELF BUSINESS CARD</span> 
+                            has been created at <span style="color: ##__COLOR_THEME_TEXT_SECONDARY__##;">##DATA.ENDTIME##</span>
+                        </div>
+                        <div style="padding: 15px; border-left: 3px solid ##__COLOR_THEME_SUCCESS__##; background: ##__COLOR_THEME_SURFACE__##; box-shadow: 0 1px 3px ##__COLOR_THEME_SHADOW__##; margin-top: 10px;">
+                            Name: <span style="color: ##__COLOR_THEME_WARNING__##; font-weight: bold;">##DATA.BC_CONTACT_LB##</span>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h3>Version 3: Source Code</h3>
+                    <div class="code-preview">
+                        <pre><code class="html">
+&lt;div style="font-size: 1.1em; margin-bottom: 5px;"&gt;
+    New &lt;span style="background: ##__COLOR_THEME_NEUTRAL_LIGHT__##; padding: 2px 6px; border-radius: 3px; font-weight: bold;"&gt;SELF BUSINESS CARD&lt;/span&gt;
+    has been created at &lt;span style="color: ##__COLOR_THEME_TEXT_SECONDARY__##;"&gt;##DATA.ENDTIME##&lt;/span&gt;
+&lt;/div&gt;
+&lt;div style="padding: 15px; border-left: 3px solid ##__COLOR_THEME_SUCCESS__##; background: ##__COLOR_THEME_SURFACE__##; box-shadow: 0 1px 3px ##__COLOR_THEME_SHADOW__##; margin-top: 10px;"&gt;
+    Name: &lt;span style="color: ##__COLOR_THEME_WARNING__##; font-weight: bold;"&gt;##DATA.BC_CONTACT_LB##&lt;/span&gt;
+&lt;/div&gt;
+                        </code></pre>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Version 4 Slides -->
+            <section>
+                <section>
+                    <h3 class="slide-title">Version 4: Multilingual Support</h3>
+                    <div class="notification-box">
+                        <div class="r-stack">
+                            <div style="font-family: system-ui;">
+                                <h4>English Version</h4>
+                                <div style="font-size: 1.1em; margin-bottom: 5px;">
+                                    New <span style="background: ##__COLOR_THEME_NEUTRAL_LIGHT__##; padding: 2px 6px; border-radius: 3px; font-weight: bold;">SELF BUSINESS CARD</span> 
+                                    has been created at <span style="color: ##__COLOR_THEME_TEXT_SECONDARY__##;">##DATA.ENDTIME##</span>
+                                </div>
+                            </div>
+                            <div class="fragment" style="font-family: system-ui;">
+                                <h4>Vietnamese Version</h4>
+                                <div style="font-size: 1.1em; margin-bottom: 5px;">
+                                    Đã tạo <span style="background: ##__COLOR_THEME_NEUTRAL_LIGHT__##; padding: 2px 6px; border-radius: 3px; font-weight: bold;">DANH THIẾP CÁ NHÂN</span> 
+                                    mới vào lúc <span style="color: ##__COLOR_THEME_TEXT_SECONDARY__##;">##DATA.ENDTIME##</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h3>Version 4: Source Code</h3>
+                    <div class="code-preview">
+                        <pre><code class="html">
+&lt;en&gt;
+&lt;div style="font-family: system-ui; margin: 20px;"&gt;
+    &lt;div style="font-size: 1.1em; margin-bottom: 5px;"&gt;
+        New &lt;span style="background: ##__COLOR_THEME_NEUTRAL_LIGHT__##; padding: 2px 6px; border-radius: 3px; font-weight: bold;"&gt;SELF BUSINESS CARD&lt;/span&gt;
+        has been created at &lt;span style="color: ##__COLOR_THEME_TEXT_SECONDARY__##;"&gt;##DATA.ENDTIME##&lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;/en&gt;
+
+&lt;vi&gt;
+&lt;div style="font-family: system-ui; margin: 20px;"&gt;
+    &lt;div style="font-size: 1.1em; margin-bottom: 5px;"&gt;
+        Đã tạo &lt;span style="background: ##__COLOR_THEME_NEUTRAL_LIGHT__##; padding: 2px 6px; border-radius: 3px; font-weight: bold;"&gt;DANH THIẾP CÁ NHÂN&lt;/span&gt;
+        mới vào lúc &lt;span style="color: ##__COLOR_THEME_TEXT_SECONDARY__##;"&gt;##DATA.ENDTIME##&lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;/vi&gt;
+                        </code></pre>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/plugin/markdown/markdown.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/plugin/highlight/highlight.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/plugin/notes/notes.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            transition: 'slide',
+            plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ],
+            controls: true,
+            progress: true,
+            center: true,
+            slideNumber: true,
+            highlight: {
+                escapeHTML: false
+            }
+        });
+    </script>
+</body>
+</html>

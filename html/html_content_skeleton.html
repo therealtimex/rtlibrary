@@ -1,0 +1,43 @@
+<en><!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Email details viewer and communication interface">
+    
+        <!-- Preconnect to external domains -->
+        <link rel="preconnect" href="https://therealtimex.github.io">
+        
+        <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-ai-html.css">
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-abs.js" defer></script>
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-button-status.js" defer></script>
+    
+        <style>
+            :root {
+                --primary-color: ##__COLOR_THEME_PRIMARY__##;
+                --secondary-color: ##__COLOR_THEME_SECONDARY__##;
+                --accent-color: ##__COLOR_THEME_ACCENT__##;
+                --background-color: ##__COLOR_THEME_BACKGROUND__##;
+            }
+        </style>
+    </head>
+    
+    <body>
+        
+        ##$.output.output_html_en##
+    
+        <dialog id="rtDialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>RealTime</h3>
+                    <button class="close-btn" aria-label="Close">×</button>
+                </div>
+                <div class="modal-body">
+                    <p id="rtMessage"></p>
+                </div>
+            </div>
+        </dialog>    
+    </body>
+    </html></en>
+    
