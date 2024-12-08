@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        :root {
+            font-size: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: monospace;
+            font-size: 0;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            background: #f1de9a;
+        }
+
+        section {
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 2.5rem;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        button {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            padding: 1rem 1.5rem;
+            line-height: 1;
+            margin-bottom: 1rem;
+            color: #000;
+
+            font-weight: bold;
+            border: 2px solid #000;
+            border-radius: 2rem;
+            background: #fff;
+        }
+
+        svg {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .share {
+            list-style: none;
+            margin: 0 auto 2rem;
+            display: flex;
+        }
+
+        .share button,
+        .share a {
+            display: flex;
+            align-items: center;
+            vertical-align: middle;
+            height: 64px;
+            width: 64px;
+            margin: 0.5rem;
+            padding: 1rem;
+            border-radius: 50%;
+            font-size: 0;
+            color: #000;
+            cursor: pointer;
+            background: #fff;
+            transition: all 150ms ease-in-out;
+            border: 2px solid #000;
+        }
+
+        .share button:hover,
+        .share button:focus,
+        .share a:hover,
+        .share a:focus {
+            background: #000;
+        }
+
+        .share button:hover svg,
+        .share button:focus svg,
+        .share a:hover svg,
+        .share a:focus svg {
+            color: #fff;
+            fill: #fff;
+        }
+
+    </style>
+    <script>
+        var btn = document.getElementById("buttonShareApi");
+
+        btn.addEventListener("click", function () {
+            // API
+            navigator.share({
+                url: document.URL,
+                title: document.title,
+                text: "Share text here lorem ipsum..."
+            });
+        });
+    </script>
+</head>
+
+<body>
+
+    <h1>Web Share API</h1>
+
+    <section>
+
+        <h3>Social media share buttons:</h3>
+
+        <ul class="share">
+
+            <!-- Bluesky -->
+            <li>
+                <a href="https://bsky.app/intent/compose?text=YOUR_TEXT_STRING_HERE" target="_blank" title="Bluesky">
+                    <svg viewBox="0 0 32 32" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M6.9365 3.76928C10.605 6.53278 14.5515 12.1353 16 15.1418L16 23.0828C16 22.9138 15.935 23.1048 15.795 23.5163C15.039 25.7443 12.086 34.4398 5.3335 27.4883C1.778 23.8283 3.424 20.1683 9.896 19.0633C6.1935 19.6953 2.031 18.6508 0.889 14.5558C0.56 13.3778 0 6.12178 0 5.14178C0 0.232784 4.2895 1.77578 6.9365 3.76928ZM25.0635 3.76928C21.395 6.53278 17.4485 12.1353 16 15.1418L16 23.0828C16 22.9138 16.065 23.1048 16.205 23.5163C16.961 25.7443 19.914 34.4398 26.6665 27.4883C30.222 23.8283 28.576 20.1683 22.104 19.0633C25.8065 19.6953 29.969 18.6508 31.111 14.5558C31.44 13.3778 32 6.12178 32 5.14178C32 0.232784 27.711 1.77578 25.0635 3.76928Z" />
+                    </svg>
+                </a>
+            </li>
+
+            <!-- WhatsApp -->
+            <li>
+                <a href="whatsapp://send?text=PAGE_TITLE_HERE - PAGE_LINK_HERE" target="_blank" title="WhatsApp">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 31 31" fill="currentColor">
+                        <path
+                            d="M15.565 0C7.057 0 .133 6.669.13 14.865c-.002 2.621.71 5.179 2.06 7.432L0 30l8.183-2.067a15.89 15.89 0 007.376 1.81h.006c8.508 0 15.432-6.67 15.435-14.866.002-3.97-1.602-7.707-4.517-10.516C23.569 1.551 19.694.001 15.565 0zm0 27.232h-.005c-2.302 0-4.56-.596-6.53-1.722l-.47-.268-4.854 1.226 1.296-4.56-.305-.467a11.983 11.983 0 01-1.962-6.576C2.738 8.052 8.494 2.511 15.57 2.511c3.426.001 6.647 1.288 9.07 3.623s3.756 5.44 3.754 8.742c-.003 6.813-5.758 12.356-12.83 12.356zm7.037-9.255c-.386-.185-2.282-1.084-2.636-1.209-.353-.123-.61-.187-.867.185-.256.372-.996 1.209-1.22 1.456-.226.248-.451.278-.837.093-.386-.186-1.629-.578-3.101-1.844-1.147-.984-1.921-2.2-2.146-2.573-.225-.371-.024-.572.169-.757.173-.165.386-.433.578-.65.192-.217.256-.372.386-.62.128-.247.064-.465-.033-.65-.097-.187-.867-2.015-1.19-2.758-.312-.724-.63-.627-.867-.639-.225-.01-.481-.013-.74-.013-.255 0-.674.093-1.028.465-.353.372-1.35 1.27-1.35 3.098 0 1.829 1.382 3.595 1.575 3.843.193.247 2.72 4 6.589 5.61.92.381 1.638.61 2.199.782.924.283 1.765.242 2.429.147.74-.107 2.282-.898 2.602-1.765.322-.867.322-1.611.226-1.766-.094-.155-.352-.248-.738-.435z">
+                        </path>
+                    </svg>
+
+                </a>
+            </li>
+
+            <!-- Facebook -->
+            <li>
+                <button
+                    onclick="window.open('https://facebook.com/share.php?u=PAGE_LINK_HERE&amp;t=PAGE_TITLE_HERE', '_blank', 'top=150,left=400,width=450,height=550')"
+                    title="Facebook">
+
+                    <svg fill="currentColor" viewBox="0 0 500 500">
+                        <path fill="currentColor"
+                            d="m500,250C500,111.93,388.07,0,250,0S0,111.93,0,250c0,117.24,80.72,215.62,189.61,242.64v-166.24h-51.55v-76.4h51.55v-32.92c0-85.09,38.51-124.53,122.05-124.53,15.84,0,43.17,3.11,54.35,6.21v69.25c-5.9-.62-16.15-.93-28.88-.93-40.99,0-56.83,15.53-56.83,55.9v27.02h81.66l-14.03,76.4h-67.63v171.77c123.77-14.95,219.7-120.35,219.7-248.17Z">
+                        </path>
+                        <path fill="none"
+                            d="m347.92,326.4l14.03-76.4h-81.66v-27.02c0-40.37,15.84-55.9,56.83-55.9,12.73,0,22.98.31,28.88.93v-69.25c-11.18-3.11-38.51-6.21-54.35-6.21-83.54,0-122.05,39.44-122.05,124.53v32.92h-51.55v76.4h51.55v166.24c19.34,4.8,39.57,7.36,60.39,7.36,10.25,0,20.36-.63,30.29-1.83v-171.77h67.64Z">
+                        </path>
+                    </svg>
+                </button>
+            </li>
+
+            <!-- X/Twitter -->
+            <li>
+                <button class="share-twitter"
+                    onclick="window.open('https://twitter.com/intent/tweet?text=PAGE_TITLE_HERE&amp;url=PAGE_LINK_HERE&amp;via=USERNAME_HERE', '_blank', 'top=150,left=400,width=550,height=350')"
+                    title="Twitter">
+
+                    <svg viewBox="0 0 16 16" fill="currentColor">
+                        <path fillRule="evenodd" clipRule="evenodd"
+                            d="M0.5 0.5H5.75L9.48421 5.71053L14 0.5H16L10.3895 6.97368L16.5 15.5H11.25L7.51579 10.2895L3 15.5H1L6.61053 9.02632L0.5 0.5ZM12.0204 14L3.42043 2H4.97957L13.5796 14H12.0204Z">
+                        </path>
+                    </svg>
+
+                </button>
+            </li>
+
+            <!-- Linkedin -->
+            <li>
+                <button
+                    onclick="window.open('https://www.linkedin.com/shareArticle?mini=true&amp;url=PAGE_LINK_HERE&amp;title=PAGE_TITLE_HERE&amp;summary=PAGE_DESCRIPTION_HERE&amp;source=PAGE_NAME_HERE', '_blank', 'top=150,left=550,width=450,height=650')"
+                    title="LinkedIn">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path
+                            d="M1.6.06H22.35A1.81,1.81,0,0,1,24,1.83V22.06a1.82,1.82,0,0,1-1.62,1.88H1.62A1.76,1.76,0,0,1,0,22.35V1.66A1.75,1.75,0,0,1,1.6.06M4.84,3.39A2.07,2.07,0,0,0,3.29,5.74a2.07,2.07,0,0,0,4.09-.63A2.09,2.09,0,0,0,4.84,3.39m7.91,7.22c0-.54,0-1.07,0-1.61-1.14,0-2.28,0-3.41,0q0,5.73,0,11.44c1.18,0,2.37,0,3.55,0V14.89a3.93,3.93,0,0,1,.54-2.38,2.06,2.06,0,0,1,1.93-.63,1.46,1.46,0,0,1,1.16.77,4.56,4.56,0,0,1,.34,2.13v5.65c1.19,0,2.38,0,3.56,0V13.81a7.92,7.92,0,0,0-.51-3,3.14,3.14,0,0,0-1.53-1.64,5.23,5.23,0,0,0-2.68-.41,3.77,3.77,0,0,0-3,1.86M3.55,9q0,5.73,0,11.44c1.19,0,2.38,0,3.57,0V9Z"
+                            className="svg" />
+                    </svg>
+
+                </button>
+            </li>
+
+            <!-- Pinterest -->
+            <li>
+                <button
+                    onclick="window.open('https://pinterest.com/pin/create/button/?url=PAGE_LINK_HERE&media=MEDIA_LINK_HERE&description=PAGE_DESCRIPTION_HERE', '_blank', 'top=150,left=550,width=450,height=650')"
+                    title="Pinterest">
+
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M7.55 23.12c-.15-1.36-.04-2.67.25-3.93L9 14.02a7 7 0 0 1-.34-2.07c0-1.68.8-2.88 2.08-2.88.88 0 1.53.62 1.53 1.8q0 .57-.22 1.28l-.53 1.73q-.15.5-.15.91c0 1.2.92 1.88 2.09 1.88 2.08 0 3.57-2.16 3.57-4.96 0-3.12-2.04-5.11-5.06-5.11-3.36 0-5.49 2.19-5.49 5.23 0 1.23.38 2.37 1.11 3.15-.24.4-.5.48-.88.48-1.2 0-2.34-1.7-2.34-4 0-3.99 3.2-7.16 7.68-7.16 4.7 0 7.66 3.28 7.66 7.33 0 4.07-2.88 7.13-5.98 7.13a3.8 3.8 0 0 1-3.07-1.47l-.61 2.5c-.33 1.28-.83 2.5-1.62 3.67A12 12 0 0 0 24 11.99 12 12 0 1 0 7.55 23.12">
+                        </path>
+                    </svg>
+
+                </button>
+            </li>
+
+            <!-- Email -->
+            <li>
+                <a href="mailto:?subject=PAGE_TITLE_HERE&amp;body=PAGE_LINK_HERE" target="_blank" title="Email">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd"
+                            d="M2 7a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3zm2.268-.682 7.155 5.05a1 1 0 0 0 1.154 0l7.155-5.05A1 1 0 0 0 19 6H5a1 1 0 0 0-.732.318M20 8.577l-6.27 4.426a3 3 0 0 1-3.46 0L4 8.577V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+
+                </a>
+            </li>
+
+        </ul>
+
+        <h3>Device native share (via Web Share API)</h3>
+        <!--Works on iOS, macOS, Andorid and Windows devices -->
+        <button id="buttonShareApi">
+
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
+                <path
+                    d="M288 240H192c-66.2 0-122 44.7-138.8 105.5C49.9 333.1 48 319.3 48 304c0-70.7 57.3-128 128-128H288h24c13.3 0 24-10.7 24-24V128 99.9L456.1 208 336 316.1V288 264c0-13.3-10.7-24-24-24H288zm0 48v48 16c0 12.6 7.4 24.1 19 29.2s25 3 34.4-5.4l160-144c6.7-6.1 10.6-14.7 10.6-23.8s-3.8-17.7-10.6-23.8l-160-144c-9.4-8.5-22.9-10.6-34.4-5.4s-19 16.6-19 29.2V80v48H240 176C78.8 128 0 206.8 0 304c0 78 38.6 126.2 68.7 152.1c4.1 3.5 8.1 6.6 11.7 9.3c3.2 2.4 6.2 4.4 8.9 6.2c4.5 3 8.3 5.1 10.8 6.5c2.5 1.4 5.3 1.9 8.1 1.9c10.9 0 19.7-8.9 19.7-19.7c0-6.8-3.6-13.2-8.3-18.1c-.5-.5-.9-.9-1.4-1.4c-2.4-2.3-5.1-5.1-7.7-8.6c-1.7-2.3-3.4-5-5-7.9c-5.3-9.7-9.5-22.9-9.5-40.2c0-53 43-96 96-96h48 48z">
+                </path>
+            </svg>
+
+            Web Share API</button>
+
+    </section>
+</body>
+
+</html>
