@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar Meeting Invite</title>
+    <style>
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+        .calendar-button {
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .google {
+            background-color: #4285f4;
+        }
+        .outlook {
+            background-color: #0078d4;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button class="calendar-button google" onclick="createGoogleEvent()">Add to Google Calendar</button>
+        <button class="calendar-button outlook" onclick="createOutlookEvent()">Add to Outlook</button>
+    </div>
+
+    <script>
+        const event = {
+            title: 'Team Meeting',
+            description: 'Weekly team sync meeting',
+            startTime: '2024-12-15T09:00:00',
+            endTime: '2024-12-15T10:00:00',
+            attendees: ['trung@realtime.com', 'phuong@realtime.co']
+        };
+
+        function createGoogleEvent() {
+            const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE`
+                + `&text=${encodeURIComponent(event.title)}`
+                + `&details=${encodeURIComponent(event.description)}`
+                + `&dates=${event.startTime.replace(/[-:]/g, '')}/${event.endTime.replace(/[-:]/g, '')}`
+                + `&add=${encodeURIComponent(event.attendees.join(','))}`;
+            
+            window.open(googleUrl, '_blank');
+        }
+
+        function createOutlookEvent() {
+            const outlookUrl = `https://outlook.office.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(event.title)}`
+                + `&body=${encodeURIComponent(event.description)}`
+                + `&startdt=${event.startTime}`
+                + `&enddt=${event.endTime}`
+                + `&to=${encodeURIComponent(event.attendees.join(';'))}`;
+            
+            window.open(outlookUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
