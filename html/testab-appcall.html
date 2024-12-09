@@ -1,0 +1,190 @@
+<en><!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Email details viewer and communication interface">
+    
+        <!-- Preconnect to external domains -->
+        <link rel="preconnect" href="https://therealtimex.github.io">
+        
+        <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-ai-html.css">
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-abs.js" defer></script>
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-button-status.js" defer></script>
+    
+        <style>
+            :root {
+                --primary-color: ##__COLOR_THEME_PRIMARY__##;
+                --secondary-color: ##__COLOR_THEME_SECONDARY__##;
+                --accent-color: ##__COLOR_THEME_ACCENT__##;
+                --background-color: ##__COLOR_THEME_BACKGROUND__##;
+            }
+        </style>
+        
+        <script>
+        function callPhone(element) {
+    const actionData = {
+        actionID: "9001",
+        phone: element.getAttribute('data-phone'),
+        type: 'act_call'
+    };
+    App.callActionButton(JSON.stringify(actionData));
+}
+
+function sendSMS(element) {
+    const actionData = {
+        actionID: "9002",
+        phone: element.getAttribute('data-phone'),
+        defaultMsg: element.getAttribute('data-default-msg'),
+        type: 'act_sms'
+    };
+    App.callActionButton(JSON.stringify(actionData));
+}
+
+function openLocation(element) {
+    const actionData = {
+        actionID: "9003",
+        name: element.getAttribute('data-name'),
+        lat: parseFloat(element.getAttribute('data-lat')),
+        lon: parseFloat(element.getAttribute('data-lon')),
+        mapType: element.getAttribute('data-map-type'),
+        type: 'act_gps'
+    };
+    App.callActionButton(JSON.stringify(actionData));
+}
+
+function shareContent(element) {
+    const actionData = {
+        actionID: "9004",
+        copy: element.getAttribute('data-copy') === 'true',
+        body: element.getAttribute('data-body'),
+        subject: element.getAttribute('data-subject'),
+        type: 'act_share'
+    };
+    App.callActionButton(JSON.stringify(actionData));
+}
+
+function callCloudPhone(element) {
+    const actionData = {
+        actionID: "9005",
+        phone: element.getAttribute('data-phone'),
+        isVideoCall: element.getAttribute('data-video-call') === 'true',
+        isCallOut: element.getAttribute('data-call-out') === 'true',
+        customData: JSON.parse(element.getAttribute('data-custom-data')),
+        type: 'act_call_cloudphone'
+    };
+    App.callActionButton(JSON.stringify(actionData));
+}
+
+function openForm(element) {
+    const actionData = {
+        actionID: "9006",
+        familyID: element.getAttribute('data-family-id'),
+        dismissParent: element.getAttribute('data-dismiss-parent') === 'true',
+        dependencies: JSON.parse(element.getAttribute('data-dependencies')),
+        preload: JSON.parse(element.getAttribute('data-preload')),
+        openArgs: JSON.parse(element.getAttribute('data-open-args')),
+        preload_repeat: JSON.parse(element.getAttribute('data-preload-repeat')),
+        type: 'act_fill_form'
+    };
+    App.callActionButton(JSON.stringify(actionData));
+}
+
+function openReport(element) {
+    const actionData = {
+        actionID: "9007",
+        reportID: element.getAttribute('data-report-id'),
+        type: 'act_report'
+    };
+    App.callActionButton(JSON.stringify(actionData));
+}
+
+function openDMView(element) {
+    const actionData = {
+        actionID: "9008",
+        subModule: element.getAttribute('data-sub-module'),
+        component: element.getAttribute('data-component'),
+        object: element.getAttribute('data-object'),
+        alias: element.getAttribute('data-alias'),
+        screen: element.getAttribute('data-screen'),
+        where: element.getAttribute('data-where'),
+        get: JSON.parse(element.getAttribute('data-get') || '{}'),
+        post: JSON.parse(element.getAttribute('data-post') || '{}'),
+        args: JSON.parse(element.getAttribute('data-args') || '{}'),
+        dismissParent: element.getAttribute('data-dismiss-parent') === 'true',
+        type: 'act_dm_view'
+    };
+    App.callActionButton(JSON.stringify(actionData));
+}
+
+function getInstance(element) {
+    const actionData = {
+        actionID: "9009",
+        familyName: element.getAttribute('data-family-name'),
+        display: element.getAttribute('data-display'),
+        uuid: element.getAttribute('data-uuid'),
+        isLast: element.getAttribute('data-is-last') === 'true',
+        clone: element.getAttribute('data-clone') === 'true',
+        removeQuestions: JSON.parse(element.getAttribute('data-remove-questions') || '[]'),
+        filter: JSON.parse(element.getAttribute('data-filter') || '[]'),
+        openArgs: JSON.parse(element.getAttribute('data-open-args') || '{}'),
+        type: 'act_get_instance'
+    };
+    App.callActionButton(JSON.stringify(actionData));
+}
+
+function openModule(element) {
+    const actionData = {
+        actionID: "9010",
+        destinationCode: element.getAttribute('data-destination-code'),
+        destinationType: element.getAttribute('data-destination-type'),
+        args: JSON.parse(element.getAttribute('data-args') || '{}'),
+        dismissParent: element.getAttribute('data-dismiss-parent') === 'true',
+        type: 'act_open_module'
+    };
+    App.callActionButton(JSON.stringify(actionData));
+}
+
+function openChat(element) {
+    const actionData = {
+        actionID: "9011",
+        room_target: element.getAttribute('data-room-target'),
+        room_title: element.getAttribute('data-room-title'),
+        type: 'act_open_chat'
+    };
+    App.callActionButton(JSON.stringify(actionData));
+}
+
+
+        </script>
+    </head>
+    
+    <body>
+        
+        <main class="email-container" role="main"> <header class="email-header"> <h2>Email Details</h2> </header> <section class="email-info-box" aria-label="Email Information"> <div class="email-field"> <span class="email-label" id="from-label">From:</span> <span aria-labelledby="from-label">RTA <hello@realtimex.co></span> </div> <div class="email-field"> <span class="email-label" id="to-label">To:</span> <span aria-labelledby="to-label">trangmai@rtanalytics.vn Valid ✅</span> </div> <div class="email-field"> <span class="email-label" id="subject-label">Subject:</span> <span aria-labelledby="subject-label">Invitation to SEMIEXPO 2024</span> </div> <div class="email-field"> <span class="email-label" id="phone-label">Phone:</span> <span aria-labelledby="phone-label">0977632108</span> </div> </section> <section aria-label="Message Content"> <label for="message" class="email-label">Message:</label> <textarea id="message" class="message-area" spellcheck="true" aria-label="Email message content"><p>Dear Trần Mai Anh,</p><p>We are excited to invite you to <strong>SEMIEXPO 2024</strong>, a pivotal event for the semiconductor industry that will showcase Vietnam's growing role in the global supply chain. This event will feature key discussions, networking opportunities, and insights into the future of semiconductor technology.</p><p>We believe your participation will be invaluable, and we look forward to seeing you there!</p><p>Best regards,</p></textarea> </section> <footer class="action-buttons"> <button 
+    class="btn" 
+    onclick="callCloudPhone(this)" 
+    data-phone="{phone}" 
+    data-video-call="false"
+    data-call-out="true" 
+    data-custom-data='{recipient}'
+    aria-label="Internet Call">
+    <span aria-hidden="true">🌐📞</span> Internet Call
+</button> <button class="btn" onclick="sendSMS(this)" data-phone="0977632108" data-default-msg="<p>Dear Trần Mai Anh,</p><p>We are excited to invite you to <strong>SEMIEXPO 2024</strong>, a pivotal event for the semiconductor industry that will showcase Vietnam's growing role in the global supply chain. This event will feature key discussions, networking opportunities, and insights into the future of semiconductor technology.</p><p>We believe your participation will be invaluable, and we look forward to seeing you there!</p><p>Best regards,</p>"> <span aria-hidden="true">💬</span> Send SMS </button> <button class="btn" onclick="callPhone(this)" data-phone="0977632108"> <span aria-hidden="true">📱</span> Phone Call </button> </footer></main>
+
+    
+        <dialog id="rtDialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>RealTime</h3>
+                    <button class="close-btn" aria-label="Close">×</button>
+                </div>
+                <div class="modal-body">
+                    <p id="rtMessage"></p>
+                </div>
+            </div>
+        </dialog>    
+    </body>
+    </html></en>
+    
