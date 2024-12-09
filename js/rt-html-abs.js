@@ -160,7 +160,7 @@ function openLocation(element) {
     App.callActionButton(json);
 }
 
-function shareContent(element) {
+function    (element) {
     const actionData = {
         actionID: 9004,
         orderNumber: 1,
@@ -274,6 +274,34 @@ function openChat(element) {
     };
     var json = JSON.stringify(actionData);
     App.callActionButton(json);
+}
+
+function downloadVCard() {
+    // Get VCard content and ensure proper line endings
+    const vCardContent = document.getElementById('vcardTemplate').textContent;
+    
+    // Extract FN field for filename
+    const fnMatch = vCardContent.match(/FN;CHARSET=utf-8:(.*)/);
+    const filename = fnMatch ? fnMatch[1].trim() : 'contact';
+    
+    // Create blob with proper encoding
+    const blob = new Blob([vCardContent], { 
+        type: 'text/vcard;charset=utf-8'
+    });
+    
+    // Create download link
+    const downloadUrl = URL.createObjectURL(blob);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = downloadUrl;
+    downloadLink.download = `${filename}.vcf`;
+    
+    // Trigger download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    
+    // Cleanup
+    URL.revokeObjectURL(downloadUrl);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
