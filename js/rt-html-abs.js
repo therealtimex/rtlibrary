@@ -129,7 +129,8 @@ function callPhone(element) {
         phone: element.getAttribute('data-phone'),
         type: 'act_call'
     };
-    App.callActionButton(JSON.stringify(actionData));
+    var json = JSON.stringify(actionData);
+    App.callActionButton(json);
 }
 
 function sendSMS(element) {
