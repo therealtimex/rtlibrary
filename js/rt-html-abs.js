@@ -160,7 +160,7 @@ function openLocation(element) {
     App.callActionButton(json);
 }
 
-function    (element) {
+function shareContent(element) {
     const actionData = {
         actionID: 9004,
         orderNumber: 1,
