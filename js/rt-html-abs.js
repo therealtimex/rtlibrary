@@ -256,3 +256,14 @@ function openChat(element) {
     App.callActionButton(JSON.stringify(actionData));
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const handler = e.target.getAttribute('onclick');
+            if (handler) {
+                eval(handler.replace('this', 'e.target'));
+            }
+        });
+    });
+});
