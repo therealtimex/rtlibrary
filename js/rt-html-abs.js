@@ -276,44 +276,6 @@ function openChat(element) {
     App.callActionButton(json);
 }
 
-// rt-html-abs.js
-(function(global) {
-    'use strict';
-
-    // Create namespace
-    global.rtlib = global.rtlib || {};
-
-    // Add function to namespace
-    global.rtlib.downloadVCard = function() {
-        try {
-            const vCardContent = document.getElementById('vcardTemplate')?.textContent;
-            if (!vCardContent) {
-                throw new Error('VCard template not found');
-            }
-
-            const fnMatch = vCardContent.match(/FN;CHARSET=utf-8:(.*)/);
-            const filename = fnMatch ? fnMatch[1].trim() : 'contact';
-            
-            const blob = new Blob([vCardContent], { 
-                type: 'text/vcard;charset=utf-8'
-            });
-            
-            const downloadUrl = URL.createObjectURL(blob);
-            const downloadLink = document.createElement('a');
-            downloadLink.href = downloadUrl;
-            downloadLink.download = `${filename}.vcf`;
-            
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-            
-            URL.revokeObjectURL(downloadUrl);
-        } catch (error) {
-            console.error('Error downloading VCard:', error);
-        }
-    };
-})(typeof window !== 'undefined' ? window : global);
-
 document.addEventListener('DOMContentLoaded', () => {
     const buttons = document.querySelectorAll('.btn');
     buttons.forEach(button => {
