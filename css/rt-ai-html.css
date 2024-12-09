@@ -34,8 +34,8 @@
     width: 100%;
     min-height: 150px;
     max-height: min(70vh, 500px);
-    padding: 0.2rem;
-    margin: 0.2rem auto;
+    padding: 0.5rem;
+    margin: 0.5rem auto;
     border: 0.5px solid var(--primary-color);
     border-radius: 1px;
     resize: vertical;
