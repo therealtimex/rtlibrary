@@ -276,6 +276,37 @@ function openChat(element) {
     App.callActionButton(json);
 }
 
+function downloadVCard() {
+    const vCardContent = document.getElementById('vcardTemplate').textContent;
+    
+    const fnMatch = vCardContent.match(/FN;CHARSET=utf-8:(.*)/);
+    const filename = fnMatch ? fnMatch[1].trim() : 'contact';
+    
+    const blob = new Blob([vCardContent], { 
+        type: 'text/vcard;charset=utf-8'
+    });
+    
+    const downloadUrl = URL.createObjectURL(blob);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = downloadUrl;
+    downloadLink.download = `${filename}.vcf`;
+    
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    
+    URL.revokeObjectURL(downloadUrl);
+}
+
+window.onload = function() {
+    const button = document.getElementById('downloadButton');
+    if (button) {
+        button.addEventListener('click', downloadVCard);
+    }
+};
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const buttons = document.querySelectorAll('.btn');
     buttons.forEach(button => {
