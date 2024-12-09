@@ -1,7 +1,7 @@
 
 function callPhone(element) {
     const actionData = {
-        actionID: parseInt(element.getAttribute('data-action-id')),
+        actionID: "9001",
         phone: element.getAttribute('data-phone'),
         type: 'act_call'
     };
@@ -10,7 +10,7 @@ function callPhone(element) {
 
 function sendSMS(element) {
     const actionData = {
-        actionID: parseInt(element.getAttribute('data-action-id')),
+        actionID: "9002",
         phone: element.getAttribute('data-phone'),
         defaultMsg: element.getAttribute('data-default-msg'),
         type: 'act_sms'
@@ -20,7 +20,7 @@ function sendSMS(element) {
 
 function openLocation(element) {
     const actionData = {
-        actionID: parseInt(element.getAttribute('data-action-id')),
+        actionID: "9003",
         name: element.getAttribute('data-name'),
         lat: parseFloat(element.getAttribute('data-lat')),
         lon: parseFloat(element.getAttribute('data-lon')),
@@ -32,7 +32,7 @@ function openLocation(element) {
 
 function shareContent(element) {
     const actionData = {
-        actionID: parseInt(element.getAttribute('data-action-id')),
+        actionID: "9004",
         copy: element.getAttribute('data-copy') === 'true',
         body: element.getAttribute('data-body'),
         subject: element.getAttribute('data-subject'),
@@ -43,8 +43,7 @@ function shareContent(element) {
 
 function callCloudPhone(element) {
     const actionData = {
-        actionID: parseInt(element.getAttribute('data-action-id')),
-        name: element.getAttribute('data-name'),
+        actionID: "9005",
         phone: element.getAttribute('data-phone'),
         isVideoCall: element.getAttribute('data-video-call') === 'true',
         isCallOut: element.getAttribute('data-call-out') === 'true',
@@ -56,7 +55,7 @@ function callCloudPhone(element) {
 
 function openForm(element) {
     const actionData = {
-        actionID: parseInt(element.getAttribute('data-action-id')),
+        actionID: "9006",
         familyID: element.getAttribute('data-family-id'),
         dismissParent: element.getAttribute('data-dismiss-parent') === 'true',
         dependencies: JSON.parse(element.getAttribute('data-dependencies')),
@@ -70,7 +69,7 @@ function openForm(element) {
 
 function openReport(element) {
     const actionData = {
-        actionID: parseInt(element.getAttribute('data-action-id')),
+        actionID: "9007",
         reportID: element.getAttribute('data-report-id'),
         type: 'act_report'
     };
@@ -79,7 +78,7 @@ function openReport(element) {
 
 function openDMView(element) {
     const actionData = {
-        actionID: parseInt(element.getAttribute('data-action-id')),
+        actionID: "9008",
         subModule: element.getAttribute('data-sub-module'),
         component: element.getAttribute('data-component'),
         object: element.getAttribute('data-object'),
@@ -97,7 +96,7 @@ function openDMView(element) {
 
 function getInstance(element) {
     const actionData = {
-        actionID: parseInt(element.getAttribute('data-action-id')),
+        actionID: "9009",
         familyName: element.getAttribute('data-family-name'),
         display: element.getAttribute('data-display'),
         uuid: element.getAttribute('data-uuid'),
@@ -113,7 +112,7 @@ function getInstance(element) {
 
 function openModule(element) {
     const actionData = {
-        actionID: parseInt(element.getAttribute('data-action-id')),
+        actionID: "9010",
         destinationCode: element.getAttribute('data-destination-code'),
         destinationType: element.getAttribute('data-destination-type'),
         args: JSON.parse(element.getAttribute('data-args') || '{}'),
@@ -125,7 +124,7 @@ function openModule(element) {
 
 function openChat(element) {
     const actionData = {
-        actionID: parseInt(element.getAttribute('data-action-id')),
+        actionID: "9011",
         room_target: element.getAttribute('data-room-target'),
         room_title: element.getAttribute('data-room-title'),
         type: 'act_open_chat'
