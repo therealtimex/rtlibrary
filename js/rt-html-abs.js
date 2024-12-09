@@ -276,7 +276,11 @@ function openChat(element) {
     App.callActionButton(json);
 }
 
-window.downloadVCard = function() {
+// Create namespace if it doesn't exist
+window.rtlib = window.rtlib || {};
+
+// Add function to namespace
+rtlib.downloadVCard = function() {
     const vCardContent = document.getElementById('vcardTemplate').textContent;
     
     const fnMatch = vCardContent.match(/FN;CHARSET=utf-8:(.*)/);
