@@ -1,0 +1,151 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: ##__COLOR_THEME_BACKGROUND__##;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: ##__COLOR_THEME_PRIMARY__##;
+            text-align: center;
+        }
+
+        .profile-info {
+            background-color: #e7f3fe;
+            border-left: 6px solid ##__COLOR_THEME_SECONDARY__##;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            font-weight: bold;
+            color: ##__COLOR_THEME_SUCCESS__##;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .button-container button {
+            margin: 0 10px;
+            color: white;
+            background-color: ##__COLOR_THEME_PRIMARY_200__##;
+            border: none;
+            padding: 2px 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .button-container button:hover {
+            background-color: ##__COLOR_THEME_PRIMARY_900__##;
+        }
+    </style>
+    <script>
+        function copyPhone(element) {
+            const phone = element.getAttribute('data-phone');
+            const tempInput = document.createElement('input');
+            tempInput.value = phone;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert('Phone number has been copied!');
+        }
+
+        function copyEmail(element) {
+            const email = element.getAttribute('data-email');
+            const tempInput = document.createElement('input');
+            tempInput.value = email;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert('Email has been copied!');
+        }
+
+        function callActionSMS(element) {
+            const actionData = {
+                actionID: parseInt(element.getAttribute('data-action-id')),
+                defaultMsg: element.getAttribute('data-msg'),
+                orderNumber: parseInt(element.getAttribute('data-order')),
+                phone: element.getAttribute('data-phone'),
+                type: element.getAttribute('data-type')
+            };
+            App.callActionButton(JSON.stringify(actionData));
+        }
+
+        function callActionCP(element) {
+            const actionData = {
+                actionID: parseInt(element.getAttribute('data-action-id')),
+                orderNumber: parseInt(element.getAttribute('data-order')),
+                isVideoCall: element.getAttribute('data-video') === 'true',
+                isCallOut: element.getAttribute('data-callout') === 'true',
+                type: element.getAttribute('data-type'),
+                phone: element.getAttribute('data-phone')
+            };
+            App.callActionButton(JSON.stringify(actionData));
+        }
+
+        function callActionCALL(element) {
+            const actionData = {
+                actionID: parseInt(element.getAttribute('data-action-id')),
+                orderNumber: parseInt(element.getAttribute('data-order')),
+                type: element.getAttribute('data-type'),
+                phone: element.getAttribute('data-phone')
+            };
+            App.callActionButton(JSON.stringify(actionData));
+        }
+    </script>
+</head>
+
+<body>
+    <div class='container'> <img src='rta://icon/bootstrap/check-circle?color=__COLOR_THEME_PRIMARY__&size=32' alt=''>
+        <h2>CRM Profile Information</h2>
+        <div class='profile-info'>
+            <p><strong>ID:</strong> be9e118a-17a8-43eb-aef7-bd6757018fe2</p>
+            <p><strong>Name:</strong> Trần Duy Anh</p>
+            <p><strong>Phone Number:</strong> 0398331234</p>
+            <p><strong>Email:</strong> trangmai@rtanalytics.vn</p>
+            <p><strong>Address:</strong> Ngọc Lặc, Thanh Hóa</p>
+            <p><strong>Description:</strong> A young man admired by others, making his parents proud.</p>
+            <p class='status'>Status: Success</p>
+        </div>
+        <div class='button-container'>
+            <button onclick='copyPhone(this)' data-phone='0398331234'>📞 Copy Phone</button>
+            <button onclick='copyEmail(this)' data-email='trangmai@rtanalytics.vn'>✉️ Copy Email</button>
+            <button onclick='callActionSMS(this)' 
+                data-action-id='9998'
+                data-msg='Hi!'
+                data-order='2'
+                data-phone='0398331234'
+                data-type='act_sms'>💬 Send SMS</button>
+            <button onclick='callActionCP(this)'
+                data-action-id='2129'
+                data-order='3'
+                data-video='false'
+                data-callout='true'
+                data-type='act_call_cloudphone'
+                data-phone='0398331234'>📲 Call CP</button>
+            <button onclick='callActionCALL(this)'
+                data-action-id='2199'
+                data-order='4'
+                data-type='act_call'
+                data-phone='0398331234'>📞 Call SIM</button>
+        </div>
+    </div>
+</body>
