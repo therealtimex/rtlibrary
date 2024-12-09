@@ -1,151 +1,140 @@
-.email-container {
-    max-width: 100%;
-    padding: 1rem;
+:root {
+    --container-max-width: 1200px;
+    --container-padding: clamp(1rem, 5vw, 2rem);
+    --border-radius: 8px;
+    --transition-speed: 0.3s;
+  }
+  
+  .email-container {
+    max-width: min(100%, var(--container-max-width));
+    padding: var(--container-padding);
     margin: 0 auto;
-}
-
-@media screen and (min-width: 768px) {
-    .email-container {
-        max-width: 750px;
-        padding: 2rem;
-    }
-}
-
-.email-info-box {
     display: grid;
-    gap: 0.5rem;
-    padding: 1rem;
+    gap: 1.5rem;
+  }
+  
+  .email-info-box {
+    display: grid;
+    gap: 1rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
     background-color: var(--background-color);
-    border-radius: 4px;
-}
-
-.email-field {
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform var(--transition-speed) ease;
+  }
+  
+  .email-field {
     display: grid;
-    grid-template-columns: 80px 1fr;
-    align-items: center;
-}
-
-@media screen and (max-width: 480px) {
-    .email-field {
-        grid-template-columns: 1fr;
-        gap: 0.25rem;
-    }
-}
-
-.message-area {
+    grid-template-columns: minmax(80px, auto) 1fr;
+    align-items: start;
+    gap: 1rem;
+  }
+  
+  .message-area {
     width: 100%;
     min-height: 150px;
-    max-height: 300px;
+    max-height: min(70vh, 500px);
     padding: 1rem;
     margin-top: 1rem;
     border: 1px solid var(--primary-color);
-    border-radius: 4px;
+    border-radius: var(--border-radius);
     resize: vertical;
     overflow-y: auto;
-}
-
-.action-buttons {
+    line-height: 1.5;
+    scrollbar-width: thin;
+  }
+  
+  .action-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: clamp(0.5rem, 2vw, 1rem);
     margin-top: 1.5rem;
-}
-
-.btn {
+  }
+  
+  .btn {
     flex: 1 1 auto;
-    min-width: 120px;
-    padding: 0.75rem;
+    min-width: min(120px, 100%);
+    padding: 0.75rem 1.25rem;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--border-radius);
     background-color: var(--secondary-color);
     color: white;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    transition: opacity 0.2s;
-}
-
-.btn-shade {
-    flex: 1 1 auto;
-    min-width: 120px;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 4px;
-    background-color: var(--secondary-color);
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    transition: opacity 0.2s;
+    transition: all var(--transition-speed);
+    font-weight: 500;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .btn-shade {
+    composes: btn;
     background-color: color-mix(in srgb, 
-        var(--primary-color), 
-        color-mix(in srgb, var(--primary-color), blue 30%) 
-        var(--btn-shade)
+      var(--primary-color) 70%, 
+      var(--secondary-color)
     );
-}
-
-@media screen and (max-width: 600px) {
-    .btn {
-        flex: 1 1 100%;
-    }
-}
-
-@media (hover: hover) {
-    .btn:hover {
-        opacity: 0.9;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .btn {
-        transition: none;
-    }
-}
-
-/* Replace alert() with showRTDialog() */
-
-dialog::backdrop {
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-dialog {
+  }
+  
+  dialog {
     padding: 0;
     border: none;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.modal-content {
-    min-width: 300px;
-}
-
-.modal-header {
-    padding: 16px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    max-width: min(90vw, 600px);
+    width: 100%;
+    margin: auto;
+  }
+  
+  .modal-content {
+    width: 100%;
+  }
+  
+  .modal-header {
+    padding: clamp(1rem, 3vw, 1.5rem);
+    background: var(--background-color);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 8px 8px 0 0;
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.25rem;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0 8px;
-}
-
-.modal-body {
-    padding: 16px;
-}  
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+  }
+  
+  /* Media Queries */
+  @media screen and (max-width: 480px) {
+    .email-field {
+      grid-template-columns: 1fr;
+    }
+    
+    .btn {
+      flex: 1 1 100%;
+    }
+  }
+  
+  /* Accessibility & Interactions */
+  @media (hover: hover) {
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .email-info-box:hover {
+      transform: translateY(-2px);
+    }
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+  
+  @supports (backdrop-filter: blur(10px)) {
+    dialog::backdrop {
+      backdrop-filter: blur(4px);
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+  }
