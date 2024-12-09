@@ -139,7 +139,8 @@ function sendSMS(element) {
         defaultMsg: element.getAttribute('data-default-msg'),
         type: 'act_sms'
     };
-    App.callActionButton(JSON.stringify(actionData));
+    var json = JSON.stringify(actionData);
+    App.callActionButton(json);
 }
 
 function openLocation(element) {
@@ -151,7 +152,8 @@ function openLocation(element) {
         mapType: element.getAttribute('data-map-type'),
         type: 'act_gps'
     };
-    App.callActionButton(JSON.stringify(actionData));
+    var json = JSON.stringify(actionData);
+    App.callActionButton(json);
 }
 
 function shareContent(element) {
@@ -162,7 +164,8 @@ function shareContent(element) {
         subject: element.getAttribute('data-subject'),
         type: 'act_share'
     };
-    App.callActionButton(JSON.stringify(actionData));
+    var json = JSON.stringify(actionData);
+    App.callActionButton(json);
 }
 
 function callCloudPhone(element) {
@@ -188,7 +191,8 @@ function openForm(element) {
         preload_repeat: JSON.parse(element.getAttribute('data-preload-repeat')),
         type: 'act_fill_form'
     };
-    App.callActionButton(JSON.stringify(actionData));
+    var json = JSON.stringify(actionData);
+    App.callActionButton(json);
 }
 
 function openReport(element) {
@@ -197,7 +201,8 @@ function openReport(element) {
         reportID: element.getAttribute('data-report-id'),
         type: 'act_report'
     };
-    App.callActionButton(JSON.stringify(actionData));
+    var json = JSON.stringify(actionData);
+    App.callActionButton(json);
 }
 
 function openDMView(element) {
@@ -215,7 +220,8 @@ function openDMView(element) {
         dismissParent: element.getAttribute('data-dismiss-parent') === 'true',
         type: 'act_dm_view'
     };
-    App.callActionButton(JSON.stringify(actionData));
+    var json = JSON.stringify(actionData);
+    App.callActionButton(json);
 }
 
 function getInstance(element) {
@@ -243,7 +249,8 @@ function openModule(element) {
         dismissParent: element.getAttribute('data-dismiss-parent') === 'true',
         type: 'act_open_module'
     };
-    App.callActionButton(JSON.stringify(actionData));
+    var json = JSON.stringify(actionData);
+    App.callActionButton(json);
 }
 
 function openChat(element) {
@@ -253,7 +260,8 @@ function openChat(element) {
         room_title: element.getAttribute('data-room-title'),
         type: 'act_open_chat'
     };
-    App.callActionButton(JSON.stringify(actionData));
+    var json = JSON.stringify(actionData);
+    App.callActionButton(json);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
