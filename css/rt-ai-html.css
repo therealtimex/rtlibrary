@@ -70,70 +70,84 @@
   }
   
   .btn-shade {
-    composes: btn;
+    flex: 1 1 auto;
+    min-width: min(120px, 100%);
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: var(--border-radius);
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all var(--transition-speed);
+    font-weight: 500;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
     background-color: color-mix(in srgb, 
       var(--primary-color) 70%, 
       var(--secondary-color)
     );
   }
   
-  dialog {
+  @media screen and (max-width: 600px) {
+    .btn {
+        flex: 1 1 100%;
+    }
+}
+
+@media (hover: hover) {
+    .btn:hover {
+        opacity: 0.9;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn {
+        transition: none;
+    }
+}
+
+  /* Replace alert() with showRTDialog() */
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+dialog {
     padding: 0;
     border: none;
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    max-width: min(90vw, 600px);
-    width: 100%;
-    margin: auto;
-  }
-  
-  .modal-content {
-    width: 100%;
-  }
-  
-  .modal-header {
-    padding: clamp(1rem, 3vw, 1.5rem);
-    background: var(--background-color);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content {
+    min-width: 300px;
+}
+
+.modal-header {
+    padding: 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
-  }
-  
-  /* Media Queries */
-  @media screen and (max-width: 480px) {
-    .email-field {
-      grid-template-columns: 1fr;
-    }
-    
-    .btn {
-      flex: 1 1 100%;
-    }
-  }
-  
-  /* Accessibility & Interactions */
-  @media (hover: hover) {
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-    
-    .email-info-box:hover {
-      transform: translateY(-2px);
-    }
-  }
-  
-  @media (prefers-reduced-motion: reduce) {
-    * {
-      transition: none !important;
-      animation: none !important;
-    }
-  }
-  
-  @supports (backdrop-filter: blur(10px)) {
-    dialog::backdrop {
-      backdrop-filter: blur(4px);
-      background-color: rgba(0, 0, 0, 0.4);
-    }
-  }
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+.modal-body {
+    padding: 16px;
+}  
