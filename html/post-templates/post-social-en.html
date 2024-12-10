@@ -39,17 +39,17 @@
             data-body="$body" aria-label="Copy Post">
             <span aria-hidden="true">📋</span> Copy Post
         </button>
-        <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+        <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 20%" onclick="openDeeplink()"
             data-deep-link="https://www.linkedin.com/sharing/share-offsite/?text=$body" aria-label="Open LinkedIn">
             <span aria-hidden="true">🔗</span> LinkedIn</button> </button>
-        <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+        <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 40%" onclick="openDeeplink()"
             data-deep-link="https://facebook.com/share.php?u=#" aria-label="Open Facebook">
             <span aria-hidden="true">🔗</span> Facebook</button> </button>
         <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
             data-deep-link="https://twitter.com/intent/tweet?text=$body" aria-label="Open Twitter">
             <span aria-hidden="true">🔗</span> Twitter</button> </button>
-        <button class="btn-shade" style="--btn-shade: 0%" onclick="showBreakdown()" aria-label="Share">
-            <span aria-hidden="true">📤</span> Post Breakdown
+        <button class="btn-shade" style="--btn-shade: 80%" onclick="showBreakdown()" aria-label="Post Breakdown">
+            <span aria-hidden="true">🧩</span> Post Breakdown
         </button>
     </footer>
 
@@ -60,9 +60,7 @@
                 <button class="close-btn" onclick="closeBreakdown()" aria-label="Close">×</button>
             </div>
             <div class="modal-body">
-                <md>
-                    $postbreakdown
-                </md>
+                <md>$postbreakdown</md>
             </div>
         </div>
     </dialog>
