@@ -92,8 +92,8 @@
   }
   
 .btn svg {
-    width: 1.25em;
-    height: 1.25em;
+    width: 1em;  /* Reduced from 1.25em */
+    height: 1em; /* Reduced from 1.25em */
     flex-shrink: 0;
 }
 
@@ -103,7 +103,7 @@
     flex-shrink: 0;
 }
 
-  @media screen and (max-width: 600px) {
+ @media screen and (max-width: 600px) {
     .btn {
         flex: 1 1 100%;
     }
