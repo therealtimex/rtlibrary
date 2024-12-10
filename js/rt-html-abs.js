@@ -305,10 +305,8 @@ window.onload = function() {
     }
 };
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
-    const buttons = document.querySelectorAll('.btn');
+    const buttons = document.querySelectorAll('.btn, .btn-shade');
     buttons.forEach(button => {
         button.addEventListener('click', (e) => {
             const handler = e.target.getAttribute('onclick');
@@ -317,4 +315,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-});
+})  ;
