@@ -286,6 +286,18 @@ function openChat(element) {
     App.callActionButton(json);
 }
 
+function openDeeplink(element) {
+    const actionData = {
+        actionID: 9012,
+        orderNumber: 1,
+        deepLink: element.getAttribute('data-deep-link'),
+        packageName: element.getAttribute('data-package-name'),
+        type: 'act_open_deeplink'
+    };
+    var json = JSON.stringify(actionData);
+    App.callActionButton(json);
+}
+
 function downloadVCard() {
     const vCardContent = document.getElementById('vcardTemplate').textContent;
     
