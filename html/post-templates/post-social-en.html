@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Cost Reduction Post Analysis</title>
 
     <link rel="preconnect" href="https://therealtimex.github.io">
     <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-ai-html.css">
@@ -21,26 +20,6 @@
             --background-color: ##__COLOR_THEME_BACKGROUND__##;
         }
     </style>
-    <script>
-        function copyMessageArea() {
-            const messageArea = document.querySelector('.message-area');
-            const text = messageArea.textContent;
-
-            navigator.clipboard.writeText(text)
-                .then(() => {
-                    const button = event.target.closest('.btn');
-                    const originalText = button.textContent;
-                    button.textContent = 'Copied!';
-
-                    setTimeout(() => {
-                        button.textContent = originalText;
-                    }, 2000);
-                })
-                .catch(err => {
-                    console.error('Failed to copy:', err);
-                });
-        }
-    </script>
 </head>
 
 <body>
@@ -56,29 +35,20 @@
         </div>
     </div>
     <footer class="action-buttons">
-        <button class="btn-shade" style="--btn-shade: 0%" onclick="callCloudPhone(this)" data-phone="$phone"
-            data-video-call="false" data-call-out="true" data-custom-data='{"email": "$recipient"}'
-            aria-label="Internet Call">
-            <span aria-hidden="true">🌐📞</span> Internet Call
-        </button>
-        <button class="btn-shade" style="--btn-shade: 0%" onclick="sendSMS(this)" data-phone="$phone"
-            data-default-msg="$body" aria-label="Send SMS">
-            <span aria-hidden="true">💬</span> Send SMS
-        </button>
-        <button class="btn-shade" style="--btn-shade: 0%" onclick="callPhone(this)" data-phone="$phone"
-            aria-label="Phone Call">
-            <span aria-hidden="true">📱</span> Phone Call
-        </button>
         <button class="btn-shade" style="--btn-shade: 0%" onclick="shareContent(this)" data-copy="true"
-            data-body="$body" aria-label="Copy Email">
-            <span aria-hidden="true">📋</span> Copy Email
+            data-body="$body" aria-label="Copy Post">
+            <span aria-hidden="true">📋</span> Copy Post
         </button>
-        <button class="btn-shade" style="--btn-shade: 0%" onclick="shareContent(this)" data-copy="false"
-            data-body="$body" data-subject="Share Email" aria-label="Share">
-            <span aria-hidden="true">📤</span> Share
-        </button>
-        <button class="btn-shade" style="--btn-shade: 0%" onclick="showBreakdown()" 
-            aria-label="Share">
+        <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+            data-deep-link="https://www.linkedin.com/sharing/share-offsite/?text=$body" aria-label="Open LinkedIn">
+            <span aria-hidden="true">🔗</span> LinkedIn</button> </button>
+        <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+            data-deep-link="https://facebook.com/share.php?u=#" aria-label="Open Facebook">
+            <span aria-hidden="true">🔗</span> Facebook</button> </button>
+        <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+            data-deep-link="https://twitter.com/intent/tweet?text=$body" aria-label="Open Twitter">
+            <span aria-hidden="true">🔗</span> Twitter</button> </button>
+        <button class="btn-shade" style="--btn-shade: 0%" onclick="showBreakdown()" aria-label="Share">
             <span aria-hidden="true">📤</span> Post Breakdown
         </button>
     </footer>
@@ -91,7 +61,7 @@
             </div>
             <div class="modal-body">
                 <md>
-                $postbreakdown
+                    $postbreakdown
                 </md>
             </div>
         </div>
