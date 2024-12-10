@@ -79,6 +79,16 @@ function showRTDialog(message) {
     });
 }
 
+function showBreakdown() {
+    document.getElementById('breakdownDialog').showModal();
+}
+
+function closeBreakdown() {
+    document.getElementById('breakdownDialog').close();
+}
+
+
+
 // Utility Functions
 function getContactData() {
     return {
