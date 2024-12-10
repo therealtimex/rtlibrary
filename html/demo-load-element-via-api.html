@@ -1,0 +1,132 @@
+<en>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Email details viewer and communication interface">
+
+        <!-- Preconnect to external domains -->
+        <link rel="preconnect" href="https://therealtimex.github.io">
+
+        <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-ai-html.css">
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-abs.js" defer></script>
+        <script src="https://therealtimex.github.io/rtlibrary/js/dm-template-handler.js" defer></script>
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-button-status.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script>
+
+        <style>
+            :root {
+                --primary-color: ##__COLOR_THEME_PRIMARY__##;
+                --secondary-color: ##__COLOR_THEME_SECONDARY__##;
+                --accent-color: ##__COLOR_THEME_ACCENT__##;
+                --background-color: ##__COLOR_THEME_BACKGROUND__##;
+            }
+
+            .thumbnail {
+                display: inline-block;
+                margin: 5px;
+                width: 100px;
+                height: 100px;
+                object-fit: cover;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .thumbnails-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                padding: 10px;
+                background-color: var(--background-color);
+            }
+
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                justify-content: center;
+                align-items: center;
+            }
+
+            .modal img {
+                max-width: 90%;
+                max-height: 80%;
+                border-radius: 10px;
+            }
+
+            .modal.active {
+                display: flex;
+            }
+
+            .download-btn {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                padding: 10px 15px;
+                background: #fff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="email-container">
+            <div class="email-info-box">
+                <h2>Post Preview</h2>
+                <div class="message-area">
+                    $body
+                </div>
+            </div>
+            <div>
+                <strong>⏰ Best timing:</strong> $posttime 🎯
+            </div>
+        </div>
+
+        <div class="thumbnails-container" data-id="11">
+        <div><h3>Post Breakdown</h3></div>
+            ** display image thumbnails via API request here **
+        </div>
+
+        <div class="modal" onclick="closeModal()">
+            <img src="" alt="Full Image">
+            <a class="download-btn" href="#" download>Download</a>
+        </div>
+
+        ##$.output.output_html_en##
+
+        <footer class="action-buttons">
+            <button class="btn-shade" style="--btn-shade: 0%" onclick="shareContent(this)" data-copy="false"
+                data-body="$body" data-subject="Share Email" aria-label="Share">
+                <span aria-hidden="true">📤</span> Share
+            </button>
+            <button class="btn-shade" style="--btn-shade: 0%" onclick="showBreakdown()" aria-label="Share">
+                <span aria-hidden="true">📤</span> Post Breakdown
+            </button>
+        </footer>
+
+        <dialog id="breakdownDialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Post Breakdown</h3>
+                    <button class="close-btn" onclick="closeBreakdown()" aria-label="Close">×</button>
+                </div>
+                <div class="modal-body">
+                    <md>$postbreakdown</md>
+                </div>
+            </div>
+        </dialog>
+    </body>
+
+    </html>
+</en>
