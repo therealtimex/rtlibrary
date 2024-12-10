@@ -176,6 +176,7 @@ function shareContent(element) {
         orderNumber: 1,
         copy: element.getAttribute('data-copy') === 'true',
         body: element.getAttribute('data-body'),
+        filename: element.getAttribute('data-filename'),
         subject: element.getAttribute('data-subject'),
         type: 'act_share'
     };
