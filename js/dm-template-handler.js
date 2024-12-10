@@ -8,9 +8,9 @@ const showRelevantFields = () => {
     });
 };
 
-// used in demo-load-element-via-api.html
 document.addEventListener('DOMContentLoaded', showRelevantFields);
 
+// used in demo-load-element-via-api.html
 async function fetchThumbnails() {
     const container = document.querySelector(".thumbnails-container");
     const containerId = container.dataset.id;
@@ -27,6 +27,12 @@ async function fetchThumbnails() {
         }
 
         const images = await response.json();
+
+        if (images.length === 0) {
+            container.style.display = "none"; // Hide the container if no images are returned
+            return;
+        }
+
         container.innerHTML = ""; // Clear loading message
 
         images.forEach(image => {
