@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Cost Reduction Post Analysis</title>
+
+    <link rel="preconnect" href="https://therealtimex.github.io">
+    <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-ai-html.css">
+    <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-abs.js" defer></script>
+    <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
+    <script src="https://therealtimex.github.io/rtlibrary/js/rt-button-status.js" defer></script>
+
+    <style>
+        :root {
+            --primary-color: ##__COLOR_THEME_PRIMARY__##;
+            --secondary-color: ##__COLOR_THEME_SECONDARY__##;
+            --accent-color: ##__COLOR_THEME_ACCENT__##;
+            --background-color: ##__COLOR_THEME_BACKGROUND__##;
+        }
+    </style>
+    <script>
+        function copyMessageArea() {
+            const messageArea = document.querySelector('.message-area');
+            const text = messageArea.textContent;
+
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    const button = event.target.closest('.btn');
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied!';
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy:', err);
+                });
+        }
+    </script>
+</head>
+
+<body>
+    <pre style="display: none;">
+        <h2>Post Breakdown</h2>
+        
+        <div class="email-field">
+            <strong>Hook:</strong>
+            <p>The dramatic cost reduction in AI technology is a compelling hook that immediately grabs attention of entrepreneurs and tech enthusiasts. The specific numbers make it concrete and relatable.</p>
+        </div>
+
+        <div class="email-field">
+            <strong>Visual Elements:</strong>
+            <p>Recommend including a simple graph showing the cost decline of AI inference over time, with clear visualization of the 50X drop.</p>
+        </div>
+
+        <div class="email-field">
+            <strong>Engagement Hooks:</strong>
+            <ul>
+                <li>Specific numbers create credibility</li>
+                <li>Thread promise signals valuable insights to come</li>
+                <li>Mentioning Google adds authority</li>
+                <li>Cost reduction implies opportunity</li>
+            </ul>
+        </div>
+
+        <div class="email-field">
+            <strong>Algorithm Optimization:</strong>
+            <ul>
+                <li>Opens with high-impact numbers</li>
+                <li>Uses strategic emojis without overcrowding</li>
+                <li>Promises thread content</li>
+                <li>Name drops major tech company</li>
+                <li>Focuses on breaking news/insights</li>
+            </ul>
+        </div>
+
+        <div class="email-field">
+            <strong>The post is designed to:</strong>
+            <ul>
+                <li>Trigger curiosity about AI costs</li>
+                <li>Appeal to builders and entrepreneurs</li>
+                <li>Generate discussion about AI accessibility</li>
+                <li>Prompt questions about implementation</li>
+            </ul>
+        </div>
+    </pre>
+    <div class="email-container">
+        <div class="email-info-box">
+            <h2>Post Preview</h2>
+            <div class="message-area">
+                $body
+            </div>
+        </div>
+        <div>
+            <strong>⏰ Best timing:</strong> $posttime 🎯
+        </div>
+    </div>
+    <footer class="action-buttons">
+        <button class="btn" onclick="callCloudPhone(this)" data-phone="$phone" data-video-call="false"
+            data-call-out="true" data-custom-data='{"email": "$recipient"}' aria-label="Internet Call">
+            <span aria-hidden="true">🌐📞</span> Internet Call
+        </button>
+        <button class="btn" onclick="sendSMS(this)" data-phone="$phone" data-default-msg="$body"
+            aria-label="Send SMS">
+            <span aria-hidden="true">💬</span> Send SMS
+        </button>
+        <button class="btn" onclick="callPhone(this)" data-phone="$phone" aria-label="Phone Call">
+            <span aria-hidden="true">📱</span> Phone Call
+        </button>
+        <button class="btn" onclick="shareContent(this)" data-copy="true" data-body="$body" aria-label="Copy Email">
+            <span aria-hidden="true">📋</span> Copy Email
+        </button>
+        <button class="btn" onclick="shareContent(this)" data-copy="false" data-body="$body"
+            data-subject="Share Email" 
+            aria-label="Share">
+            <span aria-hidden="true">📤</span> Share
+        </button>
+    </footer>
+</body>
+
+</html>
