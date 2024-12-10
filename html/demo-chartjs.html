@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Board with Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f6fa;
+        }
+
+        .container {
+            width: 90%;
+            margin: 20px auto;
+        }
+
+        .kanban-heading {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .kanban-board {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kanban-block {
+            flex: 1;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            min-height: 500px;
+        }
+
+        .kanban-block strong {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
+
+        .task {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+            cursor: grab;
+            transition: all 0.3s ease;
+        }
+
+        .task:hover {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .task-button-block {
+            margin: 15px 0;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .charts-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .chart-block {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .kanban-board {
+                flex-direction: column;
+            }
+            .charts-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="kanban-heading">
+            <h1>Project Management Dashboard</h1>
+        </div>
+
+        <div class="kanban-board">
+            <div class="kanban-block" id="todo" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <strong>To Do</strong>
+                <div class="task-button-block">
+                    <button onclick="createNewTask()">Add New Task</button>
+                </div>
+                <div id="todo-tasks"></div>
+            </div>
+
+            <div class="kanban-block" id="inprogress" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <strong>In Progress</strong>
+                <div id="inprogress-tasks"></div>
+            </div>
+
+            <div class="kanban-block" id="done" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <strong>Done</strong>
+                <div id="done-tasks"></div>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-block">
+                <canvas id="taskDistributionChart"></canvas>
+            </div>
+            <div class="chart-block">
+                <canvas id="taskProgressChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let tasks = [];
+        let taskCounter = 1;
+
+        // Drag and Drop functions
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            const dropZone = ev.target.closest('.kanban-block');
+            
+            if (dropZone && draggedElement) {
+                const tasksContainer = dropZone.querySelector('div[id$="-tasks"]');
+                if (tasksContainer) {
+                    tasksContainer.appendChild(draggedElement);
+                    updateTaskStatus(data, dropZone.id);
+                    updateCharts();
+                }
+            }
+        }
+
+        // Task Management
+        function createNewTask() {
+            const taskId = `task-${taskCounter++}`;
+            const taskTitle = prompt("Enter task title:", "New Task");
+            
+            if (taskTitle) {
+                const taskElement = document.createElement('div');
+                taskElement.id = taskId;
+                taskElement.className = 'task';
+                taskElement.draggable = true;
+                taskElement.setAttribute('ondragstart', 'drag(event)');
+                taskElement.innerHTML = `
+                    <span>${taskTitle}</span>
+                    <button onclick="deleteTask('${taskId}')" style="float: right; padding: 2px 5px;">×</button>
+                `;
+
+                document.getElementById('todo-tasks').appendChild(taskElement);
+                tasks.push({ id: taskId, title: taskTitle, status: 'todo' });
+                updateCharts();
+            }
+        }
+
+        function deleteTask(taskId) {
+            const taskElement = document.getElementById(taskId);
+            if (taskElement && confirm('Are you sure you want to delete this task?')) {
+                taskElement.remove();
+                tasks = tasks.filter(task => task.id !== taskId);
+                updateCharts();
+            }
+        }
+
+        function updateTaskStatus(taskId, newStatus) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = newStatus;
+            }
+        }
+
+        // Charts
+        function initializeCharts() {
+            // Task Distribution Chart
+            const distributionCtx = document.getElementById('taskDistributionChart').getContext('2d');
+            window.distributionChart = new Chart(distributionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['To Do', 'In Progress', 'Done'],
+                    datasets: [{
+                        label: 'Number of Tasks',
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(75, 192, 192, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Task Distribution'
+                        }
+                    }
+                }
+            });
+
+            // Task Progress Chart
+            const progressCtx = document.getElementById('taskProgressChart').getContext('2d');
+            window.progressChart = new Chart(progressCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['To Do', 'In Progress', 'Done'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(75, 192, 192, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Task Progress'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            const todoCount = tasks.filter(task => task.status === 'todo').length;
+            const inProgressCount = tasks.filter(task => task.status === 'inprogress').length;
+            const doneCount = tasks.filter(task => task.status === 'done').length;
+
+            // Update Distribution Chart
+            window.distributionChart.data.datasets[0].data = [todoCount, inProgressCount, doneCount];
+            window.distributionChart.update();
+
+            // Update Progress Chart
+            window.progressChart.data.datasets[0].data = [todoCount, inProgressCount, doneCount];
+            window.progressChart.update();
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCharts();
+            
+            // Simulate loading initial tasks from an API
+            setTimeout(() => {
+                const initialTasks = [
+                    { id: 'task-1', title: 'Complete project documentation', status: 'todo' },
+                    { id: 'task-2', title: 'Review pull requests', status: 'inprogress' },
+                    { id: 'task-3', title: 'Deploy to production', status: 'done' }
+                ];
+
+                initialTasks.forEach(task => {
+                    const taskElement = document.createElement('div');
+                    taskElement.id = task.id;
+                    taskElement.className = 'task';
+                    taskElement.draggable = true;
+                    taskElement.setAttribute('ondragstart', 'drag(event)');
+                    taskElement.innerHTML = `
+                        <span>${task.title}</span>
+                        <button onclick="deleteTask('${task.id}')" style="float: right; padding: 2px 5px;">×</button>
+                    `;
+
+                    document.getElementById(`${task.status}-tasks`).appendChild(taskElement);
+                });
+
+                tasks = initialTasks;
+                taskCounter = tasks.length + 1;
+                updateCharts();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
