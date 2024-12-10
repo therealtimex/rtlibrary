@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://therealtimex.github.io">
+    <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-ai-html.css">
+    <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-abs.js" defer></script>
+    <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
+    <script src="https://therealtimex.github.io/rtlibrary/js/rt-button-status.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script>
+
+    <style>
+        :root {
+            --primary-color: ##__COLOR_THEME_PRIMARY__##;
+            --secondary-color: ##__COLOR_THEME_SECONDARY__##;
+            --accent-color: ##__COLOR_THEME_ACCENT__##;
+            --background-color: ##__COLOR_THEME_BACKGROUND__##;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <div class="email-info-box">
+            <h2>Post Preview</h2>
+            <div class="message-area">
+                $body
+            </div>
+        </div>
+        <div>
+            <strong>⏰ Best timing:</strong> $posttime 🎯
+        </div>
+    </div>
+    <footer class="action-buttons">
+        <button class="btn-shade" style="--btn-shade: 0%" onclick="shareContent(this)" data-copy="true"
+            data-body="$body" aria-label="Sao chép Post">
+            <span aria-hidden="true">📋</span> Sao chép Post
+        </button>
+        <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 20%" onclick="openDeeplink()"
+            data-deep-link="https://www.linkedin.com/sharing/share-offsite/?text=$body" aria-label="Mở LinkedIn">
+            <span aria-hidden="true">🔗</span> LinkedIn</button> </button>
+        <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 40%" onclick="openDeeplink()"
+            data-deep-link="https://facebook.com/share.php?u=#" aria-label="Mở Facebook">
+            <span aria-hidden="true">🔗</span> Facebook</button> </button>
+        <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+            data-deep-link="https://twitter.com/intent/tweet?text=$body" aria-label="Mở Twitter">
+            <span aria-hidden="true">🔗</span> Twitter</button> </button>
+        <button class="btn-shade" style="--btn-shade: 80%" onclick="showBreakdown()" aria-label="Phân tích bài viết">
+            <span aria-hidden="true">🧩</span> Phân tích bài viết
+        </button>
+    </footer>
+
+    <dialog id="breakdownDialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Post Breakdown</h3>
+                <button class="close-btn" onclick="closeBreakdown()" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <md>$postbreakdown</md>
+            </div>
+        </div>
+    </dialog>
+</body>
+
+</html>
