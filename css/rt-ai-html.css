@@ -16,13 +16,22 @@
   .email-info-box {
     display: grid;
     gap: 0.75rem;  
-    padding: clamp(0.5rem, 1vw, 0.75rem); 
+    padding: clamp(0.75rem, 2vw, 1.25rem); 
     background-color: var(--background-color);
     border-radius: 1px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     transition: transform var(--transition-speed) ease;
 }
-  .email-field {
+
+.email-info-box h2 {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 0;
+}
+
+.email-field {
     display: grid;
     grid-template-columns: minmax(80px, auto) 1fr;
     align-items: start;
