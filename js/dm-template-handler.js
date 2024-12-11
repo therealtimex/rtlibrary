@@ -69,3 +69,35 @@ function closeModal() {
 }
 
 document.addEventListener("DOMContentLoaded", fetchThumbnails);
+
+// get mapKey 
+async function fetchGoogleMapsApiKey() {
+    const apiUrl = 'https://api.realtimex.co/v1/keys/google/maps';
+
+    // Set up request options
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            // Uncomment the line below if you need to include an authorization token
+            // 'Authorization': `Bearer YOUR_ACCESS_TOKEN`
+        }
+    };
+
+    try {
+        const response = await fetch(apiUrl, requestOptions);
+
+        // Check if the response is ok (status in the range 200-299)
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.status}`);
+        }
+
+        // Parse the JSON response
+        const data = await response.json();
+        
+        return data.api_key; // Return the API key for further use
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
