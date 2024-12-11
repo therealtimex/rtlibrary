@@ -6,7 +6,7 @@
   }
   
   .email-container {
-    max-width: min(100%, var(--container-max-width));
+    max-width: 100%;
     padding: 1px;
     margin: 0 auto;
     display: grid;
