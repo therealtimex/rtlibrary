@@ -194,18 +194,19 @@ dialog {
 
 .business-card {
     width: 100%;
-    max-width: 100%;
+    max-width: 800px;
     background: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 8px 8px var(--card-shadow);
-    padding: 12px;
-    transition: transform var(--transition-speed) ease-in-out,
-        box-shadow var(--transition-speed) ease-in-out;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    transition: transform 0.3s ease-in-out,
+                box-shadow 0.3s ease-in-out;
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    margin-top: 20px;
+    margin: 20px auto;
+    overflow: hidden;
 }
 
 .business-card:hover {
@@ -364,7 +365,8 @@ dialog {
 
 @media (max-width: 768px) {
     .business-card {
-        padding: 24px;
+        padding: 16px;
+        margin: 10px auto;
     }
 
     .card-content {
@@ -398,7 +400,9 @@ dialog {
 
 @media (max-width: 480px) {
     .business-card {
-        padding: 8px;
+        padding: 12px;
+        margin: 5px auto;
+        border-radius: 6px;
     }
 
     .profile-picture {
