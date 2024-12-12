@@ -1,0 +1,273 @@
+<en>
+    <!DOCTYPE html>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+        <!-- Preconnect to external domains -->
+        <link rel="preconnect" href="https://cdn.jsdelivr.net">
+        <link rel="preconnect" href="https://therealtimex.github.io">
+        <link rel="preconnect" href="https://maps.google.com">
+
+        <!-- Modern Bootstrap -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-dmview-css-min.css">
+
+        <style>
+            :root {
+                --color_theme_primary: ##__COLOR_THEME_PRIMARY__##;
+                --color_theme_secondary: ##__COLOR_THEME_SECONDARY__##;
+                --color_theme_accent: ##__COLOR_THEME_ACCENT__##;
+                --color_theme_success: ##__COLOR_THEME_SUCCESS__##;
+                --color_theme_info: ##__COLOR_THEME_INFO__##;
+                --color_theme_warning: ##__COLOR_THEME_WARNING__##;
+                --color_theme_danger: ##__COLOR_THEME_DANGER__##;
+                --color_theme_background: ##__COLOR_THEME_BACKGROUND__##;
+                --color_theme_surface: ##__COLOR_THEME_SURFACE__##;
+                --color_theme_text_primary: ##__COLOR_THEME_TEXT_PRIMARY__##;
+                --color_theme_text_secondary: ##__COLOR_THEME_TEXT_SECONDARY__##;
+                --color_theme_text_disabled: ##__COLOR_THEME_TEXT_DISABLED__##;
+                --color_theme_neutral_light: ##__COLOR_THEME_NEUTRAL_LIGHT__##;
+                --color_theme_neutral_medium: ##__COLOR_THEME_NEUTRAL_MEDIUM__##;
+                --color_theme_neutral_dark: ##__COLOR_THEME_NEUTRAL_DARK__##;
+                --color_theme_border: ##__COLOR_THEME_BORDER__##;
+                --color_theme_focus: ##__COLOR_THEME_FOCUS__##;
+                --color_theme_error_background: ##__COLOR_THEME_ERROR_BACKGROUND__##;
+                --color_theme_error_text: ##__COLOR_THEME_ERROR_TEXT__##;
+                --color_theme_link: ##__COLOR_THEME_LINK__##;
+                --color_theme_shadow: ##__COLOR_THEME_SHADOW__##;
+
+                --size-spacing-small: 0.75rem;
+                --size-spacing-medium: 1rem;
+                --size-spacing-large: 2rem;
+                --size-spacing-base: var(--size-spacing-medium);
+            }
+        </style>
+    </head>
+
+    <body>
+        <main class="container">
+            <div>
+                <h3 class="dmview-title">##apv_content_lb##</h3>
+
+                <div class="tab-container">
+                    <ul class="nav nav-pills mb-3" id="dmTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab1" data-bs-toggle="tab"
+                                data-bs-target="#info-content" type="button" role="tab" aria-controls="info-content"
+                                aria-selected="true">
+                                🔄 Process
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab2" data-bs-toggle="tab" data-bs-target="#media-content"
+                                type="button" role="tab" aria-controls="media-content" aria-selected="false">
+                                💼 Documents
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="TabContent">
+                        <div class="tab-pane fade show active" id="info-content" role="tabpanel" aria-labelledby="tab1">
+                            <div class="content-scroll">
+                                <p class="mb-1">
+                                    <span aria-hidden="true">🛠️</span> : ##info_en##
+                                </p>
+                                <p class="mb-1">
+                                    <span aria-hidden="true">✅</span> Exception approval: ##apv_excep_en##
+                                </p>
+                                <p class="mb-1">
+                                    <span aria-hidden="true">👔</span> Exception approver: ##apv_approver_lb##
+                                </p>
+                                <p class="mb-1">
+                                    <span aria-hidden="true">👨</span> Staff can only view: ##apv_view_lb##
+                                </p>
+                                <p class="mb-1">
+                                    <span aria-hidden="true">🏷️</span> Tags: ##lib_tag##
+                                </p>
+                                <p class="mb-1">
+                                    <span aria-hidden="true">👤</span> Setup by: ##fullname## - Setup at: ##endtime##
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="media-content" role="tabpanel" aria-labelledby="tab2">
+                            <div class="media-container" id="media-slider-container" aria-label="Media Gallery">
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="map-content" role="tabpanel" aria-labelledby="tab3">
+                            <iframe tabindex="-1" width=100% height=100% style="border:0;" loading="lazy"
+                                allowfullscreen
+                                src="https://maps.google.com/maps?key=zaSyCZ9K-IVs5Q2leQsh19KF-oYRvL9lJGzJQ&q=##crm_gpsLatitude##,##crm_gpsLongitude##&z=14&output=embed"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modern JS Dependencies -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"
+            defer></script>
+        <script src="https://therealtimex.github.io/rtlibrary/js/mediaSlider.js">defer ></script>
+        <script>
+            const listFiles = "##apv_image1##; ##apv_image2##; ##apv_image3##; ##apv_image6##; ##apv_image7##; ##apv_video##";
+            let listFilesArray;
+            if (
+                listFiles === "null" ||
+                listFiles.trim() === "" ||
+                listFiles.trim().split("").every(char => char === ";") ||
+                !listFiles.split(";").some(url => url.trim() && !url.includes("##"))
+            ) {
+                listFilesArray = [];
+            } else {
+                listFilesArray = listFiles.split(";").filter(url => url.trim() && !url.includes("##"));
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                new MediaSlider('media-slider-container', listFilesArray);
+            });
+        </script>
+    </body>
+
+    </html>
+</en>
+<vi>
+    <!DOCTYPE html>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+        <!-- Preconnect to external domains -->
+        <link rel="preconnect" href="https://cdn.jsdelivr.net">
+        <link rel="preconnect" href="https://therealtimex.github.io">
+        <link rel="preconnect" href="https://maps.google.com">
+
+        <!-- Modern Bootstrap -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-dmview-css-min.css">
+
+        <style>
+            :root {
+                --color_theme_primary: ##__COLOR_THEME_PRIMARY__##;
+                --color_theme_secondary: ##__COLOR_THEME_SECONDARY__##;
+                --color_theme_accent: ##__COLOR_THEME_ACCENT__##;
+                --color_theme_success: ##__COLOR_THEME_SUCCESS__##;
+                --color_theme_info: ##__COLOR_THEME_INFO__##;
+                --color_theme_warning: ##__COLOR_THEME_WARNING__##;
+                --color_theme_danger: ##__COLOR_THEME_DANGER__##;
+                --color_theme_background: ##__COLOR_THEME_BACKGROUND__##;
+                --color_theme_surface: ##__COLOR_THEME_SURFACE__##;
+                --color_theme_text_primary: ##__COLOR_THEME_TEXT_PRIMARY__##;
+                --color_theme_text_secondary: ##__COLOR_THEME_TEXT_SECONDARY__##;
+                --color_theme_text_disabled: ##__COLOR_THEME_TEXT_DISABLED__##;
+                --color_theme_neutral_light: ##__COLOR_THEME_NEUTRAL_LIGHT__##;
+                --color_theme_neutral_medium: ##__COLOR_THEME_NEUTRAL_MEDIUM__##;
+                --color_theme_neutral_dark: ##__COLOR_THEME_NEUTRAL_DARK__##;
+                --color_theme_border: ##__COLOR_THEME_BORDER__##;
+                --color_theme_focus: ##__COLOR_THEME_FOCUS__##;
+                --color_theme_error_background: ##__COLOR_THEME_ERROR_BACKGROUND__##;
+                --color_theme_error_text: ##__COLOR_THEME_ERROR_TEXT__##;
+                --color_theme_link: ##__COLOR_THEME_LINK__##;
+                --color_theme_shadow: ##__COLOR_THEME_SHADOW__##;
+
+                --size-spacing-small: 0.75rem;
+                --size-spacing-medium: 1rem;
+                --size-spacing-large: 2rem;
+                --size-spacing-base: var(--size-spacing-medium);
+            }
+        </style>
+    </head>
+
+    <body>
+        <main class="container">
+            <div>
+                <h3 class="dmview-title">##apv_content_lb##</h3>
+
+                <div class="tab-container">
+                    <ul class="nav nav-pills mb-3" id="dmTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab1" data-bs-toggle="tab"
+                                data-bs-target="#info-content" type="button" role="tab" aria-controls="info-content"
+                                aria-selected="true">
+                                🔄 Quy trình
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab2" data-bs-toggle="tab" data-bs-target="#media-content"
+                                type="button" role="tab" aria-controls="media-content" aria-selected="false">
+                                💼 Tài liệu
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="TabContent">
+                        <div class="tab-pane fade show active" id="info-content" role="tabpanel" aria-labelledby="tab1">
+                            <div class="content-scroll">
+                                <p class="mb-1">
+                                    <span aria-hidden="true">🛠️</span> : ##info_vi##
+                                </p>
+                                <p class="mb-1">
+                                    <span aria-hidden="true">✅</span> Phê duyệt ngoại lệ: ##apv_excep_vi##
+                                </p>
+                                <p class="mb-1">
+                                    <span aria-hidden="true">👔</span> Người phê duyệt ngoại lệ: ##apv_approver_lb##
+                                </p>
+                                <p class="mb-1">
+                                    <span aria-hidden="true">👨</span> Nhân viên chỉ có quyền xem: ##apv_view_lb##
+                                </p>
+                                <p class="mb-1">
+                                    <span aria-hidden="true">🏷️</span> Tag: ##lib_tag##
+                                </p>
+                                <p class="mb-1">
+                                    <span aria-hidden="true">👤</span> Người thiết lập: ##fullname## - Thời gian thiết
+                                    lập: ##endtime##
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="media-content" role="tabpanel" aria-labelledby="tab2">
+                            <div class="media-container" id="media-slider-container" aria-label="Media Gallery">
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="map-content" role="tabpanel" aria-labelledby="tab3">
+                            <iframe tabindex="-1" width=100% height=100% style="border:0;" loading="lazy"
+                                allowfullscreen
+                                src="https://maps.google.com/maps?key=AIzaSyCZ9K-IVs5Q2leQsh19KF-oYRvL9lJGzJQ&q=##crm_gpsLatitude##,##crm_gpsLongitude##&z=14&output=embed"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modern JS Dependencies -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"
+            defer></script>
+        <script src="https://therealtimex.github.io/rtlibrary/js/mediaSlider.js">defer ></script>
+        <script>
+            const listFiles = "##apv_image1##; ##apv_image2##; ##apv_image3##; ##apv_image6##; ##apv_image7##; ##apv_video##";
+            let listFilesArray;
+            if (
+                listFiles === "null" ||
+                listFiles.trim() === "" ||
+                listFiles.trim().split("").every(char => char === ";") ||
+                !listFiles.split(";").some(url => url.trim() && !url.includes("##"))
+            ) {
+                listFilesArray = [];
+            } else {
+                listFilesArray = listFiles.split(";").filter(url => url.trim() && !url.includes("##"));
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                new MediaSlider('media-slider-container', listFilesArray);
+            });
+        </script>
+    </body>
+
+    </html>
+</vi>
