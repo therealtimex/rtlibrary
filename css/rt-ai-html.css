@@ -390,7 +390,7 @@ dialog {
 
 @media (max-width: 480px) {
     .business-card {
-        padding: 16px;
+        padding: 8px;
     }
 
     .profile-picture {
@@ -413,7 +413,7 @@ dialog {
 
     .note {
         font-size: 0.9em;
-        padding: 12px;
+        padding: 6px;
     }
 }
 
