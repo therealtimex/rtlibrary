@@ -164,11 +164,12 @@ body {
     text-overflow: ellipsis;
 }
 
-.note:empty {
-    display: none !important;
+.note:not(:has(text:not(:empty))) {
+    display: none;
 }
-.contact-item:empty {
-    display: none !important;
+
+.contact-item:not(:has(a:not(:empty), span:not(:empty))) {
+    display: none;
 }
 
 @media (max-width: 768px) {
