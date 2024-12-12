@@ -13,15 +13,6 @@
     box-sizing: border-box;
 }
 
-body {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, var(--background-color) 0%, #ffffff 100%);
-    padding: 20px;
-}
-
   .email-container {
     max-width: 100%;
     padding: 1px;
