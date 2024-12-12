@@ -16,4 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--background-color', '#f8f9fa');
         root.style.setProperty('--accent-color', '#f5f5f5');
     }
+
+    // Check and set fallback colors if needed
+    if (!isValidColor(style.getPropertyValue('--color_theme_primary').trim())) {
+        root.style.setProperty('--color_theme_primary', '#2c3e50');
+        root.style.setProperty('--color_theme_secondary', '#3498db');
+        root.style.setProperty('--color_theme_background', '#f8f9fa');
+        root.style.setProperty('--color_theme_accent', '#f5f5f5');
+    }
 });
