@@ -164,6 +164,12 @@ body {
     text-overflow: ellipsis;
 }
 
+.note:empty {
+    display: none;
+}
+.contact-item:empty {
+    display: none;
+}
 
 @media (max-width: 768px) {
     .business-card {
