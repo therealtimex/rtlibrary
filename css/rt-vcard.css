@@ -165,10 +165,10 @@ body {
 }
 
 .note:empty {
-    display: none;
+    display: none !important;
 }
 .contact-item:empty {
-    display: none;
+    display: none !important;
 }
 
 @media (max-width: 768px) {
