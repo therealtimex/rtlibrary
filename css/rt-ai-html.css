@@ -199,10 +199,8 @@ dialog {
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     padding: 24px;
-    position: absolute;
+    position: relative;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
     margin: 20px auto;
     overflow: hidden;
 }
