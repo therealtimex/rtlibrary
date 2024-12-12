@@ -13,16 +13,7 @@
     box-sizing: border-box;
 }
 
-body {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, var(--background-color) 0%, #ffffff 100%);
-    padding: 20px;
-}
-
-  .email-container {
+.email-container {
     max-width: 100%;
     padding: 1px;
     margin: 0 auto;
@@ -30,7 +21,7 @@ body {
     gap: 1.5rem;
   }
   
-  .email-info-box {
+.email-info-box {
     display: grid;
     gap: 0.75rem;  
     padding: clamp(0.75rem, 2vw, 1.25rem); 
@@ -55,7 +46,7 @@ body {
     gap: 1rem;
   }
   
-  .message-area {
+.message-area {
     width: 100%;
     min-height: 150px;
     max-height: min(70vh, 500px);
@@ -69,14 +60,14 @@ body {
     display: block;
 }
   
-  .action-buttons {
+.action-buttons {
     display: flex;
     flex-wrap: wrap;
     gap: clamp(0.5rem, 2vw, 1rem);
     margin-top: 1.5rem;
   }
   
-  .btn {
+.btn {
     flex: 1 1 auto;
     min-width: min(120px, 100%);
     padding: 0.75rem 1.25rem;
@@ -95,7 +86,7 @@ body {
     -webkit-tap-highlight-color: transparent;
   }
   
-  .btn-shade {
+.btn-shade {
     flex: 1 1 auto;
     min-width: min(120px, 100%);
     padding: 0.75rem 1.25rem;
@@ -129,7 +120,7 @@ body {
     flex-shrink: 0;
 }
 
- @media screen and (max-width: 600px) {
+@media screen and (max-width: 600px) {
     .btn {
         flex: 1 1 100%;
     }
