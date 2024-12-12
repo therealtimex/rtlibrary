@@ -213,7 +213,7 @@ dialog {
 .card-content {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 32px;
+    gap: 16px;
 }
 
 .left-column {
