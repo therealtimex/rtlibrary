@@ -28,7 +28,7 @@ body {
     max-width: 800px;
     background: #ffffff;
     border-radius: 16px;
-    box-shadow: 0 8px 32px var(--card-shadow);
+    box-shadow: 0 8px 8px var(--card-shadow);
     padding: 32px;
     transition: transform var(--transition-speed) ease-in-out,
                 box-shadow var(--transition-speed) ease-in-out;
