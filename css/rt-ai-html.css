@@ -351,6 +351,14 @@ dialog {
     text-overflow: ellipsis;
 }
 
+img[src=""] {
+    display: none;
+}
+
+.qr-code:empty {
+    display: none;
+}
+
 .note:empty {
     display: none;
 }
