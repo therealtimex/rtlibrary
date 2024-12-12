@@ -204,6 +204,14 @@ dialog {
     gap: 24px;
 }
 
+.profile h1 {
+    padding: 5px 5px;
+}
+
+.profile h2 {
+    padding: 5px 5px;
+}
+
 .profile-picture {
     width: 150px;
     height: 150px;
