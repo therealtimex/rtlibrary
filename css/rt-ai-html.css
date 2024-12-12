@@ -351,11 +351,8 @@ dialog {
     text-overflow: ellipsis;
 }
 
-img[src=""] {
-    display: none;
-}
-
-.qr-code:empty {
+.qr-code:has(img[src=""]),
+.qr-code:has(img:not([src])) {
     display: none;
 }
 
