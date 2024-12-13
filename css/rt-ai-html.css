@@ -418,7 +418,7 @@ dialog {
     color: var(--text-color);
     background: var(--background-color);
     padding: 16px;
-    margin: 20px 0;
+    margin: 12px 0;
     /* Adds vertical spacing while keeping horizontal at 0 */
     border-radius: 8px;
     border-left: 4px solid var(--primary-color);
