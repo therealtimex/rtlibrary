@@ -67,83 +67,77 @@
     margin-top: 1.5rem;
 }
 
+/* Button classes */
 .btn {
+    /* Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    
+    /* Size and spacing */
     flex: 1 1 auto;
     min-width: min(120px, 100%);
+    min-height: 48px;
     padding: 0.75rem 1.25rem;
+    
+    /* Typography */
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+    color: white;
+    
+    /* Visual styling */
     border: none;
     border-radius: var(--border-radius);
     background-color: var(--secondary-color);
-    background: linear-gradient(to right, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background-image: linear-gradient(to right, var(--primary-color) 0%, var(--secondary-color) 100%);
     background-size: 200% auto;
-    color: white;
+    position: relative;
+    overflow: hidden;
+    
+    /* Interaction */
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-weight: 500;
-    text-align: center;
-    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    line-height: 1.4;
-    font-weight: 500;
-}
-
-.btn-shade {
-    flex: 1 1 auto;
-    min-width: min(120px, 100%);
-    padding: 0.75rem 1.25rem;
-    border: none;
-    border-radius: var(--border-radius);
-    background: linear-gradient(to right, var(--primary-color) 0%, var(--secondary-color) 100%);
-    background-size: 200% auto;
-    color: white;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-weight: 500;
-    text-align: center;
     -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    line-height: 1.4;
-    font-weight: 500;
-    background-color: color-mix(in srgb,
-            var(--primary-color) 70%,
-            var(--secondary-color));
+    transition: background-position var(--transition-speed), box-shadow var(--transition-speed);
 }
 
 .btn:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     background-position: right center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn::before {
     content: "";
     position: absolute;
     top: 0;
-    left: 0;
+    left: -100%;
     width: 100%;
     height: 100%;
     background: rgba(255, 255, 255, 0.1);
+    transition: left var(--transition-speed);
 }
 
-.btn-shade:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    background-position: right center;
-}
-
-.btn-shade::before {
-    content: "";
-    position: absolute;
-    top: 0;
+.btn:hover::before {
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.1);
 }
+
+@media screen and (max-width: 600px) {
+    .btn {
+        width: 100%;
+        font-size: 17px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn,
+    .btn::before {
+        transition: none;
+    }
+}
+
 .btn svg {
     width: 1em;
     /* Reduced from 1.25em */
@@ -158,26 +152,77 @@
     flex-shrink: 0;
 }
 
-@media screen and (max-width: 600px) {
-    .btn {
-        flex: 1 1 100%;
-        width: 100%; /* Full width on mobile */
-        font-size: 17px; /* Slightly larger for better readability */
-        padding: 12px 24px;
-    }
+/* Button with shade param */
+.btn-shade {
+    /* Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    position: relative;
+    overflow: hidden;
+    
+    /* Size and spacing */
+    flex: 1 1 auto;
+    min-width: min(120px, 100%);
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
+    
+    /* Typography */
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+    color: white;
+    
+    /* Visual styling */
+    border: none;
+    border-radius: var(--border-radius);
+    background-image: linear-gradient(to right, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background-size: 200% auto;
+    background-color: color-mix(in srgb, var(--primary-color) 70%, var(--secondary-color));
+    
+    /* Interaction */
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-position var(--transition-speed), box-shadow var(--transition-speed);
 }
 
-@media (hover: hover) {
-    .btn:hover {
-        opacity: 0.9;
+.btn-shade:hover {
+    background-position: right center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-shade::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: left var(--transition-speed);
+}
+
+.btn-shade:hover::before {
+    left: 0;
+}
+
+@media screen and (max-width: 600px) {
+    .btn-shade {
+        width: 100%;
+        font-size: 17px;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .btn {
+    .btn-shade,
+    .btn-shade::before {
         transition: none;
     }
 }
+
 
 /* Replace alert() with showRTDialog() */
 dialog::backdrop {
