@@ -78,8 +78,8 @@
     /* Size and spacing */
     flex: 1 1 auto;
     min-width: min(120px, 100%);
-    min-height: 48px;
-    padding: 0.75rem 1.25rem;
+    min-height: 40px;
+    padding: 0.5rem 1rem;
     
     /* Typography */
     font-size: 15px;
@@ -151,8 +151,8 @@
     /* Size and spacing */
     flex: 1 1 auto;
     min-width: min(120px, 100%);
-    min-height: 48px;
-    padding: 0.75rem 1.25rem;
+    min-height: 40px;
+    padding: 0.5rem 1rem;
     
     /* Typography */
     font-size: 15px;
