@@ -118,7 +118,7 @@
 }
 
 .btn:hover {
-    transform: translateY(-5px);
+    transform: none;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     background-position: right center;
 }
@@ -131,12 +131,12 @@
     width: 100%;
     height: 100%;
     background: rgba(255, 255, 255, 0.1);
-    transform: translateX(-100%);
+    transform: none;
     transition: transform var(--transition-speed);
 }
 
 .btn-shade:hover {
-    transform: translateY(-5px);
+    transform: none;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     background-position: right center;
 }
@@ -149,7 +149,7 @@
     width: 100%;
     height: 100%;
     background: rgba(255, 255, 255, 0.1);
-    transform: translateX(-100%);
+    transform: none;
     transition: transform var(--transition-speed);
 }
 .btn svg {
