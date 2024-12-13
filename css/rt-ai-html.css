@@ -254,8 +254,8 @@ dialog {
     transform: translate(-50%, -50%);
     
     /* Dimensions */
-    min-width: 300px;
-    max-width: min(600px, 90%);
+    min-width: 320px;
+    max-width: min(800px, 84%);
     max-height: 90vh;
     width: fit-content;
     
@@ -269,11 +269,21 @@ dialog {
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     
-    /* Animation */
-    transition: transform var(--transition-speed);
-    
     /* Ensure modal stays on top */
     z-index: 1000;
+}
+
+@media screen and (max-width: 672px) {
+    .modal-content {
+        max-width: 96%;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .modal-content {
+        max-width: 100%;
+        min-width: 100%;
+    }
 }
 
 .modal-header {
