@@ -67,6 +67,7 @@
     margin-inline: auto;
     margin-block: 1.5rem;
     width: 100%;
+    padding-inline: 0;
 }
 
 /* Button classes */
@@ -195,6 +196,12 @@
 
 .btn-shade:hover::before {
     left: 0;
+}
+
+.action-buttons > .btn:only-child,
+.action-buttons > .btn-shade:only-child {
+    flex: 1 1 100%;
+    width: 100%;
 }
 
 @media screen and (max-width: 600px) {
