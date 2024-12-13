@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Icon</title>
+<style>
+:root {
+  /* Main theme colors as shown in the UI */
+  --color_theme_primary: #00BFA5;     /* The green color used in "APPROVE REQUEST" */
+  --color_theme_secondary: #6B7280;   /* Used in secondary text */
+  --color_theme_accent: #4A90E2;      /* Blue accent color */
+  --color_theme_success: #00BFA5;     /* Green checkmark color */
+  --color_theme_danger: #EF4444;      /* Red X mark color */
+  --color_theme_background: #FFFFFF;  /* White background */
+  --color_theme_surface: #F9FAFB;    /* Card background color */
+  --color_theme_text_primary: #111827; /* Main text color */
+  --color_theme_text_secondary: #6B7280; /* Secondary text color */
+  --color_theme_neutral_light: #F3F4F6; /* Light gray background */
+  --color_theme_neutral_medium: #E5E7EB; /* Medium gray */
+  --color_theme_neutral_dark: #4B5563;  /* Dark gray text */
+}
+
+/* Test div to preview colors */
+.color-test {
+  width: 50px;
+  height: 50px;
+  margin: 5px;
+  border: 1px solid #ccc;
+}
+
+.primary { background-color: var(--color_theme_primary); }
+.secondary { background-color: var(--color_theme_secondary); }
+.accent { background-color: var(--color_theme_accent); }
+.success { background-color: var(--color_theme_success); }
+.danger { background-color: var(--color_theme_danger); }
+</style>
+</head>
+<body>
+
+
+
+<div class="no-results-container" style="text-align: center; padding: 40px; background-color: var(--color_theme_background);">
+    <svg width="240" height="240" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background elements -->
+        <circle cx="12" cy="12" r="11" fill="var(--color_theme_neutral_light)" />
+        
+        <!-- Main search illustration -->
+        <g transform="translate(4, 4)">
+            <circle cx="7" cy="7" r="6" 
+                stroke="var(--color_theme_primary)" 
+                stroke-width="1.5" 
+                fill="var(--color_theme_surface)" />
+            <line x1="11.5" y1="11.5" x2="16" y2="16" 
+                stroke="var(--color_theme_primary)" 
+                stroke-width="1.5" 
+                stroke-linecap="round" />
+            
+            <!-- Animated elements -->
+            <path d="M7 4.5v5" 
+                stroke="var(--color_theme_accent)"
+                stroke-width="1.5"
+                stroke-linecap="round">
+                <animate attributeName="d" 
+                    dur="1.5s"
+                    repeatCount="indefinite"
+                    values="M7 4.5v5;M7 6.5v1;M7 4.5v5" />
+            </path>
+        </g>
+        
+        <!-- Decorative elements -->
+        <circle cx="18" cy="6" r="1" fill="var(--color_theme_secondary)">
+            <animate attributeName="opacity"
+                dur="2s"
+                repeatCount="indefinite"
+                values="0.3;1;0.3" />
+        </circle>
+        <circle cx="6" cy="18" r="1" fill="var(--color_theme_secondary)">
+            <animate attributeName="opacity"
+                dur="2s"
+                repeatCount="indefinite"
+                values="1;0.3;1" />
+        </circle>
+    </svg>
+    
+    <div style="margin-top: 24px;">
+        <h3 style="color: var(--color_theme_text_primary); font-size: 20px; margin-bottom: 8px;">
+            No Results Found
+        </h3>
+        <p style="color: var(--color_theme_text_secondary); font-size: 14px;">
+            Try adjusting your search criteria
+        </p>
+    </div>
+</div>
+
+
+
+
+
+</body>
+</html>
