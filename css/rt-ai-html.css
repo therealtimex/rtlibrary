@@ -107,6 +107,11 @@
             var(--secondary-color));
 }
 
+.btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .btn svg {
     width: 1em;
     /* Reduced from 1.25em */
