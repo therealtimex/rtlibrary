@@ -1,27 +1,36 @@
-// Check if theme variables are valid color codes
 document.addEventListener('DOMContentLoaded', () => {
     const root = document.documentElement;
     const style = getComputedStyle(root);
 
+    // Default theme colors
+    const defaultColors = {
+        primary: '#2c3e50',
+        secondary: '#3498db',
+        background: '#f8f9fa',
+        accent: '#f5f5f5'
+    };
+
     function isValidColor(color) {
+        if (!color) return false;
         const s = new Option().style;
         s.color = color;
         return s.color !== '';
     }
 
-    // Check and set fallback colors if needed
-    if (!isValidColor(style.getPropertyValue('--primary-color').trim())) {
-        root.style.setProperty('--primary-color', '#2c3e50');
-        root.style.setProperty('--secondary-color', '#3498db');
-        root.style.setProperty('--background-color', '#f8f9fa');
-        root.style.setProperty('--accent-color', '#f5f5f5');
+    function setFallbackColors(prefix) {
+        const colorTypes = ['primary', 'secondary', 'background', 'accent'];
+        
+        colorTypes.forEach(type => {
+            const varName = `--${prefix}${type}`;
+            const currentColor = style.getPropertyValue(varName).trim();
+            
+            if (!isValidColor(currentColor)) {
+                root.style.setProperty(varName, defaultColors[type]);
+            }
+        });
     }
 
-    // Check and set fallback colors if needed
-    if (!isValidColor(style.getPropertyValue('--color_theme_primary').trim())) {
-        root.style.setProperty('--color_theme_primary', '#2c3e50');
-        root.style.setProperty('--color_theme_secondary', '#3498db');
-        root.style.setProperty('--color_theme_background', '#f8f9fa');
-        root.style.setProperty('--color_theme_accent', '#f5f5f5');
-    }
+    // Check both naming conventions
+    setFallbackColors('');
+    setFallbackColors('color_theme_');
 });
