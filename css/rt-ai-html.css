@@ -246,17 +246,34 @@ dialog {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-
 .modal-content {
-    min-width: 300px;
+    /* Positioning */
     position: fixed;
     top: 50%;
     left: 50%;
-    background-color: var(--background-color);
     transform: translate(-50%, -50%);
-    max-width: 90%;
+    
+    /* Dimensions */
+    min-width: 300px;
+    max-width: min(600px, 90%);
     max-height: 90vh;
+    width: fit-content;
+    
+    /* Visual styling */
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    
+    /* Scroll behavior */
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    
+    /* Animation */
+    transition: transform var(--transition-speed);
+    
+    /* Ensure modal stays on top */
+    z-index: 1000;
 }
 
 .modal-header {
