@@ -254,7 +254,7 @@ dialog {
     transform: translate(-50%, -50%);
     
     /* Dimensions */
-    min-width: 320px;
+    min-width: 80%;
     max-width: min(800px, 84%);
     max-height: 90vh;
     width: fit-content;
