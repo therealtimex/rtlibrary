@@ -223,6 +223,19 @@
     }
 }
 
+.btn-shade svg {
+    width: 1em;
+    /* Reduced from 1.25em */
+    height: 1em;
+    /* Reduced from 1.25em */
+    flex-shrink: 0;
+}
+
+.btn-shade span[aria-hidden="true"] {
+    font-size: 1.25em;
+    line-height: 1;
+    flex-shrink: 0;
+}
 
 /* Replace alert() with showRTDialog() */
 dialog::backdrop {
