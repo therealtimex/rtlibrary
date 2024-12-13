@@ -364,7 +364,7 @@ dialog {
     height: 150px;
     border-radius: 50%;
     overflow: hidden;
-    border: 3px solid var(--primary-color);
+    border: 1px solid var(--primary-color);
     transition: transform var(--transition-speed);
 }
 
