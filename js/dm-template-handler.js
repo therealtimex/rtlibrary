@@ -5,11 +5,12 @@ function hideEmptyElements() {
     dmElements.forEach(dm => {
       const dmValue = dm.querySelector('.dm-value');
       if (dmValue && !dmValue.textContent.trim()) {
-        dm.classList.add('dm-hidden');
+        dm.style.display = 'none';
       }
     });
   }
   window.addEventListener('load', hideEmptyElements);
+  
   
 // used in auto-interaction
 const showRelevantFields = () => {
