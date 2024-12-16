@@ -1,5 +1,16 @@
 // dm-template-handler.js: js for html templates
-
+// hide empty element
+function hideEmptyElements() {
+    const dmElements = document.querySelectorAll('.dm');
+    dmElements.forEach(dm => {
+      const dmValue = dm.querySelector('.dm-value');
+      if (dmValue && !dmValue.textContent.trim()) {
+        dm.classList.add('dm-hidden');
+      }
+    });
+  }
+  window.addEventListener('load', hideEmptyElements);
+  
 // used in auto-interaction
 const showRelevantFields = () => {
     const toolType = document.querySelector('[data-tool-type]').textContent.toLowerCase();
