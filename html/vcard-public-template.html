@@ -1,0 +1,245 @@
+<en>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Email details viewer and communication interface">
+
+        <!-- Preconnect to external domains -->
+        <link rel="preconnect" href="https://therealtimex.github.io">
+
+        <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-ai-html.css">
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-abs.js" defer></script>
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
+        <script src="https://therealtimex.github.io/rtlibrary/js/rt-button-status.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script>
+
+        <style>
+            :root {
+                --primary-color: ##__COLOR_THEME_PRIMARY__##;
+                --secondary-color: ##__COLOR_THEME_SECONDARY__##;
+                --accent-color: ##__COLOR_THEME_ACCENT__##;
+                --background-color: ##__COLOR_THEME_BACKGROUND__##;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="email-container">
+            <div class="email-info-box">
+                <h2>Post Preview</h2>
+                <div class="message-area">
+                    $body
+                </div>
+            </div>
+            <div>
+                <strong>⏰ Best timing:</strong> $posttime 🎯
+            </div>
+        </div>
+    
+        <en>
+            <!DOCTYPE html>
+            <html lang="en">
+        
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta name="description" content="Email details viewer and communication interface">
+        
+                <!-- Preconnect to external domains -->
+                <link rel="preconnect" href="https://therealtimex.github.io">
+        
+                <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-ai-html.css">
+                <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-abs.js" defer></script>
+                <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
+                <script src="https://therealtimex.github.io/rtlibrary/js/rt-button-status.js" defer></script>
+                <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script>
+        
+                <style>
+                    :root {
+                        --primary-color: ##__COLOR_THEME_PRIMARY__##;
+                        --secondary-color: ##__COLOR_THEME_SECONDARY__##;
+                        --accent-color: ##__COLOR_THEME_ACCENT__##;
+                        --background-color: ##__COLOR_THEME_BACKGROUND__##;
+                    }
+                </style>
+            </head>
+        
+            <body>
+                <div class="email-container">
+                    <div class="email-info-box">
+                        <h2>Post Preview</h2>
+                        <div class="message-area">
+                            $body
+                        </div>
+                    </div>
+                    <div>
+                        <strong>⏰ Best timing:</strong> $posttime 🎯
+                    </div>
+                </div>
+            
+                ##$.output.output_html_en##
+        
+                <footer class="action-buttons">
+                    <button class="btn-shade" style="--btn-shade: 0%" onclick="callCloudPhone(this)" data-phone="$phone"
+                        data-video-call="false" data-call-out="true" data-custom-data='{"email": "$recipient"}'
+                        aria-label="Internet Call">
+                        <span aria-hidden="true">🌐📞</span> Internet Call
+                    </button>
+                    <button class="btn-shade" style="--btn-shade: 0%" onclick="sendSMS(this)" data-phone="$phone"
+                        data-default-msg="$body" aria-label="Send SMS">
+                        <span aria-hidden="true">💬</span> Send SMS
+                    </button>
+                    <button class="btn-shade" style="--btn-shade: 0%" onclick="callPhone(this)" data-phone="$phone"
+                        aria-label="Phone Call">
+                        <span aria-hidden="true">📱</span> Phone Call
+                    </button>
+                    <button class="btn-shade" style="--btn-shade: 0%" onclick="shareContent(this)" data-copy="true"
+                        data-body="$body" aria-label="Copy Email">
+                        <span aria-hidden="true">📋</span> Copy Email
+                    </button>
+                    <button class="btn-shade" style="--btn-shade: 0%" onclick="shareContent(this)" data-copy="false"
+                        data-body="$body" data-subject="Share Email" aria-label="Share">
+                        <span aria-hidden="true">📤</span> Share
+                    </button>
+                    <button class="btn-shade" style="--btn-shade: 0%" onclick="showBreakdown()" aria-label="Share">
+                        <span aria-hidden="true">📤</span> Post Breakdown
+                    </button>
+        
+                    <!-- Deeplink -->
+                    <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+                        data-deep-link="https://www.linkedin.com/sharing/share-offsite/?text=$body" aria-label="Open LinkedIn">
+                        <span aria-hidden="true">🔗</span> LinkedIn</button> </button>
+                    <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+                        data-deep-link="https://facebook.com/share.php?u=#" aria-label="Open Facebook">
+                        <span aria-hidden="true">🔗</span> Facebook</button> </button>
+                    <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+                        data-deep-link="https://twitter.com/intent/tweet?text=$body" aria-label="Open Twitter">
+                        <span aria-hidden="true">🔗</span> Twitter</button> </button>
+        
+        
+                    <button id="copyPhoneBtn" class="btn-shade" style="--btn-shade: 0%" onclick='copyContactPhone()'><span
+                            aria-hidden="true">📞</span> Copy Phone</button>
+                    <button id="copyEmailBtn" class="btn-shade" style="--btn-shade: 15%" onclick='copyContactEmail()'><span
+                            aria-hidden="true">📧</span> Copy Email</button>
+                    <button id="addToContactsBtn" class="btn-shade" style="--btn-shade: 30%" onclick="addToContacts()"><span
+                            aria-hidden="true">👥</span> Add Contact</button>
+                    <button id="copyContactBtn" class="btn-shade" style="--btn-shade: 45%" onclick="copyContact()"><span
+                            aria-hidden="true">📋</span>Copy Info</button>
+                    <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="shareContact()"><span
+                            aria-hidden="true">🔗</span> Share Contact</button>
+                    <button id="downloadContactBtn" class="btn-shade" style="--btn-shade: 75%" onclick="downloadContact()"><span
+                            aria-hidden="true">💾</span> Download Contact</button>
+                </footer>
+        
+                <dialog id="rtDialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>RealTime</h3>
+                            <button class="close-btn" aria-label="Close">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="rtMessage"></p>
+                        </div>
+                    </div>
+                </dialog>
+        
+                <dialog id="breakdownDialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Post Breakdown</h3>
+                            <button class="close-btn" onclick="closeBreakdown()" aria-label="Close">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <md>$postbreakdown</md>
+                        </div>
+                    </div>
+                </dialog>
+            
+            </body>
+        
+            </html>
+        </en>
+
+        <footer class="action-buttons">
+            <button class="btn-shade" style="--btn-shade: 0%" onclick="callCloudPhone(this)" data-phone="$phone"
+                data-video-call="false" data-call-out="true" data-custom-data='{"email": "$recipient"}'
+                aria-label="Internet Call">
+                <span aria-hidden="true">🌐📞</span> Internet Call
+            </button>
+            <button class="btn-shade" style="--btn-shade: 0%" onclick="sendSMS(this)" data-phone="$phone"
+                data-default-msg="$body" aria-label="Send SMS">
+                <span aria-hidden="true">💬</span> Send SMS
+            </button>
+            <button class="btn-shade" style="--btn-shade: 0%" onclick="callPhone(this)" data-phone="$phone"
+                aria-label="Phone Call">
+                <span aria-hidden="true">📱</span> Phone Call
+            </button>
+            <button class="btn-shade" style="--btn-shade: 0%" onclick="shareContent(this)" data-copy="true"
+                data-body="$body" aria-label="Copy Email">
+                <span aria-hidden="true">📋</span> Copy Email
+            </button>
+            <button class="btn-shade" style="--btn-shade: 0%" onclick="shareContent(this)" data-copy="false"
+                data-body="$body" data-subject="Share Email" aria-label="Share">
+                <span aria-hidden="true">📤</span> Share
+            </button>
+            <button class="btn-shade" style="--btn-shade: 0%" onclick="showBreakdown()" aria-label="Share">
+                <span aria-hidden="true">📤</span> Post Breakdown
+            </button>
+
+            <!-- Deeplink -->
+            <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+                data-deep-link="https://www.linkedin.com/sharing/share-offsite/?text=$body" aria-label="Open LinkedIn">
+                <span aria-hidden="true">🔗</span> LinkedIn</button> </button>
+            <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+                data-deep-link="https://facebook.com/share.php?u=#" aria-label="Open Facebook">
+                <span aria-hidden="true">🔗</span> Facebook</button> </button>
+            <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="openDeeplink()"
+                data-deep-link="https://twitter.com/intent/tweet?text=$body" aria-label="Open Twitter">
+                <span aria-hidden="true">🔗</span> Twitter</button> </button>
+
+
+            <button id="copyPhoneBtn" class="btn-shade" style="--btn-shade: 0%" onclick='copyContactPhone()'><span
+                    aria-hidden="true">📞</span> Copy Phone</button>
+            <button id="copyEmailBtn" class="btn-shade" style="--btn-shade: 15%" onclick='copyContactEmail()'><span
+                    aria-hidden="true">📧</span> Copy Email</button>
+            <button id="addToContactsBtn" class="btn-shade" style="--btn-shade: 30%" onclick="addToContacts()"><span
+                    aria-hidden="true">👥</span> Add Contact</button>
+            <button id="copyContactBtn" class="btn-shade" style="--btn-shade: 45%" onclick="copyContact()"><span
+                    aria-hidden="true">📋</span>Copy Info</button>
+            <button id="shareContactBtn" class="btn-shade" style="--btn-shade: 60%" onclick="shareContact()"><span
+                    aria-hidden="true">🔗</span> Share Contact</button>
+            <button id="downloadContactBtn" class="btn-shade" style="--btn-shade: 75%" onclick="downloadContact()"><span
+                    aria-hidden="true">💾</span> Download Contact</button>
+        </footer>
+
+        <dialog id="rtDialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>RealTime</h3>
+                    <button class="close-btn" aria-label="Close">×</button>
+                </div>
+                <div class="modal-body">
+                    <p id="rtMessage"></p>
+                </div>
+            </div>
+        </dialog>
+
+        <dialog id="breakdownDialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Post Breakdown</h3>
+                    <button class="close-btn" onclick="closeBreakdown()" aria-label="Close">×</button>
+                </div>
+                <div class="modal-body">
+                    <md>$postbreakdown</md>
+                </div>
+            </div>
+        </dialog>
+    
+    </body>
+
+    </html>
+</en>
