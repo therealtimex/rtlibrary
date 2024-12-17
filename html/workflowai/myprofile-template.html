@@ -8,7 +8,11 @@
     <link rel="preconnect" href="https://s3.eu-central-1.wasabisys.com">
     <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/rt-ai-html.css">
     <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
-
+    <style>
+        .contact-item[data-empty="true"] {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -91,73 +95,73 @@
                 </div>
 
                 <div class="contact">
-                    <div class="contact-item">
+                    <div class="contact-item" data-empty="##$.profile_info.tel_format##">
                         <svg class="contact-icon icon-phone">
                             <use href="#icon-phone" />
                         </svg>
-                        <a href="tel:+$tel_international">##$.profile_info.tel_format##</a>
+                        <a href="tel:##$.profile_info.tel_international##">##$.profile_info.tel_format##</a>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-empty="##$.profile_info.whatsapp##">
                         <svg class="contact-icon icon-whatsapp">
                             <use href="#icon-whatsapp" />
                         </svg>
-                        <a href="https://wa.me/$whatsapp" target="_blank" rel="noopener noreferrer">##$.profile_info.whatsapp##</a>
+                        <a href="https://wa.me/##$.profile_info.whatsapp##" target="_blank" rel="noopener noreferrer">##$.profile_info.whatsapp##</a>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-empty="##$.profile_info.email##">
                         <svg class="contact-icon icon-email">
                             <use href="#icon-email" />
                         </svg>
-                        <a href="mailto:$email">##$.profile_info.email##</a>
+                        <a href="mailto:##$.profile_info.email##">##$.profile_info.email##</a>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-empty="##$.profile_info.linkedin##">
                         <svg class="contact-icon icon-linkedin">
                             <use href="#icon-linkedin" />
                         </svg>
                         <a href="https://www.linkedin.com/in/##$.profile_info.linkedin##" target="_blank"
                             rel="noopener noreferrer">in/##$.profile_info.linkedin##</a>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-empty="##$.profile_info.twitter##">
                         <svg class="contact-icon icon-twitter">
                             <use href="#icon-twitter" />
                         </svg>
-                        <a href="https://twitter.com/$twitter" target="_blank" rel="noopener noreferrer">@##$.profile_info.twitter##</a>
+                        <a href="https://twitter.com/##$.profile_info.twitter##" target="_blank" rel="noopener noreferrer">@##$.profile_info.twitter##</a>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-empty="##$.profile_info.facebook##">
                         <svg class="contact-icon icon-facebook">
                             <use href="#icon-facebook" />
                         </svg>
                         <a href="https://www.facebook.com/##$.profile_info.facebook##" target="_blank"
                             rel="noopener noreferrer">@##$.profile_info.facebook##</a>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-empty="##$.profile_info.instagram##">
                         <svg class="contact-icon icon-instagram">
                             <use href="#icon-instagram" />
                         </svg>
                         <a href="https://instagram.com/##$.profile_info.instagram##" target="_blank"
                             rel="noopener noreferrer">@##$.profile_info.instagram##</a>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-empty="##$.profile_info.youtube##">
                         <svg class="contact-icon icon-youtube">
                             <use href="#icon-youtube" />
                         </svg>
                         <a href="https://www.youtube.com/@##$.profile_info.youtube##" target="_blank"
                             rel="noopener noreferrer">@##$.profile_info.youtube##</a>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-empty="##$.profile_info.bluesky##">
                         <svg class="contact-icon icon-bluesky">
                             <use href="#icon-bluesky" />
                         </svg>
                         <a href="https://bsky.app/profile/##$.profile_info.bluesky##" target="_blank"
                             rel="noopener noreferrer">@##$.profile_info.bluesky##</a>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-empty="##$.profile_info.threads##">
                         <svg class="contact-icon icon-threads">
                             <use href="#icon-threads" />
                         </svg>
                         <a href="https://threads.net/@##$.profile_info.threads##" target="_blank"
                             rel="noopener noreferrer">@##$.profile_info.threads##</a>
                     </div>
-                    <div class="contact-item">
+                    <div class="contact-item" data-empty="##$.profile_info.website##">
                         <svg class="contact-icon icon-website">
                             <use href="#icon-website" />
                         </svg>
