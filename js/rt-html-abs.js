@@ -339,3 +339,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 })  ;
+
+// show either openFormBtn or getInstanceBtn
+function toggleButtons() {
+    const ssoValue = document.querySelector('input[type="hidden"][value]').value;
+    const openFormBtn = document.getElementById('openFormBtn');
+    const getInstanceBtn = document.getElementById('getInstanceBtn');
+
+    openFormBtn.style.display = ssoValue === 'ALL' ? 'inline-block' : 'none';
+    getInstanceBtn.style.display = ssoValue === '' ? 'inline-block' : 'none';
+}
+
+document.addEventListener('DOMContentLoaded', toggleButtons);
