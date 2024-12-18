@@ -450,6 +450,10 @@ dialog {
     transition: background-color var(--transition-speed);
 }
 
+.contact-item[data-empty="true"] {
+    display: none !important;
+}
+
 @media screen and (min-width: 390px) {
     .contact {
         grid-template-columns: repeat(2, 1fr);
