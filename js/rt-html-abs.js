@@ -203,7 +203,7 @@ function openForm(element) {
         orderNumber: 1,
         familyID: element.getAttribute('data-family-id'),
         dismissParent: element.getAttribute('data-dismiss-parent') === 'true',
-        dependencies: JSON.parse(element.getAttribute('data-dependencies')),
+        dependencies: element.hasAttribute('data-dependencies') ? JSON.parse(element.getAttribute('data-dependencies')) : [],
         preload: JSON.parse(element.getAttribute('data-preload')),
         openArgs: JSON.parse(element.getAttribute('data-open-args')),
         preload_repeat: JSON.parse(element.getAttribute('data-preload-repeat')),
