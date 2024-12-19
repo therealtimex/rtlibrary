@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const handler = e.target.getAttribute('onclick');
           //  if (handler) {
           //      eval(handler.replace('this', 'e.target'));
-            }
+          //  }
         });
     });
 })  ;
