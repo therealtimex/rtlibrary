@@ -333,8 +333,8 @@ document.addEventListener('DOMContentLoaded', () => {
     buttons.forEach(button => {
         button.addEventListener('click', (e) => {
             const handler = e.target.getAttribute('onclick');
-            if (handler) {
-                eval(handler.replace('this', 'e.target'));
+          //  if (handler) {
+          //      eval(handler.replace('this', 'e.target'));
             }
         });
     });
