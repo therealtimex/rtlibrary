@@ -1,91 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-:root {
-  /* Main theme colors as shown in the UI */
-  --color_theme_primary: #00BFA5;     /* The green color used in "APPROVE REQUEST" */
-  --color_theme_secondary: #6B7280;   /* Used in secondary text */
-  --color_theme_accent: #4A90E2;      /* Blue accent color */
-  --color_theme_success: #00BFA5;     /* Green checkmark color */
-  --color_theme_danger: #EF4444;      /* Red X mark color */
-  --color_theme_background: #FFFFFF;  /* White background */
-  --color_theme_surface: #F9FAFB;    /* Card background color */
-  --color_theme_text_primary: #111827; /* Main text color */
-  --color_theme_text_secondary: #6B7280; /* Secondary text color */
-  --color_theme_neutral_light: #F3F4F6; /* Light gray background */
-  --color_theme_neutral_medium: #E5E7EB; /* Medium gray */
-  --color_theme_neutral_dark: #4B5563;  /* Dark gray text */
-}
-
-
-</style>
+    <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
+    <style>
+        :root {
+            --color_theme_primary: ##__COLOR_THEME_PRIMARY__##;
+            --color_theme_secondary: ##__COLOR_THEME_SECONDARY__##;
+            --color_theme_accent: ##__COLOR_THEME_ACCENT__##;
+            --color_theme_background: ##__COLOR_THEME_BACKGROUND__##;
+            --color_theme_surface: ##__COLOR_THEME_SURFACE__##;
+            --color_theme_neutral_light: ##__COLOR_THEME_NEUTRAL_LIGHT__##;
+            --color_theme_text_primary: ##__COLOR_THEME_TEXT_PRIMARY__##;
+            --color_theme_text_secondary: ##__COLOR_THEME_TEXT_SECONDARY__##;
+        }
+    </style>
 </head>
+
 <body>
 
+    <div class="no-results-container"
+        style="text-align: center; padding: 40px; background-color: var(--color_theme_background);">
+        <svg width="180" height="180" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background elements -->
+            <circle cx="12" cy="12" r="11" fill="var(--color_theme_neutral_light)" />
 
+            <!-- Main search illustration -->
+            <g transform="translate(4, 4)">
+                <circle cx="7" cy="7" r="6" stroke="var(--color_theme_primary)" stroke-width="1.5"
+                    fill="var(--color_theme_surface)" />
+                <line x1="11.5" y1="11.5" x2="16" y2="16" stroke="var(--color_theme_primary)" stroke-width="1.5"
+                    stroke-linecap="round" />
 
-<div class="no-results-container" style="text-align: center; padding: 40px; background-color: var(--color_theme_background);">
-    <svg width="240" height="240" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <!-- Background elements -->
-        <circle cx="12" cy="12" r="11" fill="var(--color_theme_neutral_light)" />
-        
-        <!-- Main search illustration -->
-        <g transform="translate(4, 4)">
-            <circle cx="7" cy="7" r="6" 
-                stroke="var(--color_theme_primary)" 
-                stroke-width="1.5" 
-                fill="var(--color_theme_surface)" />
-            <line x1="11.5" y1="11.5" x2="16" y2="16" 
-                stroke="var(--color_theme_primary)" 
-                stroke-width="1.5" 
-                stroke-linecap="round" />
-            
-            <!-- Animated elements -->
-            <path d="M7 4.5v5" 
-                stroke="var(--color_theme_accent)"
-                stroke-width="1.5"
-                stroke-linecap="round">
-                <animate attributeName="d" 
-                    dur="1.5s"
-                    repeatCount="indefinite"
-                    values="M7 4.5v5;M7 6.5v1;M7 4.5v5" />
-            </path>
-        </g>
-        
-        <!-- Decorative elements -->
-        <circle cx="18" cy="6" r="1" fill="var(--color_theme_secondary)">
-            <animate attributeName="opacity"
-                dur="2s"
-                repeatCount="indefinite"
-                values="0.3;1;0.3" />
-        </circle>
-        <circle cx="6" cy="18" r="1" fill="var(--color_theme_secondary)">
-            <animate attributeName="opacity"
-                dur="2s"
-                repeatCount="indefinite"
-                values="1;0.3;1" />
-        </circle>
-    </svg>
-    
-    <div style="margin-top: 24px;">
-        <h3 style="color: var(--color_theme_text_primary); font-size: 20px; margin-bottom: 8px;">
-            No Results Found
-        </h3>
-        <p style="color: var(--color_theme_text_secondary); font-size: 14px; margin-bottom: 16px;">
-            Try adjusting your search criteria
-        </p>
-        <button style="background-color: var(--color_theme_primary); color: white; border: none; padding: 10px 20px; border-radius: 4px; font-size: 14px; cursor: pointer;">
-            Action Button
-        </button>
+                <!-- Animated elements -->
+                <path d="M7 4.5v5" stroke="var(--color_theme_accent)" stroke-width="1.5" stroke-linecap="round">
+                    <animate attributeName="d" dur="1.5s" repeatCount="indefinite"
+                        values="M7 4.5v5;M7 6.5v1;M7 4.5v5" />
+                </path>
+            </g>
+
+            <!-- Decorative elements -->
+            <circle cx="18" cy="6" r="1" fill="var(--color_theme_secondary)">
+                <animate attributeName="opacity" dur="2s" repeatCount="indefinite" values="0.3;1;0.3" />
+            </circle>
+            <circle cx="6" cy="18" r="1" fill="var(--color_theme_secondary)">
+                <animate attributeName="opacity" dur="2s" repeatCount="indefinite" values="1;0.3;1" />
+            </circle>
+        </svg>
+
+        <div style="margin-top: 24px;">
+            <h3 style="color: var(--color_theme_text_primary); font-size: 20px; margin-bottom: 8px;">
+                No Results Found
+            </h3>
+            <p style="color: var(--color_theme_text_secondary); font-size: 14px; margin-bottom: 16px;">
+                Try adjusting your search criteria
+            </p>
+            <button
+                style="background-color: var(--color_theme_primary); color: white; border: none; padding: 10px 20px; border-radius: 4px; font-size: 14px; cursor: pointer;">
+                Action Button
+            </button>
+        </div>
     </div>
-</div>
-
-
-
-
-
 </body>
+
 </html>
