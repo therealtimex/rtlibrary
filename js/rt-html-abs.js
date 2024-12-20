@@ -321,11 +321,42 @@ function downloadVCard() {
     URL.revokeObjectURL(downloadUrl);
 }
 
+function checkVersion() {
+    // First verify PostHog is loaded
+    if (!window.posthog?.LIB_VERSION) {
+        console.error('PostHog not properly initialized');
+        return;
+    }
+
+    const mainElement = document.querySelector('main');
+    const bodyElement = document.body;
+
+    const templateId = 
+        mainElement?.getAttribute('data-template-id') ||
+        mainElement?.getAttribute('data-template-id') ||
+        bodyElement?.getAttribute('data-template-id');
+        
+    const templateVersion = 
+        mainElement?.getAttribute('data-template-version') ||
+        mainElement?.getAttribute('data-template-version') ||
+        bodyElement?.getAttribute('data-template-version');
+
+    // Track template version check as an event
+    posthog.capture('template_version_check', {
+        current_template_id: templateId,
+        current_version: templateVersion,
+        posthog_version: window.posthog.LIB_VERSION
+    });
+}
+
 window.onload = function() {
     const button = document.getElementById('downloadButton');
     if (button) {
         button.addEventListener('click', downloadVCard);
     }
+
+    // Track template version
+    checkVersion();
 };
 
 document.addEventListener('DOMContentLoaded', () => {
