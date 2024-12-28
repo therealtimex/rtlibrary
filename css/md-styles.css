@@ -141,15 +141,6 @@
     text-decoration: underline;
   }
  
-  .survey-container {
-    max-width: 600px;
-    margin: var(--spacing-large) auto;
-    padding: var(--spacing-large);
-    background-color: var(--color-theme-background);
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 4px var(--color-theme-shadow);
-}
-
 .language-selector {
     position: fixed;
     top: 0;
@@ -183,6 +174,14 @@
 .language-btn.active {
     background: var(--color-theme-primary);
     color: var(--color-theme-background);
+}
+
+.survey-container {
+    max-width: 100%;
+    margin: var(--spacing-large) auto;
+    background-color: var(--color-theme-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px var(--color-theme-shadow);
 }
 
 /* SurveyJS Custom Styling */
