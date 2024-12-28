@@ -1,32 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contact Form">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Contact Form</title>
 
-    <!-- Preconnect to external domains -->
+    <!-- Resource hints -->
     <link rel="preconnect" href="https://therealtimex.github.io">
     <link rel="preconnect" href="https://unpkg.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
+    <!-- Styles -->
     <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/md-styles.css">
-    <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
-
-    <!-- SurveyJS Dependencies -->
-    <script src="https://unpkg.com/jquery@3.7.1"></script>
-    <script src="https://unpkg.com/survey-jquery@1.9.116/survey.jquery.min.js"></script>
     <link href="https://unpkg.com/survey-jquery@1.9.116/defaultV2.min.css" type="text/css" rel="stylesheet">
 
-    <!-- Load external survey data -->
+    <!-- Core dependencies -->
+    <script src="https://unpkg.com/jquery@3.7.1"></script>
+    <script src="https://unpkg.com/survey-jquery@1.9.116/survey.jquery.min.js"></script>
+
+    <!-- Application scripts -->
     <script src="https://therealtimex.github.io/rtlibrary/js/form-contact-0.js"></script>
     <script src="https://therealtimex.github.io/rtlibrary/js/process-survey.js"></script>
-
-    <!-- Load external change language -->
-    <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script>
+    <script src="https://therealtimex.github.io/rtlibrary/js/submit-survey.js"></script>
     <script src="https://therealtimex.github.io/rtlibrary/js/change-language.js"></script>
-
 </head>
 
 <body>
@@ -79,6 +77,9 @@ Vui lòng điền vào mẫu dưới đây để liên hệ với chúng tôi.
             </div>
         </div>
     </div>
-</body>
 
+    <!-- Scripts at end of body -->
+    <!-- This ensures the markdown content is available in the DOM before the script attempts to process it.-->
+    <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script>
+</body>
 </html>
