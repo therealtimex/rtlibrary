@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+
+    <!-- SurveyJS Dependencies -->
+    <script src="https://unpkg.com/jquery@3.7.1"></script>
+    <script src="https://unpkg.com/survey-jquery@1.9.116/survey.jquery.min.js"></script>
+    <link href="https://unpkg.com/survey-jquery@1.9.116/defaultV2.min.css" type="text/css" rel="stylesheet">
+
+    <style>
+        .survey-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+        .language-selector {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .language-btn {
+            padding: 8px 16px;
+            margin: 0 4px;
+            border: 1px solid #2196F3;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .language-btn.active {
+            background: #2196F3;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="survey-container">
+        <div class="language-selector">
+            <button class="language-btn active" onclick="changeLanguage('en')">EN</button>
+            <button class="language-btn" onclick="changeLanguage('fr')">FR</button>
+            <button class="language-btn" onclick="changeLanguage('vi')">VI</button>
+        </div>
+        <div id="surveyContainer"></div>
+    </div>
+
+    <script>
+        const surveyJson = {
+            locale: "en",
+            title: {
+                en: "Contact Form",
+                fr: "Formulaire de Contact",
+                vi: "Mẫu Liên Hệ"
+            },
+            pages: [{
+                name: "contact",
+                elements: [{
+                    type: "text",
+                    name: "name",
+                    title: {
+                        en: "Name",
+                        fr: "Nom",
+                        vi: "Họ Tên"
+                    },
+                    isRequired: true,
+                    placeholder: {
+                        en: "Enter your name",
+                        fr: "Entrez votre nom",
+                        vi: "Nhập họ tên của bạn"
+                    },
+                    validators: [{
+                        type: "text",
+                        minLength: 2,
+                        pattern: "^[A-Za-z ]*$",
+                        text: {
+                            en: "Please enter a valid name (minimum 2 characters, letters only)",
+                            fr: "Veuillez entrer un nom valide (minimum 2 caractères, lettres uniquement)",
+                            vi: "Vui lòng nhập tên hợp lệ (tối thiểu 2 ký tự, chỉ chữ cái)"
+                        }
+                    }]
+                }, {
+                    type: "text",
+                    name: "email",
+                    inputType: "email",
+                    title: {
+                        en: "Email",
+                        fr: "Email",
+                        vi: "Email"
+                    },
+                    isRequired: true,
+                    placeholder: {
+                        en: "Enter your email",
+                        fr: "Entrez votre email",
+                        vi: "Nhập email của bạn"
+                    },
+                    validators: [{
+                        type: "email",
+                        text: {
+                            en: "Please enter a valid email address",
+                            fr: "Veuillez entrer une adresse email valide",
+                            vi: "Vui lòng nhập địa chỉ email hợp lệ"
+                        }
+                    }]
+                }]
+            }],
+            completeText: {
+                en: "Submit",
+                fr: "Envoyer",
+                vi: "Gửi"
+            },
+            showQuestionNumbers: "off",
+            questionErrorLocation: "bottom"
+        };
+
+        // Initialize survey
+        const survey = new Survey.Model(surveyJson);
+        Survey.StylesManager.applyTheme("defaultV2");
+
+        // Handle form submission
+        survey.onComplete.add((sender, options) => {
+            const results = JSON.stringify(sender.data);
+            console.log(results);
+            const successMessages = {
+                en: "Form submitted successfully!",
+                fr: "Formulaire envoyé avec succès!",
+                vi: "Gửi biểu mẫu thành công!"
+            };
+            alert(successMessages[sender.locale]);
+        });
+
+        // Render survey
+        $("#surveyContainer").Survey({ model: survey });
+
+        // Language switching
+        function changeLanguage(lang) {
+            survey.locale = lang;
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
+            });
+        }
+    </script>
+</body>
+</html>
