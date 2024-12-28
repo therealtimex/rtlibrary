@@ -11,7 +11,10 @@
     <link href="https://unpkg.com/survey-jquery@1.9.116/defaultV2.min.css" type="text/css" rel="stylesheet">
     <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/md-styles.css">
 
+    <!-- Load external survey data -->
+    <script src="https://therealtimex.github.io/rtlibrary/js/form-contact-1.js"></script>
 </head>
+
 <body>
     <div class="survey-container">
         <div class="language-selector">
@@ -22,99 +25,69 @@
         <div id="surveyContainer"></div>
     </div>
 
+    <!-- Survey Processing Code -->
     <script>
-        const surveyJson = {
-            locale: "en",
-            title: {
-                en: "Contact Form",
-                fr: "Formulaire de Contact",
-                vi: "Mẫu Liên Hệ"
-            },
-            pages: [{
-                name: "contact",
-                elements: [{
-                    type: "text",
-                    name: "name",
-                    title: {
-                        en: "Name",
-                        fr: "Nom",
-                        vi: "Họ Tên"
-                    },
-                    isRequired: true,
-                    placeholder: {
-                        en: "Enter your name",
-                        fr: "Entrez votre nom",
-                        vi: "Nhập họ tên của bạn"
-                    },
-                    validators: [{
-                        type: "text",
-                        minLength: 2,
-                        pattern: "^[A-Za-z ]*$",
-                        text: {
-                            en: "Please enter a valid name (minimum 2 characters, letters only)",
-                            fr: "Veuillez entrer un nom valide (minimum 2 caractères, lettres uniquement)",
-                            vi: "Vui lòng nhập tên hợp lệ (tối thiểu 2 ký tự, chỉ chữ cái)"
-                        }
-                    }]
-                }, {
-                    type: "text",
-                    name: "email",
-                    inputType: "email",
-                    title: {
-                        en: "Email",
-                        fr: "Email",
-                        vi: "Email"
-                    },
-                    isRequired: true,
-                    placeholder: {
-                        en: "Enter your email",
-                        fr: "Entrez votre email",
-                        vi: "Nhập email của bạn"
-                    },
-                    validators: [{
-                        type: "email",
-                        text: {
-                            en: "Please enter a valid email address",
-                            fr: "Veuillez entrer une adresse email valide",
-                            vi: "Vui lòng nhập địa chỉ email hợp lệ"
-                        }
-                    }]
-                }]
-            }],
-            completeText: {
-                en: "Submit",
-                fr: "Envoyer",
-                vi: "Gửi"
-            },
-            showQuestionNumbers: "off",
-            questionErrorLocation: "bottom"
-        };
+        class SurveyManager {
+            constructor(containerId, surveyData) {
+                this.containerId = containerId;
+                this.surveyData = surveyData;
+                this.survey = null;
+                this.init();
+            }
 
-        // Initialize survey
-        const survey = new Survey.Model(surveyJson);
-        Survey.StylesManager.applyTheme("defaultV2");
+            init() {
+                this.survey = new Survey.Model(this.surveyData);
+                this.setupTheme();
+                this.setupEventHandlers();
+                this.render();
+            }
 
-        // Handle form submission
-        survey.onComplete.add((sender, options) => {
-            const results = JSON.stringify(sender.data);
-            console.log(results);
-            const successMessages = {
-                en: "Form submitted successfully!",
-                fr: "Formulaire envoyé avec succès!",
-                vi: "Gửi biểu mẫu thành công!"
-            };
-            alert(successMessages[sender.locale]);
+            setupTheme() {
+                Survey.StylesManager.applyTheme("defaultV2");
+            }
+
+            setupEventHandlers() {
+                this.survey.onComplete.add(this.handleSubmission.bind(this));
+            }
+
+            handleSubmission(sender, options) {
+                const results = JSON.stringify(sender.data);
+                console.log('Form Data:', results);
+                this.showSuccessMessage(sender.locale);
+            }
+
+            showSuccessMessage(locale) {
+                alert(successMessages[locale]);
+            }
+
+            render() {
+                $(`#${this.containerId}`).Survey({ model: this.survey });
+            }
+
+            changeLanguage(lang) {
+                this.survey.locale = lang;
+                this.updateLanguageButtons(lang);
+            }
+
+            updateLanguageButtons(lang) {
+                document.querySelectorAll('.language-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
+                });
+            }
+        }
+
+        // Initialize survey when the external data is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof surveyData !== 'undefined' && typeof successMessages !== 'undefined') {
+                const surveyManager = new SurveyManager('surveyContainer', surveyData);
+            } else {
+                console.error('Survey data not loaded properly');
+            }
         });
 
-        // Render survey
-        $("#surveyContainer").Survey({ model: survey });
-
-        // Language switching
+        // Global function for language switching
         function changeLanguage(lang) {
-            survey.locale = lang;
-            document.querySelectorAll('.language-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
-            });
+            window.surveyManager?.changeLanguage(lang);
         }
     </script>
 </body>
