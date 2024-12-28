@@ -18,17 +18,21 @@ class SurveyManager {
     }
 
     setupEventHandlers() {
-        this.survey.onComplete.add(this.handleSubmission.bind(this));
-    }
-
-    handleSubmission(sender, options) {
-        const results = JSON.stringify(sender.data);
-        console.log('Form Data:', results);
-        this.showSuccessMessage(sender.locale);
-    }
-
-    showSuccessMessage(locale) {
-        alert(successMessages[locale]);
+        // Remove direct submission handling as it will be handled by submit-survey.js
+        this.survey.onComplete.add((sender, options) => {
+            // Clear the survey container
+            const container = document.getElementById(this.containerId);
+            container.innerHTML = '';
+            
+            // Create status element
+            const statusElement = document.createElement('div');
+            statusElement.className = 'survey-status';
+            statusElement.setAttribute('role', 'status');
+            statusElement.textContent = successMessages[sender.locale];
+            
+            // Add to container
+            container.appendChild(statusElement);
+        });
     }
 
     render() {
@@ -43,6 +47,7 @@ class SurveyManager {
     updateLanguageButtons(lang) {
         document.querySelectorAll('.language-btn').forEach(btn => {
             btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
+            btn.setAttribute('aria-pressed', btn.textContent.toLowerCase() === lang);
         });
     }
 }
@@ -50,7 +55,7 @@ class SurveyManager {
 // Initialize survey when the external data is loaded
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof surveyData !== 'undefined' && typeof successMessages !== 'undefined') {
-        const surveyManager = new SurveyManager('surveyContainer', surveyData);
+        window.surveyManager = new SurveyManager('surveyContainer', surveyData);
     } else {
         console.error('Survey data not loaded properly');
     }
