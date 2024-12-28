@@ -1,13 +1,7 @@
 class SurveySubmissionManager {
     constructor(endpoint = 'https://hooks.realtimex.co/hooks/survey') {
         this.endpoint = endpoint;
-        this.surveyId = this.getSurveyId();
-        this.maxRetries = 3;
-        this.timeout = 10000; // 10 seconds
-    }
-
-    getSurveyId() {
-        return window.surveyManager?.survey?.id || null;
+        this.surveyId = window.surveyManager?.survey?.id || null;
     }
 
     async generateSecret() {
@@ -38,56 +32,6 @@ class SurveySubmissionManager {
         return btoa(String.fromCharCode(...combined));
     }
 
-    async submitWithRetry(payload, retryCount = 0) {
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-
-            const response = await fetch(this.endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload),
-                signal: controller.signal
-            });
-
-            clearTimeout(timeoutId);
-
-            if (response.status === 401) {
-                throw new Error('Unauthorized: Invalid secret');
-            }
-            if (response.status === 429) {
-                const retryAfter = response.headers.get('Retry-After') || 5;
-                await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
-                return this.submitWithRetry(payload, retryCount);
-            }
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            if (!data.success) {
-                throw new Error(data.message || 'Submission failed');
-            }
-
-            return data;
-
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                throw new Error('Request timeout');
-            }
-            if (error.name === 'TypeError') {
-                if (retryCount < this.maxRetries) {
-                    await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
-                    return this.submitWithRetry(payload, retryCount + 1);
-                }
-                throw new Error('Network error: Unable to reach server');
-            }
-            throw error;
-        }
-    }
-
     async submitSurvey(surveyData) {
         const payload = {
             formData: surveyData,
@@ -98,25 +42,48 @@ class SurveySubmissionManager {
             }
         };
 
-        return this.submitWithRetry(payload);
+        try {
+            const response = await fetch(this.endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Submission error:', error);
+            throw error;
+        }
     }
 }
 
-// Initialize submission manager
+// Initialize submission handling
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof surveyData !== 'undefined' && typeof successMessages !== 'undefined') {
         window.submissionManager = new SurveySubmissionManager();
         
-        // Add submission handler to survey manager
+        // Add submission handler to survey
         window.surveyManager.survey.onComplete.add(async (sender, options) => {
+            const statusElement = document.createElement('div');
+            statusElement.className = 'survey-status';
+            statusElement.setAttribute('role', 'status');
+            const container = document.getElementById('surveyContainer');
+            container.appendChild(statusElement);
+
             try {
-                const loadingToast = showToast('Submitting...', 'info');
+                statusElement.textContent = 'Submitting...';
                 await window.submissionManager.submitSurvey(sender.data);
-                hideToast(loadingToast);
-                showToast(successMessages[sender.locale], 'success');
+                statusElement.className = 'survey-status success';
+                statusElement.textContent = successMessages[sender.locale];
             } catch (error) {
-                const errorMessage = error.message || 'Submission failed. Please try again.';
-                showToast(errorMessage, 'error');
+                statusElement.className = 'survey-status error';
+                statusElement.textContent = 'Submission failed. Please try again.';
             }
         });
     }
