@@ -7,8 +7,7 @@ class SurveySubmissionManager {
     }
 
     getSurveyId() {
-        const scriptSrc = document.querySelector('script[src*="rtlibrary/js/form"]')?.src;
-        return scriptSrc ? scriptSrc.split('/').pop() : null;
+        return window.surveyManager?.survey?.id || null;
     }
 
     async generateSecret() {
