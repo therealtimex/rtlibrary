@@ -151,8 +151,16 @@
 }
 
 .language-selector {
-    text-align: right;
-    margin-bottom: var(--spacing-large);
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 1000;
+}
+
+[lang]:not(.active) {
+    display: none;
 }
 
 .language-btn {
