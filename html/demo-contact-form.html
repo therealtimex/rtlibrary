@@ -1,94 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Form</title>
 
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://therealtimex.github.io">
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+    <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/md-styles.css">
+    <script src="https://therealtimex.github.io/rtlibrary/js/rt-html-css-fallback.js" defer></script>
+
     <!-- SurveyJS Dependencies -->
     <script src="https://unpkg.com/jquery@3.7.1"></script>
     <script src="https://unpkg.com/survey-jquery@1.9.116/survey.jquery.min.js"></script>
     <link href="https://unpkg.com/survey-jquery@1.9.116/defaultV2.min.css" type="text/css" rel="stylesheet">
-    <link rel="stylesheet" href="https://therealtimex.github.io/rtlibrary/css/md-styles.css">
 
     <!-- Load external survey data -->
-    <script src="https://therealtimex.github.io/rtlibrary/js/form-contact-1.js"></script>
+    <script src="https://therealtimex.github.io/rtlibrary/js/form-contact-0.js"></script>
+    <script src="https://therealtimex.github.io/rtlibrary/js/process-survey.js"></script>
+
+    <!-- Load external change language -->
+    <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script>
+    <script src="https://therealtimex.github.io/rtlibrary/js/change-language.js"></script>
+
 </head>
 
 <body>
-    <div class="survey-container">
-        <div class="language-selector">
-            <button class="language-btn active" onclick="changeLanguage('en')">EN</button>
-            <button class="language-btn" onclick="changeLanguage('fr')">FR</button>
-            <button class="language-btn" onclick="changeLanguage('vi')">VI</button>
-        </div>
-        <div id="surveyContainer"></div>
+    <div class="language-selector" role="group" aria-label="Language Selection">
+        <button class="language-btn" data-lang="en" onclick="changeLanguage('en')">EN</button>
+        <button class="language-btn" data-lang="fr" onclick="changeLanguage('fr')">FR</button>
+        <button class="language-btn" data-lang="vi" onclick="changeLanguage('vi')">VI</button>
     </div>
 
-    <!-- Survey Processing Code -->
-    <script>
-        class SurveyManager {
-            constructor(containerId, surveyData) {
-                this.containerId = containerId;
-                this.surveyData = surveyData;
-                this.survey = null;
-                this.init();
-            }
+    <div class="content-container">
+        <div lang="en">
+<md>
+# Welcome to Our Contact Form
+Please fill out the form below to get in touch with us.
 
-            init() {
-                this.survey = new Survey.Model(this.surveyData);
-                this.setupTheme();
-                this.setupEventHandlers();
-                this.render();
-            }
+## Why Contact Us?
+- Quick response time
+- Professional support
+- 24/7 availability
+</md>
+        </div>
 
-            setupTheme() {
-                Survey.StylesManager.applyTheme("defaultV2");
-            }
+        <div lang="fr">
+<md>
+# Bienvenue sur Notre Formulaire de Contact
+Veuillez remplir le formulaire ci-dessous pour nous contacter.
 
-            setupEventHandlers() {
-                this.survey.onComplete.add(this.handleSubmission.bind(this));
-            }
+## Pourquoi Nous Contacter?
+- Temps de réponse rapide
+- Support professionnel
+- Disponibilité 24/7
+</md>
+        </div>
 
-            handleSubmission(sender, options) {
-                const results = JSON.stringify(sender.data);
-                console.log('Form Data:', results);
-                this.showSuccessMessage(sender.locale);
-            }
+        <div lang="vi">
+<md>
+# Chào Mừng đến với Mẫu Liên Hệ
+Vui lòng điền vào mẫu dưới đây để liên hệ với chúng tôi.
 
-            showSuccessMessage(locale) {
-                alert(successMessages[locale]);
-            }
+## Tại Sao Chọn Chúng Tôi?
+- Thời gian phản hồi nhanh
+- Hỗ trợ chuyên nghiệp
+- Hỗ trợ 24/7
+</md>
+        </div>
 
-            render() {
-                $(`#${this.containerId}`).Survey({ model: this.survey });
-            }
-
-            changeLanguage(lang) {
-                this.survey.locale = lang;
-                this.updateLanguageButtons(lang);
-            }
-
-            updateLanguageButtons(lang) {
-                document.querySelectorAll('.language-btn').forEach(btn => {
-                    btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
-                });
-            }
-        }
-
-        // Initialize survey when the external data is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof surveyData !== 'undefined' && typeof successMessages !== 'undefined') {
-                const surveyManager = new SurveyManager('surveyContainer', surveyData);
-            } else {
-                console.error('Survey data not loaded properly');
-            }
-        });
-
-        // Global function for language switching
-        function changeLanguage(lang) {
-            window.surveyManager?.changeLanguage(lang);
-        }
-    </script>
+        <div class="survey-container">
+            <div id="surveyContainer">
+                <div class="loading-state">Loading form...</div>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>
