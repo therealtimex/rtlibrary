@@ -65,26 +65,36 @@ class SurveySubmissionManager {
 
 // Initialize submission handling
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof surveyData !== 'undefined' && typeof successMessages !== 'undefined') {
+    if (typeof surveyData !== 'undefined') {
         window.submissionManager = new SurveySubmissionManager();
         
         // Add submission handler to survey
         window.surveyManager.survey.onComplete.add(async (sender, options) => {
+            // Clear existing content
+            const container = document.getElementById('surveyContainer');
+            container.innerHTML = '';
+
+            // Create status element
             const statusElement = document.createElement('div');
             statusElement.className = 'survey-status';
             statusElement.setAttribute('role', 'status');
-            const container = document.getElementById('surveyContainer');
             container.appendChild(statusElement);
 
             try {
-                statusElement.textContent = 'Submitting...';
+                // Use submitting message from survey data
+                statusElement.textContent = surveyData.submittingText?.[sender.locale] || 'Submitting...';
                 await window.submissionManager.submitSurvey(sender.data);
+                
+                // Use success message from survey data
                 statusElement.className = 'survey-status success';
-                statusElement.textContent = successMessages[sender.locale];
+                statusElement.textContent = surveyData.completedText?.[sender.locale] || 'Thank you for completing the survey!';
             } catch (error) {
+                // Use error message from survey data
                 statusElement.className = 'survey-status error';
-                statusElement.textContent = 'Submission failed. Please try again.';
+                statusElement.textContent = surveyData.errorText?.[sender.locale] || 'Submission failed. Please try again.';
             }
         });
+    } else {
+        console.error('Survey data not loaded properly');
     }
 });
