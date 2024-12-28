@@ -140,7 +140,97 @@
   .markdown-content a:hover {
     text-decoration: underline;
   }
-  
+ 
+  .survey-container {
+    max-width: 600px;
+    margin: var(--spacing-large) auto;
+    padding: var(--spacing-large);
+    background-color: var(--color-theme-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px var(--color-theme-shadow);
+}
+
+.language-selector {
+    text-align: right;
+    margin-bottom: var(--spacing-large);
+}
+
+.language-btn {
+    padding: var(--spacing-small) var(--spacing-medium);
+    margin: 0 var(--spacing-small);
+    border: 1px solid var(--color-theme-primary);
+    background: var(--color-theme-background);
+    color: var(--color-theme-primary);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-family: var(--font-family-base);
+    font-size: var(--size-font-small);
+    transition: all var(--transition-speed) ease;
+}
+
+.language-btn:hover {
+    background-color: var(--color-theme-surface);
+}
+
+.language-btn.active {
+    background: var(--color-theme-primary);
+    color: var(--color-theme-background);
+}
+
+/* SurveyJS Custom Styling */
+.sv_main .sv_header {
+    font-family: var(--font-family-headers);
+    color: var(--color-theme-text-primary);
+}
+
+.sv_main .sv_body {
+    border: 1px solid var(--color-theme-border);
+    border-radius: var(--border-radius);
+}
+
+.sv_main .sv_q_title {
+    font-family: var(--font-family-headers);
+    font-size: var(--size-font-medium);
+    color: var(--color-theme-text-primary);
+}
+
+.sv_main input[type="text"],
+.sv_main input[type="email"] {
+    border: 1px solid var(--color-theme-border);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-small);
+    font-family: var(--font-family-base);
+    transition: border-color var(--transition-speed) ease;
+}
+
+.sv_main input[type="text"]:focus,
+.sv_main input[type="email"]:focus {
+    border-color: var(--color-theme-focus);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 184, 184, 0.1);
+}
+
+.sv_main .sv_complete_btn {
+    background-color: var(--color-theme-primary);
+    border: none;
+    border-radius: var(--border-radius);
+    color: var(--color-theme-background);
+    padding: var(--spacing-small) var(--spacing-large);
+    font-family: var(--font-family-headers);
+    transition: background-color var(--transition-speed) ease;
+}
+
+.sv_main .sv_complete_btn:hover {
+    background-color: var(--color-theme-focus);
+}
+
+.sv_main .sv_q_erbox {
+    color: var(--color-theme-error-text);
+    background: var(--color-theme-error-background);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-small);  
+}
+
 body {
     font-family: var(--font-family-base);
     background-color: var(--color-theme-background);
