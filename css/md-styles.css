@@ -184,6 +184,51 @@
     box-shadow: 0 2px 4px var(--color-theme-shadow);
 }
 
+.survey-status {
+    margin: 2rem auto;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-size: var(--size-font-large);
+    transition: all var(--transition-speed) ease;
+    max-width: 600px;
+}
+
+.survey-status.success {
+    background-color: var(--color-theme-surface);
+    color: var(--color-theme-success);
+    border: 1px solid var(--color-theme-success);
+}
+
+.survey-status.error {
+    background-color: var(--color-theme-error-background);
+    color: var(--color-theme-error-text);
+    border: 1px solid var(--color-theme-error-text);
+}
+
+.survey-status.submitting {
+    background-color: var(--color-theme-neutral-light);
+    color: var(--color-theme-text-secondary);
+    border: 1px solid var(--color-theme-border);
+}
+
+/* Add loading spinner for submitting state */
+.survey-status.submitting::after {
+    content: '';
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-left: 0.5em;
+    border: 2px solid var(--color-theme-border);
+    border-top-color: var(--color-theme-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 /* SurveyJS Custom Styling */
 .sv_main .sv_header {
     font-family: var(--font-family-headers);
