@@ -1,36 +1,28 @@
-// submit-survey.js
 class SurveySubmissionManager {
-    constructor(endpoint = 'https://hooks.realtimex.co/hooks/survey') {
+    constructor(endpoint = 'https://hooks.realtimex.co/hooks/mdsurvey') {
         this.endpoint = endpoint;
+        this.secret = "QOZbs38kWlOTP1YMsLVmT4dEYN4mBajg";
         this.surveyId = window.surveyManager?.survey?.id || null;
     }
 
-    async generateSecret() {
-        if (!this.surveyId) {
-            throw new Error('Survey ID not found');
-        }
-
-        const message = `${window.location.origin}|${this.surveyId}`;
-        const msgBuffer = new TextEncoder().encode(message);
+    async generateSignature(payload) {
+        const message = JSON.stringify(payload);
+        const encoder = new TextEncoder();
+        const messageBytes = encoder.encode(message);
+        const keyBytes = encoder.encode(this.secret);
         
-        const keyMaterial = await crypto.subtle.digest('SHA-256', msgBuffer);
         const key = await crypto.subtle.importKey(
-            'raw',
-            keyMaterial,
-            { name: 'AES-CBC', length: 256 },
+            'raw', 
+            keyBytes,
+            { name: 'HMAC', hash: 'SHA-256' },
             false,
-            ['encrypt']
+            ['sign']
         );
-
-        const iv = crypto.getRandomValues(new Uint8Array(16));
-        const encrypted = await crypto.subtle.encrypt(
-            { name: 'AES-CBC', iv },
-            key,
-            msgBuffer
-        );
-
-        const combined = new Uint8Array([...iv, ...new Uint8Array(encrypted)]);
-        return btoa(String.fromCharCode(...combined));
+        
+        const signature = await crypto.subtle.sign('HMAC', key, messageBytes);
+        return Array.from(new Uint8Array(signature))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
     }
 
     async submitSurvey(surveyData) {
@@ -38,16 +30,18 @@ class SurveySubmissionManager {
             formData: surveyData,
             metadata: {
                 url: window.location.href,
-                surveyId: this.surveyId,
-                secret: await this.generateSecret()
+                surveyId: this.surveyId
             }
         };
 
         try {
+            const signature = await this.generateSignature(payload);
+            
             const response = await fetch(this.endpoint, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-Webhook-Signature': signature
                 },
                 body: JSON.stringify(payload)
             });
@@ -66,12 +60,10 @@ class SurveySubmissionManager {
 
 // Initialize submission handling
 document.addEventListener('DOMContentLoaded', () => {
-    // Wait for survey manager to be initialized
     setTimeout(() => {
         if (typeof surveyData !== 'undefined' && window.surveyManager?.survey) {
             window.submissionManager = new SurveySubmissionManager();
             
-            // Add submission handler to survey
             window.surveyManager.survey.onComplete.add(async (sender, options) => {
                 const container = document.getElementById('surveyContainer');
                 container.innerHTML = '';
