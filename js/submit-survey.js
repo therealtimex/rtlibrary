@@ -1,7 +1,7 @@
 class SurveySubmissionManager {
     constructor(endpoint = 'https://hooks.realtimex.co/hooks/mdsurvey') {
         this.endpoint = endpoint;
-        this.secret = "QOZbs38kWlOTP1YMsLVmT4dEYN4mBajg";
+        this.secret = "";
         this.surveyId = window.surveyManager?.survey?.id || null;
     }
 
