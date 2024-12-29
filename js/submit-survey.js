@@ -1,3 +1,4 @@
+// submit-survey.js
 class SurveySubmissionManager {
     constructor(endpoint = 'https://hooks.realtimex.co/hooks/survey') {
         this.endpoint = endpoint;
@@ -65,36 +66,33 @@ class SurveySubmissionManager {
 
 // Initialize submission handling
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof surveyData !== 'undefined') {
-        window.submissionManager = new SurveySubmissionManager();
-        
-        // Add submission handler to survey
-        window.surveyManager.survey.onComplete.add(async (sender, options) => {
-            // Clear existing content
-            const container = document.getElementById('surveyContainer');
-            container.innerHTML = '';
+    // Wait for survey manager to be initialized
+    setTimeout(() => {
+        if (typeof surveyData !== 'undefined' && window.surveyManager?.survey) {
+            window.submissionManager = new SurveySubmissionManager();
+            
+            // Add submission handler to survey
+            window.surveyManager.survey.onComplete.add(async (sender, options) => {
+                const container = document.getElementById('surveyContainer');
+                container.innerHTML = '';
 
-            // Create status element
-            const statusElement = document.createElement('div');
-            statusElement.className = 'survey-status';
-            statusElement.setAttribute('role', 'status');
-            container.appendChild(statusElement);
+                const statusElement = document.createElement('div');
+                statusElement.className = 'survey-status';
+                statusElement.setAttribute('role', 'status');
+                container.appendChild(statusElement);
 
-            try {
-                // Use submitting message from survey data
-                statusElement.textContent = surveyData.submittingText?.[sender.locale] || 'Submitting...';
-                await window.submissionManager.submitSurvey(sender.data);
-                
-                // Use success message from survey data
-                statusElement.className = 'survey-status success';
-                statusElement.textContent = surveyData.completedText?.[sender.locale] || 'Thank you for completing the survey!';
-            } catch (error) {
-                // Use error message from survey data
-                statusElement.className = 'survey-status error';
-                statusElement.textContent = surveyData.errorText?.[sender.locale] || 'Submission failed. Please try again.';
-            }
-        });
-    } else {
-        console.error('Survey data not loaded properly');
-    }
+                try {
+                    statusElement.textContent = surveyData.submittingText?.[sender.locale] || 'Submitting...';
+                    await window.submissionManager.submitSurvey(sender.data);
+                    
+                    statusElement.className = 'survey-status success';
+                    statusElement.textContent = surveyData.completedText[sender.locale];
+                    statusElement.setAttribute('data-message-type', 'completed');
+                } catch (error) {
+                    statusElement.className = 'survey-status error';
+                    statusElement.textContent = surveyData.errorText?.[sender.locale] || 'Submission failed. Please try again.';
+                }
+            });
+        }
+    }, 100);
 });

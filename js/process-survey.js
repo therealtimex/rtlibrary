@@ -1,3 +1,4 @@
+// process-survey.js
 class SurveyManager {
     constructor(containerId, surveyData) {
         this.containerId = containerId;
@@ -7,37 +8,17 @@ class SurveyManager {
     }
 
     init() {
+        if (typeof Survey === 'undefined' || typeof $ === 'undefined') {
+            console.error('Survey or jQuery not loaded');
+            return;
+        }
         this.survey = new Survey.Model(this.surveyData);
         this.setupTheme();
-        this.setupEventHandlers();
         this.render();
     }
 
     setupTheme() {
         Survey.StylesManager.applyTheme("defaultV2");
-    }
-
-    setupEventHandlers() {
-        this.survey.onComplete.add((sender, options) => {
-            // Clear the survey container
-            const container = document.getElementById(this.containerId);
-            container.innerHTML = '';
-            
-            // Create status element with permanent display
-            const statusElement = document.createElement('div');
-            statusElement.className = 'survey-status success';
-            statusElement.setAttribute('role', 'status');
-            
-            // Create language-specific messages container
-            const messageContainer = document.createElement('div');
-            messageContainer.className = 'survey-message';
-            messageContainer.textContent = this.surveyData.completedText[sender.locale];
-            messageContainer.setAttribute('data-message-type', 'completed');
-            
-            // Add to container
-            statusElement.appendChild(messageContainer);
-            container.appendChild(statusElement);
-        });
     }
 
     render() {
