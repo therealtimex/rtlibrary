@@ -18,7 +18,6 @@ class SurveyManager {
     }
 
     setupEventHandlers() {
-        // Remove direct submission handling as it will be handled by submit-survey.js
         this.survey.onComplete.add((sender, options) => {
             // Clear the survey container
             const container = document.getElementById(this.containerId);
@@ -26,9 +25,11 @@ class SurveyManager {
             
             // Create status element
             const statusElement = document.createElement('div');
-            statusElement.className = 'survey-status';
+            statusElement.className = 'survey-status success';
             statusElement.setAttribute('role', 'status');
-            statusElement.textContent = successMessages[sender.locale];
+            
+            // Use message from surveyData
+            statusElement.textContent = this.surveyData.completedText[sender.locale];
             
             // Add to container
             container.appendChild(statusElement);
@@ -42,6 +43,12 @@ class SurveyManager {
     changeLanguage(lang) {
         this.survey.locale = lang;
         this.updateLanguageButtons(lang);
+        
+        // Update status message if present
+        const statusElement = document.querySelector('.survey-status');
+        if (statusElement) {
+            statusElement.textContent = this.surveyData.completedText[lang];
+        }
     }
 
     updateLanguageButtons(lang) {
@@ -54,7 +61,7 @@ class SurveyManager {
 
 // Initialize survey when the external data is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof surveyData !== 'undefined' && typeof successMessages !== 'undefined') {
+    if (typeof surveyData !== 'undefined') {
         window.surveyManager = new SurveyManager('surveyContainer', surveyData);
     } else {
         console.error('Survey data not loaded properly');
