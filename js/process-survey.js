@@ -23,39 +23,32 @@ class SurveyManager {
             const container = document.getElementById(this.containerId);
             container.innerHTML = '';
             
-            // Create status element
+            // Create status element with permanent display
             const statusElement = document.createElement('div');
             statusElement.className = 'survey-status success';
             statusElement.setAttribute('role', 'status');
             
-            // Use message from surveyData
-            statusElement.textContent = this.surveyData.completedText[sender.locale];
+            // Create language-specific messages container
+            const messageContainer = document.createElement('div');
+            messageContainer.className = 'survey-message';
+            messageContainer.textContent = this.surveyData.completedText[sender.locale];
+            messageContainer.setAttribute('data-message-type', 'completed');
             
             // Add to container
+            statusElement.appendChild(messageContainer);
             container.appendChild(statusElement);
         });
-    }
-
-    render() {
-        $(`#${this.containerId}`).Survey({ model: this.survey });
     }
 
     changeLanguage(lang) {
         this.survey.locale = lang;
         this.updateLanguageButtons(lang);
         
-        // Update status message if present
-        const statusElement = document.querySelector('.survey-status');
-        if (statusElement) {
-            statusElement.textContent = this.surveyData.completedText[lang];
+        // Update message if present
+        const messageElement = document.querySelector('[data-message-type="completed"]');
+        if (messageElement && this.surveyData.completedText) {
+            messageElement.textContent = this.surveyData.completedText[lang];
         }
-    }
-
-    updateLanguageButtons(lang) {
-        document.querySelectorAll('.language-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
-            btn.setAttribute('aria-pressed', btn.textContent.toLowerCase() === lang);
-        });
     }
 }
 
