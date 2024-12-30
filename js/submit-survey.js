@@ -47,16 +47,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusElement.setAttribute('role', 'status');
                 container.appendChild(statusElement);
 
+                const locale = sender.locale || 'en';
+
                 try {
-                    statusElement.textContent = surveyData.submittingText?.[sender.locale] || 'Submitting...';
+                    statusElement.textContent = surveyData.submittingText?.[locale] || 'Submitting...';
                     await window.submissionManager.submitSurvey(sender.data);
                     
                     statusElement.className = 'survey-status success';
-                    statusElement.textContent = surveyData.completedText[sender.locale];
+                    statusElement.textContent = surveyData.completedText[locale];
                     statusElement.setAttribute('data-message-type', 'completed');
                 } catch (error) {
                     statusElement.className = 'survey-status error';
-                    statusElement.textContent = surveyData.errorText?.[sender.locale] || 'Submission failed. Please try again.';
+                    statusElement.textContent = surveyData.errorText?.[locale] || 'Submission failed. Please try again.';
                 }
             });
         }

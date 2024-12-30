@@ -56,13 +56,6 @@
 
         // Initialization
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize survey
-            if (typeof surveyData !== 'undefined' && typeof successMessages !== 'undefined') {
-                window.surveyManager = new SurveyManager('surveyContainer', surveyData);
-            } else {
-                console.error('Survey data not loaded properly');
-            }
-            
             // Set initial language
             const initialLang = getInitialLanguage();
             setLanguage(initialLang);

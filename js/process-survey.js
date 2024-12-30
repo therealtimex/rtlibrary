@@ -46,7 +46,11 @@ class SurveyManager {
 
 // Initialize survey when the external data is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof surveyData !== 'undefined') {
+    if (
+        typeof surveyData !== 'undefined' &&
+        typeof successMessages !== 'undefined' &&
+        window.surveyManager === undefined
+    ) {
         window.surveyManager = new SurveyManager('surveyContainer', surveyData);
     } else {
         console.error('Survey data not loaded properly');
