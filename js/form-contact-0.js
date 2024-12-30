@@ -52,10 +52,10 @@ const surveyData = {
             }]
         }]
     }],
-    completeText: {
-        en: "Submit",
-        fr: "Envoyer",
-        vi: "Gửi"
+    completedText: {
+        en: "Thank you for contacting us",
+        fr: "Merci de nous avoir contactés",
+        vi: "Cảm ơn bạn đã liên hệ"
     },
     showQuestionNumbers: "off",
     questionErrorLocation: "bottom"
