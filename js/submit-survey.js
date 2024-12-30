@@ -1,28 +1,7 @@
 class SurveySubmissionManager {
     constructor(endpoint = 'https://hooks.realtimex.co/hooks/mdsurvey') {
         this.endpoint = endpoint;
-        this.secret = "";
         this.surveyId = window.surveyManager?.survey?.id || null;
-    }
-
-    async generateSignature(payload) {
-        const message = JSON.stringify(payload);
-        const encoder = new TextEncoder();
-        const messageBytes = encoder.encode(message);
-        const keyBytes = encoder.encode(this.secret);
-        
-        const key = await crypto.subtle.importKey(
-            'raw', 
-            keyBytes,
-            { name: 'HMAC', hash: 'SHA-256' },
-            false,
-            ['sign']
-        );
-        
-        const signature = await crypto.subtle.sign('HMAC', key, messageBytes);
-        return Array.from(new Uint8Array(signature))
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('');
     }
 
     async submitSurvey(surveyData) {
@@ -35,13 +14,10 @@ class SurveySubmissionManager {
         };
 
         try {
-            const signature = await this.generateSignature(payload);
-            
             const response = await fetch(this.endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Webhook-Signature': signature
                 },
                 body: JSON.stringify(payload)
             });
