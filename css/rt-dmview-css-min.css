@@ -198,7 +198,7 @@ label::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px 4px 0 0;
+    border-radius: 20px 20px;
     border-bottom: 2px solid transparent;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
