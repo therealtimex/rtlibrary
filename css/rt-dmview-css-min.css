@@ -226,12 +226,29 @@ label::before {
     box-shadow: 0 0 0 4px var(--color_theme_focus);
 }
 
+.nav-link::before {
+    content: '•';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.8rem;
+    color: var(--color_theme_text_primary);
+}
+
+.nav-link.active::before {
+    content: '—';
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
 /* Ensure proper spacing for tab container */
 .tab-container {
     margin-top: 2rem;
 }
 
 .nav-pills {
+    justify-content: center;
     margin-bottom: 1rem;
     gap: 0.5rem;
     /* Consistent spacing between tabs */
