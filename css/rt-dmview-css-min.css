@@ -188,6 +188,10 @@ label::before {
 
 /* Tab Navigation Styles */
 .nav-pills .nav-link {
+    position: relative;
+    width: 80px;  /* Fixed width for consistent spacing */
+    height: 40px; /* Fixed height for consistent spacing */
+    padding: 0;   /* Remove default padding */
     background-color: var(--color_theme_neutral_light);
     color: var(--color_theme_text_secondary);
     padding: var(--size-spacing-small) var(--size-spacing-small);
@@ -228,11 +232,13 @@ label::before {
 
 .nav-link::before {
     content: '•';
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 1.8rem;
     color: var(--color_theme_text_primary);
+    line-height: 1; /* Ensure vertical alignment */
 }
 
 .nav-link.active::before {
@@ -243,7 +249,7 @@ label::before {
 
 /* Ensure proper spacing for tab container */
 .tab-container {
-    margin-top: 2rem;
+    margin-top: 1rem;
 }
 
 .nav-pills {
