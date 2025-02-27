@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mines 2030: Quantum Sweeper</title>
+    <style>
+        :root {
+            --primary-color: #00f7ff;
+            --secondary-color: #ff00e6;
+            --bg-color: #0a0a1a;
+            --tile-color: rgba(16, 26, 58, 0.9);
+            --tile-hover: rgba(22, 36, 82, 0.95);
+            --tile-clicked: rgba(10, 18, 40, 0.9);
+            --border-glow: 0 0 5px var(--primary-color);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(0, 247, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 230, 0.1) 0%, transparent 20%);
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 247, 255, 0.2);
+            border: 1px solid rgba(0, 247, 255, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .info-panel {
+            background: rgba(16, 26, 58, 0.7);
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 247, 255, 0.2);
+        }
+
+        .info-panel span {
+            margin-left: 10px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-gap: 4px;
+            margin: 0 auto 20px;
+            max-width: 500px;
+        }
+
+        .tile {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background-color: var(--tile-color);
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(0, 247, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tile:hover {
+            background-color: var(--tile-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--border-glow);
+        }
+
+        .tile-clicked {
+            background-color: var(--tile-clicked);
+            transform: none !important;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .tile::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, rgba(0, 247, 255, 0.1), transparent);
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tile:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        button {
+            background: linear-gradient(45deg, rgba(0, 247, 255, 0.2), rgba(255, 0, 230, 0.2));
+            color: white;
+            border: 1px solid var(--primary-color);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, rgba(0, 247, 255, 0.4), rgba(255, 0, 230, 0.4));
+            box-shadow: 0 0 15px rgba(0, 247, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        button.active {
+            background: linear-gradient(45deg, rgba(0, 247, 255, 0.6), rgba(255, 0, 230, 0.6));
+            box-shadow: 0 0 15px rgba(0, 247, 255, 0.7);
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .difficulty-btn {
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(16, 26, 58, 0.7);
+            color: white;
+            border: 1px solid rgba(0, 247, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(45deg, rgba(0, 247, 255, 0.4), rgba(255, 0, 230, 0.4));
+            box-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
+        }
+
+        .x1 { color: #00f7ff; }
+        .x2 { color: #00ff9d; }
+        .x3 { color: #ff00e6; }
+        .x4 { color: #ae00ff; }
+        .x5 { color: #ff5e00; }
+        .x6 { color: #ffcc00; }
+        .x7 { color: #ff0055; }
+        .x8 { color: #ffffff; }
+
+        .mine {
+            color: #ff0055;
+            font-size: 1.4rem;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.7; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1.05); }
+        }
+
+        .flag {
+            color: #ffcc00;
+            font-size: 1.2rem;
+        }
+
+        .game-over-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 26, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .game-over-content {
+            background: rgba(16, 26, 58, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 0 30px rgba(0, 247, 255, 0.3);
+            transform: translateY(20px);
+            transition: transform 0.5s;
+        }
+
+        .game-over-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .game-over-overlay.active .game-over-content {
+            transform: translateY(0);
+        }
+
+        .game-over-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .game-stats {
+            margin: 20px 0;
+            font-size: 1.1rem;
+        }
+
+        .restart-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+        }
+
+        .hologram-effect {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hologram-effect::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 247, 255, 0.2),
+                transparent
+            );
+            animation: hologram-scan 3s ease-in-out infinite;
+        }
+
+        @keyframes hologram-scan {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        .timer-display {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 600px) {
+            #board {
+                grid-gap: 3px;
+            }
+
+            .game-container {
+                padding: 15px;
+                width: 90%;
+            }
+
+            .controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container hologram-effect">
+        <h1>QUANTUM SWEEPER 2030</h1>
+
+        <div class="difficulty-selector">
+            <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+            <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+            <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        </div>
+
+        <div class="game-info">
+            <div class="info-panel">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 100-16 8 8 0 000 16zm1-8h4v2h-6V7h2v5z" fill="#00f7ff"/>
+                </svg>
+                <span class="timer-display" id="timer">00:00</span>
+            </div>
+            <div class="info-panel">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-9v2h2v-2h-2zm0-8v6h2V5h-2z" fill="#ff00e6"/>
+                </svg>
+                <span id="mines-count">0</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="flag-button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2v20h2v-8h14l-4-4 4-4H6V2H4z" fill="#ffcc00"/>
+                </svg>
+                Flag Mode
+            </button>
+            <button id="restart-button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 100-16 8 8 0 000 16zm1-11h-4v2h2v3h2v-5z" fill="#00f7ff"/>
+                </svg>
+                New Game
+            </button>
+        </div>
+
+        <div id="board"></div>
+    </div>
+
+    <div class="game-over-overlay" id="game-over-overlay">
+        <div class="game-over-content">
+            <div class="game-over-title" id="game-over-title">Game Over</div>
+            <p id="game-over-message">You hit a quantum mine!</p>
+            <div class="game-stats">
+                <div>Time: <span id="final-time">00:00</span></div>
+                <div>Difficulty: <span id="final-difficulty">Easy</span></div>
+            </div>
+            <button class="restart-btn" id="restart-game-btn">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game configuration
+        const difficulties = {
+            easy: { rows: 8, columns: 8, mines: 10 },
+            medium: { rows: 12, columns: 12, mines: 20 },
+            hard: { rows: 16, columns: 16, mines: 40 }
+        };
+
+        let currentDifficulty = 'easy';
+        let config = difficulties[currentDifficulty];
+
+        // Game state
+        let board = [];
+        let rows = config.rows;
+        let columns = config.columns;
+        let minesCount = config.mines;
+        let minesLocation = [];
+        let tilesClicked = 0;
+        let flagEnabled = false;
+        let gameOver = false;
+        let gameStarted = false;
+        let startTime = 0;
+        let timerInterval;
+
+        // DOM elements
+        const boardElement = document.getElementById('board');
+        const minesCountElement = document.getElementById('mines-count');
+        const flagButton = document.getElementById('flag-button');
+        const restartButton = document.getElementById('restart-button');
+        const timerElement = document.getElementById('timer');
+        const gameOverOverlay = document.getElementById('game-over-overlay');
+        const gameOverTitle = document.getElementById('game-over-title');
+        const gameOverMessage = document.getElementById('game-over-message');
+        const finalTimeElement = document.getElementById('final-time');
+        const finalDifficultyElement = document.getElementById('final-difficulty');
+        const restartGameBtn = document.getElementById('restart-game-btn');
+        const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+
+        // Initialize game
+        window.onload = function() {
+            setupEventListeners();
+            startGame();
+        };
+
+        function setupEventListeners() {
+            flagButton.addEventListener('click', toggleFlag);
+            restartButton.addEventListener('click', restartGame);
+            restartGameBtn.addEventListener('click', restartGame);
+
+            difficultyButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const difficulty = this.getAttribute('data-difficulty');
+                    setDifficulty(difficulty);
+
+                    difficultyButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    restartGame();
+                });
+            });
+        }
+
+        function setDifficulty(difficulty) {
+            currentDifficulty = difficulty;
+            config = difficulties[difficulty];
+            rows = config.rows;
+            columns = config.columns;
+            minesCount = config.mines;
+        }
+
+        function startGame() {
+            // Reset game state
+            board = [];
+            minesLocation = [];
+            tilesClicked = 0;
+            gameOver = false;
+            gameStarted = false;
+            clearInterval(timerInterval);
+            timerElement.textContent = '00:00';
+
+            // Update mines count display
+            minesCountElement.textContent = minesCount;
+
+            // Clear the board
+            boardElement.innerHTML = '';
+
+            // Set board grid columns
+            boardElement.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+
+            // Set mines
+            setMines();
+
+            // Create board tiles
+            for (let r = 0; r < rows; r++) {
+                let row = [];
+                for (let c = 0; c < columns; c++) {
+                    let tile = document.createElement('div');
+                    tile.id = `${r}-${c}`;
+                    tile.classList.add('tile');
+                    tile.addEventListener('click', clickTile);
+                    tile.addEventListener('contextmenu', rightClickTile);
+                    boardElement.appendChild(tile);
+                    row.push(tile);
+                }
+                board.push(row);
+            }
+
+            // Hide game over overlay
+            gameOverOverlay.classList.remove('active');
+        }
+
+        function setMines() {
+            let minesLeft = minesCount;
+            while (minesLeft > 0) {
+                let r = Math.floor(Math.random() * rows);
+                let c = Math.floor(Math.random() * columns);
+                let id = `${r}-${c}`;
+
+                if (!minesLocation.includes(id)) {
+                    minesLocation.push(id);
+                    minesLeft--;
+                }
+            }
+        }
+
+        function toggleFlag() {
+            flagEnabled = !flagEnabled;
+            flagButton.classList.toggle('active');
+        }
+
+        function rightClickTile(e) {
+            e.preventDefault();
+
+            if (gameOver) return;
+
+            const tile = e.target;
+
+            if (tile.classList.contains('tile-clicked')) {
+                return;
+            }
+
+            if (tile.innerHTML === '') {
+                tile.innerHTML = '<span class="flag">🚩</span>';
+            } else if (tile.innerHTML.includes('🚩')) {
+                tile.innerHTML = '';
+            }
+        }
+
+        function clickTile() {
+            if (gameOver) return;
+
+            // Start timer on first click
+            if (!gameStarted) {
+                startTimer();
+                gameStarted = true;
+            }
+
+            const tile = this;
+
+            // If flag mode is enabled
+            if (flagEnabled) {
+                if (!tile.classList.contains('tile-clicked')) {
+                    if (tile.innerHTML === '') {
+                        tile.innerHTML = '<span class="flag">🚩</span>';
+                    } else if (tile.innerHTML.includes('🚩')) {
+                        tile.innerHTML = '';
+                    }
+                }
+                return;
+            }
+
+            // If tile is already clicked or has a flag
+            if (tile.classList.contains('tile-clicked') || tile.innerHTML.includes('🚩')) {
+                return;
+            }
+
+            // Check if mine
+            if (minesLocation.includes(tile.id)) {
+                gameOver = true;
+                revealMines();
+                showGameOver(false);
+                return;
+            }
+
+            // Get coordinates
+            let coords = tile.id.split('-');
+            let r = parseInt(coords[0]);
+            let c = parseInt(coords[1]);
+
+            // Check surrounding mines
+            checkMine(r, c);
+
+            // Check if game won
+            if (tilesClicked === rows * columns - minesCount) {
+                gameOver = true;
+                showGameOver(true);
+            }
+        }
+
+        function revealMines() {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < columns; c++) {
+                    let tile = board[r][c];
+                    if (minesLocation.includes(tile.id)) {
+                        tile.innerHTML = '<span class="mine">💥</span>';
+                        tile.classList.add('tile-clicked');
+                    }
+                }
+            }
+        }
+
+        function checkMine(r, c) {
+            // Check if out of bounds
+            if (r < 0 || r >= rows || c < 0 || c >= columns) {
+                return;
+            }
+
+            // Check if already clicked
+            if (board[r][c].classList.contains('tile-clicked')) {
+                return;
+            }
+
+            // Mark as clicked
+            board[r][c].classList.add('tile-clicked');
+            tilesClicked++;
+
+            // Count adjacent mines
+            let minesFound = 0;
+
+            // Check all 8 adjacent tiles
+            minesFound += checkTile(r-1, c-1);  // top left
+            minesFound += checkTile(r-1, c);    // top
+            minesFound += checkTile(r-1, c+1);  // top right
+            minesFound += checkTile(r, c-1);    // left
+            minesFound += checkTile(r, c+1);    // right
+            minesFound += checkTile(r+1, c-1);  // bottom left
+            minesFound += checkTile(r+1, c);    // bottom
+            minesFound += checkTile(r+1, c+1);  // bottom right
+
+            // Display number of adjacent mines
+            if (minesFound > 0) {
+                board[r][c].innerHTML = minesFound;
+                board[r][c].classList.add(`x${minesFound}`);
+            } else {
+                // If no mines, recursively check adjacent tiles
+                board[r][c].innerHTML = '';
+
+                // Check all 8 adjacent tiles
+                checkMine(r-1, c-1);  // top left
+                checkMine(r-1, c);    // top
+                checkMine(r-1, c+1);  // top right
+                checkMine(r, c-1);    // left
+                checkMine(r, c+1);    // right
+                checkMine(r+1, c-1);  // bottom left
+                checkMine(r+1, c);    // bottom
+                checkMine(r+1, c+1);  // bottom right
+            }
+        }
+
+        function checkTile(r, c) {
+            // Check if out of bounds
+            if (r < 0 || r >= rows || c < 0 || c >= columns) {
+                return 0;
+            }
+
+            // Check if mine
+            if (minesLocation.includes(`${r}-${c}`)) {
+                return 1;
+            }
+
+            return 0;
+        }
+
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
+            const seconds = (elapsedTime % 60).toString().padStart(2, '0');
+            timerElement.textContent = `${minutes}:${seconds}`;
+        }
+
+        function showGameOver(isWin) {
+            clearInterval(timerInterval);
+
+            if (isWin) {
+                gameOverTitle.textContent = 'Mission Accomplished!';
+                gameOverMessage.textContent = 'You successfully cleared all quantum anomalies!';
+            } else {
+                gameOverTitle.textContent = 'Quantum Breach!';
+                gameOverMessage.textContent = 'A quantum mine has destabilized your mission.';
+            }
+
+            finalTimeElement.textContent = timerElement.textContent;
+            finalDifficultyElement.textContent = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
+
+            setTimeout(() => {
+                gameOverOverlay.classList.add('active');
+            }, 1000);
+        }
+
+        function restartGame() {
+            startGame();
+        }
+
+        // Prevent context menu on right click
+        document.addEventListener('contextmenu', e => {
+            if (e.target.classList.contains('tile')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
