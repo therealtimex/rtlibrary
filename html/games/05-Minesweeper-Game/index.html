@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Talha - Minesweeper</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js"></script>
+    <link rel="icon" href="https://i.ibb.co/M6KTWnf/pic.jpg" />
+
+    <!-- 👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻-->
+    <!-- Also uploaded the demo of this code in a gif : https://c.tenor.com/x8v1oNUOmg4AAAAd/tenor.gif-->
+    <!-- 👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻-->
+
+    <!-- 👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻-->
+    <!-- More html-css-js Games Calculators Games Cards Elements Projects on https://www.github.com/he-is-talha -->
+    <!-- 👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻👆🏻-->
+	
+	<script>
+	let board = [];
+let rows = 8;
+let columns = 8;
+
+let minesCount = 10;
+let minesLocation = []; // "2-2", "3-4", "2-1"
+
+let tilesClicked = 0; //goal to click all tiles except the ones containing mines
+let flagEnabled = false;
+
+let gameOver = false;
+
+window.onload = function () {
+  startGame();
+};
+
+function setMines() {
+  // minesLocation.push("2-2");
+  // minesLocation.push("2-3");
+  // minesLocation.push("5-6");
+  // minesLocation.push("3-4");
+  // minesLocation.push("1-1");
+
+  let minesLeft = minesCount;
+  while (minesLeft > 0) {
+    let r = Math.floor(Math.random() * rows);
+    let c = Math.floor(Math.random() * columns);
+    let id = r.toString() + "-" + c.toString();
+
+    if (!minesLocation.includes(id)) {
+      minesLocation.push(id);
+      minesLeft -= 1;
+    }
+  }
+}
+
+function startGame() {
+  document.getElementById("mines-count").innerText = minesCount;
+  document.getElementById("flag-button").addEventListener("click", setFlag);
+  setMines();
+
+  //populate our board
+  for (let r = 0; r < rows; r++) {
+    let row = [];
+    for (let c = 0; c < columns; c++) {
+      //<div id="0-0"></div>
+      let tile = document.createElement("div");
+      tile.id = r.toString() + "-" + c.toString();
+      tile.addEventListener("click", clickTile);
+      document.getElementById("board").append(tile);
+      row.push(tile);
+    }
+    board.push(row);
+  }
+
+  console.log(board);
+}
+
+function setFlag() {
+  if (flagEnabled) {
+    flagEnabled = false;
+    document.getElementById("flag-button").style.backgroundColor = "lightgray";
+  } else {
+    flagEnabled = true;
+    document.getElementById("flag-button").style.backgroundColor = "darkgray";
+  }
+}
+
+function clickTile() {
+  if (gameOver || this.classList.contains("tile-clicked")) {
+    return;
+  }
+
+  let tile = this;
+  if (flagEnabled) {
+    if (tile.innerText == "") {
+      tile.innerText = "🚩";
+    } else if (tile.innerText == "🚩") {
+      tile.innerText = "";
+    }
+    return;
+  }
+
+  if (minesLocation.includes(tile.id)) {
+    // alert("GAME OVER");
+    gameOver = true;
+    revealMines();
+    return;
+  }
+
+  let coords = tile.id.split("-"); // "0-0" -> ["0", "0"]
+  let r = parseInt(coords[0]);
+  let c = parseInt(coords[1]);
+  checkMine(r, c);
+}
+
+function revealMines() {
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < columns; c++) {
+      let tile = board[r][c];
+      if (minesLocation.includes(tile.id)) {
+        tile.innerText = "💣";
+        tile.style.backgroundColor = "red";
+      }
+    }
+  }
+}
+
+function checkMine(r, c) {
+  if (r < 0 || r >= rows || c < 0 || c >= columns) {
+    return;
+  }
+  if (board[r][c].classList.contains("tile-clicked")) {
+    return;
+  }
+
+  board[r][c].classList.add("tile-clicked");
+  tilesClicked += 1;
+
+  let minesFound = 0;
+
+  //top 3
+  minesFound += checkTile(r - 1, c - 1); //top left
+  minesFound += checkTile(r - 1, c); //top
+  minesFound += checkTile(r - 1, c + 1); //top right
+
+  //left and right
+  minesFound += checkTile(r, c - 1); //left
+  minesFound += checkTile(r, c + 1); //right
+
+  //bottom 3
+  minesFound += checkTile(r + 1, c - 1); //bottom left
+  minesFound += checkTile(r + 1, c); //bottom
+  minesFound += checkTile(r + 1, c + 1); //bottom right
+
+  if (minesFound > 0) {
+    board[r][c].innerText = minesFound;
+    board[r][c].classList.add("x" + minesFound.toString());
+  } else {
+    board[r][c].innerText = "";
+
+    //top 3
+    checkMine(r - 1, c - 1); //top left
+    checkMine(r - 1, c); //top
+    checkMine(r - 1, c + 1); //top right
+
+    //left and right
+    checkMine(r, c - 1); //left
+    checkMine(r, c + 1); //right
+
+    //bottom 3
+    checkMine(r + 1, c - 1); //bottom left
+    checkMine(r + 1, c); //bottom
+    checkMine(r + 1, c + 1); //bottom right
+  }
+
+  if (tilesClicked == rows * columns - minesCount) {
+    document.getElementById("mines-count").innerText = "Cleared";
+    gameOver = true;
+  }
+}
+
+function checkTile(r, c) {
+  if (r < 0 || r >= rows || c < 0 || c >= columns) {
+    return 0;
+  }
+  if (minesLocation.includes(r.toString() + "-" + c.toString())) {
+    return 1;
+  }
+  return 0;
+}
+
+	</script>
+
+<style>
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  text-align: center;
+}
+
+#board {
+  width: 400px;
+  height: 400px;
+  border: 10px solid darkgray;
+  background-color: lightgray;
+
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#board div {
+  width: 48px;
+  height: 48px;
+  border: 1px solid whitesmoke;
+
+  /* text */
+  font-size: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tile-clicked {
+  background-color: darkgrey;
+}
+
+.x1 {
+  color: blue;
+}
+
+.x2 {
+  color: green;
+}
+
+.x3 {
+  color: red;
+}
+
+.x4 {
+  color: navy;
+}
+
+.x5 {
+  color: brown;
+}
+
+.x6 {
+  color: teal;
+}
+
+.x7 {
+  color: black;
+}
+
+.x8 {
+  color: gray;
+}
+
+#flag-button {
+  width: 100px;
+  height: 50px;
+  font-size: 30px;
+  background-color: lightgray;
+  border: none;
+}
+
+</style>
+
+  </head>
+
+  <body>
+    <h1>Mines: <span id="mines-count">0</span></h1>
+    <div id="board"></div>
+    <br />
+    <button id="flag-button">🚩</button>
+  </body>
+</html>
