@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Chess for Kids</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #4b6cb7;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+        }
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            grid-template-rows: repeat(4, 80px);
+            border: 8px solid #8b4513;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .cell {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .white {
+            background-color: #f0d9b5;
+        }
+        .black {
+            background-color: #b58863;
+        }
+        .selected {
+            background-color: #aec6cf !important;
+        }
+        .possible-move {
+            background-color: #90ee90 !important;
+        }
+        .last-move {
+            box-shadow: inset 0 0 15px 5px rgba(255, 255, 0, 0.5);
+        }
+        .piece {
+            width: 60px;
+            height: 60px;
+            cursor: grab;
+            transition: transform 0.2s;
+            user-select: none;
+        }
+        .piece:hover {
+            transform: scale(1.1);
+        }
+        .piece:active {
+            cursor: grabbing;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ffe4b5;
+            border-radius: 10px;
+            font-size: 18px;
+            color: #8b4513;
+            min-height: 30px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .button:hover {
+            transform: scale(1.05);
+        }
+        .reset-btn {
+            background-color: #ff6b6b;
+        }
+        .reset-btn:hover {
+            background-color: #ff5252;
+        }
+        .action-btn {
+            background-color: #4b6cb7;
+        }
+        .action-btn:hover {
+            background-color: #3a5a9b;
+        }
+        .turn-indicator {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+        }
+        .player-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: black;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .white-turn {
+            background-color: white;
+            border: 2px solid #333;
+        }
+        .black-turn {
+            background-color: #333;
+            color: white;
+            border: 2px solid #333;
+        }
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: fall 3s linear forwards;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+        .controls {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .game-mode {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .mode-btn {
+            padding: 10px 15px;
+            background-color: #6a89cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mode-btn:hover {
+            background-color: #4a69ac;
+        }
+        .mode-btn.active {
+            background-color: #2c3e50;
+            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+        }
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .thinking {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            font-size: 18px;
+            display: none;
+            z-index: 100;
+        }
+        .thinking-dots {
+            display: inline-block;
+            width: 50px;
+        }
+        @keyframes thinking {
+            0% { content: "."; }
+            33% { content: ".."; }
+            66% { content: "..."; }
+        }
+        .thinking-dots::after {
+            content: ".";
+            animation: thinking 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏰 Mini Chess for Kids 🏰</h1>
+
+    <div class="game-mode">
+        <button id="humanVsHuman" class="mode-btn active">Human vs Human</button>
+        <button id="humanVsComputer" class="mode-btn">Human vs Computer</button>
+        <button id="computerVsComputer" class="mode-btn">Computer vs Computer</button>
+    </div>
+
+    <div class="speed-control">
+        <label for="computerSpeed">Computer Speed:</label>
+        <select id="computerSpeed">
+            <option value="2000">Slow</option>
+            <option value="1000" selected>Normal</option>
+            <option value="500">Fast</option>
+        </select>
+    </div>
+
+    <div class="turn-indicator">
+        <span>Current player:</span>
+        <div class="player-indicator white-turn" id="turnIndicator">H</div>
+    </div>
+
+    <div class="controls">
+        <button class="button action-btn" id="startBtn">Start Game</button>
+        <button class="button reset-btn" id="resetBtn">New Game</button>
+    </div>
+
+    <div class="game-container">
+        <div class="board" id="board"></div>
+        <div class="message" id="message">Choose a game mode and press Start Game!</div>
+    </div>
+
+    <div id="thinking" class="thinking">
+        Computer thinking<span class="thinking-dots"></span>
+    </div>
+
+    <div id="celebration" class="celebration"></div>
+
+    <script>
+        // Game state
+        let selectedPiece = null;
+        let currentPlayer = 'white'; // white goes first
+        let gameOver = false;
+        let gameStarted = false;
+        let gameMode = 'humanVsHuman';
+        let isComputerThinking = false;
+        let lastMoveFrom = null;
+        let lastMoveTo = null;
+
+        // Computer player settings
+        const players = {
+            white: 'human',
+            black: 'human'
+        };
+
+        const messages = {
+            select: "Click on a piece to move it!",
+            move: "Now click where you want to move the piece!",
+            invalid: "Oops! You can't move there. Try again!",
+            turn: (player) => `It's ${player}'s turn now!`,
+            capture: "Wow! You captured a piece!",
+            whiteTurn: "White's turn now!",
+            blackTurn: "Black's turn now!",
+            whiteWins: "White wins! 🎉",
+            blackWins: "Black wins! 🎉",
+            computerThinking: "Computer is thinking...",
+            computerVsComputer: "Computer vs Computer match! Press Start to begin."
+        };
+
+        // Piece symbols (simplified for kids)
+        const pieces = {
+            'white-king': '👑',
+            'white-knight': '🐴',
+            'white-pawn': '👶',
+            'black-king': '👑',
+            'black-knight': '🐴',
+            'black-pawn': '👶'
+        };
+
+        // Initial board setup - simplified 4x4 chess
+        let board = [
+            ['black-pawn', 'black-knight', 'black-king', 'black-pawn'],
+            [null, null, null, null],
+            [null, null, null, null],
+            ['white-pawn', 'white-king', 'white-knight', 'white-pawn']
+        ];
+
+        // Create the board
+        function createBoard() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 4; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = `cell ${(row + col) % 2 === 0 ? 'white' : 'black'}`;
+
+                    // Add last move highlight
+                    if ((lastMoveFrom && lastMoveFrom.row === row && lastMoveFrom.col === col) ||
+                        (lastMoveTo && lastMoveTo.row === row && lastMoveTo.col === col)) {
+                        cell.classList.add('last-move');
+                    }
+
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+
+                    // Add piece if there is one
+                    if (board[row][col]) {
+                        const pieceElement = document.createElement('div');
+                        pieceElement.className = 'piece';
+                        pieceElement.textContent = pieces[board[row][col]];
+                        pieceElement.dataset.piece = board[row][col];
+                        cell.appendChild(pieceElement);
+                    }
+
+                    cell.addEventListener('click', handleCellClick);
+                    boardElement.appendChild(cell);
+                }
+            }
+            updateTurnIndicator();
+        }
+
+        // Handle cell click
+        function handleCellClick(event) {
+            if (gameOver || !gameStarted || isComputerThinking) return;
+
+            // If it's computer's turn, ignore clicks
+            if (players[currentPlayer] === 'computer') return;
+
+            const cell = event.target.closest('.cell');
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+
+            // If a piece is already selected
+            if (selectedPiece) {
+                // Try to move the piece
+                movePiece(row, col);
+            } else {
+                // Try to select a piece
+                selectPiece(row, col);
+            }
+        }
+
+        // Select a piece
+        function selectPiece(row, col) {
+            // Check if there's a piece on the selected cell
+            if (!board[row][col]) {
+                setMessage(messages.select);
+                return;
+            }
+
+            // Check if the piece belongs to the current player
+            const piece = board[row][col];
+            if (!piece.startsWith(currentPlayer)) {
+                setMessage(`That's not your piece! ${messages.turn(currentPlayer)}`);
+                return;
+            }
+
+            // Select the piece
+            selectedPiece = { row, col, type: piece };
+
+            // Highlight the selected cell
+            document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`).classList.add('selected');
+
+            // Highlight possible moves
+            highlightPossibleMoves(row, col, piece);
+
+            setMessage(messages.move);
+        }
+
+        // Highlight possible moves for the selected piece
+        function highlightPossibleMoves(row, col, piece) {
+            const possibleMoves = getPossibleMoves(row, col, piece);
+
+            possibleMoves.forEach(move => {
+                document.querySelector(`.cell[data-row="${move.row}"][data-col="${move.col}"]`).classList.add('possible-move');
+            });
+        }
+
+        // Get possible moves for a piece
+        function getPossibleMoves(row, col, piece) {
+            const moves = [];
+            const [color, type] = piece.split('-');
+
+            // Simple movement rules for kids
+            if (type === 'pawn') {
+                const direction = color === 'white' ? -1 : 1;
+
+                // Move forward one step
+                if (row + direction >= 0 && row + direction < 4 && !board[row + direction][col]) {
+                    moves.push({ row: row + direction, col });
+                }
+
+                // Capture diagonally
+                if (row + direction >= 0 && row + direction < 4) {
+                    // Capture left diagonal
+                    if (col - 1 >= 0 && board[row + direction][col - 1] && !board[row + direction][col - 1].startsWith(color)) {
+                        moves.push({ row: row + direction, col: col - 1 });
+                    }
+
+                    // Capture right diagonal
+                    if (col + 1 < 4 && board[row + direction][col + 1] && !board[row + direction][col + 1].startsWith(color)) {
+                        moves.push({ row: row + direction, col: col + 1 });
+                    }
+                }
+            }
+            else if (type === 'knight') {
+                // Knight moves in L shape
+                const knightMoves = [
+                    { row: row - 2, col: col - 1 }, { row: row - 2, col: col + 1 },
+                    { row: row - 1, col: col - 2 }, { row: row - 1, col: col + 2 },
+                    { row: row + 1, col: col - 2 }, { row: row + 1, col: col + 2 },
+                    { row: row + 2, col: col - 1 }, { row: row + 2, col: col + 1 }
+                ];
+
+                knightMoves.forEach(move => {
+                    if (isValidPosition(move.row, move.col) && (!board[move.row][move.col] || !board[move.row][move.col].startsWith(color))) {
+                        moves.push(move);
+                    }
+                });
+            }
+            else if (type === 'king') {
+                // King moves one square in any direction
+                for (let r = -1; r <= 1; r++) {
+                    for (let c = -1; c <= 1; c++) {
+                        if (r === 0 && c === 0) continue; // Skip the current position
+
+                        const newRow = row + r;
+                        const newCol = col + c;
+
+                        if (isValidPosition(newRow, newCol) && (!board[newRow][newCol] || !board[newRow][newCol].startsWith(color))) {
+                            moves.push({ row: newRow, col: newCol });
+                        }
+                    }
+                }
+            }
+
+            return moves;
+        }
+
+        // Get all possible moves for a player
+        function getAllPossibleMoves(player) {
+            const moves = [];
+
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 4; col++) {
+                    if (board[row][col] && board[row][col].startsWith(player)) {
+                        const pieceMoves = getPossibleMoves(row, col, board[row][col]);
+                        pieceMoves.forEach(move => {
+                            moves.push({
+                                from: { row, col },
+                                to: move,
+                                piece: board[row][col],
+                                isCapture: board[move.row][move.col] !== null,
+                                capturedPiece: board[move.row][move.col]
+                            });
+                        });
+                    }
+                }
+            }
+
+            return moves;
+        }
+
+        // Check if a position is valid on the board
+        function isValidPosition(row, col) {
+            return row >= 0 && row < 4 && col >= 0 && col < 4;
+        }
+
+        // Move a piece
+        function movePiece(toRow, toCol, isComputerMove = false) {
+            if (!isComputerMove) {
+                // Get possible moves for the selected piece
+                const possibleMoves = getPossibleMoves(selectedPiece.row, selectedPiece.col, selectedPiece.type);
+
+                // Check if the target cell is a valid move
+                const isValidMove = possibleMoves.some(move => move.row === toRow && move.col === toCol);
+
+                if (!isValidMove) {
+                    // Remove highlighting
+                    removeHighlights();
+                    selectedPiece = null;
+                    setMessage(messages.invalid);
+                    return;
+                }
+            }
+
+            // Save last move positions for highlighting
+            lastMoveFrom = {
+                row: isComputerMove ? selectedPiece.from.row : selectedPiece.row,
+                col: isComputerMove ? selectedPiece.from.col : selectedPiece.col
+            };
+            lastMoveTo = { row: toRow, col: toCol };
+
+            // Check if capturing a piece
+            const isCapture = board[toRow][toCol] !== null;
+
+            // Check if capturing a king
+            const isKingCapture = isCapture && board[toRow][toCol].includes('king');
+
+            // Move the piece
+            if (isComputerMove) {
+                board[toRow][toCol] = selectedPiece.piece;
+                board[selectedPiece.from.row][selectedPiece.from.col] = null;
+            } else {
+                board[toRow][toCol] = selectedPiece.type;
+                board[selectedPiece.row][selectedPiece.col] = null;
+            }
+
+            // Remove highlighting
+            removeHighlights();
+
+            if (!isComputerMove) {
+                selectedPiece = null;
+            }
+
+            // Check if the game is over
+            if (isKingCapture) {
+                gameOver = true;
+                setMessage(currentPlayer === 'white' ? messages.whiteWins : messages.blackWins);
+                createCelebration();
+                createBoard(); // Redraw to show final position
+                return;
+            } else if (isCapture) {
+                setMessage(messages.capture);
+            } else {
+                setMessage(currentPlayer === 'white' ? messages.blackTurn : messages.whiteTurn);
+            }
+
+            // Switch player
+            currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+
+            // Redraw the board
+            createBoard();
+
+            // If next player is computer, make computer move after a delay
+            if (!gameOver && players[currentPlayer] === 'computer') {
+                makeComputerMoveWithDelay();
+            }
+        }
+
+        // Computer move with "thinking" animation
+        function makeComputerMoveWithDelay() {
+            // Show thinking indicator
+            isComputerThinking = true;
+            document.getElementById('thinking').style.display = 'block';
+
+            // Get computer speed from dropdown
+            const delayTime = parseInt(document.getElementById('computerSpeed').value);
+
+            setTimeout(() => {
+                makeComputerMove();
+                // Hide thinking indicator
+                isComputerThinking = false;
+                document.getElementById('thinking').style.display = 'none';
+            }, delayTime);
+        }
+
+        // Computer move logic
+        function makeComputerMove() {
+            // Get all possible moves for the current player
+            const allMoves = getAllPossibleMoves(currentPlayer);
+
+            if (allMoves.length === 0) {
+                // No moves available - it's a stalemate
+                gameOver = true;
+                setMessage(`Game over! ${currentPlayer === 'white' ? 'Black' : 'White'} wins by stalemate!`);
+                return;
+            }
+
+            // First, check if we can capture a king
+            const kingCaptures = allMoves.filter(move =>
+                move.isCapture && move.capturedPiece && move.capturedPiece.includes('king')
+            );
+
+            if (kingCaptures.length > 0) {
+                // Prioritize capturing a king
+                const move = kingCaptures[Math.floor(Math.random() * kingCaptures.length)];
+                selectedPiece = move;
+                movePiece(move.to.row, move.to.col, true);
+                return;
+            }
+
+            // Next, check for any captures
+            const captures = allMoves.filter(move => move.isCapture);
+
+            if (captures.length > 0) {
+                // Prioritize capturing any piece
+                const move = captures[Math.floor(Math.random() * captures.length)];
+                selectedPiece = move;
+                movePiece(move.to.row, move.to.col, true);
+                return;
+            }
+
+            // If no captures, just make a random move
+            const move = allMoves[Math.floor(Math.random() * allMoves.length)];
+            selectedPiece = move;
+            movePiece(move.to.row, move.to.col, true);
+        }
+
+        // Remove highlighting from cells
+        function removeHighlights() {
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('selected', 'possible-move');
+            });
+        }
+
+        // Set message
+        function setMessage(text) {
+            document.getElementById('message').textContent = text;
+        }
+
+        // Update turn indicator
+        function updateTurnIndicator() {
+            const indicator = document.getElementById('turnIndicator');
+            indicator.className = 'player-indicator';
+            indicator.classList.add(currentPlayer === 'white' ? 'white-turn' : 'black-turn');
+
+            // Show H for human, C for computer
+            indicator.textContent = players[currentPlayer].charAt(0).toUpperCase();
+        }
+
+        // Create celebration effect
+        function createCelebration() {
+            const celebrationContainer = document.getElementById('celebration');
+            celebrationContainer.innerHTML = '';
+
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+                celebrationContainer.appendChild(confetti);
+            }
+        }
+
+        // Reset game
+        function resetGame() {
+            board = [
+                ['black-pawn', 'black-knight', 'black-king', 'black-pawn'],
+                [null, null, null, null],
+                [null, null, null, null],
+                ['white-pawn', 'white-king', 'white-knight', 'white-pawn']
+            ];
+            selectedPiece = null;
+            currentPlayer = 'white';
+            gameOver = false;
+            gameStarted = false;
+            lastMoveFrom = null;
+            lastMoveTo = null;
+
+            setGameMode(gameMode); // Reset player types
+
+            document.getElementById('startBtn').textContent = 'Start Game';
+
+            createBoard();
+            setMessage('Game reset! Choose a game mode and press Start Game.');
+        }
+
+        // Set game mode
+        function setGameMode(mode) {
+            gameMode = mode;
+
+            // Update player types based on game mode
+            if (mode === 'humanVsHuman') {
+                players.white = 'human';
+                players.black = 'human';
+            } else if (mode === 'humanVsComputer') {
+                players.white = 'human';
+                players.black = 'computer';
+            } else if (mode === 'computerVsComputer') {
+                players.white = 'computer';
+                players.black = 'computer';
+            }
+
+            // Highlight active mode button
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(mode).classList.add('active');
+
+            updateTurnIndicator();
+        }
+
+        // Start/pause game
+        function toggleGame() {
+            if (!gameStarted) {
+                // Start game
+                gameStarted = true;
+                document.getElementById('startBtn').textContent = 'Pause Game';
+
+                // Start computer move if it's computer's turn
+                if (players[currentPlayer] === 'computer' && !gameOver) {
+                    makeComputerMoveWithDelay();
+                }
+
+                if (gameMode === 'computerVsComputer') {
+                    setMessage('Computer vs Computer match in progress!');
+                } else {
+                    setMessage(players[currentPlayer] === 'human' ?
+                        'Your turn! Click on a piece to move.' :
+                        'Computer is thinking...');
+                }
+            } else {
+                // Pause game
+                gameStarted = false;
+                document.getElementById('startBtn').textContent = 'Resume Game';
+                setMessage('Game paused. Press Resume Game to continue.');
+            }
+        }
+
+        // Initialize game
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+        document.getElementById('startBtn').addEventListener('click', toggleGame);
+
+        // Game mode buttons
+        document.getElementById('humanVsHuman').addEventListener('click', () => setGameMode('humanVsHuman'));
+        document.getElementById('humanVsComputer').addEventListener('click', () => setGameMode('humanVsComputer'));
+        document.getElementById('computerVsComputer').addEventListener('click', () => setGameMode('computerVsComputer'));
+
+        // Initialize board
+        createBoard();
+    </script>
+</body>
+</html>
