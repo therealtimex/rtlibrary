@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customizable Board Game Creator</title>
+    <style>
+        :root {
+            --primary-color: #3a6ea5;
+            --secondary-color: #c75146;
+            --accent-color: #6a8a82;
+            --light-color: #f4f4f4;
+            --dark-color: #333;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .app-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-button {
+            background-color: var(--light-color);
+            color: var(--primary-color);
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-button.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .app-content {
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        /* Main Menu Styles */
+        .main-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+        }
+
+        .menu-title {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+        }
+
+        .menu-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Board Editor Styles */
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            gap: 15px;
+            padding: 10px;
+            background-color: var(--light-color);
+            border-radius: 5px;
+            flex-wrap: wrap;
+        }
+
+        .shape-selector, .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tool-button {
+            background-color: white;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tool-button:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tool-button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .editor-workspace {
+            display: flex;
+            gap: 20px;
+        }
+
+        .canvas-container {
+            flex: 1;
+            min-height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #editorCanvas {
+            display: block;
+            background-color: #f9f9f9;
+        }
+
+        .properties-panel {
+            width: 300px;
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: 5px;
+        }
+
+        .panel-title {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Game Board Styles */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: var(--light-color);
+            border-radius: 5px;
+        }
+
+        .game-board {
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .board-square {
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+
+        .board-square.light {
+            background-color: #f0d9b5;
+        }
+
+        .board-square.dark {
+            background-color: #b58863;
+        }
+
+        .game-piece {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .game-piece img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .valid-move-indicator {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(0, 128, 0, 0.3);
+            z-index: 5;
+        }
+
+        .player-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .player-card {
+            width: 48%;
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: 5px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .player-card.active {
+            border-left-color: var(--secondary-color);
+            background-color: #e8f4ff;
+        }
+
+        .player-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .player-timer {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        /* Rule Editor Styles */
+        .rule-editor {
+            padding: 20px;
+        }
+
+        .rule-section {
+            margin-bottom: 30px;
+        }
+
+        .rule-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            grid-template-rows: repeat(5, 60px);
+            gap: 2px;
+            margin: 20px 0;
+        }
+
+        .grid-cell {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .grid-cell.center {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .grid-cell.selected {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .grid-cell:hover:not(.center) {
+            background-color: #e8f4ff;
+        }
+
+        .rule-options {
+            margin-top: 20px;
+        }
+
+        .checkbox-group {
+            margin-bottom: 10px;
+        }
+
+        .rule-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Multiplayer Styles */
+        .multiplayer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .room-info {
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .room-id {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .players-list {
+            margin-top: 20px;
+        }
+
+        .player-item {
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Utility Classes */
+        .primary-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .primary-button:hover {
+            background-color: #2c5282;
+        }
+
+        .secondary-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .secondary-button:hover {
+            background-color: #a73f37;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <h1 class="app-title">Customizable Board Game Creator</h1>
+        <nav class="navigation">
+            <button class="nav-button" data-page="main-menu">Main Menu</button>
+            <button class="nav-button" data-page="board-editor">Board Editor</button>
+            <button class="nav-button" data-page="rule-editor">Rule Editor</button>
+            <button class="nav-button" data-page="game">Play Game</button>
+            <button class="nav-button" data-page="multiplayer">Multiplayer</button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main class="app-content">
+            <!-- Main Menu Page -->
+            <section id="main-menu" class="main-menu">
+                <h2 class="menu-title">Board Game Creator</h2>
+                <button class="menu-button" data-action="new-game">Start New Game</button>
+                <button class="menu-button" data-action="customize-board">Customize Board</button>
+                <button class="menu-button" data-action="customize-rules">Customize Rules</button>
+                <button class="menu-button" data-action="multiplayer">Multiplayer</button>
+                <button class="menu-button" data-action="load-game">Load Saved Game</button>
+            </section>
+
+            <!-- Board Editor Page -->
+            <section id="board-editor" class="editor-container hidden">
+                <div class="editor-toolbar">
+                    <div class="shape-selector">
+                        <label for="boardShape">Board Shape:</label>
+                        <select id="boardShape" class="form-control">
+                            <option value="rectangle">Rectangle</option>
+                            <option value="hexagon">Hexagon</option>
+                            <option value="circle">Circle</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+
+                    <div class="tool-group">
+                        <label>Tools:</label>
+                        <button class="tool-button active" data-tool="cell">Cell</button>
+                        <button class="tool-button" data-tool="connection">Connection</button>
+                        <button class="tool-button" data-tool="eraser">Eraser</button>
+                    </div>
+
+                    <div class="tool-group">
+                        <label>Dimensions:</label>
+                        <input type="number" id="boardWidth" class="form-control" min="3" max="16" value="8" style="width: 60px;">
+                        <span>×</span>
+                        <input type="number" id="boardHeight" class="form-control" min="3" max="16" value="8" style="width: 60px;">
+                    </div>
+
+                    <div class="tool-group">
+                        <label>3D Mode:</label>
+                        <input type="checkbox" id="use3d">
+                    </div>
+                </div>
+
+                <div class="editor-workspace">
+                    <div class="canvas-container">
+                        <canvas id="editorCanvas" width="600" height="600"></canvas>
+                    </div>
+
+                    <div class="properties-panel">
+                        <h3 class="panel-title">Properties</h3>
+                        
+                        <div id="cellProperties" class="property-section">
+                            <div class="form-group">
+                                <label for="cellType">Cell Type:</label>
+                                <select id="cellType" class="form-control">
+                                    <option value="standard">Standard</option>
+                                    <option value="special">Special</option>
+                                    <option value="obstacle">Obstacle</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="cellColor">Cell Color:</label>
+                                <input type="color" id="cellColor" class="form-control" value="#f0d9b5">
+                            </div>
+                        </div>
+
+                        <div id="connectionProperties" class="property-section hidden">
+                            <div class="form-group">
+                                <label for="connectionType">Connection Type:</label>
+                                <select id="connectionType" class="form-control">
+                                    <option value="bridge">Bridge</option>
+                                    <option value="portal">Portal</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="connectionCost">Movement Cost:</label>
+                                <input type="number" id="connectionCost" class="form-control" min="1" value="1">
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-20">
+                            <button id="saveBoard" class="primary-button">Save Board</button>
+                            <button id="testBoard" class="secondary-button">Test Board</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Rule Editor Page -->
+            <section id="rule-editor" class="rule-editor hidden">
+                <h3>Piece Rules Customization</h3>
+                
+                <div class="rule-section">
+                    <div class="form-group">
+                        <label for="pieceSelector">Select Piece:</label>
+                        <select id="pieceSelector" class="form-control">
+                            <option value="king">King</option>
+                            <option value="queen">Queen</option>
+                            <option value="rook">Rook</option>
+                            <option value="bishop">Bishop</option>
+                            <option value="knight">Knight</option>
+                            <option value="pawn">Pawn</option>
+                        </select>
+                    </div>
+
+                    <h4>Movement Pattern</h4>
+                    <p>Click the cells to define where this piece can move from the center position:</p>
+                    
+                    <div class="rule-grid" id="movementGrid">
+                        <!-- Grid will be generated by JavaScript -->
+                    </div>
+                    
+                    <div class="rule-options">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="jumpOverPieces"> 
+                            <label for="jumpOverPieces">Can jump over other pieces</label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="maxMoveDistance">Maximum movement distance:</label>
+                            <input type="number" id="maxMoveDistance" class="form-control" min="1" value="1">
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="canCapture" checked> 
+                            <label for="canCapture">Can capture opponent pieces</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rule-section">
+                    <h3>Special Abilities</h3>
+                    <button id="addSpecialAbility" class="secondary-button">Add Special Ability</button>
+                    
+                    <div id="specialAbilitiesList" class="mt-20">
+                        <!-- Special abilities will be added here -->
+                    </div>
+                </div>
+
+                <div class="rule-section">
+                    <h3>Game Rules</h3>
+                    
+                    <div class="form-group">
+                        <label for="winCondition">Win Condition:</label>
+                        <select id="winCondition" class="form-control">
+                            <option value="checkmate">Checkmate</option>
+                            <option value="capture-all">Capture All Pieces</option>
+                            <option value="reach-end">Reach End of Board</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="useTimer"> 
+                        <label for="useTimer">Use Timer</label>
+                    </div>
+                    
+                    <div id="timerSettings" class="form-group hidden">
+                        <label for="timerDuration">Time per player (minutes):</label>
+                        <input type="number" id="timerDuration" class="form-control" min="1" value="10">
+                    </div>
+                </div>
+
+                <div class="rule-buttons">
+                    <button id="saveRules" class="primary-button">Save Rules</button>
+                    <button id="resetRules" class="secondary-button">Reset to Default</button>
+                </div>
+            </section>
+
+            <!-- Game Page -->
+            <section id="game" class="game-container hidden">
+                <div class="game-controls">
+                    <button id="undoMove" class="tool-button">Undo Move</button>
+                    <div id="gameStatus">White's Turn</div>
+                    <button id="saveGame" class="tool-button">Save Game</button>
+                </div>
+
+                <div class="game-board-container">
+                    <div id="gameBoard" class="game-board">
+                        <!-- Game board will be rendered here -->
+                    </div>
+                </div>
+
+                <div class="player-info">
+                    <div class="player-card active" id="player1Card">
+                        <div class="player-name">Player 1 (White)</div>
+                        <div class="player-timer" id="player1Timer">10:00</div>
+                        <div class="player-captured-pieces" id="player1Captured"></div>
+                    </div>
+
+                    <div class="player-card" id="player2Card">
+                        <div class="player-name">Player 2 (Black)</div>
+                        <div class="player-timer" id="player2Timer">10:00</div>
+                        <div class="player-captured-pieces" id="player2Captured"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Multiplayer Page -->
+            <section id="multiplayer" class="multiplayer-options hidden">
+                <h3>Multiplayer Options</h3>
+                
+                <div class="form-group">
+                    <button id="createRoom" class="primary-button">Create New Game Room</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="roomIdInput">Or Join Existing Room:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="roomIdInput" class="form-control" placeholder="Enter Room ID">
+                        <button id="joinRoom" class="secondary-button">Join Room</button>
+                    </div>
+                </div>
+                
+                <div id="roomInfoContainer" class="room-info hidden">
+                    <h4>Room Information</h4>
+                    <div>Share this Room ID with other players:</div>
+                    <div class="room-id" id="roomIdDisplay">XXXX-XXXX-XXXX</div>
+                    
+                    <h4>Players</h4>
+                    <div class="players-list" id="playersList">
+                        <!-- Players will be listed here -->
+                    </div>
+                    
+                    <div class="mt-20">
+                        <button id="startMultiplayerGame" class="primary-button">Start Game</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Global store for application state
+        const appState = {
+            currentPage: 'main-menu',
+            boardConfig: {
+                shape: 'rectangle',
+                dimensions: { width: 8, height: 8 },
+                use3D: false,
+                cells: []
+            },
+            rulesConfig: {
+                pieces: {
+                    king: { 
+                        movementPattern: [
+                            [0, 0, 0, 0, 0],
+                            [0, 1, 1, 1, 0],
+                            [0, 1, 0, 1, 0],
+                            [0, 1, 1, 1, 0],
+                            [0, 0, 0, 0, 0]
+                        ],
+                        jumpOverPieces: false,
+                        maxMoveDistance: 1,
+                        canCapture: true
+                    },
+                    queen: { 
+                        movementPattern: [
+                            [1, 0, 1, 0, 1],
+                            [0, 1, 1, 1, 0],
+                            [1, 1, 0, 1, 1],
+                            [0, 1, 1, 1, 0],
+                            [1, 0, 1, 0, 1]
+                        ],
+                        jumpOverPieces: false,
+                        maxMoveDistance: 7,
+                        canCapture: true
+                    },
+                    rook: { 
+                        movementPattern: [
+                            [0, 0, 1, 0, 0],
+                            [0, 0, 1, 0, 0],
+                            [1, 1, 0, 1, 1],
+                            [0, 0, 1, 0, 0],
+                            [0, 0, 1, 0, 0]
+                        ],
+                        jumpOverPieces: false,
+                        maxMoveDistance: 7,
+                        canCapture: true
+                    },
+                    bishop: { 
+                        movementPattern: [
+                            [1, 0, 0, 0, 1],
+                            [0, 1, 0, 1, 0],
+                            [0, 0, 0, 0, 0],
+                            [0, 1, 0, 1, 0],
+                            [1, 0, 0, 0, 1]
+                        ],
+                        jumpOverPieces: false,
+                        maxMoveDistance: 7,
+                        canCapture: true
+                    },
+                    knight: { 
+                        movementPattern: [
+                            [0, 1, 0, 1, 0],
+                            [1, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 0],
+                            [1, 0, 0, 0, 1],
+                            [0, 1, 0, 1, 0]
+                        ],
+                        jumpOverPieces: true,
+                        maxMoveDistance: 1,
+                        canCapture: true
+                    },
+                    pawn: { 
+                        movementPattern: [
+                            [0, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0],
+                            [0, 0, 1, 0, 0],
+                            [0, 0, 0, 0, 0]
+                        ],
+                        jumpOverPieces: false,
+                        maxMoveDistance: 1,
+                        canCapture: true,
+                        specialRules: {
+                            firstMoveDouble: true,
+                            capturePattern: [
+                                [0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0],
+                                [0, 1, 0, 1, 0],
+                                [0, 0, 0, 0, 0]
+                            ],
+                            promotion: true
+                        }
+                    }
+                },
+                winCondition: 'checkmate',
+                useTimer: false,
+                timerDuration: 10 // minutes
+            },
+            gameState: {
+                pieces: [],
+                currentPlayer: 'white',
+                moveHistory: [],
+                capturedPieces: {
+                    white: [],
+                    black: []
+                }
+            },
+            multiplayer: {
+                roomId: null,
+                players: [],
+                isHost: false
+            }
+        };
+
+        // DOM Elements
+        const navButtons = document.querySelectorAll('.nav-button');
+        const pages = document.querySelectorAll('.app-content > section');
+        const menuButtons = document.querySelectorAll('.menu-button');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            initNavigation();
+            initMainMenu();
+            initBoardEditor();
+            initRuleEditor();
+            initGameBoard();
+            initMultiplayer();
+        });
+
+        // Navigation System
+        function initNavigation() {
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const pageName = button.getAttribute('data-page');
+                    navigateTo(pageName);
+                });
+            });
+
+            // Set initial active page
+            navigateTo('main-menu');
+        }
+
+        function navigateTo(pageName) {
+            // Update active nav button
+            navButtons.forEach(button => {
+                if (button.getAttribute('data-page') === pageName) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+
+            // Show active page, hide others
+            pages.forEach(page => {
+                if (page.id === pageName) {
+                    page.classList.remove('hidden');
+                } else {
+                    page.classList.add('hidden');
+                }
+            });
+
+            // Update app state
+            appState.currentPage = pageName;
+
+            // Init page if needed
+            if (pageName === 'board-editor') {
+                refreshBoardEditor();
+            } else if (pageName === 'rule-editor') {
+                refreshRuleEditor();
+            } else if (pageName === 'game') {
+                refreshGameBoard();
+            }
+        }
+
+        // Main Menu
+        function initMainMenu() {
+            menuButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const action = button.getAttribute('data-action');
+                    
+                    switch(action) {
+                        case 'new-game':
+                            navigateTo('game');
+                            break;
+                        case 'customize-board':
+                            navigateTo('board-editor');
+                            break;
+                        case 'customize-rules':
+                            navigateTo('rule-editor');
+                            break;
+                        case 'multiplayer':
+                            navigateTo('multiplayer');
+                            break;
+                        case 'load-game':
+                            loadSavedGame();
+                            break;
+                    }
+                });
+            });
+        }
+
+        function loadSavedGame() {
+            // Simulating loading from localStorage
+            const savedGame = localStorage.getItem('customBoardGame');
+            if (savedGame) {
+                try {
+                    const gameData = JSON.parse(savedGame);
+                    appState.boardConfig = gameData.boardConfig;
+                    appState.rulesConfig = gameData.rulesConfig;
+                    appState.gameState = gameData.gameState;
+                    navigateTo('game');
+                } catch (error) {
+                    alert('Failed to load saved game: ' + error.message);
+                }
+            } else {
+                alert('No saved game found!');
+            }
+        }
+
+        // Board Editor
+        function initBoardEditor() {
+            const canvas = document.getElementById('editorCanvas');
+            const ctx = canvas.getContext('2d');
+            const boardShapeSelect = document.getElementById('boardShape');
+            const boardWidthInput = document.getElementById('boardWidth');
+            const boardHeightInput = document.getElementById('boardHeight');
+            const use3dCheckbox = document.getElementById('use3d');
+            const saveButton = document.getElementById('saveBoard');
+            const testButton = document.getElementById('testBoard');
+            const toolButtons = document.querySelectorAll('.tool-button[data-tool]');
+
+            // Tool buttons
+            toolButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    toolButtons.forEach(b => b.classList.remove('active'));
+                    button.classList.add('active');
+                    appState.activeTool = button.getAttribute('data-tool');
+                });
+            });
+
+            // Board shape change
+            boardShapeSelect.addEventListener('change', () => {
+                appState.boardConfig.shape = boardShapeSelect.value;
+                refreshBoardEditor();
+            });
+
+            // Dimension changes
+            boardWidthInput.addEventListener('change', () => {
+                appState.boardConfig.dimensions.width = parseInt(boardWidthInput.value);
+                refreshBoardEditor();
+            });
+
+            boardHeightInput.addEventListener('change', () => {
+                appState.boardConfig.dimensions.height = parseInt(boardHeightInput.value);
+                refreshBoardEditor();
+            });
+
+            // 3D mode
+            use3dCheckbox.addEventListener('change', () => {
+                appState.boardConfig.use3D = use3dCheckbox.checked;
+                refreshBoardEditor();
+            });
+
+            // Canvas interactions
+            canvas.addEventListener('click', (event) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                // Handle board editor interactions based on active tool
+                handleBoardEditorClick(x, y);
+            });
+
+            // Save button
+            saveButton.addEventListener('click', () => {
+                saveBoardConfig();
+            });
+
+            // Test button
+            testButton.addEventListener('click', () => {
+                navigateTo('game');
+            });
+        }
+
+        function refreshBoardEditor() {
+            const canvas = document.getElementById('editorCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Update form values to match state
+            document.getElementById('boardShape').value = appState.boardConfig.shape;
+            document.getElementById('boardWidth').value = appState.boardConfig.dimensions.width;
+            document.getElementById('boardHeight').value = appState.boardConfig.dimensions.height;
+            document.getElementById('use3d').checked = appState.boardConfig.use3D;
+            
+            // Draw board based on current config
+            drawEditorBoard(ctx);
+        }
+
+        function drawEditorBoard(ctx) {
+            const canvas = document.getElementById('editorCanvas');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            switch (appState.boardConfig.shape) {
+                case 'rectangle':
+                    drawRectangularBoard(ctx, width, height);
+                    break;
+                case 'hexagon':
+                    drawHexagonalBoard(ctx, width, height);
+                    break;
+                case 'circle':
+                    drawCircularBoard(ctx, width, height);
+                    break;
+                case 'custom':
+                    drawCustomBoard(ctx, width, height);
+                    break;
+            }
+        }
+
+        function drawRectangularBoard(ctx, canvasWidth, canvasHeight) {
+            const boardWidth = appState.boardConfig.dimensions.width;
+            const boardHeight = appState.boardConfig.dimensions.height;
+            
+            const cellWidth = Math.min(canvasWidth / boardWidth, canvasHeight / boardHeight);
+            const offsetX = (canvasWidth - (cellWidth * boardWidth)) / 2;
+            const offsetY = (canvasHeight - (cellWidth * boardHeight)) / 2;
+            
+            // Initialize cells array if empty
+            if (appState.boardConfig.cells.length === 0) {
+                appState.boardConfig.cells = [];
+                for (let y = 0; y < boardHeight; y++) {
+                    for (let x = 0; x < boardWidth; x++) {
+                        appState.boardConfig.cells.push({
+                            x: x,
+                            y: y,
+                            type: 'standard',
+                            color: (x + y) % 2 === 0 ? '#f0d9b5' : '#b58863'
+                        });
+                    }
+                }
+            }
+            
+            // Draw cells
+            for (let i = 0; i < appState.boardConfig.cells.length; i++) {
+                const cell = appState.boardConfig.cells[i];
+                const x = offsetX + (cell.x * cellWidth);
+                const y = offsetY + (cell.y * cellWidth);
+                
+                ctx.fillStyle = cell.color;
+                ctx.fillRect(x, y, cellWidth, cellWidth);
+                ctx.strokeStyle = '#555';
+                ctx.strokeRect(x, y, cellWidth, cellWidth);
+                
+                // Mark special cells
+                if (cell.type === 'special') {
+                    ctx.fillStyle = 'rgba(0, 128, 255, 0.3)';
+                    ctx.fillRect(x, y, cellWidth, cellWidth);
+                } else if (cell.type === 'obstacle') {
+                    ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+                    ctx.fillRect(x, y, cellWidth, cellWidth);
+                }
+            }
+            
+            // Draw connections if any
+            if (appState.boardConfig.connections) {
+                for (const connection of appState.boardConfig.connections) {
+                    const fromCell = appState.boardConfig.cells.find(
+                        c => c.x === connection.from.x && c.y === connection.from.y
+                    );
+                    const toCell = appState.boardConfig.cells.find(
+                        c => c.x === connection.to.x && c.y === connection.to.y
+                    );
+                    
+                    if (fromCell && toCell) {
+                        const fromX = offsetX + (fromCell.x * cellWidth) + (cellWidth / 2);
+                        const fromY = offsetY + (fromCell.y * cellWidth) + (cellWidth / 2);
+                        const toX = offsetX + (toCell.x * cellWidth) + (cellWidth / 2);
+                        const toY = offsetY + (toCell.y * cellWidth) + (cellWidth / 2);
+                        
+                        ctx.strokeStyle = connection.type === 'bridge' ? '#00aa00' : '#aa00aa';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(fromX, fromY);
+                        ctx.lineTo(toX, toY);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function drawHexagonalBoard(ctx, canvasWidth, canvasHeight) {
+            const radius = appState.boardConfig.dimensions.radius || 5;
+            const hexSize = Math.min(canvasWidth, canvasHeight) / (radius * 2 + 1);
+            const centerX = canvasWidth / 2;
+            const centerY = canvasHeight / 2;
+            
+            // Initialize cells array if empty
+            if (appState.boardConfig.cells.length === 0) {
+                appState.boardConfig.cells = [];
+                for (let q = -radius; q <= radius; q++) {
+                    const r1 = Math.max(-radius, -q - radius);
+                    const r2 = Math.min(radius, -q + radius);
+                    for (let r = r1; r <= r2; r++) {
+                        appState.boardConfig.cells.push({
+                            q: q,
+                            r: r,
+                            s: -q-r,
+                            type: 'standard',
+                            color: (q + r + (-q-r)) % 3 === 0 ? '#f0d9b5' : 
+                                   (q + r + (-q-r)) % 3 === 1 ? '#d9a066' : '#b58863'
+                        });
+                    }
+                }
+            }
+            
+            // Draw hexagons
+            for (let i = 0; i < appState.boardConfig.cells.length; i++) {
+                const cell = appState.boardConfig.cells[i];
+                const {q, r} = cell;
+                
+                // Convert hex coordinates to pixel coordinates
+                const x = centerX + hexSize * (3/2 * q);
+                const y = centerY + hexSize * (Math.sqrt(3)/2 * q + Math.sqrt(3) * r);
+                
+                drawHexagon(ctx, x, y, hexSize, cell.color, cell.type);
+            }
+        }
+
+        function drawHexagon(ctx, x, y, size, fillColor, cellType) {
+            const angle = Math.PI / 3;
+            
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                ctx.lineTo(
+                    x + size * Math.cos(angle * i),
+                    y + size * Math.sin(angle * i)
+                );
+            }
+            ctx.closePath();
+            
+            ctx.fillStyle = fillColor;
+            ctx.fill();
+            
+            ctx.strokeStyle = '#555';
+            ctx.stroke();
+            
+            // Mark special cells
+            if (cellType === 'special') {
+                ctx.globalAlpha = 0.3;
+                ctx.fillStyle = 'blue';
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            } else if (cellType === 'obstacle') {
+                ctx.globalAlpha = 0.3;
+                ctx.fillStyle = 'red';
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function drawCircularBoard(ctx, canvasWidth, canvasHeight) {
+            const rings = appState.boardConfig.dimensions.rings || 3;
+            const sectors = appState.boardConfig.dimensions.sectors || 8;
+            const centerX = canvasWidth / 2;
+            const centerY = canvasHeight / 2;
+            const maxRadius = Math.min(canvasWidth, canvasHeight) / 2 - 20;
+            
+            // Initialize cells array if empty
+            if (appState.boardConfig.cells.length === 0) {
+                appState.boardConfig.cells = [];
+                
+                // Add center cell
+                appState.boardConfig.cells.push({
+                    ring: 0,
+                    sector: 0,
+                    type: 'standard',
+                    color: '#f0d9b5'
+                });
+                
+                // Add rings
+                for (let ring = 1; ring <= rings; ring++) {
+                    for (let sector = 0; sector < sectors; sector++) {
+                        appState.boardConfig.cells.push({
+                            ring: ring,
+                            sector: sector,
+                            type: 'standard',
+                            color: (ring + sector) % 2 === 0 ? '#f0d9b5' : '#b58863'
+                        });
+                    }
+                }
+            }
+            
+            // Draw center cell
+            const centerCell = appState.boardConfig.cells[0];
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, maxRadius / rings, 0, Math.PI * 2);
+            ctx.fillStyle = centerCell.color;
+            ctx.fill();
+            ctx.strokeStyle = '#555';
+            ctx.stroke();
+            
+            // Draw rings and sectors
+            for (let i = 1; i < appState.boardConfig.cells.length; i++) {
+                const cell = appState.boardConfig.cells[i];
+                const innerRadius = (cell.ring - 0.5) * (maxRadius / rings);
+                const outerRadius = (cell.ring + 0.5) * (maxRadius / rings);
+                const startAngle = cell.sector * (2 * Math.PI / sectors);
+                const endAngle = (cell.sector + 1) * (2 * Math.PI / sectors);
+                
+                ctx.beginPath();
+                ctx.moveTo(
+                    centerX + innerRadius * Math.cos(startAngle),
+                    centerY + innerRadius * Math.sin(startAngle)
+                );
+                ctx.arc(centerX, centerY, innerRadius, startAngle, endAngle);
+                ctx.lineTo(
+                    centerX + outerRadius * Math.cos(endAngle),
+                    centerY + outerRadius * Math.sin(endAngle)
+                );
+                ctx.arc(centerX, centerY, outerRadius, endAngle, startAngle, true);
+                ctx.closePath();
+                
+                ctx.fillStyle = cell.color;
+                ctx.fill();
+                ctx.strokeStyle = '#555';
+                ctx.stroke();
+                
+                // Mark special cells
+                if (cell.type === 'special') {
+                    ctx.globalAlpha = 0.3;
+                    ctx.fillStyle = 'blue';
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                } else if (cell.type === 'obstacle') {
+                    ctx.globalAlpha = 0.3;
+                    ctx.fillStyle = 'red';
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                }
+            }
+        }
+
+        function drawCustomBoard(ctx, canvasWidth, canvasHeight) {
+            // For custom boards, just draw an empty frame and a message
+            ctx.fillStyle = '#f4f4f4';
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+            
+            ctx.strokeStyle = '#aaa';
+            ctx.strokeRect(10, 10, canvasWidth - 20, canvasHeight - 20);
+            
+            ctx.fillStyle = '#555';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Custom Board - Use cell tool to add cells', canvasWidth / 2, canvasHeight / 2);
+            
+            // Draw any cells that exist
+            if (appState.boardConfig.cells.length > 0) {
+                // Draw all cells in their positions
+                for (const cell of appState.boardConfig.cells) {
+                    ctx.fillStyle = cell.color || '#ddd';
+                    ctx.fillRect(cell.x, cell.y, cell.width || 50, cell.height || 50);
+                    ctx.strokeStyle = '#555';
+                    ctx.strokeRect(cell.x, cell.y, cell.width || 50, cell.height || 50);
+                }
+            }
+        }
+
+        function handleBoardEditorClick(x, y) {
+            const tool = document.querySelector('.tool-button[data-tool].active').getAttribute('data-tool');
+            
+            switch (appState.boardConfig.shape) {
+                case 'rectangle':
+                    handleRectangularBoardClick(x, y, tool);
+                    break;
+                case 'hexagon':
+                    handleHexagonalBoardClick(x, y, tool);
+                    break;
+                case 'circle':
+                    handleCircularBoardClick(x, y, tool);
+                    break;
+                case 'custom':
+                    handleCustomBoardClick(x, y, tool);
+                    break;
+            }
+            
+            // Redraw the board
+            refreshBoardEditor();
+        }
+
+        function handleRectangularBoardClick(x, y, tool) {
+            const canvas = document.getElementById('editorCanvas');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            const boardWidth = appState.boardConfig.dimensions.width;
+            const boardHeight = appState.boardConfig.dimensions.height;
+            
+            const cellWidth = Math.min(width / boardWidth, height / boardHeight);
+            const offsetX = (width - (cellWidth * boardWidth)) / 2;
+            const offsetY = (height - (cellWidth * boardHeight)) / 2;
+            
+            // Calculate clicked cell coordinates
+            const cellX = Math.floor((x - offsetX) / cellWidth);
+            const cellY = Math.floor((y - offsetY) / cellWidth);
+            
+            // Ensure within bounds
+            if (cellX >= 0 && cellX < boardWidth && cellY >= 0 && cellY < boardHeight) {
+                if (tool === 'cell') {
+                    // Modify cell properties
+                    const cellIndex = appState.boardConfig.cells.findIndex(
+                        cell => cell.x === cellX && cell.y === cellY
+                    );
+                    
+                    if (cellIndex !== -1) {
+                        const cellType = document.getElementById('cellType').value;
+                        const cellColor = document.getElementById('cellColor').value;
+                        
+                        appState.boardConfig.cells[cellIndex].type = cellType;
+                        appState.boardConfig.cells[cellIndex].color = cellColor;
+                    }
+                } else if (tool === 'connection') {
+                    // If this is the first click, store it
+                    if (!appState.connectionStart) {
+                        appState.connectionStart = { x: cellX, y: cellY };
+                    } else {
+                        // This is the second click, create connection
+                        const connectionType = document.getElementById('connectionType').value;
+                        const connectionCost = parseInt(document.getElementById('connectionCost').value);
+                        
+                        if (!appState.boardConfig.connections) {
+                            appState.boardConfig.connections = [];
+                        }
+                        
+                        appState.boardConfig.connections.push({
+                            from: { x: appState.connectionStart.x, y: appState.connectionStart.y },
+                            to: { x: cellX, y: cellY },
+                            type: connectionType,
+                            cost: connectionCost
+                        });
+                        
+                        // Reset connection start
+                        appState.connectionStart = null;
+                    }
+                } else if (tool === 'eraser') {
+                    // Erase cell or connection
+                    // For simplicity, just reset cell to default
+                    const cellIndex = appState.boardConfig.cells.findIndex(
+                        cell => cell.x === cellX && cell.y === cellY
+                    );
+                    
+                    if (cellIndex !== -1) {
+                        appState.boardConfig.cells[cellIndex].type = 'standard';
+                        appState.boardConfig.cells[cellIndex].color = 
+                            (cellX + cellY) % 2 === 0 ? '#f0d9b5' : '#b58863';
+                    }
+                    
+                    // Also remove any connections that involve this cell
+                    if (appState.boardConfig.connections) {
+                        appState.boardConfig.connections = appState.boardConfig.connections.filter(
+                            conn => !(
+                                (conn.from.x === cellX && conn.from.y === cellY) || 
+                                (conn.to.x === cellX && conn.to.y === cellY)
+                            )
+                        );
+                    }
+                }
+            }
+        }
+
+        function handleHexagonalBoardClick(x, y, tool) {
+            // Similar implementation as rectangular, but with hex coordinate conversion
+            // This is a simplified version
+            
+            const canvas = document.getElementById('editorCanvas');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            const radius = appState.boardConfig.dimensions.radius || 5;
+            const hexSize = Math.min(width, height) / (radius * 2 + 1);
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            // Convert pixel to hex coordinates using cube coordinates
+            // This is a simplified approximation
+            const q = (2/3 * (x - centerX)) / hexSize;
+            const r = (-1/3 * (x - centerX) + Math.sqrt(3)/3 * (y - centerY)) / hexSize;
+            const s = -q-r;
+            
+            // Round to nearest hex
+            let rq = Math.round(q);
+            let rr = Math.round(r);
+            let rs = Math.round(s);
+            
+            const q_diff = Math.abs(rq - q);
+            const r_diff = Math.abs(rr - r);
+            const s_diff = Math.abs(rs - s);
+            
+            if (q_diff > r_diff && q_diff > s_diff) {
+                rq = -rr-rs;
+            } else if (r_diff > s_diff) {
+                rr = -rq-rs;
+            } else {
+                rs = -rq-rr;
+            }
+            
+            // Check if in bounds
+            if (Math.max(Math.abs(rq), Math.abs(rr), Math.abs(rs)) <= radius) {
+                if (tool === 'cell') {
+                    // Modify cell properties
+                    const cellIndex = appState.boardConfig.cells.findIndex(
+                        cell => cell.q === rq && cell.r === rr && cell.s === rs
+                    );
+                    
+                    if (cellIndex !== -1) {
+                        const cellType = document.getElementById('cellType').value;
+                        const cellColor = document.getElementById('cellColor').value;
+                        
+                        appState.boardConfig.cells[cellIndex].type = cellType;
+                        appState.boardConfig.cells[cellIndex].color = cellColor;
+                    }
+                }
+                // Other tools would be implemented similarly
+            }
+        }
+
+        function handleCircularBoardClick(x, y, tool) {
+            // Implement similar logic for circular boards
+            const canvas = document.getElementById('editorCanvas');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const maxRadius = Math.min(width, height) / 2 - 20;
+            
+            const rings = appState.boardConfig.dimensions.rings || 3;
+            const sectors = appState.boardConfig.dimensions.sectors || 8;
+            
+            // Calculate distance from center
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Calculate angle
+            let angle = Math.atan2(dy, dx);
+            if (angle < 0) angle += 2 * Math.PI;
+            
+            // Calculate ring and sector
+            const ring = Math.ceil(distance / (maxRadius / rings));
+            const sector = Math.floor((angle / (2 * Math.PI)) * sectors);
+            
+            if (ring >= 0 && ring <= rings) {
+                if (tool === 'cell') {
+                    let cellIndex;
+                    
+                    if (ring === 0) {
+                        // Center cell
+                        cellIndex = 0;
+                    } else {
+                        cellIndex = 1 + (ring - 1) * sectors + sector;
+                    }
+                    
+                    if (cellIndex < appState.boardConfig.cells.length) {
+                        const cellType = document.getElementById('cellType').value;
+                        const cellColor = document.getElementById('cellColor').value;
+                        
+                        appState.boardConfig.cells[cellIndex].type = cellType;
+                        appState.boardConfig.cells[cellIndex].color = cellColor;
+                    }
+                }
+                // Other tools would be implemented similarly
+            }
+        }
+
+        function handleCustomBoardClick(x, y, tool) {
+            // For custom boards, allow adding cells anywhere
+            if (tool === 'cell') {
+                const cellWidth = 50;
+                const cellHeight = 50;
+                
+                // Snap to grid
+                const snapX = Math.floor(x / cellWidth) * cellWidth;
+                const snapY = Math.floor(y / cellHeight) * cellHeight;
+                
+                const cellType = document.getElementById('cellType').value;
+                const cellColor = document.getElementById('cellColor').value;
+                
+                // Check if there's already a cell at this position
+                const existingCell = appState.boardConfig.cells.find(
+                    cell => cell.x === snapX && cell.y === snapY
+                );
+                
+                if (existingCell) {
+                    // Update existing cell
+                    existingCell.type = cellType;
+                    existingCell.color = cellColor;
+                } else {
+                    // Add new cell
+                    appState.boardConfig.cells.push({
+                        x: snapX,
+                        y: snapY,
+                        width: cellWidth,
+                        height: cellHeight,
+                        type: cellType,
+                        color: cellColor
+                    });
+                }
+            } else if (tool === 'eraser') {
+                // Remove cells at clicked position
+                appState.boardConfig.cells = appState.boardConfig.cells.filter(
+                    cell => !(x >= cell.x && x < cell.x + (cell.width || 50) && 
+                            y >= cell.y && y < cell.y + (cell.height || 50))
+                );
+            }
+        }
+
+        function saveBoardConfig() {
+            try {
+                localStorage.setItem('customBoardConfig', JSON.stringify(appState.boardConfig));
+                alert('Board configuration saved successfully!');
+            } catch (error) {
+                console.error('Error saving board config:', error);
+                alert('Failed to save board configuration.');
+            }
+        }
+
+        // Rule Editor
+        function initRuleEditor() {
+            const pieceSelector = document.getElementById('pieceSelector');
+            const movementGrid = document.getElementById('movementGrid');
+            const jumpOverPieces = document.getElementById('jumpOverPieces');
+            const maxMoveDistance = document.getElementById('maxMoveDistance');
+            const canCapture = document.getElementById('canCapture');
+            const winCondition = document.getElementById('winCondition');
+            const useTimer = document.getElementById('useTimer');
+            const timerSettings = document.getElementById('timerSettings');
+            const timerDuration = document.getElementById('timerDuration');
+            const saveRules = document.getElementById('saveRules');
+            const resetRules = document.getElementById('resetRules');
+            
+            // Create movement grid
+            createMovementGrid();
+            
+            // Piece selector change
+            pieceSelector.addEventListener('change', () => {
+                updateRuleEditorForPiece(pieceSelector.value);
+            });
+            
+            // Rule option changes
+            jumpOverPieces.addEventListener('change', () => {
+                const piece = pieceSelector.value;
+                appState.rulesConfig.pieces[piece].jumpOverPieces = jumpOverPieces.checked;
+            });
+            
+            maxMoveDistance.addEventListener('change', () => {
+                const piece = pieceSelector.value;
+                appState.rulesConfig.pieces[piece].maxMoveDistance = parseInt(maxMoveDistance.value);
+            });
+            
+            canCapture.addEventListener('change', () => {
+                const piece = pieceSelector.value;
+                appState.rulesConfig.pieces[piece].canCapture = canCapture.checked;
+            });
+            
+            // Win condition
+            winCondition.addEventListener('change', () => {
+                appState.rulesConfig.winCondition = winCondition.value;
+            });
+            
+            // Timer settings
+            useTimer.addEventListener('change', () => {
+                appState.rulesConfig.useTimer = useTimer.checked;
+                timerSettings.classList.toggle('hidden', !useTimer.checked);
+            });
+            
+            timerDuration.addEventListener('change', () => {
+                appState.rulesConfig.timerDuration = parseInt(timerDuration.value);
+            });
+            
+            // Save button
+            saveRules.addEventListener('click', () => {
+                saveRulesConfig();
+            });
+            
+            // Reset button
+            resetRules.addEventListener('click', () => {
+                resetRulesConfig();
+            });
+        }
+
+        function createMovementGrid() {
+            const movementGrid = document.getElementById('movementGrid');
+            movementGrid.innerHTML = '';
+            
+            for (let y = 0; y < 5; y++) {
+                for (let x = 0; x < 5; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.x = x;
+                    cell.dataset.y = y;
+                    
+                    // Center cell is special
+                    if (x === 2 && y === 2) {
+                        cell.classList.add('center');
+                        cell.textContent = '•';
+                    } else {
+                        cell.addEventListener('click', () => {
+                            toggleMovementCell(x, y);
+                        });
+                    }
+                    
+                    movementGrid.appendChild(cell);
+                }
+            }
+        }
+
+        function toggleMovementCell(x, y) {
+            const piece = document.getElementById('pieceSelector').value;
+            const pattern = appState.rulesConfig.pieces[piece].movementPattern;
+            
+            // Toggle the value at this position
+            pattern[y][x] = pattern[y][x] ? 0 : 1;
+            
+            // Update the visual grid
+            updateMovementGrid(piece);
+        }
+
+        function updateMovementGrid(piece) {
+            const pattern = appState.rulesConfig.pieces[piece].movementPattern;
+            const cells = document.querySelectorAll('.grid-cell:not(.center)');
+            
+            cells.forEach(cell => {
+                const x = parseInt(cell.dataset.x);
+                const y = parseInt(cell.dataset.y);
+                
+                if (pattern[y][x]) {
+                    cell.classList.add('selected');
+                } else {
+                    cell.classList.remove('selected');
+                }
+            });
+        }
+
+        function updateRuleEditorForPiece(piece) {
+            const pieceRules = appState.rulesConfig.pieces[piece];
+            
+            // Update movement grid
+            updateMovementGrid(piece);
+            
+            // Update other options
+            document.getElementById('jumpOverPieces').checked = pieceRules.jumpOverPieces;
+            document.getElementById('maxMoveDistance').value = pieceRules.maxMoveDistance;
+            document.getElementById('canCapture').checked = pieceRules.canCapture !== false;
+            
+            // Special handling for pawn
+            const specialAbilitiesList = document.getElementById('specialAbilitiesList');
+            specialAbilitiesList.innerHTML = '';
+            
+            if (piece === 'pawn' && pieceRules.specialRules) {
+                // Add pawn-specific abilities
+                const firstMoveDiv = document.createElement('div');
+                firstMoveDiv.className = 'checkbox-group';
+                
+                const firstMoveCheck = document.createElement('input');
+                firstMoveCheck.type = 'checkbox';
+                firstMoveCheck.id = 'firstMoveDouble';
+                firstMoveCheck.checked = pieceRules.specialRules.firstMoveDouble;
+                
+                const firstMoveLabel = document.createElement('label');
+                firstMoveLabel.htmlFor = 'firstMoveDouble';
+                firstMoveLabel.textContent = 'Can move two spaces on first move';
+                
+                firstMoveDiv.appendChild(firstMoveCheck);
+                firstMoveDiv.appendChild(firstMoveLabel);
+                
+                const promotionDiv = document.createElement('div');
+                promotionDiv.className = 'checkbox-group';
+                
+                const promotionCheck = document.createElement('input');
+                promotionCheck.type = 'checkbox';
+                promotionCheck.id = 'promotion';
+                promotionCheck.checked = pieceRules.specialRules.promotion;
+                
+                const promotionLabel = document.createElement('label');
+                promotionLabel.htmlFor = 'promotion';
+                promotionLabel.textContent = 'Can promote when reaching the end rank';
+                
+                promotionDiv.appendChild(promotionCheck);
+                promotionDiv.appendChild(promotionLabel);
+                
+                specialAbilitiesList.appendChild(firstMoveDiv);
+                specialAbilitiesList.appendChild(promotionDiv);
+            }
+        }
+
+        function refreshRuleEditor() {
+            // Set the initial piece selection
+            document.getElementById('pieceSelector').value = 'king';
+            
+            // Update form values to match state
+            document.getElementById('winCondition').value = appState.rulesConfig.winCondition;
+            document.getElementById('useTimer').checked = appState.rulesConfig.useTimer;
+            document.getElementById('timerDuration').value = appState.rulesConfig.timerDuration;
+            
+            // Show/hide timer settings
+            document.getElementById('timerSettings').classList.toggle('hidden', !appState.rulesConfig.useTimer);
+            
+            // Update the rule display for the selected piece
+            updateRuleEditorForPiece('king');
+        }
+
+        function saveRulesConfig() {
+            try {
+                localStorage.setItem('customRulesConfig', JSON.stringify(appState.rulesConfig));
+                alert('Rules configuration saved successfully!');
+            } catch (error) {
+                console.error('Error saving rules config:', error);
+                alert('Failed to save rules configuration.');
+            }
+        }
+
+        function resetRulesConfig() {
+            // Reset to chess defaults
+            appState.rulesConfig = {
+                pieces: {
+                    king: { 
+                        movementPattern: [
+                            [0, 0, 0, 0, 0],
+                            [0, 1, 1, 1, 0],
+                            [0, 1, 0, 1, 0],
+                            [0, 1, 1, 1, 0],
+                            [0, 0, 0, 0, 0]
+                        ],
+                        jumpOverPieces: false,
+                        maxMoveDistance: 1,
+                        canCapture: true
+                    },
+                    queen: { 
+                        movementPattern: [
+                            [1, 0, 1, 0, 1],
+                            [0, 1, 1, 1, 0],
+                            [1, 1, 0, 1, 1],
+                            [0, 1, 1, 1, 0],
+                            [1, 0, 1, 0, 1]
+                        ],
+                        jumpOverPieces: false,
+                        maxMoveDistance: 7,
+                        canCapture: true
+                    },
+                    rook: { 
+                        movementPattern: [
+                            [0, 0, 1, 0, 0],
+                            [0, 0, 1, 0, 0],
+                            [1, 1, 0, 1, 1],
+                            [0, 0, 1, 0, 0],
+                            [0, 0, 1, 0, 0]
+                        ],
+                        jumpOverPieces: false,
+                        maxMoveDistance: 7,
+                        canCapture: true
+                    },
+                    bishop: { 
+                        movementPattern: [
+                            [1, 0, 0, 0, 1],
+                            [0, 1, 0, 1, 0],
+                            [0, 0, 0, 0, 0],
+                            [0, 1, 0, 1, 0],
+                            [1, 0, 0, 0, 1]
+                        ],
+                        jumpOverPieces: false,
+                        maxMoveDistance: 7,
+                        canCapture: true
+                    },
+                    knight: { 
+                        movementPattern: [
+                            [0, 1, 0, 1, 0],
+                            [1, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 0],
+                            [1, 0, 0, 0, 1],
+                            [0, 1, 0, 1, 0]
+                        ],
+                        jumpOverPieces: true,
+                        maxMoveDistance: 1,
+                        canCapture: true
+                    },
+                    pawn: { 
+                        movementPattern: [
+                            [0, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0],
+                            [0, 0, 1, 0, 0],
+                            [0, 0, 0, 0, 0]
+                        ],
+                        jumpOverPieces: false,
+                        maxMoveDistance: 1,
+                        canCapture: true,
+                        specialRules: {
+                            firstMoveDouble: true,
+                            capturePattern: [
+                                [0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0],
+                                [0, 1, 0, 1, 0],
+                                [0, 0, 0, 0, 0]
+                            ],
+                            promotion: true
+                        }
+                    }
+                },
+                winCondition: 'checkmate',
+                useTimer: false,
+                timerDuration: 10
+            };
+            
+            // Refresh the editor
+            refreshRuleEditor();
+            alert('Rules reset to default chess rules.');
+        }
+
+        // Game Board
+        function initGameBoard() {
+            const undoMoveButton = document.getElementById('undoMove');
+            const saveGameButton = document.getElementById('saveGame');
+            
+            // Initialize standard chess game if no game state
+            if (appState.gameState.pieces.length === 0) {
+                setupStandardChessGame();
+            }
+            
+            // Undo move
+            undoMoveButton.addEventListener('click', () => {
+                if (appState.gameState.moveHistory.length > 0) {
+                    undoLastMove();
+                    refreshGameBoard();
+                }
+            });
+            
+            // Save game
+            saveGameButton.addEventListener('click', () => {
+                saveGameState();
+            });
+        }
+
+        function setupStandardChessGame() {
+            // Initialize the board for a standard chess game
+            appState.gameState.pieces = [];
+            appState.gameState.currentPlayer = 'white';
+            appState.gameState.moveHistory = [];
+            appState.gameState.capturedPieces = { white: [], black: [] };
+            
+            // Set up pawns
+            for (let i = 0; i < 8; i++) {
+                // White pawns
+                appState.gameState.pieces.push({
+                    type: 'pawn',
+                    color: 'white',
+                    position: { x: i, y: 6 },
+                    hasMoved: false
+                });
+                
+                // Black pawns
+                appState.gameState.pieces.push({
+                    type: 'pawn',
+                    color: 'black',
+                    position: { x: i, y: 1 },
+                    hasMoved: false
+                });
+            }
+            
+            // Set up other pieces
+            const backRowPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
+            
+            for (let i = 0; i < 8; i++) {
+                // White pieces
+                appState.gameState.pieces.push({
+                    type: backRowPieces[i],
+                    color: 'white',
+                    position: { x: i, y: 7 },
+                    hasMoved: false
+                });
+                
+                // Black pieces
+                appState.gameState.pieces.push({
+                    type: backRowPieces[i],
+                    color: 'black',
+                    position: { x: i, y: 0 },
+                    hasMoved: false
+                });
+            }
+        }
+
+        function refreshGameBoard() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+            
+            // Update player info and status
+            document.getElementById('gameStatus').textContent = 
+                `${appState.gameState.currentPlayer.charAt(0).toUpperCase() + appState.gameState.currentPlayer.slice(1)}'s Turn`;
+            
+            document.getElementById('player1Card').classList.toggle('active', appState.gameState.currentPlayer === 'white');
+            document.getElementById('player2Card').classList.toggle('active', appState.gameState.currentPlayer === 'black');
+            
+            // Render the board based on board config
+            switch (appState.boardConfig.shape) {
+                case 'rectangle':
+                    renderRectangularGameBoard(gameBoard);
+                    break;
+                case 'hexagon':
+                    renderHexagonalGameBoard(gameBoard);
+                    break;
+                case 'circle':
+                    renderCircularGameBoard(gameBoard);
+                    break;
+                case 'custom':
+                    renderCustomGameBoard(gameBoard);
+                    break;
+            }
+        }
+
+        function renderRectangularGameBoard(gameBoard) {
+            const boardWidth = appState.boardConfig.dimensions.width;
+            const boardHeight = appState.boardConfig.dimensions.height;
+            
+            // Determine cell size
+            const containerWidth = gameBoard.clientWidth;
+            const containerHeight = 500; // Fixed height for the game board
+            
+            const cellSize = Math.min(
+                containerWidth / boardWidth,
+                containerHeight / boardHeight
+            );
+            
+            // Set board dimensions
+            gameBoard.style.width = `${cellSize * boardWidth}px`;
+            gameBoard.style.height = `${cellSize * boardHeight}px`;
+            
+            // Create the squares
+            for (let y = 0; y < boardHeight; y++) {
+                for (let x = 0; x < boardWidth; x++) {
+                    const square = document.createElement('div');
+                    square.className = 'board-square';
+                    square.classList.add((x + y) % 2 === 0 ? 'light' : 'dark');
+                    
+                    square.style.width = `${cellSize}px`;
+                    square.style.height = `${cellSize}px`;
+                    square.style.left = `${x * cellSize}px`;
+                    square.style.top = `${y * cellSize}px`;
+                    
+                    // Handle click for moves
+                    square.dataset.x = x;
+                    square.dataset.y = y;
+                    square.addEventListener('click', () => handleSquareClick(x, y));
+                    
+                    gameBoard.appendChild(square);
+                }
+            }
+            
+            // Add the pieces
+            for (const piece of appState.gameState.pieces) {
+                const pieceElement = document.createElement('div');
+                pieceElement.className = 'game-piece';
+                pieceElement.dataset.type = piece.type;
+                pieceElement.dataset.color = piece.color;
+                
+                // Set position
+                pieceElement.style.width = `${cellSize}px`;
+                pieceElement.style.height = `${cellSize}px`;
+                pieceElement.style.left = `${piece.position.x * cellSize}px`;
+                pieceElement.style.top = `${piece.position.y * cellSize}px`;
+                
+                // Add piece image/text
+                const img = document.createElement('div');
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.display = 'flex';
+                img.style.alignItems = 'center';
+                img.style.justifyContent = 'center';
+                img.style.fontSize = `${cellSize * 0.6}px`;
+                img.style.color = piece.color === 'white' ? '#fff' : '#000';
+                img.style.textShadow = piece.color === 'white' ? '0 0 2px #000' : '0 0 2px #fff';
+                
+                // Use Unicode chess symbols
+                switch (piece.type) {
+                    case 'pawn':
+                        img.textContent = '♟';
+                        break;
+                    case 'rook':
+                        img.textContent = '♜';
+                        break;
+                    case 'knight':
+                        img.textContent = '♞';
+                        break;
+                    case 'bishop':
+                        img.textContent = '♝';
+                        break;
+                    case 'queen':
+                        img.textContent = '♛';
+                        break;
+                    case 'king':
+                        img.textContent = '♚';
+                        break;
+                }
+                
+                pieceElement.appendChild(img);
+                
+                // Add click handler
+                pieceElement.addEventListener('click', () => handlePieceClick(piece));
+                
+                gameBoard.appendChild(pieceElement);
+            }
+        }
+
+        function renderHexagonalGameBoard(gameBoard) {
+            // Simplified implementation - would need more complex rendering for proper hexagons
+            gameBoard.textContent = 'Hexagonal board not fully implemented in this demo';
+        }
+
+        function renderCircularGameBoard(gameBoard) {
+            // Simplified implementation - would need canvas or SVG for proper circular board
+            gameBoard.textContent = 'Circular board not fully implemented in this demo';
+        }
+
+        function renderCustomGameBoard(gameBoard) {
+            // Simplified implementation - would depend on the specific custom board
+            gameBoard.textContent = 'Custom board not fully implemented in this demo';
+        }
+
+        function handlePieceClick(piece) {
+            // Only allow selecting pieces that belong to the current player
+            if (piece.color !== appState.gameState.currentPlayer) return;
+            
+            // Deselect if same piece is clicked
+            if (appState.selectedPiece === piece) {
+                appState.selectedPiece = null;
+                clearValidMoves();
+                return;
+            }
+            
+            // Select this piece
+            appState.selectedPiece = piece;
+            
+            // Show valid moves
+            showValidMoves(piece);
+        }
+
+        function handleSquareClick(x, y) {
+            // If no piece is selected, do nothing
+            if (!appState.selectedPiece) return;
+            
+            // Check if move is valid
+            const validMoves = getValidMoves(appState.selectedPiece);
+            const isValidMove = validMoves.some(move => move.x === x && move.y === y);
+            
+            if (isValidMove) {
+                // Move the piece
+                movePiece(appState.selectedPiece, x, y);
+                
+                // Deselect the piece
+                appState.selectedPiece = null;
+                clearValidMoves();
+                
+                // Switch player
+                appState.gameState.currentPlayer = 
+                    appState.gameState.currentPlayer === 'white' ? 'black' : 'white';
+                
+                // Refresh the board
+                refreshGameBoard();
+                
+                // Check for win condition
+                checkWinCondition();
+            }
+        }
+
+        function getValidMoves(piece) {
+            const validMoves = [];
+            const pieceRules = appState.rulesConfig.pieces[piece.type];
+            
+            // Handle specific piece types
+            switch (piece.type) {
+                case 'pawn':
+                    // Forward movement
+                    const direction = piece.color === 'white' ? -1 : 1;
+                    const forward = { x: piece.position.x, y: piece.position.y + direction };
+                    
+                    // Check if forward square is empty
+                    if (isSquareEmpty(forward)) {
+                        validMoves.push(forward);
+                        
+                        // First move can be 2 squares
+                        if (!piece.hasMoved) {
+                            const twoForward = { x: piece.position.x, y: piece.position.y + (direction * 2) };
+                            if (isSquareEmpty(twoForward)) {
+                                validMoves.push(twoForward);
+                            }
+                        }
+                    }
+                    
+                    // Diagonal captures
+                    const diagonalLeft = { x: piece.position.x - 1, y: piece.position.y + direction };
+                    const diagonalRight = { x: piece.position.x + 1, y: piece.position.y + direction };
+                    
+                    if (isPieceAt(diagonalLeft) && getPieceAt(diagonalLeft).color !== piece.color) {
+                        validMoves.push(diagonalLeft);
+                    }
+                    
+                    if (isPieceAt(diagonalRight) && getPieceAt(diagonalRight).color !== piece.color) {
+                        validMoves.push(diagonalRight);
+                    }
+                    break;
+                    
+                default:
+                    // Use the movement pattern from rules
+                    if (pieceRules && pieceRules.movementPattern) {
+                        const pattern = pieceRules.movementPattern;
+                        const maxDistance = pieceRules.maxMoveDistance || 1;
+                        
+                        for (let y = 0; y < 5; y++) {
+                            for (let x = 0; x < 5; x++) {
+                                if (pattern[y][x] === 1) {
+                                    const dx = x - 2; // Movement relative to center (2,2)
+                                    const dy = y - 2;
+                                    
+                                    // For directions with distance > 1
+                                    for (let dist = 1; dist <= maxDistance; dist++) {
+                                        const targetX = piece.position.x + (dx * dist);
+                                        const targetY = piece.position.y + (dy * dist);
+                                        
+                                        // Check if in bounds
+                                        if (targetX >= 0 && targetX < appState.boardConfig.dimensions.width &&
+                                            targetY >= 0 && targetY < appState.boardConfig.dimensions.height) {
+                                            
+                                            if (isSquareEmpty({ x: targetX, y: targetY })) {
+                                                validMoves.push({ x: targetX, y: targetY });
+                                            } else {
+                                                // Check if can capture
+                                                if (pieceRules.canCapture && 
+                                                    isPieceAt({ x: targetX, y: targetY }) && 
+                                                    getPieceAt({ x: targetX, y: targetY }).color !== piece.color) {
+                                                    validMoves.push({ x: targetX, y: targetY });
+                                                }
+                                                
+                                                // Stop in this direction unless piece can jump
+                                                if (!pieceRules.jumpOverPieces) {
+                                                    break;
+                                                }
+                                            }
+                                        } else {
+                                            // Out of bounds
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }
+            
+            return validMoves;
+        }
+
+        function isSquareEmpty(position) {
+            return !appState.gameState.pieces.some(
+                p => p.position.x === position.x && p.position.y === position.y
+            );
+        }
+
+        function isPieceAt(position) {
+            return appState.gameState.pieces.some(
+                p => p.position.x === position.x && p.position.y === position.y
+            );
+        }
+
+        function getPieceAt(position) {
+            return appState.gameState.pieces.find(
+                p => p.position.x === position.x && p.position.y === position.y
+            );
+        }
+
+        function showValidMoves(piece) {
+            // Clear any previous valid move indicators
+            clearValidMoves();
+            
+            // Get valid moves for this piece
+            const validMoves = getValidMoves(piece);
+            
+            // Create indicator elements for each valid move
+            const gameBoard = document.getElementById('gameBoard');
+            const cellSize = parseInt(gameBoard.style.width) / appState.boardConfig.dimensions.width;
+            
+            for (const move of validMoves) {
+                const indicator = document.createElement('div');
+                indicator.className = 'valid-move-indicator';
+                indicator.style.width = `${cellSize * 0.5}px`;
+                indicator.style.height = `${cellSize * 0.5}px`;
+                indicator.style.left = `${move.x * cellSize + (cellSize * 0.25)}px`;
+                indicator.style.top = `${move.y * cellSize + (cellSize * 0.25)}px`;
+                
+                indicator.dataset.x = move.x;
+                indicator.dataset.y = move.y;
+                
+                indicator.addEventListener('click', () => {
+                    handleSquareClick(move.x, move.y);
+                });
+                
+                gameBoard.appendChild(indicator);
+            }
+        }
+
+        function clearValidMoves() {
+            const indicators = document.querySelectorAll('.valid-move-indicator');
+            indicators.forEach(indicator => indicator.remove());
+        }
+
+        function movePiece(piece, x, y) {
+            // Store the move in history for undo
+            appState.gameState.moveHistory.push({
+                piece: Object.assign({}, piece),
+                from: { x: piece.position.x, y: piece.position.y },
+                to: { x, y },
+                captured: null
+            });
+            
+            // Check for capture
+            const capturedPieceIndex = appState.gameState.pieces.findIndex(
+                p => p.position.x === x && p.position.y === y
+            );
+            
+            if (capturedPieceIndex !== -1) {
+                const capturedPiece = appState.gameState.pieces[capturedPieceIndex];
+                
+                // Store capture in move history
+                appState.gameState.moveHistory[appState.gameState.moveHistory.length - 1].captured = 
+                    Object.assign({}, capturedPiece);
+                
+                // Add to captured pieces
+                appState.gameState.capturedPieces[piece.color].push(capturedPiece);
+                
+                // Remove from board
+                appState.gameState.pieces.splice(capturedPieceIndex, 1);
+            }
+            
+            // Update position
+            piece.position.x = x;
+            piece.position.y = y;
+            
+            // Mark as moved (for pawns, etc.)
+            piece.hasMoved = true;
+            
+            // Pawn promotion (simplified)
+            if (piece.type === 'pawn') {
+                const promotionRank = piece.color === 'white' ? 0 : appState.boardConfig.dimensions.height - 1;
+                if (piece.position.y === promotionRank) {
+                    piece.type = 'queen'; // Automatically promote to queen for simplicity
+                }
+            }
+        }
+
+        function undoLastMove() {
+            if (appState.gameState.moveHistory.length === 0) return;
+            
+            const lastMove = appState.gameState.moveHistory.pop();
+            
+            // Find the piece
+            const piece = appState.gameState.pieces.find(
+                p => p.position.x === lastMove.to.x && 
+                     p.position.y === lastMove.to.y && 
+                     p.type === lastMove.piece.type && 
+                     p.color === lastMove.piece.color
+            );
+            
+            if (piece) {
+                // Restore original position
+                piece.position.x = lastMove.from.x;
+                piece.position.y = lastMove.from.y;
+                
+                // Restore other properties
+                piece.hasMoved = lastMove.piece.hasMoved;
+                piece.type = lastMove.piece.type;
+                
+                // Restore captured piece if any
+                if (lastMove.captured) {
+                    appState.gameState.pieces.push(Object.assign({}, lastMove.captured));
+                    
+                    // Remove from captured list
+                    const capturedIndex = appState.gameState.capturedPieces[piece.color].findIndex(
+                        p => p.type === lastMove.captured.type && 
+                             p.position.x === lastMove.captured.position.x && 
+                             p.position.y === lastMove.captured.position.y
+                    );
+                    
+                    if (capturedIndex !== -1) {
+                        appState.gameState.capturedPieces[piece.color].splice(capturedIndex, 1);
+                    }
+                }
+                
+                // Switch back to previous player
+                appState.gameState.currentPlayer = 
+                    appState.gameState.currentPlayer === 'white' ? 'black' : 'white';
+            }
+        }
+
+        function checkWinCondition() {
+            const winCondition = appState.rulesConfig.winCondition;
+            
+            switch (winCondition) {
+                case 'checkmate':
+                    // Simplified check - look for king
+                    const opponent = appState.gameState.currentPlayer;
+                    const opponentKing = appState.gameState.pieces.find(
+                        p => p.type === 'king' && p.color === opponent
+                    );
+                    
+                    if (!opponentKing) {
+                        announceWinner(appState.gameState.currentPlayer === 'white' ? 'black' : 'white');
+                    }
+                    break;
+                    
+                case 'capture-all':
+                    // Check if all pieces captured
+                    const opponentPieces = appState.gameState.pieces.filter(
+                        p => p.color === appState.gameState.currentPlayer
+                    );
+                    
+                    if (opponentPieces.length === 0) {
+                        announceWinner(appState.gameState.currentPlayer === 'white' ? 'black' : 'white');
+                    }
+                    break;
+            }
+        }
+
+        function announceWinner(winner) {
+            alert(`${winner.charAt(0).toUpperCase() + winner.slice(1)} wins!`);
+        }
+
+        function saveGameState() {
+            try {
+                const gameData = {
+                    boardConfig: appState.boardConfig,
+                    rulesConfig: appState.rulesConfig,
+                    gameState: appState.gameState
+                };
+                
+                localStorage.setItem('customBoardGame', JSON.stringify(gameData));
+                alert('Game saved successfully!');
+            } catch (error) {
+                console.error('Error saving game:', error);
+                alert('Failed to save game state.');
+            }
+        }
+
+        // Multiplayer
+        function initMultiplayer() {
+            const createRoomButton = document.getElementById('createRoom');
+            const joinRoomButton = document.getElementById('joinRoom');
+            const roomIdInput = document.getElementById('roomIdInput');
+            const startGameButton = document.getElementById('startMultiplayerGame');
+            
+            createRoomButton.addEventListener('click', () => {
+                // In a real app, this would connect to a server
+                const roomId = generateRoomId();
+                showRoomInfo(roomId, true);
+            });
+            
+            joinRoomButton.addEventListener('click', () => {
+                const roomId = roomIdInput.value.trim();
+                if (roomId) {
+                    showRoomInfo(roomId, false);
+                } else {
+                    alert('Please enter a valid Room ID');
+                }
+            });
+            
+            startGameButton.addEventListener('click', () => {
+                // In a real app, this would signal all players are ready
+                navigateTo('game');
+            });
+        }
+
+        function generateRoomId() {
+            // Simple room ID generator
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let id = '';
+            
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    id += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                if (i < 3) id += '-';
+            }
+            
+            return id;
+        }
+
+        function showRoomInfo(roomId, isHost) {
+            const roomInfoContainer = document.getElementById('roomInfoContainer');
+            const roomIdDisplay = document.getElementById('roomIdDisplay');
+            const playersList = document.getElementById('playersList');
+            
+            // Update display
+            roomIdDisplay.textContent = roomId;
+            roomInfoContainer.classList.remove('hidden');
+            
+            // Update app state
+            appState.multiplayer.roomId = roomId;
+            appState.multiplayer.isHost = isHost;
+            appState.multiplayer.players = [
+                { id: 'player1', name: 'You (Host)', color: 'white' }
+            ];
+            
+            // In a real app, would connect to server and get updates
+            // For demo, simulate a player joining
+            setTimeout(() => {
+                if (appState.currentPage === 'multiplayer') {
+                    appState.multiplayer.players.push({ 
+                        id: 'player2', 
+                        name: 'Player 2', 
+                        color: 'black' 
+                    });
+                    updatePlayersList();
+                }
+            }, 2000);
+            
+            // Initial player list
+            updatePlayersList();
+        }
+
+        function updatePlayersList() {
+            const playersList = document.getElementById('playersList');
+            playersList.innerHTML = '';
+            
+            for (const player of appState.multiplayer.players) {
+                const playerItem = document.createElement('div');
+                playerItem.className = 'player-item';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = player.name;
+                
+                const colorSpan = document.createElement('span');
+                colorSpan.textContent = player.color.charAt(0).toUpperCase() + player.color.slice(1);
+                colorSpan.style.color = player.color === 'white' ? '#333' : '#000';
+                colorSpan.style.fontWeight = 'bold';
+                
+                playerItem.appendChild(nameSpan);
+                playerItem.appendChild(colorSpan);
+                
+                playersList.appendChild(playerItem);
+            }
+        }
+    </script>
+</body>
+</html>
