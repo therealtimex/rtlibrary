@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build-a-Roman Character</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f8e8c6;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #8b4513;
+        }
+        .game-container {
+            display: flex;
+            max-width: 900px;
+            margin: 0 auto;
+            gap: 20px;
+            padding: 20px;
+        }
+        .character-display {
+            width: 400px;
+            height: 500px;
+            background-color: #fff;
+            border: 3px solid #8b4513;
+            border-radius: 10px;
+            position: relative;
+        }
+        .options-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+        }
+        .option-group {
+            background-color: #fff;
+            border: 2px solid #8b4513;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .option-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #8b4513;
+        }
+        .option-items {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .option-item {
+            width: 80px;
+            height: 60px;
+            background-color: #f5d5a6;
+            border: 2px solid #8b4513;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            user-select: none;
+        }
+        .option-item.selected {
+            background-color: #d2f5a6;
+            border-color: #4CAF50;
+        }
+        .character-part {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 400px;
+        }
+        .info-box {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px auto;
+            max-width: 600px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .save-btn {
+            background-color: #8b4513;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .character-name {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .character-description {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .history-fact {
+            background-color: #fff8dc;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: left;
+            display: none;
+        }
+        .history-fact h3 {
+            color: #8b4513;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Build-a-Roman Character</h1>
+    
+    <div class="info-box">
+        <p>Create your own Roman character! Choose different types of Romans to learn about their roles in ancient Rome.</p>
+    </div>
+    
+    <div class="game-container">
+        <div class="character-display">
+            <img id="base" class="character-part" src="https://via.placeholder.com/300x400/f2f2f2/666666?text=Roman+Character" alt="Roman character base">
+            <img id="clothing" class="character-part" src="" alt="Clothing" style="display: none;">
+            <img id="helmet" class="character-part" src="" alt="Helmet" style="display: none;">
+            <img id="weapon" class="character-part" src="" alt="Weapon" style="display: none;">
+            
+            <div class="character-name" id="character-name">Your Roman Character</div>
+            <div class="character-description" id="character-description">Choose a character type to learn about them!</div>
+        </div>
+        
+        <div class="options-panel">
+            <div class="option-group">
+                <div class="option-title">Character Type</div>
+                <div class="option-items">
+                    <div class="option-item" data-type="legionary" onclick="selectType(this)">Legionary</div>
+                    <div class="option-item" data-type="senator" onclick="selectType(this)">Senator</div>
+                    <div class="option-item" data-type="gladiator" onclick="selectType(this)">Gladiator</div>
+                    <div class="option-item" data-type="emperor" onclick="selectType(this)">Emperor</div>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <div class="option-title">Clothing</div>
+                <div class="option-items" id="clothing-options">
+                    <!-- Will be populated based on character type -->
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <div class="option-title">Helmet/Headgear</div>
+                <div class="option-items" id="helmet-options">
+                    <!-- Will be populated based on character type -->
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <div class="option-title">Weapon/Item</div>
+                <div class="option-items" id="weapon-options">
+                    <!-- Will be populated based on character type -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="save-btn" onclick="saveCharacter()">Save My Roman Character</button>
+    
+    <div id="legionary-fact" class="history-fact">
+        <h3>Roman Legionaries</h3>
+        <p>Roman legionaries were the professional soldiers who made up the Roman legions. They were famous for their discipline and organization. Each legion had about 5,000 soldiers.</p>
+        <p>A legionary would sign up for 25 years of service! They built roads, bridges, and forts as well as fighting in battles. The Roman army conquered lands from Britain to Egypt, making Rome into a mighty empire.</p>
+    </div>
+    
+    <div id="senator-fact" class="history-fact">
+        <h3>Roman Senators</h3>
+        <p>Roman senators were the lawmakers in ancient Rome. The Senate began during the Roman Republic around 509 BC and continued through the Empire period.</p>
+        <p>Only wealthy men could be senators, and they wore special togas with purple stripes to show their importance. The Senate met in a building called the Curia in the Roman Forum to debate laws and make decisions for Rome.</p>
+    </div>
+    
+    <div id="gladiator-fact" class="history-fact">
+        <h3>Roman Gladiators</h3>
+        <p>Gladiators were fighters who battled in arenas for public entertainment. Many gladiators were slaves or prisoners of war who were forced to fight, though some free men chose to become gladiators for fame and rewards.</p>
+        <p>Different types of gladiators had different weapons and armor. For example, the "retiarius" fought with a net and trident, while the "secutor" had a helmet, shield and sword. The Colosseum in Rome was the most famous place for gladiator fights.</p>
+    </div>
+    
+    <div id="emperor-fact" class="history-fact">
+        <h3>Roman Emperors</h3>
+        <p>Roman emperors were the absolute rulers of the Roman Empire. The first emperor was Augustus, who came to power in 27 BC after the end of the Roman Republic.</p>
+        <p>Emperors wore purple clothing (the most expensive dye) because only they were allowed to wear all purple. They also wore gold laurel wreaths or crowns. Some famous emperors include Trajan, Hadrian, Marcus Aurelius, and Constantine who made Christianity legal in Rome.</p>
+    </div>
+    
+    <script>
+        // In a real implementation, these would be actual image paths
+        const characterOptions = {
+            legionary: {
+                name: "Roman Legionary",
+                description: "Legionaries were the professional soldiers of the Roman army. They conquered lands from Britain to Egypt. Roman soldiers were very organized and followed strict rules.",
+                clothing: [
+                    { id: "tunic", name: "Tunic", image: "https://via.placeholder.com/300x400/f8e8c6/8b4513?text=Tunic" },
+                    { id: "armor", name: "Armor", image: "https://via.placeholder.com/300x400/c0c0c0/333333?text=Legionary+Armor" }
+                ],
+                helmet: [
+                    { id: "galea", name: "Galea Helmet", image: "https://via.placeholder.com/300x400/cd7f32/333333?text=Galea+Helmet" },
+                    { id: "none", name: "No Helmet", image: "" }
+                ],
+                weapon: [
+                    { id: "gladius", name: "Gladius Sword", image: "https://via.placeholder.com/300x400/8b4513/f2f2f2?text=Gladius" },
+                    { id: "pilum", name: "Pilum Spear", image: "https://via.placeholder.com/300x400/8b4513/f2f2f2?text=Pilum+Spear" },
+                    { id: "shield", name: "Shield", image: "https://via.placeholder.com/300x400/b22222/f2f2f2?text=Scutum+Shield" }
+                ]
+            },
+            senator: {
+                name: "Roman Senator",
+                description: "Senators were powerful politicians who made laws in ancient Rome. They wore special togas with purple stripes to show their importance. Only rich men could be senators.",
+                clothing: [
+                    { id: "toga", name: "White Toga", image: "https://via.placeholder.com/300x400/ffffff/333333?text=White+Toga" },
+                    { id: "toga-praetexta", name: "Purple-Striped Toga", image: "https://via.placeholder.com/300x400/ffffff/800080?text=Purple+Striped+Toga" }
+                ],
+                helmet: [
+                    { id: "laurel-wreath", name: "Laurel Wreath", image: "https://via.placeholder.com/300x400/228b22/ffffff?text=Laurel+Wreath" },
+                    { id: "none", name: "No Headgear", image: "" }
+                ],
+                weapon: [
+                    { id: "scroll", name: "Scroll", image: "https://via.placeholder.com/300x400/f5deb3/8b4513?text=Scroll" },
+                    { id: "ring", name: "Gold Ring", image: "https://via.placeholder.com/300x400/ffd700/8b4513?text=Gold+Ring" }
+                ]
+            },
+            gladiator: {
+                name: "Roman Gladiator",
+                description: "Gladiators fought in arenas for entertainment. Many were slaves or prisoners forced to fight. Different gladiators had different equipment and fighting styles.",
+                clothing: [
+                    { id: "basic", name: "Basic Clothes", image: "https://via.placeholder.com/300x400/a52a2a/f2f2f2?text=Basic+Clothes" },
+                    { id: "armor", name: "Gladiator Armor", image: "https://via.placeholder.com/300x400/8b4513/f2f2f2?text=Gladiator+Armor" }
+                ],
+                helmet: [
+                    { id: "murmillo", name: "Fish Helmet", image: "https://via.placeholder.com/300x400/c0c0c0/333333?text=Fish+Helmet" },
+                    { id: "none", name: "No Helmet", image: "" }
+                ],
+                weapon: [
+                    { id: "trident", name: "Trident", image: "https://via.placeholder.com/300x400/c0c0c0/333333?text=Trident" },
+                    { id: "sword", name: "Sword", image: "https://via.placeholder.com/300x400/c0c0c0/333333?text=Gladiator+Sword" },
+                    { id: "net", name: "Net", image: "https://via.placeholder.com/300x400/f5f5f5/333333?text=Net" }
+                ]
+            },
+            emperor: {
+                name: "Roman Emperor",
+                description: "Emperors ruled Rome with absolute power. They wore purple robes (only emperors could wear full purple) and gold laurel wreaths. Augustus was the first Roman Emperor.",
+                clothing: [
+                    { id: "purple-toga", name: "Purple Toga", image: "https://via.placeholder.com/300x400/800080/ffffff?text=Imperial+Purple+Toga" },
+                    { id: "royal-tunic", name: "Royal Tunic", image: "https://via.placeholder.com/300x400/daa520/800080?text=Royal+Tunic" }
+                ],
+                helmet: [
+                    { id: "golden-crown", name: "Golden Crown", image: "https://via.placeholder.com/300x400/ffd700/333333?text=Golden+Crown" },
+                    { id: "laurel-crown", name: "Gold Laurel Crown", image: "https://via.placeholder.com/300x400/ffd700/228b22?text=Gold+Laurel+Crown" }
+                ],
+                weapon: [
+                    { id: "scepter", name: "Scepter", image: "https://via.placeholder.com/300x400/ffd700/8b4513?text=Imperial+Scepter" },
+                    { id: "eagle", name: "Imperial Eagle", image: "https://via.placeholder.com/300x400/ffd700/b22222?text=Imperial+Eagle" }
+                ]
+            }
+        };
+        
+        let currentType = null;
+        let currentClothing = null;
+        let currentHelmet = null;
+        let currentWeapon = null;
+        
+        function selectType(element) {
+            // Hide all fact boxes
+            document.querySelectorAll('.history-fact').forEach(fact => {
+                fact.style.display = 'none';
+            });
+            
+            // Remove selection from all type options
+            document.querySelectorAll('.option-group:first-child .option-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            element.classList.add('selected');
+            
+            // Get the selected character type
+            const typeId = element.dataset.type;
+            currentType = typeId;
+            
+            // Reset current selections
+            currentClothing = null;
+            currentHelmet = null;
+            currentWeapon = null;
+            
+            // Update the name and description
+            document.getElementById('character-name').textContent = characterOptions[typeId].name;
+            document.getElementById('character-description').textContent = characterOptions[typeId].description;
+            
+            // Reset display
+            document.getElementById('clothing').style.display = 'none';
+            document.getElementById('helmet').style.display = 'none';
+            document.getElementById('weapon').style.display = 'none';
+            
+            // Populate options for this character type
+            populateOptions('clothing', typeId);
+            populateOptions('helmet', typeId);
+            populateOptions('weapon', typeId);
+            
+            // Show the fact box for this character type
+            document.getElementById(`${typeId}-fact`).style.display = 'block';
+        }
+        
+        function populateOptions(category, typeId) {
+            const container = document.getElementById(`${category}-options`);
+            container.innerHTML = '';
+            
+            characterOptions[typeId][category].forEach(item => {
+                const option = document.createElement('div');
+                option.className = 'option-item';
+                option.textContent = item.name;
+                option.dataset.id = item.id;
+                option.dataset.image = item.image;
+                option.onclick = function() { selectOption(this, category); };
+                container.appendChild(option);
+            });
+        }
+        
+        function selectOption(element, category) {
+            // Remove selection from all options in this category
+            document.querySelectorAll(`#${category}-options .option-item`).forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            element.classList.add('selected');
+            
+            // Update the image
+            const image = document.getElementById(category);
+            image.src = element.dataset.image;
+            
+            // If the image is empty (none option), hide it
+            if (element.dataset.image === "") {
+                image.style.display = 'none';
+            } else {
+                image.style.display = 'block';
+            }
+            
+            // Update current selection for this category
+            window[`current${category.charAt(0).toUpperCase() + category.slice(1)}`] = element.dataset.id;
+        }
+        
+        function saveCharacter() {
+            if (!currentType) {
+                alert("Please select a character type first!");
+                return;
+            }
+            
+            // Count how many parts the character has
+            let partsCount = 0;
+            if (currentClothing) partsCount++;
+            if (currentHelmet) partsCount++;
+            if (currentWeapon) partsCount++;
+            
+            if (partsCount < 1) {
+                alert("Please add at least one item to your character!");
+                return;
+            }
+            
+            // Create a character summary
+            let characterName = characterOptions[currentType].name;
+            let items = [];
+            
+            if (currentClothing) {
+                const clothingItem = characterOptions[currentType].clothing.find(item => item.id === currentClothing);
+                if (clothingItem) items.push(clothingItem.name);
+            }
+            
+            if (currentHelmet && currentHelmet !== "none") {
+                const helmetItem = characterOptions[currentType].helmet.find(item => item.id === currentHelmet);
+                if (helmetItem) items.push(helmetItem.name);
+            }
+            
+            if (currentWeapon) {
+                const weaponItem = characterOptions[currentType].weapon.find(item => item.id === currentWeapon);
+                if (weaponItem) items.push(weaponItem.name);
+            }
+            
+            let itemsList = items.join(", ");
+            
+            alert(`You've created a ${characterName} with ${itemsList}! Great job learning about Roman history!`);
+        }
+    </script>
+</body>
+</html>
