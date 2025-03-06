@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Timeline of AI Development (1960-2030)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/black.min.css">
+    <style>
+        :root {
+            --ai-blue: #3498db;
+            --ai-teal: #1abc9c;
+            --ai-purple: #9b59b6;
+            --ai-red: #e74c3c;
+            --ai-orange: #e67e22;
+            --ai-yellow: #f1c40f;
+            --ai-green: #2ecc71;
+            --ai-dark-blue: #2c3e50;
+            --ai-light-gray: #ecf0f1;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0a192f, #112240);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .reveal {
+            font-size: 28px;
+        }
+
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+            color: var(--ai-light-gray);
+            text-transform: none;
+            font-weight: 600;
+            margin-bottom: 0.5em;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .reveal h1 {
+            font-size: 2.2em;
+            color: var(--ai-blue);
+        }
+
+        .reveal h2 {
+            font-size: 1.8em;
+            color: var(--ai-teal);
+        }
+
+        .reveal h3 {
+            font-size: 1.4em;
+            color: var(--ai-purple);
+        }
+
+        .reveal h4 {
+            font-size: 1.2em;
+            color: var(--ai-orange);
+        }
+
+        .reveal p, .reveal li {
+            line-height: 1.4;
+            color: var(--ai-light-gray);
+        }
+
+        .reveal ul {
+            display: inline-block;
+            text-align: left;
+            margin: 0 auto;
+        }
+
+        .reveal li {
+            margin-bottom: 0.8em;
+        }
+
+        .timeline-header {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--ai-blue);
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .timeline-header h2 {
+            margin: 0;
+        }
+
+        .decade-subtitle {
+            font-style: italic;
+            color: var(--ai-yellow);
+            margin-bottom: 1em;
+        }
+
+        .milestone {
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid var(--ai-teal);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .milestone-year {
+            color: var(--ai-yellow);
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .milestone-title {
+            color: var(--ai-green);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .milestone-content {
+            color: var(--ai-light-gray);
+        }
+
+        .person {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 3px solid var(--ai-red);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .person-name {
+            color: var(--ai-red);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .person-contribution {
+            color: var(--ai-light-gray);
+        }
+
+        .impact-box {
+            background: rgba(155, 89, 182, 0.1);
+            border-left: 3px solid var(--ai-purple);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .impact-title {
+            color: var(--ai-purple);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .prediction-box {
+            background: rgba(230, 126, 34, 0.1);
+            border-left: 3px solid var(--ai-orange);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .prediction-title {
+            color: var(--ai-orange);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .intro-point {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .decade-transition {
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .decade-transition h2 {
+            font-size: 3em;
+            color: var(--ai-blue);
+            margin-bottom: 10px;
+        }
+
+        .decade-transition p {
+            font-style: italic;
+            color: var(--ai-yellow);
+        }
+
+        .conclusion-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .conclusion-list li {
+            margin-bottom: 1em;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .conclusion-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--ai-yellow);
+        }
+
+        .highlight {
+            color: var(--ai-yellow);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Title Slide -->
+            <section data-background-gradient="linear-gradient(145deg, #0a192f, #112240)">
+                <h1>Timeline of AI Development</h1>
+                <h2>1960 - 2030</h2>
+                <p>A comprehensive journey through the evolution of Artificial Intelligence</p>
+            </section>
+
+            <!-- Introduction Section -->
+            <section>
+                <h2>Introduction</h2>
+                <div class="intro-point">
+                    <p>Artificial Intelligence has evolved from academic curiosities to integral technologies shaping society.</p>
+                </div>
+            </section>
+
+            <section>
+                <h3>Scope of This Timeline</h3>
+                <ul>
+                    <li>Chronological development of AI by decade</li>
+                    <li>Major breakthroughs and technological advances</li>
+                    <li>Notable contributors and researchers</li>
+                    <li>Emerging trends and shifting paradigms</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Special Focus Areas</h3>
+                <ul>
+                    <li>The rise of Generative AI (GenAI) and its transformative impact</li>
+                    <li>Applications across healthcare, robotics, and other domains</li>
+                    <li>Societal, ethical, and economic implications</li>
+                    <li>Future outlook to 2030 with predictions in key areas</li>
+                </ul>
+            </section>
+
+            <!-- 1960s Section -->
+            <section class="decade-transition">
+                <h2>1960s</h2>
+                <p>Pioneering AI and Early Optimism</p>
+            </section>
+
+            <section>
+                <div class="timeline-header">
+                    <h2>1960s: Pioneering AI and Early Optimism</h2>
+                </div>
+                <div class="decade-subtitle">
+                    <p>The formative years of AI as an academic field</p>
+                </div>
+                <p>Marked by optimism about creating "thinking machines" and foundational work in:</p>
+                <ul>
+                    <li>AI programming</li>
+                    <li>Early robotics</li>
+                    <li>Language understanding</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>1961: Industrial Robots</h3>
+                <div class="milestone">
+                    <div class="milestone-content">
+                        <p>The first industrial robot, <span class="highlight">Unimate</span>, began work on a General Motors assembly line</p>
+                        <p>This represented one of the earliest practical applications of automated systems with rudimentary "intelligence"</p>
+                    </div>
+                </div>
+                <img src="https://placehold.co/600x400?text=Unimate+Robot+Image" alt="Conceptual image of Unimate robot">
+            </section>
+
+            <section>
+                <h3>Key Research Institutions</h3>
+                <p>AI labs were established at prestigious institutions:</p>
+                <ul>
+                    <li>Massachusetts Institute of Technology (MIT)</li>
+                    <li>Stanford University</li>
+                    <li>Carnegie Mellon University</li>
+                </ul>
+                <p>These became centers of excellence driving AI innovation for decades to come</p>
+            </section>
+
+            <section>
+                <h3>Key Figures of the 1960s</h3>
+                <div class="person">
+                    <div class="person-name">John McCarthy</div>
+                    <div class="person-contribution">
+                        <p>Coined the term "artificial intelligence"</p>
+                        <p>Developed the LISP programming language, which became essential for AI research</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>Key Figures of the 1960s</h3>
+                <div class="person">
+                    <div class="person-name">Marvin Minsky</div>
+                    <div class="person-contribution">
+                        <p>Pioneer in AI research at MIT</p>
+                        <p>Co-founded MIT's AI Laboratory</p>
+                        <p>Developed theories of frames and neural networks</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>Key Figures of the 1960s</h3>
+                <div class="person">
+                    <div class="person-name">Allen Newell & Herbert Simon</div>
+                    <div class="person-contribution">
+                        <p>Developed early AI programs at Carnegie Mellon</p>
+                        <p>Created the General Problem Solver (GPS)</p>
+                        <p>Established foundational concepts for symbolic AI</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>Early Achievements & Optimism</h3>
+                <div class="milestone">
+                    <div class="milestone-content">
+                        <p>Early AI programs and robots demonstrated surprising capabilities for their time</p>
+                        <p>These demonstrations fueled excitement and optimism about AI's potential</p>
+                        <p>Researchers believed human-level machine intelligence might be achieved within decades</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 1970s Section -->
+            <section class="decade-transition">
+                <h2>1970s</h2>
+                <p>First AI Winter</p>
+            </section>
+
+            <section>
+                <div class="timeline-header">
+                    <h2>1970s: First AI Winter</h2>
+                </div>
+                <div class="decade-subtitle">
+                    <p>A period of reduced funding and interest in AI research</p>
+                </div>
+                <p>Note: Detailed information about the 1970s would be added here from the complete document</p>
+            </section>
+
+            <!-- 1980s Section -->
+            <section class="decade-transition">
+                <h2>1980s</h2>
+                <p>Expert Systems & Commercial Applications</p>
+            </section>
+
+            <section>
+                <div class="timeline-header">
+                    <h2>1980s: Expert Systems & Commercial Applications</h2>
+                </div>
+                <div class="decade-subtitle">
+                    <p>AI begins to find practical applications in specialized domains</p>
+                </div>
+                <p>Note: Detailed information about the 1980s would be added here from the complete document</p>
+            </section>
+
+            <!-- 1990s Section -->
+            <section class="decade-transition">
+                <h2>1990s</h2>
+                <p>Machine Learning & Internet Revolution</p>
+            </section>
+
+            <section>
+                <div class="timeline-header">
+                    <h2>1990s: Machine Learning & Internet Revolution</h2>
+                </div>
+                <div class="decade-subtitle">
+                    <p>Foundations for modern AI begin to take shape</p>
+                </div>
+                <p>Note: Detailed information about the 1990s would be added here from the complete document</p>
+            </section>
+
+            <!-- 2000s Section -->
+            <section class="decade-transition">
+                <h2>2000s</h2>
+                <p>Big Data & Practical Applications</p>
+            </section>
+
+            <section>
+                <div class="timeline-header">
+                    <h2>2000s: Big Data & Practical Applications</h2>
+                </div>
+                <div class="decade-subtitle">
+                    <p>New data sources and computational power drive AI forward</p>
+                </div>
+                <p>Note: Detailed information about the 2000s would be added here from the complete document</p>
+            </section>
+
+            <!-- 2010s Section -->
+            <section class="decade-transition">
+                <h2>2010s</h2>
+                <p>Deep Learning Revolution</p>
+            </section>
+
+            <section>
+                <div class="timeline-header">
+                    <h2>2010s: Deep Learning Revolution</h2>
+                </div>
+                <div class="decade-subtitle">
+                    <p>Breakthroughs in neural networks transform the field</p>
+                </div>
+                <p>Note: Detailed information about the 2010s would be added here from the complete document</p>
+            </section>
+
+            <!-- 2020s Section -->
+            <section class="decade-transition">
+                <h2>2020s</h2>
+                <p>The Era of Generative AI</p>
+            </section>
+
+            <section>
+                <div class="timeline-header">
+                    <h2>2020s: The Era of Generative AI</h2>
+                </div>
+                <div class="decade-subtitle">
+                    <p>AI systems that can create content across multiple modalities</p>
+                </div>
+                <p>Note: Detailed information about the 2020s would be added here from the complete document</p>
+            </section>
+
+            <!-- Impact Sections -->
+            <section>
+                <h2>AI's Impact Across Domains</h2>
+            </section>
+
+            <section>
+                <h3>Impact on Healthcare</h3>
+                <div class="impact-box">
+                    <div class="impact-title">Diagnostics & Imaging</div>
+                    <p>AI systems that analyze medical images and assist in early detection of conditions</p>
+                </div>
+                <div class="impact-box">
+                    <div class="impact-title">Drug Discovery</div>
+                    <p>Accelerating pharmaceutical research and development through computational methods</p>
+                </div>
+                <p>Note: Additional healthcare impacts would be added here from the complete document</p>
+            </section>
+
+            <section>
+                <h3>Impact on Robotics</h3>
+                <div class="impact-box">
+                    <div class="impact-title">Autonomous Systems</div>
+                    <p>Robots with increased ability to perceive and navigate complex environments</p>
+                </div>
+                <div class="impact-box">
+                    <div class="impact-title">Human-Robot Collaboration</div>
+                    <p>Systems designed to work safely alongside humans in various settings</p>
+                </div>
+                <p>Note: Additional robotics impacts would be added here from the complete document</p>
+            </section>
+
+            <!-- Ethical Considerations -->
+            <section>
+                <h2>Ethical Considerations</h2>
+            </section>
+
+            <section>
+                <h3>Ethical Challenges</h3>
+                <div class="impact-box">
+                    <div class="impact-title">Privacy Concerns</div>
+                    <p>Data collection and surveillance implications of widespread AI</p>
+                </div>
+                <div class="impact-box">
+                    <div class="impact-title">Algorithmic Bias</div>
+                    <p>Issues of fairness and representational harm in AI systems</p>
+                </div>
+                <p>Note: Additional ethical considerations would be added here from the complete document</p>
+            </section>
+
+            <!-- Economic Implications -->
+            <section>
+                <h3>Economic Implications</h3>
+                <div class="impact-box">
+                    <div class="impact-title">Workforce Transformation</div>
+                    <p>Changing job markets and skill requirements in an AI-enabled economy</p>
+                </div>
+                <div class="impact-box">
+                    <div class="impact-title">Productivity Growth</div>
+                    <p>Potential economic benefits through automation and enhanced capabilities</p>
+                </div>
+                <p>Note: Additional economic implications would be added here from the complete document</p>
+            </section>
+
+            <!-- Future Outlook -->
+            <section>
+                <h2>Future Outlook: 2025-2030</h2>
+            </section>
+
+            <section>
+                <h3>Generative AI Predictions</h3>
+                <div class="prediction-box">
+                    <div class="prediction-title">Multimodal Integration</div>
+                    <p>Seamless combination of text, image, audio, and video generation capabilities</p>
+                </div>
+                <div class="prediction-box">
+                    <div class="prediction-title">Enhanced Reliability</div>
+                    <p>Improvements in accuracy, truthfulness, and reduced hallucinations</p>
+                </div>
+                <p>Note: Additional GenAI predictions would be added here from the complete document</p>
+            </section>
+
+            <section>
+                <h3>Healthcare Predictions</h3>
+                <div class="prediction-box">
+                    <div class="prediction-title">Personalized Medicine</div>
+                    <p>AI-driven treatment plans based on individual genetic profiles</p>
+                </div>
+                <div class="prediction-box">
+                    <div class="prediction-title">Predictive Healthcare</div>
+                    <p>Early intervention systems that identify health risks before symptoms appear</p>
+                </div>
+                <p>Note: Additional healthcare predictions would be added here from the complete document</p>
+            </section>
+
+            <section>
+                <h3>Robotics Predictions</h3>
+                <div class="prediction-box">
+                    <div class="prediction-title">Advanced Autonomy</div>
+                    <p>Robots capable of operating in unstructured, complex environments</p>
+                </div>
+                <div class="prediction-box">
+                    <div class="prediction-title">Emotional Intelligence</div>
+                    <p>Systems with improved ability to understand and respond to human emotions</p>
+                </div>
+                <p>Note: Additional robotics predictions would be added here from the complete document</p>
+            </section>
+
+            <!-- Conclusion -->
+            <section>
+                <h2>Conclusion: The AI Journey</h2>
+                <ul class="conclusion-list">
+                    <li>AI has evolved from theoretical concepts to transformative technologies reshaping every aspect of society</li>
+                    <li>The pace of development continues to accelerate, with each decade bringing more profound advances</li>
+                    <li>Balancing innovation with ethical considerations remains crucial for responsible progress</li>
+                    <li>The coming decade will likely bring both unprecedented opportunities and challenges</li>
+                </ul>
+            </section>
+
+            <!-- Final Slide -->
+            <section data-background-gradient="linear-gradient(145deg, #0a192f, #112240)">
+                <h1>Thank You</h1>
+                <h3>Timeline of AI Development</h3>
+                <p>1960-2030</p>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            center: true,
+            hash: true,
+            transition: 'slide',
+            plugins: []
+        });
+    </script>
+</body>
+</html>
