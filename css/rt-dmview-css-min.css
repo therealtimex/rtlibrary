@@ -260,7 +260,7 @@ label::before {
 }
 
 .tab-content {
-    height: 70vh;
+    height: 80vh;
     /* 65% of viewport height */
     position: static;
 }
