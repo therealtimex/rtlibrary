@@ -195,15 +195,16 @@ label::before {
 .nav-pills .nav-link {
     position: relative;
     width: 80px;  /* Fixed width for consistent spacing */
-    height: 40px; /* Fixed height for consistent spacing */
+    height: 30px; /* Fixed height for consistent spacing */
     padding: 0;   /* Remove default padding */
     background-color: var(--color_theme_neutral_light);
     color: var(--color_theme_text_secondary);
-    padding: var(--size-spacing-small) calc(var(--size-spacing-small) / 2);
+    padding: 0.1rem var(--size-spacing-small); /* Reduced top/bottom padding */
     display: flex;
+    font-size: 0.9rem; /* Smaller font size */
     align-items: center;
     justify-content: center;
-    border-radius: 20px 20px;
+    border-radius: 15px 15px;
     border-bottom: 2px solid transparent;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
