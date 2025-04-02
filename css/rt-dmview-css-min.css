@@ -252,6 +252,7 @@ label::before {
     content: '—';
     font-size: 1.8rem;
     font-weight: bold;
+    transform: translate(-50%, -50%); /* Ensure centering is consistent */
 }
 
 /* Ensure proper spacing for tab container */
