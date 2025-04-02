@@ -182,8 +182,8 @@ label::before {
   .dmview-title {
     text-align: center;
     color: var(--color_theme_primary);
-    margin-bottom: var(--size-spacing-small);
-    margin-top: var(--size-spacing-small);
+    margin-bottom: var(--size-spacing-small)/2;
+    margin-top: var(--size-spacing-small)/2;
   }
   
   .dmview-subtitle {
