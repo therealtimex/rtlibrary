@@ -197,14 +197,11 @@ label::before {
     position: relative;
     width: 80px;  /* Fixed width for consistent spacing */
     height: 30px; /* Fixed height for consistent spacing */
-    padding: 0;   /* Remove default padding */
+    padding: 0.1rem var(--size-spacing-small); /* Reduced top/bottom padding */
     background-color: var(--color_theme_neutral_light);
     color: var(--color_theme_text_secondary);
-    padding: 0.1rem var(--size-spacing-small); /* Reduced top/bottom padding */
-    display: flex;
-    font-size: 0.9rem; /* Smaller font size */
     align-items: center;
-    justify-content: center;
+    font-size: 0.9rem; /* Smaller font size */
     border-radius: 15px 15px;
     border-bottom: 2px solid transparent;
     touch-action: manipulation;
@@ -249,7 +246,7 @@ label::before {
 }
 
 .nav-link.active::before {
-    content: '—';
+    content: '\2014';
     font-size: 1.8rem;
     font-weight: bold;
     transform: translate(-50%, -50%); /* Ensure centering is consistent */
