@@ -1,5 +1,10 @@
 body {
-    padding: 5px;
+    padding: 2px;
+}
+
+.container {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
 }
 
 /* Center Item Styles */
@@ -255,7 +260,7 @@ label::before {
 .nav-pills {
     justify-content: center;
     margin-bottom: 1rem;
-    gap: 0.5rem;
+    gap: 0.25rem;
     /* Consistent spacing between tabs */
 }
 
