@@ -213,8 +213,6 @@ label::before {
 .nav-pills .nav-link.active {
     background-color: var(--color_theme_accent) !important;
     color: var(--color_theme_text_primary);
-    align-items: center;
-    justify-content: center;
     position: relative;
 }
 
@@ -251,8 +249,13 @@ label::before {
 
 .nav-link.active::before {
     content: '—';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-size: 1.8rem;
-    font-weight: bold;
+    color: var(--color_theme_text_primary);
+    line-height: 1;
 }
 
 /* Ensure proper spacing for tab container */
