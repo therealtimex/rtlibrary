@@ -1,5 +1,5 @@
 // Generate form fields from JSON
-function generateFormFields() {
+function generateFormFields(receiptData) {
     const dynamicFields = document.getElementById('dynamicFields');
     dynamicFields.innerHTML = '';
 
@@ -153,7 +153,7 @@ function generateFormFields() {
 }
 
 // Fetch category by user email
-function fetchCategories(userEmail) {
+function fetchCategories(userEmail,contextID) {
     const esQuery = {
         "size": 100,
         "collapse": {
@@ -217,7 +217,7 @@ function fetchCategories(userEmail) {
                     categorySelect.appendChild(opt);
                 });
                 // Set default selected value to the contextid constant
-                categorySelect.value = contextid;
+                categorySelect.value = contextID;
             }
         })
         .catch(err => {
@@ -227,7 +227,7 @@ function fetchCategories(userEmail) {
 
 
 // Generate review content
-function generateReviewContent() {
+function generateReviewContent(receiptData) {
     const reviewContent = document.getElementById('reviewContent');
     reviewContent.innerHTML = '';
 
