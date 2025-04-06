@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Aether Drift (Progressive Difficulty - Fixed)</title> <!-- Updated Title -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS identical to the previous version */
+        :root{--primary-glow:#aaccff;--secondary-glow:#6a6aff;--danger-glow:#ff4040;--dark-bg:#050510;--medium-bg:#101025;--light-text:#e0e0ff;--phage-main:#ff4040;--phage-accent:#ff8080;--phage-border:#ffaaaa;--lume-size:5vmin;--phage-width:15vmin;--score-font-size:7vmin;--message-font-size:4vmin}body{display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:-webkit-fill-available;background-color:var(--dark-bg);margin:0;font-family:'Orbitron',sans-serif;color:var(--light-text);overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}html{height:-webkit-fill-available}#game-container{width:95vw;height:90vh;max-width:450px;max-height:700px;aspect-ratio:2 / 3;border:3px solid var(--secondary-glow);background:radial-gradient(ellipse at bottom,var(--medium-bg) 0%,var(--dark-bg) 80%);position:relative;overflow:hidden;cursor:pointer;box-shadow:0 0 25px rgba(106,106,255,.6),0 0 10px rgba(255,255,255,.2) inset;transition:transform .1s ease-out;touch-action:none}#game-container::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(var(--primary-glow) .5px,transparent .5px),radial-gradient(var(--secondary-glow) .5px,transparent .5px);background-size:50px 50px,90px 90px;background-position:0 0,25px 25px;opacity:.3;animation:slowPan 60s linear infinite;z-index:0}@keyframes slowPan{0%{background-position:0 0,25px 25px}100%{background-position:500px 500px,525px 525px}}#bio-lume{background:radial-gradient(circle,#fff 20%,var(--primary-glow) 70%,var(--secondary-glow) 100%);border-radius:50% / 60%;position:absolute;box-shadow:0 0 calc(var(--lume-size) * .5) var(--primary-glow),0 0 calc(var(--lume-size) * .2) #fff inset;transition:transform .15s ease-out;z-index:5;animation:pulse 2s infinite ease-in-out}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}#bio-lume::after{content:'';position:absolute;width:15px;height:15px;background:radial-gradient(circle,rgba(170,204,255,.5) 10%,transparent 70%);border-radius:50%;top:50%;left:-10px;transform:translateY(-50%);opacity:0;transition:opacity .3s ease-out;z-index:-1}#bio-lume.flapping::after{opacity:1;transition:opacity .05s ease-in}.phage-cluster{position:absolute;height:100%;right:-100px;z-index:3}.phage{position:absolute;width:100%;background:linear-gradient(135deg,var(--phage-main) 0%,var(--phage-accent) 20%,var(--dark-bg) 25%,var(--phage-main) 30%,var(--phage-accent) 50%,var(--phage-main) 70%,var(--dark-bg) 75%,var(--phage-accent) 80%,var(--phage-main) 100%);border:1px solid var(--phage-border);box-shadow:0 0 10px var(--danger-glow),0 0 5px rgba(255,255,255,.3) inset;transition:background-position .5s linear;background-size:200% 100%;animation:glitch-flow 3s linear infinite}@keyframes glitch-flow{0%{background-position:0% 50%}100%{background-position:200% 50%}}.phage.top{top:0;border-radius:0 0 8px 8px;border-top:none}.phage.bottom{bottom:0;border-radius:8px 8px 0 0;border-bottom:none}#score{position:absolute;top:2vh;left:50%;transform:translateX(-50%);font-size:var(--score-font-size);font-weight:700;color:var(--light-text);text-shadow:0 0 8px var(--secondary-glow),0 0 15px var(--primary-glow);z-index:10;transition:transform .2s ease-out,color .3s ease-out}#score.scored{transform:translateX(-50%) scale(1.2)}#score.level-up{color:#ffffaa}#message{position:absolute;top:50%;left:50%;width:80%;transform:translate(-50%,-50%) scale(.9);font-size:var(--message-font-size);font-weight:700;color:var(--light-text);background-color:rgba(10,10,30,.85);padding:4vmin;border-radius:15px;text-align:center;z-index:20;display:flex;flex-direction:column;justify-content:center;align-items:center;border:2px solid var(--secondary-glow);box-shadow:0 0 15px rgba(106,106,255,.5);opacity:0;transition:opacity .4s ease-out,transform .4s ease-out}#message.visible{opacity:1;transform:translate(-50%,-50%) scale(1)}#message .title{font-size:1.5em;margin-bottom:2vmin;text-shadow:0 0 5px var(--primary-glow)}#message .subtitle{font-size:.7em;display:block;margin-top:1vmin;opacity:.9;line-height:1.4}#message .score-final{font-size:1.2em;color:var(--primary-glow);margin:1.5vmin 0;font-weight:700}@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}50%{transform:translateX(3px)}75%{transform:translateX(-2px)}}.shake{animation:shake .2s linear}
+    </style>
+</head>
+<body>
+    <!-- Audio Elements -->
+     <audio id="flap-sound-real" preload="auto"> <source src="https://www.soundjay.com/button/sounds/button-30.wav" type="audio/wav"> </audio>
+     <audio id="score-sound-real" preload="auto"> <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.wav" type="audio/wav"> </audio>
+     <audio id="crash-sound-real" preload="auto"> <source src="https://www.soundjay.com/mechanical/sounds/camera-shutter-click-01.wav" type="audio/wav"> </audio>
+     <audio id="level-up-sound" preload="auto"> <source src="https://www.soundjay.com/misc/sounds/coins-in-hand-1.wav" type="audio/wav"></audio>
+
+    <div id="game-container">
+        <div id="score">0</div>
+        <div id="bio-lume"></div>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const bioLume = document.getElementById('bio-lume');
+        const scoreDisplay = document.getElementById('score');
+        const message = document.getElementById('message');
+        const flapSound = document.getElementById('flap-sound-real');
+        const scoreSound = document.getElementById('score-sound-real');
+        const crashSound = document.getElementById('crash-sound-real');
+        const levelUpSound = document.getElementById('level-up-sound');
+
+        // --- Game State Variables ---
+        let gameWidth, gameHeight;
+        let bioLumeHeight, bioLumeWidth;
+        let velocityY = 0;
+        let bioLumeY = 0;
+        let score = 0;
+        let phageClusters = [];
+        let isGameOver = true;
+        let flapTimeout = null;
+        let animationFrameId = null;
+        let lastTime = 0;
+        let timeToNextPhage = 0;
+        let currentDifficultyLevel = 0;
+
+        // --- Base Game Constants ---
+        const gravityFactor = 0.0005;
+        const liftFactor = -0.012;
+        const bioLumeSizeFactor = 0.05;
+        const phageWidthFactor = 0.18;
+
+        // --- Difficulty Levels Configuration ---
+        const difficultyLevels = [
+             // Score Thresh, Speed (px/ms), Gap Factor (%), Interval (ms)
+            { score: 0,  speed: 0.12, gapFactor: 0.33, interval: 2000 }, // Level 0
+            { score: 5,  speed: 0.13, gapFactor: 0.31, interval: 1900 }, // Level 1
+            { score: 10, speed: 0.14, gapFactor: 0.30, interval: 1800 }, // Level 2
+            { score: 20, speed: 0.15, gapFactor: 0.29, interval: 1700 }, // Level 3
+            { score: 30, speed: 0.16, gapFactor: 0.28, interval: 1600 }, // Level 4
+            { score: 45, speed: 0.17, gapFactor: 0.27, interval: 1500 }, // Level 5
+            { score: 60, speed: 0.18, gapFactor: 0.26, interval: 1450 }, // Level 6
+            { score: 80, speed: 0.19, gapFactor: 0.25, interval: 1400 }, // Level 7
+        ];
+        const maxDifficultyLevel = difficultyLevels.length - 1;
+
+        // --- Dynamically Calculated Values ---
+        let lift;
+        let phageGap;
+        let currentPhageSpeed;
+        let currentPhageInterval;
+        let phageWidth;
+        let gravity;
+
+        // --- Audio Playback Helper ---
+        function playSound(soundElement) {
+            if (soundElement && soundElement.readyState >= 2) {
+                 soundElement.currentTime = 0;
+                 soundElement.play().catch(e => {/* ignore */});
+            }
+        }
+
+        // --- Game State Functions ---
+        function showStartMessage() {
+            message.innerHTML = `
+                <div class="title">Aether Drift</div>
+                <div class="subtitle">Tap to Navigate the Bio-Lume</div>
+            `;
+            message.classList.add('visible');
+        }
+        function hideMessage() { message.classList.remove('visible'); }
+        function showGameOverMessage() {
+             playSound(crashSound);
+             message.innerHTML = `
+                 <div class="title">Drift Disrupted!</div>
+                 <div class="score-final">Score: ${score}</div>
+                 <div class="subtitle">Tap to Retry</div>
+             `;
+             message.classList.add('visible');
+             gameContainer.classList.add('shake');
+             setTimeout(() => gameContainer.classList.remove('shake'), 200);
+        }
+
+        // --- Apply Difficulty ---
+        function applyDifficultyLevel(level) {
+            level = Math.min(level, maxDifficultyLevel);
+            const settings = difficultyLevels[level];
+
+            currentPhageSpeed = settings.speed;
+            // Ensure gameHeight is valid before calculating gap
+            if (gameHeight > 0) {
+                phageGap = Math.max(100, gameHeight * settings.gapFactor); // Min gap 100px
+            } else {
+                 phageGap = 150; // Default gap if gameHeight isn't set yet
+            }
+            currentPhageInterval = settings.interval;
+
+            console.log(`Level: ${level}, Speed: ${currentPhageSpeed.toFixed(3)}, Gap: ${phageGap.toFixed(0)}, Interval: ${currentPhageInterval}`);
+
+             if (level > 0 && !isGameOver) { // Only play sound/flash if game running
+                 scoreDisplay.classList.add('level-up');
+                 setTimeout(() => scoreDisplay.classList.remove('level-up'), 500);
+                 playSound(levelUpSound);
+             }
+        }
+
+        // --- Check Difficulty Increase ---
+        function checkDifficultyIncrease() {
+             if (currentDifficultyLevel >= maxDifficultyLevel) return;
+             const nextLevelThreshold = difficultyLevels[currentDifficultyLevel + 1].score;
+             if (score >= nextLevelThreshold) {
+                 currentDifficultyLevel++;
+                 applyDifficultyLevel(currentDifficultyLevel);
+             }
+         }
+
+        // --- Game Reset / Setup (Called ONLY on load and resize) ---
+        function resetGame() {
+            console.log("Resetting game...");
+            // Stop any existing loop FIRST
+            if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+
+            gameWidth = gameContainer.offsetWidth;
+            gameHeight = gameContainer.offsetHeight;
+
+            // Ensure dimensions are valid
+             if (gameWidth <= 0 || gameHeight <= 0) {
+                 console.warn("Invalid game dimensions on reset:", gameWidth, gameHeight);
+                 // Maybe wait and try again? For now, set defaults.
+                 gameWidth = gameWidth || 300;
+                 gameHeight = gameHeight || 500;
+             }
+
+            // Calculate base dynamic sizes/constants
+            bioLumeHeight = Math.max(20, gameHeight * bioLumeSizeFactor);
+            bioLumeWidth = bioLumeHeight * (38 / 28);
+            phageWidth = Math.max(50, gameWidth * phageWidthFactor);
+            lift = liftFactor * gameHeight;
+            gravity = gravityFactor * gameHeight;
+
+            bioLume.style.height = `${bioLumeHeight}px`;
+            bioLume.style.width = `${bioLumeWidth}px`;
+            bioLume.style.left = `${gameWidth * 0.15}px`;
+
+            // Reset state variables
+            isGameOver = true; // Set to game over state
+            score = 0;
+            velocityY = 0;
+            bioLumeY = gameHeight / 2.5; // Set initial position
+            bioLume.style.top = bioLumeY + 'px';
+            bioLume.style.transform = 'rotate(0deg)';
+            scoreDisplay.textContent = score;
+            scoreDisplay.classList.remove('level-up'); // Ensure highlight is off
+
+            // Clear existing phages
+            phageClusters.forEach(cluster => cluster.element?.remove());
+            phageClusters = [];
+
+            // Reset Difficulty to Level 0
+            currentDifficultyLevel = 0;
+            applyDifficultyLevel(currentDifficultyLevel); // Apply level 0 settings
+
+            // Set time for first phage spawn (using level 0 interval)
+            timeToNextPhage = currentPhageInterval / 1.5; // Spawn first one a bit faster
+
+            lastTime = 0;
+
+            // Show the start message
+            showStartMessage();
+            console.log("Game ready.");
+        }
+
+
+        // --- Start Game Action (Called ONLY from flap when game is over) ---
+        function startGameAction() {
+             console.log("Starting game action...");
+             isGameOver = false;
+             // Score and position are already reset by resetGame
+             hideMessage();
+
+             // Apply the very first flap immediately
+             velocityY = lift;
+             bioLume.style.transform = 'rotate(-25deg)';
+             bioLume.classList.add('flapping');
+             clearTimeout(flapTimeout);
+             flapTimeout = setTimeout(() => {
+                 if (!isGameOver) bioLume.classList.remove('flapping');
+             }, 150);
+             playSound(flapSound);
+
+
+             // Start the game loop
+             lastTime = performance.now(); // Set initial time for delta calculation
+             if (!animationFrameId) { // Prevent starting multiple loops
+                 animationFrameId = requestAnimationFrame(gameLoop);
+                 console.log("Game loop started.");
+             }
+        }
+
+        // --- End Game Action ---
+        function gameOverAction() {
+             if (isGameOver) return; // Prevent multiple calls
+             console.log("Game over action...");
+             isGameOver = true;
+             if (animationFrameId) {
+                 cancelAnimationFrame(animationFrameId);
+                 animationFrameId = null;
+                 console.log("Game loop stopped.");
+             }
+             // Final visual state
+             bioLume.style.transform += ' rotate(90deg)';
+             showGameOverMessage();
+         }
+
+
+        // --- Player Input Action ---
+        function bioLumeFlap(event) {
+             if (event) event.preventDefault();
+
+             if (isGameOver) {
+                 // If game was over, just trigger the start sequence
+                 // resetGame() was already called on load/resize
+                 startGameAction();
+             } else {
+                 // --- Gameplay flap ---
+                 playSound(flapSound);
+                 velocityY = lift; // Apply impulse
+                 // Visual tilt and trail effect
+                 bioLume.style.transform = 'rotate(-25deg)';
+                 bioLume.classList.add('flapping');
+                 clearTimeout(flapTimeout);
+                 flapTimeout = setTimeout(() => {
+                     // Only reset rotation if not falling fast already and still playing
+                     if (!isGameOver && velocityY <= 1.5) {
+                         bioLume.style.transform = 'rotate(0deg)';
+                     }
+                      // Always remove flapping class after timeout if game is running
+                     if (!isGameOver) bioLume.classList.remove('flapping');
+                 }, 150);
+             }
+         }
+
+
+        // --- Obstacle Generation ---
+        function generatePhageCluster() {
+             // Use the dynamically set phageGap from applyDifficultyLevel
+            const minHeight = gameHeight * 0.1;
+            const maxHeight = gameHeight - phageGap - minHeight; // Use current phageGap
+             // Ensure gap calculation doesn't lead to impossible heights
+             if (maxHeight < minHeight) {
+                 console.warn("Phage gap too large for screen height, adjusting.");
+                 phageGap = gameHeight - 2 * minHeight - 20; // Leave at least 20px gap if possible
+                 phageGap = Math.max(100, phageGap); // Ensure minimum gap still
+                 // Re-calculate max height with adjusted gap
+                 // This scenario shouldn't really happen with reasonable gapFactors
+                 // but adding safety. Recalculate based on adjusted gap or use a fixed split?
+                 // For simplicity, let's just make top/bottom roughly equal if gap is too big
+                 const adjustedMaxHeight = gameHeight - phageGap - minHeight;
+                 const topHeight = Math.max(minHeight, adjustedMaxHeight / 2 + (Math.random() - 0.5) * 40 ); // Randomize slightly around middle
+                 const bottomHeight = Math.max(0, gameHeight - topHeight - phageGap);
+                 createPhageElements(topHeight, bottomHeight);
+
+             } else {
+                 const topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+                 const bottomHeight = Math.max(0, gameHeight - topHeight - phageGap);
+                 createPhageElements(topHeight, bottomHeight);
+             }
+        }
+
+        function createPhageElements(topH, bottomH) {
+            const clusterElement = document.createElement('div');
+            clusterElement.classList.add('phage-cluster');
+            clusterElement.style.width = `${phageWidth}px`;
+            clusterElement.style.right = `-${phageWidth}px`;
+
+            const topPhage = document.createElement('div');
+            topPhage.classList.add('phage', 'top');
+            topPhage.style.height = topH + 'px';
+
+            const bottomPhage = document.createElement('div');
+            bottomPhage.classList.add('phage', 'bottom');
+            bottomPhage.style.height = bottomH + 'px';
+
+            clusterElement.appendChild(topPhage);
+            clusterElement.appendChild(bottomPhage);
+            gameContainer.appendChild(clusterElement);
+
+            phageClusters.push({
+                element: clusterElement, x: -phageWidth, scored: false,
+                topHeight: topH, bottomHeight: bottomH // Store actual heights used
+            });
+        }
+
+
+        // --- Main Game Loop ---
+        function gameLoop(currentTime) {
+             // Re-request frame immediately for smooth looping
+             // But check isGameOver *before* doing work
+             if (!isGameOver) {
+                  animationFrameId = requestAnimationFrame(gameLoop);
+             } else {
+                  animationFrameId = null; // Ensure loop reference is cleared
+                  console.log("Game loop self-terminated due to isGameOver state.");
+                  return; // Stop if game ended
+             }
+
+             if (!lastTime) lastTime = currentTime; // Initialize lastTime on first frame
+             const deltaTime = currentTime - lastTime;
+             lastTime = currentTime;
+             const cappedDeltaTime = Math.min(deltaTime, 50); // Prevent large jumps
+
+              // --- Ensure game hasn't ended mid-frame due to async events (unlikely but safe) ---
+             if (isGameOver) return;
+
+             // --- Physics Update ---
+             velocityY += gravity * (cappedDeltaTime / 16.67);
+             bioLumeY += velocityY * (cappedDeltaTime / 16.67);
+             bioLume.style.top = bioLumeY + 'px';
+
+             // Rotation based on velocity
+             if (velocityY > 1.5 && !bioLume.classList.contains('flapping')) {
+                 let angle = Math.min(90, 10 + velocityY * 0.1);
+                 bioLume.style.transform = `rotate(${angle}deg)`;
+             } else if (velocityY <= 1.5 && !bioLume.classList.contains('flapping')) {
+                  // Only reset rotation if not flapping AND moving slowly/upwards
+                  bioLume.style.transform = 'rotate(0deg)';
+             }
+
+             // --- Boundary Checks ---
+             if (bioLumeY <= 0 || bioLumeY + bioLumeHeight >= gameHeight) {
+                 gameOverAction(); // Call the dedicated game over function
+                 return; // Stop this frame
+             }
+
+             // --- Phage Generation ---
+             timeToNextPhage -= cappedDeltaTime;
+             if (timeToNextPhage <= 0) {
+                 generatePhageCluster();
+                 timeToNextPhage = currentPhageInterval; // Reset timer
+             }
+
+             // --- Phage Movement & Collision ---
+             const bioLumeLeft = parseFloat(bioLume.style.left);
+             const bioLumeRight = bioLumeLeft + bioLumeWidth;
+
+             for (let i = phageClusters.length - 1; i >= 0; i--) {
+                 // Ensure cluster still exists (might be removed async?) - defensive check
+                 const cluster = phageClusters[i];
+                 if (!cluster || !cluster.element) {
+                      phageClusters.splice(i, 1); // Clean up invalid entry
+                      continue;
+                 }
+
+
+                 cluster.x += currentPhageSpeed * cappedDeltaTime;
+                 cluster.element.style.right = cluster.x + 'px';
+
+                 // Remove off-screen clusters
+                 if (cluster.x > gameWidth + phageWidth) {
+                     cluster.element.remove();
+                     phageClusters.splice(i, 1);
+                     continue;
+                 }
+
+                 // Collision Detection
+                 const clusterLeft = gameWidth - cluster.x - phageWidth;
+                 const clusterRightEdge = clusterLeft + phageWidth;
+
+                 if (bioLumeRight > clusterLeft && bioLumeLeft < clusterRightEdge) {
+                      const bottomPhageTop = gameHeight - cluster.bottomHeight;
+                      if (bioLumeY < cluster.topHeight || bioLumeY + bioLumeHeight > bottomPhageTop) {
+                          gameOverAction(); // Call the dedicated game over function
+                          return; // Stop this frame
+                      }
+                 }
+
+                 // Score Check
+                 if (!cluster.scored && bioLumeLeft > clusterRightEdge) {
+                      score++;
+                      scoreDisplay.textContent = score;
+                      cluster.scored = true;
+                      playSound(scoreSound);
+                      scoreDisplay.classList.add('scored');
+                      setTimeout(() => scoreDisplay.classList.remove('scored'), 200);
+                      checkDifficultyIncrease(); // Check difficulty right after score increase
+                  }
+             }
+        }
+
+        // --- Event Listeners ---
+        function handleInput(event) { bioLumeFlap(event); }
+        gameContainer.addEventListener('touchstart', handleInput, { passive: false });
+        gameContainer.addEventListener('mousedown', handleInput);
+        message.addEventListener('touchstart', handleInput, { passive: false });
+        message.addEventListener('mousedown', handleInput);
+
+        // --- Initial Setup & Resize Handling ---
+         function handleResize() {
+             console.log("Resize detected.");
+             resetGame(); // Resetting handles stopping loop, recalculating, showing message
+         }
+         window.addEventListener('resize', handleResize);
+         window.addEventListener('orientationchange', handleResize);
+
+         // Initial setup on load - ensure DOM is fully ready
+         if (document.readyState === 'loading') {
+             document.addEventListener('DOMContentLoaded', resetGame);
+         } else {
+             resetGame(); // DOM is already ready
+         }
+
+    </script>
+</body>
+</html>
