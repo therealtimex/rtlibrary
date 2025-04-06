@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aether Drift (Enhanced UX)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-glow: #aaccff;
+            --secondary-glow: #6a6aff;
+            --danger-glow: #ff4040;
+            --dark-bg: #050510;
+            --medium-bg: #101025;
+            --light-text: #e0e0ff;
+            --phage-main: #ff4040;
+            --phage-accent: #ff8080;
+            --phage-border: #ffaaaa;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--dark-bg);
+            margin: 0;
+            font-family: 'Orbitron', sans-serif; /* Futuristic font */
+            color: var(--light-text);
+            overflow: hidden;
+        }
+
+        #game-container {
+            width: 400px;
+            height: 600px;
+            border: 3px solid var(--secondary-glow);
+            background: radial-gradient(ellipse at bottom, var(--medium-bg) 0%, var(--dark-bg) 80%);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(106, 106, 255, 0.6), 0 0 10px rgba(255, 255, 255, 0.2) inset;
+            transition: transform 0.1s ease-out; /* For screen shake */
+        }
+
+        /* Subtle background 'stars' / particles */
+        #game-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: radial-gradient(var(--primary-glow) 0.5px, transparent 0.5px),
+                              radial-gradient(var(--secondary-glow) 0.5px, transparent 0.5px);
+            background-size: 50px 50px, 90px 90px;
+            background-position: 0 0, 25px 25px;
+            opacity: 0.3;
+            animation: slowPan 60s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes slowPan {
+            0% { background-position: 0 0, 25px 25px; }
+            100% { background-position: 500px 500px, 525px 525px; } /* Adjust distance for speed */
+        }
+
+        #bio-lume {
+            width: 38px; /* Slightly larger */
+            height: 28px;
+            background: radial-gradient(circle, #ffffff 20%, var(--primary-glow) 70%, var(--secondary-glow) 100%);
+            border-radius: 50% / 60%;
+            position: absolute;
+            top: 250px;
+            left: 60px; /* Slightly more inset */
+            box-shadow: 0 0 18px var(--primary-glow), 0 0 8px #ffffff inset;
+            transition: transform 0.15s ease-out, top 0.05s linear; /* Smoother rotation, faster position update */
+            z-index: 5; /* Above background elements */
+            /* Subtle pulse animation */
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 18px var(--primary-glow), 0 0 8px #ffffff inset; }
+            50% { transform: scale(1.05); box-shadow: 0 0 25px var(--primary-glow), 0 0 10px #ffffff inset; }
+        }
+
+        /* Simple trail effect using pseudo-element */
+        #bio-lume::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle, rgba(170, 204, 255, 0.5) 10%, transparent 70%);
+            border-radius: 50%;
+            top: 50%;
+            left: -10px; /* Position behind the lume */
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+            z-index: -1;
+        }
+
+        #bio-lume.flapping::after {
+             opacity: 1;
+             transition: opacity 0.05s ease-in; /* Appear quickly */
+        }
+
+
+        .phage-cluster {
+            position: absolute;
+            width: 75px; /* Slightly wider */
+            height: 100%;
+            right: -75px;
+            z-index: 3; /* Above background, below player */
+            /* Add a slight perspective */
+             /* perspective: 400px; */
+        }
+
+        .phage {
+            position: absolute;
+            width: 100%;
+            /* Jagged / Glitchy look with gradient */
+            background: linear-gradient(135deg,
+                var(--phage-main) 0%, var(--phage-accent) 20%,
+                var(--dark-bg) 25%, /* Sharp transition for 'glitch' */
+                var(--phage-main) 30%, var(--phage-accent) 50%,
+                var(--phage-main) 70%, var(--dark-bg) 75%,
+                var(--phage-accent) 80%, var(--phage-main) 100%);
+            border: 1px solid var(--phage-border);
+            box-shadow: 0 0 10px var(--danger-glow), 0 0 5px rgba(255, 255, 255, 0.3) inset;
+            /* Slight 3D feel */
+             /* transform: translateZ(-10px); */
+            transition: background-position 0.5s linear; /* For subtle animation */
+            background-size: 200% 100%; /* For animating the gradient */
+            animation: glitch-flow 3s linear infinite;
+        }
+
+         @keyframes glitch-flow {
+             0% { background-position: 0% 50%; }
+             100% { background-position: 200% 50%; }
+         }
+
+        .phage.top {
+            top: 0;
+            border-radius: 0 0 8px 8px; /* Rounded bottom corners */
+            border-top: none;
+        }
+
+        .phage.bottom {
+            bottom: 0;
+            border-radius: 8px 8px 0 0; /* Rounded top corners */
+            border-bottom: none;
+        }
+
+        #score {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3.5em; /* Larger score */
+            font-weight: 700;
+            color: var(--light-text);
+            text-shadow: 0 0 8px var(--secondary-glow), 0 0 15px var(--primary-glow);
+            z-index: 10;
+            transition: transform 0.2s ease-out; /* Pop effect on score */
+        }
+         #score.scored {
+            transform: translateX(-50%) scale(1.2);
+         }
+
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80%;
+            transform: translate(-50%, -50%) scale(0.9); /* Start slightly small */
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--light-text);
+            background-color: rgba(10, 10, 30, 0.85); /* More opaque background */
+            padding: 30px; /* More padding */
+            border-radius: 15px;
+            text-align: center;
+            z-index: 20;
+            display: flex; /* Use flex for better alignment */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid var(--secondary-glow);
+            box-shadow: 0 0 15px rgba(106, 106, 255, 0.5);
+            opacity: 0; /* Start hidden */
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+         #message.visible {
+             opacity: 1;
+             transform: translate(-50%, -50%) scale(1); /* Animate in */
+         }
+
+         #message .title {
+             font-size: 1.5em; /* Larger title */
+             margin-bottom: 15px;
+             text-shadow: 0 0 5px var(--primary-glow);
+         }
+
+         #message .subtitle {
+             font-size: 0.7em;
+             display: block;
+             margin-top: 10px;
+             opacity: 0.9;
+             line-height: 1.4;
+         }
+          #message .score-final {
+              font-size: 1.2em;
+              color: var(--primary-glow);
+              margin: 10px 0;
+              font-weight: 700;
+          }
+
+        /* Screen shake animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            50% { transform: translateX(3px); }
+            75% { transform: translateX(-2px); }
+        }
+
+        .shake {
+            animation: shake 0.2s linear;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Simple Audio Elements (no controls shown) -->
+    <audio id="flap-sound" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YXdrT18=" preload="auto"></audio> <!-- Placeholder short click/flap sound -->
+    <audio id="score-sound" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YXdrT18=" preload="auto"></audio> <!-- Placeholder positive chime -->
+    <audio id="crash-sound" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YXdrT18=" preload="auto"></audio> <!-- Placeholder harsher crash/static sound -->
+    <!-- Note: Replace base64 src with actual short sound URLs or better base64 data -->
+    <!-- Example of finding short base64 sounds online: search "short wav base64 online" -->
+    <!-- Placeholder sounds are silent or very short clicks -->
+    <!-- Real Sounds: -->
+     <audio id="flap-sound-real" preload="auto"> <source src="https://www.soundjay.com/button/sounds/button-30.wav" type="audio/wav"> </audio>
+     <audio id="score-sound-real" preload="auto"> <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.wav" type="audio/wav"> </audio>
+     <audio id="crash-sound-real" preload="auto"> <source src="https://www.soundjay.com/mechanical/sounds/camera-shutter-click-01.wav" type="audio/wav"> </audio>
+
+
+    <div id="game-container">
+        <div id="score">0</div>
+        <div id="bio-lume"></div>
+        <div id="message">
+             <!-- Content will be set by JS -->
+        </div>
+        <!-- Phage clusters will be added here by JavaScript -->
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const bioLume = document.getElementById('bio-lume');
+        const scoreDisplay = document.getElementById('score');
+        const message = document.getElementById('message');
+        // Audio elements
+        const flapSound = document.getElementById('flap-sound-real');
+        const scoreSound = document.getElementById('score-sound-real');
+        const crashSound = document.getElementById('crash-sound-real');
+
+        // Game Constants & Variables (Adjusted for new visuals/feel)
+        const gameWidth = gameContainer.offsetWidth;
+        const gameHeight = gameContainer.offsetHeight;
+        const bioLumeHeight = bioLume.offsetHeight;
+        const bioLumeWidth = bioLume.offsetWidth;
+
+        const gravity = 0.35; // Slightly lower gravity for more floaty feel
+        const lift = -6.5;    // Adjusted lift
+        const phageSpeed = 2.8; // Slightly slower obstacles
+        const phageWidth = 75;
+        const phageGap = 170; // Slightly larger gap
+        const phageInterval = 1600; // Slightly longer interval
+
+        let velocityY = 0;
+        let bioLumeY = gameHeight / 2.5; // Start slightly higher
+        let score = 0;
+        let gameLoopInterval = null;
+        let phageGeneratorInterval = null;
+        let phageClusters = [];
+        let isGameOver = true;
+        let flapTimeout = null; // To manage flapping class for trail
+
+        // --- Audio Playback Helper ---
+        function playSound(soundElement) {
+            if (soundElement && soundElement.readyState >= 2) { // Check if ready
+                 soundElement.currentTime = 0; // Rewind to start
+                 soundElement.play().catch(e => console.log("Audio play failed:", e)); // Play, catch errors silently
+            }
+        }
+
+        // --- Game State Functions ---
+        function showStartMessage() {
+            message.innerHTML = `
+                <div class="title">Aether Drift</div>
+                <div class="subtitle">Navigate the Bio-Lume through the Data-Phage Clusters.<br>Click or Press Space to Ascend.</div>
+            `;
+            message.classList.add('visible');
+        }
+
+        function hideMessage() {
+            message.classList.remove('visible');
+        }
+
+        function showGameOverMessage() {
+             playSound(crashSound);
+             message.innerHTML = `
+                 <div class="title">Drift Disrupted!</div>
+                 <div class="score-final">Score: ${score}</div>
+                 <div class="subtitle">Click or Space to Retry</div>
+             `;
+             message.classList.add('visible');
+             // Add screen shake effect
+             gameContainer.classList.add('shake');
+             setTimeout(() => gameContainer.classList.remove('shake'), 200); // Remove shake after animation
+        }
+
+
+        function startGame() {
+            if (!isGameOver) return;
+
+            isGameOver = false;
+            score = 0;
+            velocityY = 0;
+            bioLumeY = gameHeight / 2.5;
+            bioLume.style.top = bioLumeY + 'px';
+            bioLume.style.transform = 'rotate(0deg)';
+            scoreDisplay.textContent = score;
+            hideMessage();
+
+            phageClusters.forEach(cluster => cluster.remove());
+            phageClusters = [];
+
+            clearInterval(gameLoopInterval); // Clear any previous intervals just in case
+            clearInterval(phageGeneratorInterval);
+
+            gameLoopInterval = setInterval(gameLoop, 16); // ~60 FPS
+            phageGeneratorInterval = setInterval(generatePhageCluster, phageInterval);
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            clearInterval(gameLoopInterval);
+            clearInterval(phageGeneratorInterval);
+            bioLume.style.transform += ' rotate(90deg)'; // Final rotation on crash
+            showGameOverMessage();
+        }
+
+        // --- Player Action ---
+        function bioLumeFlap() {
+            if (isGameOver) {
+                startGame(); // Start the game on the first flap
+                // Play sound only when actually starting/flapping, not just clicking the start message
+                playSound(flapSound);
+            } else {
+                playSound(flapSound);
+                velocityY = lift;
+                // Visual tilt and trail effect
+                bioLume.style.transform = 'rotate(-25deg)'; // Slightly more tilt
+                 bioLume.classList.add('flapping'); // Add class for trail
+                 clearTimeout(flapTimeout); // Clear previous timeout if flapping rapidly
+                 flapTimeout = setTimeout(() => {
+                     if (!isGameOver) {
+                        bioLume.style.transform = 'rotate(0deg)';
+                        bioLume.classList.remove('flapping'); // Remove class after a delay
+                     }
+                 }, 150);
+            }
+        }
+
+        // --- Obstacle Generation ---
+        function generatePhageCluster() {
+            if (isGameOver) return;
+
+            const minHeight = 60;
+            const maxHeight = gameHeight - phageGap - minHeight;
+            const topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+            const bottomHeight = gameHeight - topHeight - phageGap;
+
+            const cluster = document.createElement('div');
+            cluster.classList.add('phage-cluster');
+            cluster.style.right = `-${phageWidth}px`;
+            cluster.dataset.scored = 'false';
+
+            const topPhage = document.createElement('div');
+            topPhage.classList.add('phage', 'top');
+            topPhage.style.height = topHeight + 'px';
+
+            const bottomPhage = document.createElement('div');
+            bottomPhage.classList.add('phage', 'bottom');
+            bottomPhage.style.height = bottomHeight + 'px';
+
+            cluster.appendChild(topPhage);
+            cluster.appendChild(bottomPhage);
+            gameContainer.appendChild(cluster);
+            phageClusters.push(cluster);
+        }
+
+        // --- Main Game Loop ---
+        function gameLoop() {
+            if (isGameOver) return;
+
+            // Apply Gravity & Update Position
+            velocityY += gravity;
+            bioLumeY += velocityY;
+            bioLume.style.top = bioLumeY + 'px';
+
+             // Gradual downward rotation only when falling significantly
+            if (velocityY > 1.5 && !isGameOver) {
+                 let angle = Math.min(90, 10 + velocityY * 6); // Adjust rotation sensitivity
+                 bioLume.style.transform = `rotate(${angle}deg)`;
+             }
+
+            // Boundary Checks
+            if (bioLumeY <= 0 || bioLumeY + bioLumeHeight >= gameHeight) {
+                // Add a slight delay before game over feels less abrupt
+                // bioLume.style.top = Math.max(0, Math.min(bioLumeY, gameHeight - bioLumeHeight)) + 'px'; // Clamp position
+                gameOver();
+                return;
+            }
+
+            // Move Phages & Check Collision/Scoring
+            for (let i = phageClusters.length - 1; i >= 0; i--) {
+                const cluster = phageClusters[i];
+                let clusterRightPos = parseFloat(cluster.style.right || `-${phageWidth}`); // Ensure we have a number
+                let clusterX = clusterRightPos + phageSpeed;
+                cluster.style.right = clusterX + 'px';
+
+                // Remove off-screen clusters
+                if (clusterX > gameWidth + phageWidth) { // Ensure it's fully off-screen
+                    cluster.remove();
+                    phageClusters.splice(i, 1);
+                    continue;
+                }
+
+                // Collision Detection Box
+                const clusterLeft = gameWidth - clusterX - phageWidth;
+                const clusterRightEdge = clusterLeft + phageWidth;
+                const bioLumeLeft = parseFloat(bioLume.style.left);
+                const bioLumeRight = bioLumeLeft + bioLumeWidth;
+
+                // Refined Collision Check
+                if (bioLumeRight > clusterLeft && bioLumeLeft < clusterRightEdge) {
+                    const topPhage = cluster.querySelector('.top');
+                    const bottomPhage = cluster.querySelector('.bottom');
+                    const topPhageBottom = parseFloat(topPhage.style.height);
+                    const bottomPhageTop = gameHeight - parseFloat(bottomPhage.style.height);
+
+                    if (bioLumeY < topPhageBottom || bioLumeY + bioLumeHeight > bottomPhageTop) {
+                        gameOver();
+                        return;
+                    }
+                }
+
+                // Score Check (when Bio-Lume's front passes the cluster's leading edge)
+                if (cluster.dataset.scored === 'false' && bioLumeLeft > clusterRightEdge) {
+                     score++;
+                     scoreDisplay.textContent = score;
+                     cluster.dataset.scored = 'true';
+                     playSound(scoreSound);
+                     // Add 'pop' effect to score
+                     scoreDisplay.classList.add('scored');
+                     setTimeout(() => scoreDisplay.classList.remove('scored'), 200);
+                 }
+            }
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                bioLumeFlap();
+            }
+        });
+
+        gameContainer.addEventListener('click', bioLumeFlap);
+        message.addEventListener('click', (e) => {
+             e.stopPropagation(); // Prevent triggering game container click if message is up
+             if (isGameOver) {
+                 // Don't call startGame directly, let bioLumeFlap handle it
+                 // This prevents double sound playing on first click
+                 bioLumeFlap();
+             }
+        });
+
+        // --- Initial Setup ---
+        bioLume.style.top = bioLumeY + 'px';
+        bioLume.style.left = '60px';
+        showStartMessage(); // Show the initial message
+
+    </script>
+</body>
+</html>
