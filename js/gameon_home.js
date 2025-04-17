@@ -94,11 +94,11 @@ function renderGames(games) {
 
   // If we have games to display, show them in the appropriate view
   if (currentView === 'grid') {
-    renderGameGrid(games);
+    renderGameGrid(games,currentUsername);
     document.getElementById('gameGrid').classList.remove('hidden');
     document.getElementById('gameList').classList.add('hidden');
   } else {
-    renderGameList(games);
+    renderGameList(games,currentUsername);
     document.getElementById('gameGrid').classList.add('hidden');
     document.getElementById('gameList').classList.remove('hidden');
   }
