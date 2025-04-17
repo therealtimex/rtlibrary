@@ -1,0 +1,66 @@
+:root{--inout-color:#16a75c;--leave-color:#e74c3c;--holiday-color:#3498db;--zero-color:#95a5a6;--border-color:#e0e0e0;--background-light:#f5f5f5;--text-main:#333;--text-light:#777}
+*{box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{margin:0;padding:5px;background-color:var(--background-light)}
+.calendar-container{max-width:600px;margin:0 auto;background-color:white;border-radius:8px;box-shadow:0 2px 15px rgba(0,0,0,0.1);overflow:hidden}
+.month-header,.week-header{background-color:white;color:var(--text-main);padding:3px;display:flex;justify-content:space-between;align-items:center}
+.month-title{font-size:15px;font-weight:600;margin:0}
+.week-title{font-size:15px;font-weight:600;margin:0}
+.nav-button{background:none;border:none;color:gray;font-size:15px;cursor:pointer;padding:5px 10px;border-radius:4px;transition:background-color 0.2s}
+.nav-button:hover{background-color:rgba(0,0,0,0.05)}
+.weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:1px 0;background-color:#f0f0f0;font-weight:600;color:var(--text-main);border-bottom:1px solid var(--border-color)}
+.calendar-view{position:relative;transition:max-height 0.3s ease-in-out;overflow:hidden}
+.week-view{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:5px;background-color:white}
+.day-cell{min-height:70px;border:1px solid var(--border-color);padding:3px;display:flex;flex-direction:column;position:relative;cursor:pointer;transition:background-color 0.2s}
+.day-cell:hover{background-color:#f9f9f9}
+.day-cell.empty{background-color:#f9f9f9;cursor:default}
+.day-cell.today{background-color:##__COLOR_THEME_SURFACE__##}
+.day-number{font-weight:normal;padding:2px 8px;border-radius:50%;align-self:flex-start;margin-bottom:3px;font-size:12px}
+.today .day-number{font-weight:bold;background-color:var(--COLOR_THEME_BACKGROUND);border-radius:50%;padding:2px 8px;color:black}
+.event-dots{display:flex;flex-wrap:wrap;gap:4px;padding:5px;justify-content:center}
+.event-dot{height:20px;width:20px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:bold}
+.event-dot.attendance{background-color:var(--inout-color)}
+.event-dot.leave{background-color:var(--leave-color)}
+.event-dot.holiday{background-color:var(--holiday-color)}
+.event-dot.zero{background-color:var(--zero-color);display:none}
+.expand-control{text-align:center;padding:3px;background-color:#f9f9f9;border-top:1px solid var(--border-color)}
+.expand-button{background:none;border:none;color:var(--text-light);cursor:pointer;font-size:14px;padding:3px 15px;border-radius:4px;transition:background-color 0.2s}
+.expand-button:hover{background-color:#eeeeee}
+.loading-container{text-align:center;padding:30px;color:var(--text-light)}
+.spinner{border:3px solid #f3f3f3;border-radius:50%;border-top:3px solid var(--inout-color);width:20px;height:20px;margin:0 auto 10px;animation:spin 1s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.error-message{padding:15px;background-color:#ffecec;color:#e74c3c;border-radius:4px;margin:10px;display:none}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background-color:rgba(0,0,0,0.5);display:none;z-index:1000}
+.event-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background-color:white;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.2);width:90%;max-width:400px;max-height:90vh;overflow-y:auto;z-index:1001;display:none}
+.modal-header{padding:15px 20px;border-bottom:1px solid var(--border-color);position:relative}
+.modal-title{margin:0;font-size:18px;color:var(--text-main)}
+.close-modal{position:absolute;right:15px;top:12px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light)}
+.modal-content{padding:15px 20px}
+.event-list{margin-bottom:15px}
+.event-item{padding:10px;border-bottom:1px solid #f0f0f0;position:relative}
+.event-item:last-child{border-bottom:none}
+.event-header{display:flex;justify-content:space-between;margin-bottom:5px}
+.event-title{font-weight:600;color:var(--text-main)}
+.event-count{font-weight:600;color:var(--text-light)}
+.event-details{font-size:14px;color:var(--text-light)}
+.legend{max-width:600px;margin:10px auto;display:flex;flex-wrap:nowrap;justify-content:center;gap:10px;padding:5px;background-color:white;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.05);overflow-x:auto}
+.legend-item{display:flex;align-items:center;font-size:12px;white-space:nowrap}
+.legend-color{width:12px;height:12px;border-radius:50%;margin-right:5px;flex-shrink:0}
+.last-checkin{max-width:600px;margin:10px auto;padding:12px;background-color:white;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,0.05);font-size:15px;display:flex;align-items:center;justify-content:space-between}
+.checkin-info{display:flex;flex-direction:column;align-items:flex-start;width:50%}
+.checkin-label{display:flex;align-items:center;margin-bottom:5px}
+.checkin-time{font-size:17px;font-weight:bold;margin-top:3px}
+.status-indicator{width:12px;height:12px;border-radius:50%;margin-right:5px;flex-shrink:0}
+#status-indicator{display:none}
+.status-green{background-color:var(--inout-color)}
+.status-blue{background-color:var(--holiday-color)}
+.status-red{background-color:var(--leave-color)}
+.view-history-btn{background-color:#f0f0f0;border:none;border-radius:6px;padding:3px 3px;font-size:15px;cursor:pointer;color:var(--text-main);transition:background-color 0.2s;width:48%;display:flex;align-items:center;justify-content:center;align-self:flex-end;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+.view-history-btn i{margin-right:4px;font-size:14px}
+.attendance-action-container{margin:18px 0 0 0}
+.attendance-action-title{font-size:16px;font-weight:bold;margin-bottom:12px;color:#222;padding-left:14px}
+.attendance-action-title .highlight{color:#16a75c;text-transform:uppercase}
+.attendance-action-buttons{display:flex;gap:16px;flex-wrap:nowrap;justify-content:center;padding:2px 0;border:0px solid #e0e0e0;border-radius:12px;background:#fff;margin:0 8px}
+.attendance-btn{background:#fff;border:none;border-radius:0px;box-shadow:0 1px 4px rgba(22,167,92,0.08);min-width:80px;min-height:60px;padding:8px 4px 6px 4px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:box-shadow 0.15s,border-color 0.15s}
+.attendance-btn-icon-bg{background:##__COLOR_THEME_SURFACE__##;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;margin-bottom:4px;box-shadow: 0 1px 3px rgba(0,0,0,0.04);transition: background 0.18s;}
+.attendance-btn-icon{font-size:30px;color:##__COLOR_THEME_PRIMARY__##;line-height:1;width: 1em;height: 1em;}
+.attendance-btn-label{font-size:14px;color:#222;margin-top:1px;text-align:center}
