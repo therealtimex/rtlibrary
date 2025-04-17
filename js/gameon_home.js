@@ -38,7 +38,7 @@ function getActionButtonHTML(game, isListView = false, isInline = false) {
   if (isListView) {
     return `<div class="flex space-x-1">
       ${game.username === currentUsername ? `<button class="publish-button px-3 py-1 bg-transparent" data-game-id="${game.game_id}" >
-        <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+        <i class="fas fa-share-alt ${(game.is_published === true || game.is_published === 'true') ? 'text-green-500' : 'text-gray-400'}"></i>
       </button>` : ''}
       <button class="play-button px-4 py-1 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
         Play
@@ -47,7 +47,7 @@ function getActionButtonHTML(game, isListView = false, isInline = false) {
   } else if (isInline) {
     return `<div class="flex space-x-1">
       ${game.username === currentUsername ? `<button class="publish-button px-3 py-2 bg-transparent" data-game-id="${game.game_id}" >
-        <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+        <i class="fas fa-share-alt ${(game.is_published === true || game.is_published === 'true') ? 'text-green-500' : 'text-gray-400'}"></i>
       </button>` : ''}
       <button class="play-button px-4 py-2 text-sm font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
         Play
@@ -56,7 +56,7 @@ function getActionButtonHTML(game, isListView = false, isInline = false) {
   } else {
     return `<div class="flex space-x-2 mt-2">
       ${game.username === currentUsername ? `<button class="publish-button px-2 py-2 bg-transparent" data-game-id="${game.game_id}" ">
-        <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+        <i class="fas fa-share-alt ${(game.is_published === true || game.is_published === 'true') ? 'text-green-500' : 'text-gray-400'}"></i>
       </button>` : ''}
       <button class="play-button w-full py-2 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
         <i class="fas fa-play mr-2"></i> Play
