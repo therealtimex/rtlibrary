@@ -85,7 +85,7 @@ function hideAllEmptyStates() {
 }
 
 
-function setupCardEventListeners(card, game) {
+function setupCardEventListeners(card, game, currentUsername) {
   const showDescription = () => {
     document.getElementById('modalTitle').textContent = game.title;
     document.getElementById('modalDescription').textContent = game.description || 'No description available.';
@@ -126,12 +126,12 @@ function setupCardEventListeners(card, game) {
   if (playButton) {
     playButton.addEventListener('click', (e) => {
       e.stopPropagation();
-      playGame(game.game_id);
+      playGame(game.game_id,currentUsername);
     });
   }
 }
 
-function setupListItemEventListeners(listItem, game) {
+function setupListItemEventListeners(listItem, game,currentUsername) {
   // Only add description popup to image and title
   const imageContainer = listItem.querySelector('.w-16.h-16');
   const titleElement = listItem.querySelector('h5');
@@ -172,7 +172,37 @@ function setupListItemEventListeners(listItem, game) {
   if (playButton) {
     playButton.addEventListener('click', (e) => {
       e.stopPropagation();
-      playGame(game.game_id);
+      playGame(game.game_id,currentUsername);
     });
   }
+}
+
+function playGame(gameId,currentUsername) {
+  Data.create('play_history', {
+    username: currentUsername,
+    game_id: gameId,
+    played_at: new Date().toISOString(),
+    score: 0
+  })
+  .then(res => {
+    console.log("Play history recorded:", res);
+  })
+  .catch(err => {
+    console.error("Error recording play history:", err);
+  });
+
+  const actionData = {
+    actionID: 99,
+    orderNumber: 1,
+    type: "act_dm_view",
+    label: "no label",
+    screen: "",
+    alias: "jxfmuo0swf_2",
+    args: {
+      game_id: gameId
+    }
+  };
+
+  // App.callActionButton(JSON.stringify(actionData));
+  console.log("Playing game:", gameId);
 }
