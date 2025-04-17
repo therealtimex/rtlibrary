@@ -34,7 +34,36 @@ function getThumbnailHTML(game, isListView = false) {
   }
 }
 
-
+function getActionButtonHTML(game, isListView = false, isInline = false) {
+  if (isListView) {
+    return `<div class="flex space-x-1">
+      ${game.username === currentUsername ? `<button class="publish-button px-3 py-1 bg-transparent" data-game-id="${game.game_id}" >
+        <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+      </button>` : ''}
+      <button class="play-button px-4 py-1 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+        Play
+      </button>
+    </div>`;
+  } else if (isInline) {
+    return `<div class="flex space-x-1">
+      ${game.username === currentUsername ? `<button class="publish-button px-3 py-2 bg-transparent" data-game-id="${game.game_id}" >
+        <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+      </button>` : ''}
+      <button class="play-button px-4 py-2 text-sm font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+        Play
+      </button>
+    </div>`;
+  } else {
+    return `<div class="flex space-x-2 mt-2">
+      ${game.username === currentUsername ? `<button class="publish-button px-2 py-2 bg-transparent" data-game-id="${game.game_id}" ">
+        <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+      </button>` : ''}
+      <button class="play-button w-full py-2 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+        <i class="fas fa-play mr-2"></i> Play
+      </button>
+    </div>`;
+  }
+}
 
 function getFavoriteButtonHTML(game, isFavorite, isListView = false) {
   const favoriteClass = isFavorite ? 'text-red-500' : 'text-gray-400';
@@ -50,29 +79,29 @@ function getFavoriteButtonHTML(game, isFavorite, isListView = false) {
   </div>`;
 }
 
-// function renderGames(games) {
-//   // Hide all empty states first
-//   hideAllEmptyStates();
+function renderGames(games) {
+  // Hide all empty states first
+  hideAllEmptyStates();
 
-//   // If no games match the current filter, show the appropriate empty state
-//   if (games.length === 0) {
-//     showEmptyStateForCurrentTab();
-//     document.getElementById('gameGrid').classList.add('hidden');
-//     document.getElementById('gameList').classList.add('hidden');
-//     return;
-//   }
+  // If no games match the current filter, show the appropriate empty state
+  if (games.length === 0) {
+    showEmptyStateForCurrentTab();
+    document.getElementById('gameGrid').classList.add('hidden');
+    document.getElementById('gameList').classList.add('hidden');
+    return;
+  }
 
-//   // If we have games to display, show them in the appropriate view
-//   if (currentView === 'grid') {
-//     renderGameGrid(games,currentUsername);
-//     document.getElementById('gameGrid').classList.remove('hidden');
-//     document.getElementById('gameList').classList.add('hidden');
-//   } else {
-//     renderGameList(games,currentUsername);
-//     document.getElementById('gameGrid').classList.add('hidden');
-//     document.getElementById('gameList').classList.remove('hidden');
-//   }
-// }
+  // If we have games to display, show them in the appropriate view
+  if (currentView === 'grid') {
+    renderGameGrid(games,currentUsername);
+    document.getElementById('gameGrid').classList.remove('hidden');
+    document.getElementById('gameList').classList.add('hidden');
+  } else {
+    renderGameList(games,currentUsername);
+    document.getElementById('gameGrid').classList.add('hidden');
+    document.getElementById('gameList').classList.remove('hidden');
+  }
+}
 
 
 function hideAllEmptyStates() {
@@ -85,7 +114,7 @@ function hideAllEmptyStates() {
 }
 
 
-function setupCardEventListeners(card, game, currentUsername) {
+function setupCardEventListeners(card, game) {
   const showDescription = () => {
     document.getElementById('modalTitle').textContent = game.title;
     document.getElementById('modalDescription').textContent = game.description || 'No description available.';
@@ -126,12 +155,12 @@ function setupCardEventListeners(card, game, currentUsername) {
   if (playButton) {
     playButton.addEventListener('click', (e) => {
       e.stopPropagation();
-      playGame(game.game_id,currentUsername);
+      playGame(game.game_id);
     });
   }
 }
 
-function setupListItemEventListeners(listItem, game,currentUsername) {
+function setupListItemEventListeners(listItem, game) {
   // Only add description popup to image and title
   const imageContainer = listItem.querySelector('.w-16.h-16');
   const titleElement = listItem.querySelector('h5');
@@ -172,37 +201,7 @@ function setupListItemEventListeners(listItem, game,currentUsername) {
   if (playButton) {
     playButton.addEventListener('click', (e) => {
       e.stopPropagation();
-      playGame(game.game_id,currentUsername);
+      playGame(game.game_id);
     });
   }
-}
-
-function playGame(gameId,currentUsername) {
-  Data.create('play_history', {
-    username: currentUsername,
-    game_id: gameId,
-    played_at: new Date().toISOString(),
-    score: 0
-  })
-  .then(res => {
-    console.log("Play history recorded:", res);
-  })
-  .catch(err => {
-    console.error("Error recording play history:", err);
-  });
-
-  const actionData = {
-    actionID: 99,
-    orderNumber: 1,
-    type: "act_dm_view",
-    label: "no label",
-    screen: "",
-    alias: "jxfmuo0swf_2",
-    args: {
-      game_id: gameId
-    }
-  };
-
-  // App.callActionButton(JSON.stringify(actionData));
-  console.log("Playing game:", gameId);
 }
