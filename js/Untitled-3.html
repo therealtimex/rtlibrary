@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="https://therealtimex.github.io/rtlibrary/js/gameon_home.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+    theme: {
+    extend: {
+    colors: {
+    theme: {
+    primary: {
+      DEFAULT: '##__COLOR_THEME_PRIMARY__##',
+      50: '##__COLOR_THEME_PRIMARY_50__##',
+      100: '##__COLOR_THEME_PRIMARY_100__##',
+      200: '##__COLOR_THEME_PRIMARY_200__##',
+      300: '##__COLOR_THEME_PRIMARY_300__##',
+      400: '##__COLOR_THEME_PRIMARY_400__##',
+      500: '##__COLOR_THEME_PRIMARY_500__##',
+      600: '##__COLOR_THEME_PRIMARY_600__##',
+      700: '##__COLOR_THEME_PRIMARY_700__##',
+      800: '##__COLOR_THEME_PRIMARY_800__##',
+      900: '##__COLOR_THEME_PRIMARY_900__##'
+    },
+    secondary: '##__COLOR_THEME_SECONDARY__##',
+    accent: '##__COLOR_THEME_ACCENT__##',
+    success: '##__COLOR_THEME_SUCCESS__##',
+    info: '##__COLOR_THEME_INFO__##',
+    warning: '##__COLOR_THEME_WARNING__##',
+    danger: '##__COLOR_THEME_DANGER__##',
+    background: '##__COLOR_THEME_BACKGROUND__##',
+    surface: '##__COLOR_THEME_SURFACE__##',
+    text: {
+      primary: '##__COLOR_THEME_TEXT_PRIMARY__##',
+      secondary: '##__COLOR_THEME_TEXT_SECONDARY__##',
+      disabled: '##__COLOR_THEME_TEXT_DISABLED__##',
+      onprimary: '##__COLOR_THEME_TEXT_ON_PRIMARY__##'
+    },
+    error: {
+      background: '##__COLOR_THEME_ERROR_BACKGROUND__##',
+      text: '##__COLOR_THEME_ERROR_TEXT__##'
+    },
+    link: '##__COLOR_THEME_LINK__##'
+  }
+    },
+    fontFamily: {
+    'heading': ['Montserrat', 'sans-serif'],
+    'body': ['Roboto', 'Inter', 'sans-serif']
+    }
+    }
+    }
+    }
+  </script>
+</head>
+<body class="font-body min-h-screen bg-gray-50">
+  <div class="container mx-auto px-4 py-3">
+    <!-- Header with title and navigation -->
+    <header class="mb-4 flex items-center justify-between">
+    <button id="aiGeneratorBtn" class="bg-theme-accent text-theme-text-onprimary px-3 py-2 rounded-lg shadow-lg flex items-center transition-colors hover:bg-theme-primary-500 animate-pulse">
+    <i class="fas fa-magic mr-1 animate-pulse"></i>
+    <span>Generate Game</span>
+    </button>
+    <div class="flex space-x-2">
+    <button id="profileBtn" class="px-2 py-1 flex flex-col items-center text-theme-primary">
+    <i class="fas fa-user text-lg mb-0"></i>
+    <span class="text-xs">Profile</span>
+    </button>
+    <button id="leaderboardsBtn" class="pr-1 py-1 flex flex-col items-center text-theme-primary">
+    <i class="fas fa-trophy text-lg mb-0 text-yellow-500"></i>
+    <span class="text-xs">Leaderboards</span>
+    </button>
+    </div>
+    </header>
+
+    <!-- Category tabs with view toggle -->
+    <div class="flex justify-between items-center mb-3">
+    <div class="w-full overflow-x-auto py-2">
+    <div class="flex flex-nowrap space-x-2">
+    <button class="category-tab whitespace-nowrap px-2 py-1 rounded-lg bg-theme-primary text-theme-text-onprimary shadow-lg transition-all duration-300 ease-in-out"><i class="fas fa-gamepad mr-1"></i>My Games</button>
+    <button class="category-tab whitespace-nowrap px-2 py-1 rounded-lg bg-theme-primary-50 text-theme-text-secondary shadow-lg transition-all duration-300 ease-in-out"><i class="fas fa-chart-line mr-1"></i>Trending</button>
+    <button class="category-tab whitespace-nowrap px-2 py-1 rounded-lg bg-theme-primary-50 text-theme-text-secondary shadow-lg transition-all duration-300 ease-in-out"><i class="fas fa-heart mr-1"></i>Favorites</button>
+    </div>
+    </div>
+    </div>
+
+    <!-- Search bar -->
+    <div class="search-bar flex items-center rounded-xl px-2 py-1 mb-3 border border-theme-primary-100 focus-within:border-theme-primary transition-all duration-200 bg-white">
+    <i class="fas fa-search text-theme-text-secondary text-xl mr-3"></i>
+    <input type="text" class="bg-transparent w-full text-theme-text-primary text-base placeholder-theme-text-secondary placeholder-opacity-50 placeholder:italic focus:outline-none" placeholder="Search games">
+    </div>
+
+   <!-- Game filter categories with right-aligned view toggle button -->
+   <div class="flex items-center mb-0">
+    <div class="flex-grow flex flex-wrap gap-2">
+    <button class="filter-btn px-3 py-1 rounded-full bg-theme-primary text-theme-text-onprimary text-sm font-medium">All</button>
+    <button class="filter-btn px-3 py-1 rounded-full bg-theme-primary-50 text-theme-text-secondary text-sm font-medium">Puzzle</button>
+    <button class="filter-btn px-3 py-1 rounded-full bg-theme-primary-50 text-theme-text-secondary text-sm font-medium">Arcade</button>
+    <button class="filter-btn px-3 py-1 rounded-full bg-theme-primary-50 text-theme-text-secondary text-sm font-medium">Education</button>
+    <button class="filter-btn px-3 py-1 rounded-full bg-theme-primary-50 text-theme-text-secondary text-sm font-medium">Sports</button>
+    <button class="filter-btn px-3 py-1 rounded-full bg-theme-primary-50 text-theme-text-secondary text-sm font-medium">Action</button>
+    <button class="filter-btn px-3 py-1 rounded-full bg-theme-primary-50 text-theme-text-secondary text-sm font-medium">Family</button>
+    </div>
+  </div>
+  <div class="flex items-center mb-1">
+    <button id="viewToggleBtn" class="p-1 text-theme-text-primary ml-auto">
+      <i class="fas fa-th-large"></i>
+    </button>
+  </div>
+
+  <!-- Favorites Sub-tabs (initially hidden) -->
+  <div class="favorites-tabs hidden flex border-b border-theme-primary-100 mb-4">
+    <button class="favorites-tab-btn px-2 py-2 font-small text-theme-primary border-b-2 border-theme-primary">
+      <i class="fas fa-star mr-1"></i>All
+    </button>
+    <button class="favorites-tab-btn px-2 py-2 font-small text-theme-text-secondary border-b-2 border-transparent">
+      <i class="fas fa-gamepad mr-1"></i>My Games
+    </button>
+    <button class="favorites-tab-btn px-2 py-2 font-small text-theme-text-secondary border-b-2 border-transparent">
+      <i class="fas fa-users mr-1"></i>Community
+    </button>
+  </div>
+
+  <!-- Game cards grid view (default) -->
+  <div id="gameGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+
+  <!-- Game cards list view (initially hidden) -->
+  <div id="gameList" class="hidden flex flex-col space-y-3"></div>
+
+  <!-- Empty state messages for different tabs -->
+  <!-- My Games empty state -->
+  <div id="emptyStateMyGames" class="text-center py-12 bg-white rounded-lg shadow-sm">
+    <div class="flex flex-col items-center">
+      <div class="w-20 h-20 rounded-full bg-theme-primary-50 flex items-center justify-center mb-4">
+        <i class="fas fa-gamepad text-4xl text-theme-primary-300"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-theme-text-primary mb-2">No games created yet</h3>
+      <p class="text-theme-text-secondary max-w-md mx-auto mb-6">You haven't created any games yet. Create your first game to see it here.</p>
+      
+    </div>
+  </div>
+
+  <!-- Trending empty state -->
+  <div id="emptyStateTrending" class="hidden text-center py-12 bg-white rounded-lg shadow-sm">
+    <div class="flex flex-col items-center">
+      <div class="w-20 h-20 rounded-full bg-theme-primary-50 flex items-center justify-center mb-4">
+        <i class="fas fa-chart-line text-4xl text-theme-primary-300"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-theme-text-primary mb-2">No trending games</h3>
+      <p class="text-theme-text-secondary max-w-md mx-auto mb-6">There are no trending games available right now. Check back later or explore other categories.</p>
+      
+    </div>
+  </div>
+
+  <!-- Favorites empty states -->
+  <div id="emptyStateAllFavorites" class="hidden text-center py-12 bg-white rounded-lg shadow-sm">
+    <div class="flex flex-col items-center">
+      <div class="w-20 h-20 rounded-full bg-theme-primary-50 flex items-center justify-center mb-4">
+        <i class="fas fa-heart text-4xl text-theme-primary-300"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-theme-text-primary mb-2">No favorites yet</h3>
+      <p class="text-theme-text-secondary max-w-md mx-auto mb-6">You haven't added any games to your favorites. Find games you love and click the heart icon to add them here.</p>
+      
+    </div>
+  </div>
+
+  <div id="emptyStateFavoritesMyGames" class="hidden text-center py-12 bg-white rounded-lg shadow-sm">
+    <div class="flex flex-col items-center">
+      <div class="w-20 h-20 rounded-full bg-theme-primary-50 flex items-center justify-center mb-4">
+        <i class="fas fa-gamepad text-4xl text-theme-primary-300"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-theme-text-primary mb-2">No favorited games</h3>
+      <p class="text-theme-text-secondary max-w-md mx-auto mb-6">You haven't favorited any of your own games yet. Add games you've created to favorites to see them here.</p>
+      
+    </div>
+  </div>
+
+  <div id="emptyStateFavoritesCommunity" class="hidden text-center py-12 bg-white rounded-lg shadow-sm">
+    <div class="flex flex-col items-center">
+      <div class="w-20 h-20 rounded-full bg-theme-primary-50 flex items-center justify-center mb-4">
+        <i class="fas fa-users text-4xl text-theme-primary-300"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-theme-text-primary mb-2">No community favorites</h3>
+      <p class="text-theme-text-secondary max-w-md mx-auto mb-6">You haven't favorited any games from the community yet. Explore games in the Discover and add your favorites.</p>
+    </div>
+  </div>
+
+  <!-- Modal for displaying game description -->
+  <div id="descriptionModal" class="fixed flex inset-0 z-50 items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white p-4 rounded-lg text-gray-800 max-w-lg w-full mx-4">
+      <h2 class="text-xl font-semibold mb-2" id="modalTitle">Title</h2>
+      <p id="modalDescription"></p>
+      <button id="closeModal" class="mt-4 bg-theme-primary hover:bg-theme-primary-700 text-theme-text-onprimary py-2 px-4 rounded-lg">Close</button>
+    </div>
+  </div>
+  </div>
+
+  <script>
+    // Game data storage
+    let gamesData = [], filteredGames = [];
+    let activeGenre = 'All', activeCategory = 'My Games', currentView = 'grid';
+    let activeFavoritesTab = 'All';
+    const currentUsername = "rta_trangtest3";
+
+    const Data = {
+      apiKey: '##jwt.supabase_anon_api_key##',
+      supabaseClient: supabase.createClient("https://app.realtimex.co", "##jwt.supabase_anon_api_key##", {
+        db: {schema: 'gameson_jtzfi'}
+      }),
+      create(tableName, payload) {
+        return this.supabaseClient.from(tableName).insert(payload).select()
+        .then(response => {
+          if (response.error) throw new Error(response.error.message);
+          return response.data;
+        });
+      },
+      update(tableName, tableKey, itemId, payload) {
+        return this.supabaseClient.from(tableName)
+        .update(payload)
+        .eq(tableKey, itemId).select()
+        .then(response => {
+          if (response.error) throw new Error(response.error.message);
+          return response.data;
+        });
+      }
+    };
+
+    // Helper functions
+    function playGame(gameId) {
+      Data.create('play_history', {
+        username: currentUsername,
+        game_id: gameId,
+        played_at: new Date().toISOString(),
+        score: 0
+      })
+      .then(res => {
+        console.log("Play history recorded:", res);
+      })
+      .catch(err => {
+        console.error("Error recording play history:", err);
+      });
+
+      const actionData = {
+        actionID: 99,
+        orderNumber: 1,
+        type: "act_dm_view",
+        label: "no label",
+        screen: "",
+        alias: "jxfmuo0swf_2",
+        args: {
+          game_id: gameId
+        }
+      };
+
+      // App.callActionButton(JSON.stringify(actionData));
+      console.log("Playing game:", gameId);
+    }
+
+    function navigateToScreen(screenId) {
+      App.callActionButton(JSON.stringify({
+        actionID: 99, orderNumber: 1, type: "act_dm_view", label: "no label", screen: "",
+        alias: `jxfmuo0swf_${screenId}`, args: {}
+      }));
+      console.log("Navigating to screen:", screenId);
+    }
+
+    //function getThumbnailHTML(game, isListView = false) 
+
+    function getActionButtonHTML(game, isListView = false, isInline = false) {
+      if (isListView) {
+        return `<div class="flex space-x-1">
+          ${game.username === currentUsername ? `<button class="publish-button px-3 py-1 bg-transparent" data-game-id="${game.game_id}" >
+            <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+          </button>` : ''}
+          <button class="play-button px-4 py-1 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+            Play
+          </button>
+        </div>`;
+      } else if (isInline) {
+        return `<div class="flex space-x-1">
+          ${game.username === currentUsername ? `<button class="publish-button px-3 py-2 bg-transparent" data-game-id="${game.game_id}" >
+            <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+          </button>` : ''}
+          <button class="play-button px-4 py-2 text-sm font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+            Play
+          </button>
+        </div>`;
+      } else {
+        return `<div class="flex space-x-2 mt-2">
+          ${game.username === currentUsername ? `<button class="publish-button px-2 py-2 bg-transparent" data-game-id="${game.game_id}" ">
+            <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+          </button>` : ''}
+          <button class="play-button w-full py-2 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+            <i class="fas fa-play mr-2"></i> Play
+          </button>
+        </div>`;
+      }
+    }
+
+    //function getFavoriteButtonHTML(game, isFavorite, isListView = false) 
+
+    // Main functions
+    function onUpdate(data) {
+      gamesData = data || [];
+      filteredGames = [...gamesData];
+
+      // Call filter by activeCategory, activeGenre, and activeFavoritesTab before rendering
+      filterGames();
+    }
+
+   // function renderGames(games) 
+
+    function hideAllEmptyStates() {
+      // Hide all empty states
+      document.getElementById('emptyStateMyGames').classList.add('hidden');
+      document.getElementById('emptyStateTrending').classList.add('hidden');
+      document.getElementById('emptyStateAllFavorites').classList.add('hidden');
+      document.getElementById('emptyStateFavoritesMyGames').classList.add('hidden');
+      document.getElementById('emptyStateFavoritesCommunity').classList.add('hidden');
+    }
+
+    function showEmptyStateForCurrentTab() {
+      if (activeCategory === 'My Games') {
+        document.getElementById('emptyStateMyGames').classList.remove('hidden');
+      } else if (activeCategory === 'Trending') {
+        document.getElementById('emptyStateTrending').classList.remove('hidden');
+      } else if (activeCategory === 'Favorites') {
+        if (activeFavoritesTab === 'All') {
+          document.getElementById('emptyStateAllFavorites').classList.remove('hidden');
+        } else if (activeFavoritesTab === 'My Games') {
+          document.getElementById('emptyStateFavoritesMyGames').classList.remove('hidden');
+        } else if (activeFavoritesTab === 'Community') {
+          document.getElementById('emptyStateFavoritesCommunity').classList.remove('hidden');
+        }
+      }
+    }
+
+    function renderGameGrid(games) {
+      const gameGrid = document.getElementById('gameGrid');
+      gameGrid.innerHTML = '';
+
+      games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      games.forEach(game => {
+        const card = document.createElement('div');
+        card.className = 'game-card flex flex-col h-full';
+
+        const isFavorite = game.user_favorites && game.user_favorites.some(fav => fav.is_favorite === true);
+        let rating;
+        if (game.game_summary && game.game_summary.average_rating != null) {
+          rating = game.game_summary.average_rating;
+        } else {
+          rating = (game.username === 'rta') ? ((Math.floor(Math.random() * 4) + 7) / 2) : 0;
+        }
+
+        card.innerHTML = `
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden relative">
+          ${getFavoriteButtonHTML(game, isFavorite)}
+          ${getThumbnailHTML(game)}
+          <div class="p-3">
+            <h5 class="text-lg font-bold text-gray-800">${game.title}</h5>
+            <div class="flex items-center justify-between mt-1">
+              <div class="flex items-center">
+                <span class="text-yellow-500 mr-1"><i class="fas fa-star"></i></span>
+                <span class="font-medium text-sm">${rating.toFixed(1)}</span>
+                <span class="ml-4 text-gray-500 cursor-pointer">
+                  <i class="fas fa-comment-dots"></i>
+                </span>
+              </div>
+              ${getActionButtonHTML(game, false, true)}
+            </div>
+          </div>
+        </div>`;
+
+        setupCardEventListeners(card, game);
+        gameGrid.appendChild(card);
+      });
+    }
+
+    function renderGameList(games) {
+      const gameList = document.getElementById('gameList');
+      gameList.innerHTML = '';
+
+      games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      games.forEach(game => {
+        const listItem = document.createElement('div');
+        listItem.className = 'game-list-item bg-white shadow-sm rounded-lg overflow-hidden mb-2';
+
+        const isFavorite = game.user_favorites && game.user_favorites.some(fav => fav.is_favorite === true);
+        let rating;
+        if (game.game_summary && game.game_summary.average_rating != null) {
+          rating = game.game_summary.average_rating;
+        } else {
+          rating = (game.username === 'rta') ? ((Math.floor(Math.random() * 4) + 7) / 2) : 0;
+        }
+
+        let plays;
+        if (game.game_summary && game.game_summary.play_count != null) {
+          plays = game.game_summary.play_count;
+          if (game.username === 'rta') {
+            plays += 10000;
+          }
+        } else {
+          if (game.username === 'rta') {
+            plays = Math.floor(Math.random() * 5000) + 10000;
+          } else if (game.username === currentUsername) {
+            plays = 0;
+          } else {
+            plays = 0;
+          }
+        }
+
+        const gameCategory = (game.game_genres && game.game_genres.length > 0 && game.game_genres[0].genres && game.game_genres[0].genres.name);
+
+        listItem.innerHTML = `
+        <div class="flex p-3">
+          <div class="mr-3">
+            ${getThumbnailHTML(game, true)}
+          </div>
+          <div class="flex flex-col flex-grow">
+            <h5 class="text-base font-bold text-gray-800 cursor-pointer">${game.title}</h5>
+            <div class="text-sm text-gray-600">
+              ${gameCategory || 'Game'} <span class="mx-1">•</span> ${plays.toLocaleString()} plays
+            </div>
+            <div class="flex items-center justify-between mt-auto">
+              <div class="flex items-center">
+                <span class="text-yellow-500 mr-1"><i class="fas fa-star"></i></span>
+                <span class="font-medium text-sm mr-0.5">${rating.toFixed(1)}</span>
+                <span class="ml-1 text-gray-500 cursor-pointer">
+                  <i class="fas fa-comment-dots"></i>
+                </span>
+              </div>
+              <div class="flex items-center">
+                ${getFavoriteButtonHTML(game, isFavorite, true)}
+                ${getActionButtonHTML(game, true)}
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+        setupListItemEventListeners(listItem, game);
+        gameList.appendChild(listItem);
+      });
+    }
+
+    // function setupCardEventListeners(card, game) 
+    // function setupListItemEventListeners(listItem, game) 
+    
+    function toggleFavorite(button, game) {
+      const newFavoriteState = button.classList.contains('text-red-500') ? false : true;
+
+      if (newFavoriteState) {
+        button.classList.remove('text-gray-400');
+        button.classList.add('text-red-500');
+      } else {
+        button.classList.remove('text-red-500');
+        button.classList.add('text-gray-400');
+      }
+
+      if (game.user_favorites && game.user_favorites.length > 0) {
+        const record = game.user_favorites[0];
+        Data.update('user_favorites', 'favorite_id', record.favorite_id, {
+          username: currentUsername,
+          is_favorite: newFavoriteState,
+          game_id: game.game_id
+        }).then(() => {
+          // Update the game in gamesData to reflect the new favorite state
+          const gameIndex = gamesData.findIndex(g => g.game_id === game.game_id);
+          if (gameIndex !== -1) {
+            if (!gamesData[gameIndex].user_favorites) {
+              gamesData[gameIndex].user_favorites = [];
+            }
+            if (gamesData[gameIndex].user_favorites.length > 0) {
+              gamesData[gameIndex].user_favorites[0].is_favorite = newFavoriteState;
+            } else {
+              gamesData[gameIndex].user_favorites.push({
+                username: currentUsername,
+                is_favorite: newFavoriteState,
+                game_id: game.game_id
+              });
+            }
+            // Re-filter games to update the display
+            filterGames();
+          }
+        }).catch(err => console.error("Error during favorite update:", err));
+      } else {
+        Data.create('user_favorites', {
+          username: currentUsername,
+          is_favorite: newFavoriteState,
+          game_id: game.game_id
+        }).then(res => {
+          // Update the game in gamesData to reflect the new favorite
+          const gameIndex = gamesData.findIndex(g => g.game_id === game.game_id);
+          if (gameIndex !== -1) {
+            if (!gamesData[gameIndex].user_favorites) {
+              gamesData[gameIndex].user_favorites = [];
+            }
+            gamesData[gameIndex].user_favorites.push({
+              favorite_id: res[0].favorite_id,
+              username: currentUsername,
+              is_favorite: newFavoriteState,
+              game_id: game.game_id
+            });
+            // Re-filter games to update the display
+            filterGames();
+          }
+        }).catch(err => console.error("Error during favorite creation:", err));
+      }
+    }
+
+    function togglePublish(button, game) {
+      const icon = button.querySelector('i');
+      const newPublishState = icon.classList.contains('text-green-500') ? false : true;
+
+      if (newPublishState) {
+        icon.classList.remove('text-gray-400');
+        icon.classList.add('text-green-500');
+        showPopup(button, 'Publish to community');
+      } else {
+        icon.classList.remove('text-green-500');
+        icon.classList.add('text-gray-400');
+        showPopup(button, 'Unpublish from community');
+      }
+
+      Data.update('games', 'game_id', game.game_id, {
+        is_published: newPublishState
+      }).then(res => {
+        console.log("Publish state updated:", res);
+      }).catch(err => {
+        console.error("Error updating publish state:", err);
+      });
+    }
+
+    function showPopup(button, message) {
+      const popup = document.createElement('div');
+      popup.className = 'popup-message absolute bg-theme-primary-200 text-white text-xs px-2 py-1 rounded';
+      popup.style.top = button.offsetTop + "px";
+      popup.style.left = button.offsetLeft + "px";
+      popup.style.transform = 'none';
+      popup.textContent = message;
+
+      button.parentNode.appendChild(popup);
+
+      setTimeout(() => {
+        popup.remove();
+      }, 2000);
+    }
+
+    function filterGames() {
+      // First apply category filter
+      let categoryFiltered = [];
+      if (activeCategory === 'My Games') {
+        categoryFiltered = gamesData.filter(game => game.username === currentUsername);
+      } else if (activeCategory === 'Trending') {
+        categoryFiltered = gamesData.filter(game => game.is_trending);
+      } else if (activeCategory === 'Favorites') {
+        // For Favorites category, apply the favorites sub-tab filter
+        if (activeFavoritesTab === 'All') {
+          // All games favorited by the user
+          categoryFiltered = gamesData.filter(game =>
+            game.user_favorites && game.user_favorites.some(fav =>
+              fav.is_favorite === true && fav.username === currentUsername
+            )
+          );
+        } else if (activeFavoritesTab === 'My Games') {
+          // Games created by the user and favorited by the user
+          categoryFiltered = gamesData.filter(game =>
+            game.username === currentUsername &&
+            game.user_favorites && game.user_favorites.some(fav =>
+              fav.is_favorite === true && fav.username === currentUsername
+            )
+          );
+        } else if (activeFavoritesTab === 'Community') {
+          // Games created by others, favorited by the user
+          categoryFiltered = gamesData.filter(game =>
+            game.username !== currentUsername &&
+            game.user_favorites && game.user_favorites.some(fav =>
+              fav.is_favorite === true && fav.username === currentUsername
+            )
+          );
+        }
+      }
+
+      // Apply genre filter if not 'All'
+      if (activeGenre !== 'All') {
+        filteredGames = categoryFiltered.filter(game =>
+          ((game.game_genres && game.game_genres.some(genreObj =>
+            genreObj.genres && genreObj.genres.name &&
+            genreObj.genres.name.toLowerCase() === activeGenre.toLowerCase()
+          )) ||
+          (game.title && game.title.toLowerCase().includes(activeGenre.toLowerCase())))
+        );
+      } else {
+        filteredGames = categoryFiltered;
+      }
+
+      // Apply search filter if there's text in the search box
+      const searchText = document.querySelector('.search-bar input').value.toLowerCase().trim();
+      if (searchText) {
+        filteredGames = filteredGames.filter(game =>
+          (game.title && game.title.toLowerCase().includes(searchText)) ||
+          (game.description && game.description.toLowerCase().includes(searchText)) ||
+          (game.game_genres && game.game_genres.some(genreObj =>
+            genreObj.genres && genreObj.genres.name &&
+            genreObj.genres.name.toLowerCase().includes(searchText)
+          ))
+        );
+      }
+
+      renderGames(filteredGames);
+    }
+
+    // Generate Game button
+    document.getElementById('aiGeneratorBtn').addEventListener('click', () => {
+      navigateToScreen(3); // Go to AI Game Generator
+    });
+
+    // Set up event listeners for navigation buttons
+    document.getElementById('profileBtn').addEventListener('click', () => {
+      navigateToScreen(4); // View User Profile
+    });
+
+    document.getElementById('leaderboardsBtn').addEventListener('click', () => {
+      navigateToScreen(5); // View Leaderboards
+    });
+
+    document.getElementById('viewToggleBtn').addEventListener('click', () => {
+      currentView = currentView === 'grid' ? 'list' : 'grid';
+      document.getElementById('viewToggleBtn').innerHTML = currentView === 'grid' ?
+        '<i class="fas fa-th-large"></i>' : '<i class="fas fa-list"></i>';
+      renderGames(filteredGames);
+    });
+
+    // Set up event listeners for category tabs
+    document.querySelectorAll('.category-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.category-tab').forEach(t => {
+          t.classList.remove('bg-theme-primary', 'text-theme-text-onprimary');
+          t.classList.add('bg-theme-primary-50', 'text-theme-text-secondary');
+        });
+
+        tab.classList.remove('bg-theme-primary-50', 'text-theme-text-secondary');
+        tab.classList.add('bg-theme-primary', 'text-theme-text-onprimary');
+
+        // Extract the category name from the tab text content
+        const tabText = tab.textContent.trim();
+        if (tabText.includes('My Games')) {
+          activeCategory = 'My Games';
+        } else if (tabText.includes('Trending')) {
+          activeCategory = 'Trending';
+        } else if (tabText.includes('Favorites')) {
+          activeCategory = 'Favorites';
+        }
+
+        // Show/hide favorites tabs based on category
+        const favoritesTabsContainer = document.querySelector('.favorites-tabs');
+        if (activeCategory === 'Favorites') {
+          favoritesTabsContainer.classList.remove('hidden');
+        } else {
+          favoritesTabsContainer.classList.add('hidden');
+        }
+
+        filterGames();
+      });
+    });
+
+    // Set up event listeners for filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('bg-theme-primary', 'text-theme-text-onprimary');
+          b.classList.add('bg-theme-primary-50', 'text-theme-text-secondary');
+        });
+
+        btn.classList.remove('bg-theme-primary-50', 'text-theme-text-secondary');
+        btn.classList.add('bg-theme-primary', 'text-theme-text-onprimary');
+
+        activeGenre = btn.textContent.trim();
+        filterGames();
+      });
+    });
+
+    // Set up event listeners for favorites tab buttons
+    document.querySelectorAll('.favorites-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.favorites-tab-btn').forEach(b => {
+          b.classList.remove('text-theme-primary', 'border-theme-primary');
+          b.classList.add('text-theme-text-secondary', 'border-transparent');
+        });
+
+        btn.classList.remove('text-theme-text-secondary', 'border-transparent');
+        btn.classList.add('text-theme-primary', 'border-theme-primary');
+
+        activeFavoritesTab = btn.textContent.trim();
+        filterGames();
+      });
+    });
+
+    // Set up event listener for search input
+    document.querySelector('.search-bar input').addEventListener('input', filterGames);
+
+    // Set up event listeners for modal
+    document.getElementById('closeModal').addEventListener('click', () => {
+      document.getElementById('descriptionModal').classList.add('hidden');
+    });
+
+    document.getElementById('descriptionModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('descriptionModal')) {
+        document.getElementById('descriptionModal').classList.add('hidden');
+      }
+    });
+
+    // Initialize the UI - hide favorites tabs initially if not on Favorites category
+    if (activeCategory !== 'Favorites') {
+      document.querySelector('.favorites-tabs').classList.add('hidden');
+    }
+
+  </script>
+</body>
+</html>

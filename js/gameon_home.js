@@ -34,36 +34,37 @@ function getThumbnailHTML(game, isListView = false) {
   }
 }
 
-function getActionButtonHTML(game, isListView = false, isInline = false) {
-  if (isListView) {
-    return `<div class="flex space-x-1">
-      <button class="publish-button px-3 py-1 bg-transparent" data-game-id="${game.game_id}" >
-        <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
-      </button>
-      <button class="play-button px-4 py-1 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
-        Play
-      </button>
-    </div>`;
-  } else if (isInline) {
-    return `<div class="flex space-x-1">
-      <button class="publish-button px-3 py-2 bg-transparent" data-game-id="${game.game_id}" >
-        <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
-      </button>
-      <button class="play-button px-4 py-2 text-sm font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
-        Play
-      </button>
-    </div>`;
-  } else {
-    return `<div class="flex space-x-2 mt-2">
-      <button class="publish-button px-2 py-2 bg-transparent" data-game-id="${game.game_id}" ">
-        <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
-      </button>
-      <button class="play-button w-full py-2 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
-        <i class="fas fa-play mr-2"></i> Play
-      </button>
-    </div>`;
-  }
-}
+
+// function getActionButtonHTML(game, isListView = false, isInline = false) {
+//   if (isListView) {
+//     return `<div class="flex space-x-1">
+//       <button class="publish-button px-3 py-1 bg-transparent" data-game-id="${game.game_id}" >
+//         <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+//       </button>
+//       <button class="play-button px-4 py-1 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+//         Play
+//       </button>
+//     </div>`;
+//   } else if (isInline) {
+//     return `<div class="flex space-x-1">
+//       <button class="publish-button px-3 py-2 bg-transparent" data-game-id="${game.game_id}" >
+//         <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+//       </button>
+//       <button class="play-button px-4 py-2 text-sm font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+//         Play
+//       </button>
+//     </div>`;
+//   } else {
+//     return `<div class="flex space-x-2 mt-2">
+//       <button class="publish-button px-2 py-2 bg-transparent" data-game-id="${game.game_id}" ">
+//         <i class="fas fa-share-alt ${game.is_published ? 'text-green-500' : 'text-gray-400'}"></i>
+//       </button>
+//       <button class="play-button w-full py-2 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+//         <i class="fas fa-play mr-2"></i> Play
+//       </button>
+//     </div>`;
+//   }
+// }
 
 function getFavoriteButtonHTML(game, isFavorite, isListView = false) {
   const favoriteClass = isFavorite ? 'text-red-500' : 'text-gray-400';
@@ -79,6 +80,29 @@ function getFavoriteButtonHTML(game, isFavorite, isListView = false) {
   </div>`;
 }
 
+function renderGames(games) {
+  // Hide all empty states first
+  hideAllEmptyStates();
+
+  // If no games match the current filter, show the appropriate empty state
+  if (games.length === 0) {
+    showEmptyStateForCurrentTab();
+    document.getElementById('gameGrid').classList.add('hidden');
+    document.getElementById('gameList').classList.add('hidden');
+    return;
+  }
+
+  // If we have games to display, show them in the appropriate view
+  if (currentView === 'grid') {
+    renderGameGrid(games);
+    document.getElementById('gameGrid').classList.remove('hidden');
+    document.getElementById('gameList').classList.add('hidden');
+  } else {
+    renderGameList(games);
+    document.getElementById('gameGrid').classList.add('hidden');
+    document.getElementById('gameList').classList.remove('hidden');
+  }
+}
 
 function setupCardEventListeners(card, game) {
   const showDescription = () => {
