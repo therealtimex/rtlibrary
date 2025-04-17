@@ -104,6 +104,128 @@ function renderGames(games) {
   }
 }
 
+
+function hideAllEmptyStates() {
+  // Hide all empty states
+  document.getElementById('emptyStateMyGames').classList.add('hidden');
+  document.getElementById('emptyStateTrending').classList.add('hidden');
+  document.getElementById('emptyStateAllFavorites').classList.add('hidden');
+  document.getElementById('emptyStateFavoritesMyGames').classList.add('hidden');
+  document.getElementById('emptyStateFavoritesCommunity').classList.add('hidden');
+}
+
+
+function renderGameGrid(games,currentUsername) {
+  const gameGrid = document.getElementById('gameGrid');
+  gameGrid.innerHTML = '';
+
+  games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  games.forEach(game => {
+    const card = document.createElement('div');
+    card.className = 'game-card flex flex-col h-full';
+
+    const isFavorite = game.user_favorites && game.user_favorites.some(fav => fav.is_favorite === true);
+    let rating;
+    if (game.game_summary && game.game_summary.average_rating != null) {
+      rating = game.game_summary.average_rating;
+    } else {
+      rating = (game.username === 'rta') ? ((Math.floor(Math.random() * 4) + 7) / 2) : 0;
+    }
+
+    card.innerHTML = `
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden relative">
+      ${getFavoriteButtonHTML(game, isFavorite)}
+      ${getThumbnailHTML(game)}
+      <div class="p-3">
+        <h5 class="text-lg font-bold text-gray-800">${game.title}</h5>
+        <div class="flex items-center justify-between mt-1">
+          <div class="flex items-center">
+            <span class="text-yellow-500 mr-1"><i class="fas fa-star"></i></span>
+            <span class="font-medium text-sm">${rating.toFixed(1)}</span>
+            <span class="ml-4 text-gray-500 cursor-pointer">
+              <i class="fas fa-comment-dots"></i>
+            </span>
+          </div>
+          ${getActionButtonHTML(game, false, true)}
+        </div>
+      </div>
+    </div>`;
+
+    setupCardEventListeners(card, game);
+    gameGrid.appendChild(card);
+  });
+}
+
+function renderGameList(games,currentUsername) {
+  const gameList = document.getElementById('gameList');
+  gameList.innerHTML = '';
+
+  games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  games.forEach(game => {
+    const listItem = document.createElement('div');
+    listItem.className = 'game-list-item bg-white shadow-sm rounded-lg overflow-hidden mb-2';
+
+    const isFavorite = game.user_favorites && game.user_favorites.some(fav => fav.is_favorite === true);
+    let rating;
+    if (game.game_summary && game.game_summary.average_rating != null) {
+      rating = game.game_summary.average_rating;
+    } else {
+      rating = (game.username === 'rta') ? ((Math.floor(Math.random() * 4) + 7) / 2) : 0;
+    }
+
+    let plays;
+    if (game.game_summary && game.game_summary.play_count != null) {
+      plays = game.game_summary.play_count;
+      if (game.username === 'rta') {
+        plays += 10000;
+      }
+    } else {
+      if (game.username === 'rta') {
+        plays = Math.floor(Math.random() * 5000) + 10000;
+      } else if (game.username === currentUsername) {
+        plays = 0;
+      } else {
+        plays = 0;
+      }
+    }
+
+    const gameCategory = (game.game_genres && game.game_genres.length > 0 && game.game_genres[0].genres && game.game_genres[0].genres.name);
+
+    listItem.innerHTML = `
+    <div class="flex p-3">
+      <div class="mr-3">
+        ${getThumbnailHTML(game, true)}
+      </div>
+      <div class="flex flex-col flex-grow">
+        <h5 class="text-base font-bold text-gray-800 cursor-pointer">${game.title}</h5>
+        <div class="text-sm text-gray-600">
+          ${gameCategory || 'Game'} <span class="mx-1">•</span> ${plays.toLocaleString()} plays
+        </div>
+        <div class="flex items-center justify-between mt-auto">
+          <div class="flex items-center">
+            <span class="text-yellow-500 mr-1"><i class="fas fa-star"></i></span>
+            <span class="font-medium text-sm mr-0.5">${rating.toFixed(1)}</span>
+            <span class="ml-1 text-gray-500 cursor-pointer">
+              <i class="fas fa-comment-dots"></i>
+            </span>
+          </div>
+          <div class="flex items-center">
+            ${getFavoriteButtonHTML(game, isFavorite, true)}
+            ${getActionButtonHTML(game, true)}
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+    setupListItemEventListeners(listItem, game);
+    gameList.appendChild(listItem);
+  });
+}
+
+
+
 function setupCardEventListeners(card, game) {
   const showDescription = () => {
     document.getElementById('modalTitle').textContent = game.title;
