@@ -1,4 +1,4 @@
-         const $=id=>document.getElementById(id);
+const $=id=>document.getElementById(id);
          const monthTitle=$('month-title');
          const weekTitle=$('week-title');
          const weekView=$('week-view');
@@ -89,8 +89,8 @@
          "collapse":{"field":"keyid_ins.raw"},
          "_source":{"includes":["rta_time_fm","view_mark","view_mark_lb","erp_salary_unit","chkin_time","chkout_time","erp_shift_lb","rta_date","hr_month","hr_year","nb_count","keyid_ins","erp_shift_id","rta_shift_id","chkin_time_fm","shift_lb_en","shift_lb_vi"]},
          "query":{"bool":{"must":[
-         {"term":{"project_code.raw":{"value":"C026"}}},
-         {"term":{"username.raw":{"value":"rta_phuongtran"}}},
+         {"term":{"project_code.raw":{"value":"##projectCode##"}}},
+         {"term":{"username.raw":{"value":"##user.username##"}}},
          {"range":{"hr_year":{"gte":"now/y"}}}
          ]}},
          "sort":[{"endtime":{"order":"desc"}}]
@@ -104,8 +104,8 @@
          "collapse":{"field":"keyid_ins.raw"},
          "_source":{"includes":["leave_status_id","erp_shift_lb","rta_date","hr_month","hr_year","nb_count","keyid_ins","rta_loainghi"]},
          "query":{"bool":{"must":[
-         {"term":{"project_code.raw":{"value":"C026"}}},
-         {"term":{"username.raw":{"value":"rta_phuongtran"}}},
+         {"term":{"project_code.raw":{"value":"##projectCode##"}}},
+         {"term":{"username.raw":{"value":"##user.username##"}}},
          {"range":{"hr_year":{"gte":"now/y"}}}
          ]}},
          "sort":[{"endtime":{"order":"desc"}}]
@@ -120,7 +120,7 @@
          "_source":{"includes":["erp_holiday_status_id","erp_holiday_lb","erp_shift_lb","rta_date","hr_month","hr_year","nb_count","keyid_ins"]},
          "query":{"bool":{"must":[
          {"range":{"nb_count":{"gt":"0"}}},
-         {"term":{"project_code.raw":{"value":"C026"}}}
+         {"term":{"project_code.raw":{"value":"##projectCode##"}}}
          ]}},
          "sort":[{"endtime":{"order":"desc"}}]
          })
@@ -362,12 +362,12 @@
          function toggleView(){
          isMonthView=!isMonthView;
          if(isMonthView){
-         expandToggle.textContent='▲ Thu gọn';
+         expandToggle.textContent='▲';
          calendarView.style.maxHeight='800px';
          monthHeader.style.display='flex';
          weekHeader.style.display='none';
          }else{
-         expandToggle.textContent='▼ Xem thêm';
+         expandToggle.textContent='▼';
          calendarView.style.maxHeight='150px';
          monthHeader.style.display='none';
          weekHeader.style.display='flex';
@@ -405,7 +405,7 @@
          renderWeekView();
          }
          function viewCheckinHistory(){
-         var json='{\"type\":\"act_dm_view\",\"alias\":\"t72ep_t72ep01a1\",\"post\":\"{\\\"size\\\":300,\\\"collapse\\\":{\\\"field\\\":\\\"key_ins.raw\\\"},\\\"query\\\":{\\\"bool\\\":{\\\"must\\\":[{\\\"term\\\":{\\\"project_code.raw\\\":{\\\"value\\\":\\\"C026\\\"}}},{\\\"term\\\":{\\\"username.raw\\\":{\\\"value\\\":\\\"rta_phuongtran\\\"}}},{\\\"range\\\":{\\\"rta_date\\\":{\\\"gt\\\":\\\"2024-12-31\\\"}}}]}},\\\"sort\\\":[{\\\"endtime\\\":{\\\"order\\\":\\\"desc\\\"}}]}\"}';
+         var json='{\"type\":\"act_dm_view\",\"alias\":\"t72ep_t72ep01a1\",\"post\":\"{\\\"size\\\":300,\\\"collapse\\\":{\\\"field\\\":\\\"key_ins.raw\\\"},\\\"query\\\":{\\\"bool\\\":{\\\"must\\\":[{\\\"term\\\":{\\\"project_code.raw\\\":{\\\"value\\\":\\\"##projectCode##\\\"}}},{\\\"term\\\":{\\\"username.raw\\\":{\\\"value\\\":\\\"##user.username##\\\"}}},{\\\"range\\\":{\\\"rta_date\\\":{\\\"gt\\\":\\\"2024-12-31\\\"}}}]}},\\\"sort\\\":[{\\\"endtime\\\":{\\\"order\\\":\\\"desc\\\"}}]}\"}';
          App.callActionButton(json);
          }
          expandToggle.addEventListener('click',toggleView);
@@ -430,8 +430,8 @@
          let buttons=[];
          const BTN={
          checkin_qr:{
-         label:'Tại văn phòng',
-         icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="6" height="6" stroke="currentColor" stroke-width="2" rx="2"/><rect x="15" y="3" width="6" height="6" stroke="currentColor" stroke-width="2" rx="2"/><rect x="3" y="15" width="6" height="6" stroke="currentColor" stroke-width="2" rx="2"/><rect x="9" y="9" width="6" height="6" fill="currentColor" fill-opacity="0.12"/><rect x="17" y="17" width="2" height="2" fill="currentColor"/><rect x="13" y="17" width="2" height="2" fill="currentColor"/><rect x="17" y="13" width="2" height="2" fill="currentColor"/></svg>`,
+         label:'QR',
+         icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="6" height="6" stroke="currentColor" stroke-width="4" rx="2"/><rect x="15" y="3" width="6" height="6" stroke="currentColor" stroke-width="4" rx="2"/><rect x="3" y="15" width="6" height="6" stroke="currentColor" stroke-width="4" rx="2"/><rect x="9" y="9" width="6" height="6" fill="currentColor" fill-opacity="0.12"/><rect x="17" y="17" width="2" height="2" fill="currentColor"/><rect x="13" y="17" width="2" height="2" fill="currentColor"/><rect x="17" y="13" width="2" height="2" fill="currentColor"/></svg>`,
          onClick:function(){
          if(!latestCheckin)return;
          const json={
@@ -454,7 +454,7 @@
          },
          checkin_remote:{
          label:'Từ xa',
-         icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.12"/><ellipse cx="12" cy="12" rx="7" ry="9" stroke="currentColor" stroke-width="2"/><line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="3" x2="12" y2="21" stroke="currentColor" stroke-width="2"/></svg>`,
+         icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M24 6C16.268 6 10 12.268 10 20c0 7.732 10.5 18 14 21.5C27.5 38 38 27.732 38 20c0-7.732-6.268-14-14-14Z" stroke="currentColor" stroke-width="7" fill="none"/><circle cx="24" cy="20" r="5" stroke="currentColor" stroke-width="3" fill="none"/><path d="M34 41a10 4 0 1 1-20 0" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`,
          onClick:function(){
          if(!latestCheckin)return;
          const json={
@@ -508,7 +508,7 @@
          },
          checkout_qr:{
          label:'QR',
-         icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="6" height="6" stroke="currentColor" stroke-width="2" rx="2"/><rect x="15" y="3" width="6" height="6" stroke="currentColor" stroke-width="2" rx="2"/><rect x="3" y="15" width="6" height="6" stroke="currentColor" stroke-width="2" rx="2"/><rect x="9" y="9" width="6" height="6" fill="currentColor" fill-opacity="0.12"/><rect x="17" y="17" width="2" height="2" fill="currentColor"/><rect x="13" y="17" width="2" height="2" fill="currentColor"/><rect x="17" y="13" width="2" height="2" fill="currentColor"/></svg>`,
+         icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="6" height="6" stroke="currentColor" stroke-width="4" rx="2"/><rect x="15" y="3" width="6" height="6" stroke="currentColor" stroke-width="4" rx="2"/><rect x="3" y="15" width="6" height="6" stroke="currentColor" stroke-width="4" rx="2"/><rect x="9" y="9" width="6" height="6" fill="currentColor" fill-opacity="0.12"/><rect x="17" y="17" width="2" height="2" fill="currentColor"/><rect x="13" y="17" width="2" height="2" fill="currentColor"/><rect x="17" y="13" width="2" height="2" fill="currentColor"/></svg>`,
          onClick:function(){
          if(!latestCheckin)return;
          const json={
@@ -538,7 +538,7 @@
          },
          checkout_remote:{
          label:'Từ xa',
-         icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M24 6C16.268 6 10 12.268 10 20c0 7.732 10.5 18 14 21.5C27.5 38 38 27.732 38 20c0-7.732-6.268-14-14-14Z" stroke="currentColor" stroke-width="3" fill="none"/><circle cx="24" cy="20" r="5" stroke="currentColor" stroke-width="3" fill="none"/><path d="M34 41a10 4 0 1 1-20 0" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
+         icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M24 6C16.268 6 10 12.268 10 20c0 7.732 10.5 18 14 21.5C27.5 38 38 27.732 38 20c0-7.732-6.268-14-14-14Z" stroke="currentColor" stroke-width="7" fill="none"/><circle cx="24" cy="20" r="5" stroke="currentColor" stroke-width="3" fill="none"/><path d="M34 41a10 4 0 1 1-20 0" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`,
          onClick:function(){
          if(!latestCheckin)return;
          const json={
@@ -628,3 +628,32 @@
          renderAttendanceActions(view_mark);
          }
          updateAttendanceActions();
+         
+         
+         
+         const actionBarScroll = document.querySelector('.action-bar-scroll');
+         const dots = document.querySelectorAll('.indicator-dot');
+         const iconsPerRow = 4;
+         const rows = 2;
+         const iconsPerPage = iconsPerRow * rows;
+         const itemWidth = actionBarScroll.querySelector('.action-bar-item').offsetWidth + 18; // 18 là gap
+         const pageWidth = itemWidth * iconsPerRow;
+         
+         // Đếm tổng số trang dựa trên số lượng items
+         const totalItems = document.querySelectorAll('.action-bar-item').length;
+         const totalPages = Math.ceil(totalItems / iconsPerPage);
+         
+         dots.forEach((dot, idx) => {
+         dot.addEventListener('click', function() {
+         // Đảm bảo icon đầu tiên của trang luôn ở mép trái
+         actionBarScroll.style.transform = `translateX(-${idx * pageWidth}px)`;
+         
+         // Cập nhật trạng thái active cho indicators
+         dots.forEach(d => d.classList.remove('active'));
+         this.classList.add('active');
+         });
+         });
+         
+         // Thiết lập ban đầu: trang đầu tiên active, indicator bên trái active
+         dots[0].classList.add('active');
+         actionBarScroll.style.transform = 'translateX(0)';
