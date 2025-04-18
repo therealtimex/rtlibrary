@@ -89,8 +89,8 @@ const $=id=>document.getElementById(id);
          "collapse":{"field":"keyid_ins.raw"},
          "_source":{"includes":["rta_time_fm","view_mark","view_mark_lb","erp_salary_unit","chkin_time","chkout_time","erp_shift_lb","rta_date","hr_month","hr_year","nb_count","keyid_ins","erp_shift_id","rta_shift_id","chkin_time_fm","shift_lb_en","shift_lb_vi"]},
          "query":{"bool":{"must":[
-         {"term":{"project_code.raw":{"value":"C026"}}},
-         {"term":{"username.raw":{"value":"rta_phuongtran"}}},
+         {"term":{"project_code.raw":{"value":"##projectCode##"}}},
+         {"term":{"username.raw":{"value":"##user.username##"}}},
          {"range":{"hr_year":{"gte":"now/y"}}}
          ]}},
          "sort":[{"endtime":{"order":"desc"}}]
@@ -104,8 +104,8 @@ const $=id=>document.getElementById(id);
          "collapse":{"field":"keyid_ins.raw"},
          "_source":{"includes":["leave_status_id","erp_shift_lb","rta_date","hr_month","hr_year","nb_count","keyid_ins","rta_loainghi"]},
          "query":{"bool":{"must":[
-         {"term":{"project_code.raw":{"value":"C026"}}},
-         {"term":{"username.raw":{"value":"rta_phuongtran"}}},
+         {"term":{"project_code.raw":{"value":"##projectCode##"}}},
+         {"term":{"username.raw":{"value":"##user.username##"}}},
          {"range":{"hr_year":{"gte":"now/y"}}}
          ]}},
          "sort":[{"endtime":{"order":"desc"}}]
@@ -120,7 +120,7 @@ const $=id=>document.getElementById(id);
          "_source":{"includes":["erp_holiday_status_id","erp_holiday_lb","erp_shift_lb","rta_date","hr_month","hr_year","nb_count","keyid_ins"]},
          "query":{"bool":{"must":[
          {"range":{"nb_count":{"gt":"0"}}},
-         {"term":{"project_code.raw":{"value":"C026"}}}
+         {"term":{"project_code.raw":{"value":"##projectCode##"}}}
          ]}},
          "sort":[{"endtime":{"order":"desc"}}]
          })
@@ -316,7 +316,7 @@ const $=id=>document.getElementById(id);
          <span class="event-count">${event.nb_count||'0'} công</span>
          </div>
          <div class="event-details">
-         Check-in: ${event.chkin_time||'N/A'} - Check-out: ${event.chkout_time||'N/A'}
+         Check-in: ${event.chkin_time||'N/A'}<br>Check-out: ${event.chkout_time||'N/A'}
          </div>
          </div>
          `;
@@ -631,29 +631,87 @@ const $=id=>document.getElementById(id);
          
          
          
-         const actionBarScroll = document.querySelector('.action-bar-scroll');
-         const dots = document.querySelectorAll('.indicator-dot');
-         const iconsPerRow = 4;
-         const rows = 2;
-         const iconsPerPage = iconsPerRow * rows;
-         const itemWidth = actionBarScroll.querySelector('.action-bar-item').offsetWidth + 18; // 18 là gap
-         const pageWidth = itemWidth * iconsPerRow;
-         
-         // Đếm tổng số trang dựa trên số lượng items
-         const totalItems = document.querySelectorAll('.action-bar-item').length;
-         const totalPages = Math.ceil(totalItems / iconsPerPage);
-         
-         dots.forEach((dot, idx) => {
-         dot.addEventListener('click', function() {
-         // Đảm bảo icon đầu tiên của trang luôn ở mép trái
-         actionBarScroll.style.transform = `translateX(-${idx * pageWidth}px)`;
-         
-         // Cập nhật trạng thái active cho indicators
-         dots.forEach(d => d.classList.remove('active'));
-         this.classList.add('active');
-         });
-         });
-         
-         // Thiết lập ban đầu: trang đầu tiên active, indicator bên trái active
-         dots[0].classList.add('active');
-         actionBarScroll.style.transform = 'translateX(0)';
+          document.addEventListener('DOMContentLoaded', function () {
+      const actionBarScroll = document.querySelector('.action-bar-scroll');
+      const items = Array.from(document.querySelectorAll('.action-bar-item'));
+      const indicatorBar = document.querySelector('.indicator-bar');
+      let currentPage = 0;
+
+      function getIconsPerPage() {
+        // Tính số icon vừa khít chiều rộng khung ngoài
+        const containerWidth = document.querySelector('.action-bar-outer').clientWidth;
+        const itemWidth = items[0].offsetWidth + 18; // 18 là gap
+        return Math.max(1, Math.floor((containerWidth + 2) / itemWidth)); // +2 để tránh lỗi làm tròn
+      }
+
+      function getTotalPages() {
+        const iconsPerPage = getIconsPerPage();
+        if (items.length <= iconsPerPage) return 1;
+        return Math.ceil(items.length / iconsPerPage);
+      }
+
+      function updateCarousel(pageIdx) {
+        const iconsPerPage = getIconsPerPage();
+        const itemWidth = items[0].offsetWidth + 18;
+        const maxTranslate = Math.max(0, (items.length - iconsPerPage) * itemWidth);
+        let translate = pageIdx * iconsPerPage * itemWidth;
+        if (translate > maxTranslate) translate = maxTranslate;
+        actionBarScroll.style.transform = `translateX(-${translate}px)`;
+        currentPage = pageIdx;
+        // Update dots
+        document.querySelectorAll('.indicator-dot').forEach((dot, i) => {
+          dot.classList.toggle('active', i === currentPage);
+        });
+      }
+
+      function renderIndicators() {
+        indicatorBar.innerHTML = '';
+        const totalPages = getTotalPages();
+        if (totalPages <= 1) {
+          indicatorBar.style.display = 'none';
+          return;
+        }
+        indicatorBar.style.display = 'flex';
+        for (let i = 0; i < totalPages; i++) {
+          const dot = document.createElement('div');
+          dot.className = 'indicator-dot' + (i === currentPage ? ' active' : '');
+          dot.addEventListener('click', () => updateCarousel(i));
+          indicatorBar.appendChild(dot);
+        }
+      }
+
+      // Swipe gesture
+      let touchStartX = 0;
+      let touchEndX = 0;
+      actionBarScroll.addEventListener('touchstart', function (e) {
+        if (e.touches.length === 1) {
+          touchStartX = e.touches[0].clientX;
+        }
+      }, {passive: true});
+      actionBarScroll.addEventListener('touchmove', function (e) {
+        if (e.touches.length === 1) {
+          touchEndX = e.touches[0].clientX;
+        }
+      }, {passive: true});
+      actionBarScroll.addEventListener('touchend', function (e) {
+        if (touchStartX && touchEndX) {
+          const dx = touchEndX - touchStartX;
+          const threshold = 30;
+          if (dx < -threshold && currentPage < getTotalPages() - 1) {
+            updateCarousel(currentPage + 1);
+          } else if (dx > threshold && currentPage > 0) {
+            updateCarousel(currentPage - 1);
+          }
+        }
+        touchStartX = 0;
+        touchEndX = 0;
+      }, {passive: true});
+
+      // Khởi tạo và cập nhật khi resize
+      function rerenderAll() {
+        renderIndicators();
+        updateCarousel(0);
+      }
+      rerenderAll();
+      window.addEventListener('resize', rerenderAll);
+    });
