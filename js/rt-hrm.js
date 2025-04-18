@@ -89,8 +89,8 @@ const $=id=>document.getElementById(id);
          "collapse":{"field":"keyid_ins.raw"},
          "_source":{"includes":["rta_time_fm","view_mark","view_mark_lb","erp_salary_unit","chkin_time","chkout_time","erp_shift_lb","rta_date","hr_month","hr_year","nb_count","keyid_ins","erp_shift_id","rta_shift_id","chkin_time_fm","shift_lb_en","shift_lb_vi"]},
          "query":{"bool":{"must":[
-         {"term":{"project_code.raw":{"value":"##projectCode##"}}},
-         {"term":{"username.raw":{"value":"##user.username##"}}},
+         {"term":{"project_code.raw":{"value":"C026"}}},
+         {"term":{"username.raw":{"value":"rta_phuongtran"}}},
          {"range":{"hr_year":{"gte":"now/y"}}}
          ]}},
          "sort":[{"endtime":{"order":"desc"}}]
@@ -104,8 +104,8 @@ const $=id=>document.getElementById(id);
          "collapse":{"field":"keyid_ins.raw"},
          "_source":{"includes":["leave_status_id","erp_shift_lb","rta_date","hr_month","hr_year","nb_count","keyid_ins","rta_loainghi"]},
          "query":{"bool":{"must":[
-         {"term":{"project_code.raw":{"value":"##projectCode##"}}},
-         {"term":{"username.raw":{"value":"##user.username##"}}},
+         {"term":{"project_code.raw":{"value":"C026"}}},
+         {"term":{"username.raw":{"value":"rta_phuongtran"}}},
          {"range":{"hr_year":{"gte":"now/y"}}}
          ]}},
          "sort":[{"endtime":{"order":"desc"}}]
@@ -120,7 +120,7 @@ const $=id=>document.getElementById(id);
          "_source":{"includes":["erp_holiday_status_id","erp_holiday_lb","erp_shift_lb","rta_date","hr_month","hr_year","nb_count","keyid_ins"]},
          "query":{"bool":{"must":[
          {"range":{"nb_count":{"gt":"0"}}},
-         {"term":{"project_code.raw":{"value":"##projectCode##"}}}
+         {"term":{"project_code.raw":{"value":"C026"}}}
          ]}},
          "sort":[{"endtime":{"order":"desc"}}]
          })
@@ -405,7 +405,7 @@ const $=id=>document.getElementById(id);
          renderWeekView();
          }
          function viewCheckinHistory(){
-         var json='{\"type\":\"act_dm_view\",\"alias\":\"t72ep_t72ep01a1\",\"post\":\"{\\\"size\\\":300,\\\"collapse\\\":{\\\"field\\\":\\\"key_ins.raw\\\"},\\\"query\\\":{\\\"bool\\\":{\\\"must\\\":[{\\\"term\\\":{\\\"project_code.raw\\\":{\\\"value\\\":\\\"##projectCode##\\\"}}},{\\\"term\\\":{\\\"username.raw\\\":{\\\"value\\\":\\\"##user.username##\\\"}}},{\\\"range\\\":{\\\"rta_date\\\":{\\\"gt\\\":\\\"2024-12-31\\\"}}}]}},\\\"sort\\\":[{\\\"endtime\\\":{\\\"order\\\":\\\"desc\\\"}}]}\"}';
+         var json='{\"type\":\"act_dm_view\",\"alias\":\"t72ep_t72ep01a1\",\"post\":\"{\\\"size\\\":300,\\\"collapse\\\":{\\\"field\\\":\\\"key_ins.raw\\\"},\\\"query\\\":{\\\"bool\\\":{\\\"must\\\":[{\\\"term\\\":{\\\"project_code.raw\\\":{\\\"value\\\":\\\"C026\\\"}}},{\\\"term\\\":{\\\"username.raw\\\":{\\\"value\\\":\\\"rta_phuongtran\\\"}}},{\\\"range\\\":{\\\"rta_date\\\":{\\\"gt\\\":\\\"2024-12-31\\\"}}}]}},\\\"sort\\\":[{\\\"endtime\\\":{\\\"order\\\":\\\"desc\\\"}}]}\"}';
          App.callActionButton(json);
          }
          expandToggle.addEventListener('click',toggleView);
