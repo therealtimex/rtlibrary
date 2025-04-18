@@ -316,7 +316,7 @@ const $=id=>document.getElementById(id);
          <span class="event-count">${event.nb_count||'0'} công</span>
          </div>
          <div class="event-details">
-         Check-in: ${event.chkin_time||'N/A'}<br>Check-out: ${event.chkout_time||'N/A'}
+         Check-in: ${event.chkin_time||'N/A'}  <br>Check-out: ${event.chkout_time||'N/A'}
          </div>
          </div>
          `;
@@ -631,51 +631,73 @@ const $=id=>document.getElementById(id);
          
          
          
-          document.addEventListener('DOMContentLoaded', function () {
+         document.addEventListener('DOMContentLoaded', function () {
       const actionBarScroll = document.querySelector('.action-bar-scroll');
-      const items = Array.from(document.querySelectorAll('.action-bar-item'));
+      const items = document.querySelectorAll('.action-bar-item');
       const indicatorBar = document.querySelector('.indicator-bar');
       let currentPage = 0;
 
       function getIconsPerPage() {
-        // Tính số icon vừa khít chiều rộng khung ngoài
-        const containerWidth = document.querySelector('.action-bar-outer').clientWidth;
-        const itemWidth = items[0].offsetWidth + 18; // 18 là gap
-        return Math.max(1, Math.floor((containerWidth + 2) / itemWidth)); // +2 để tránh lỗi làm tròn
+        if (window.innerWidth < 400) return 3;
+        if (window.innerWidth < 600) return 4;
+        if (window.innerWidth < 800) return 5;
+        return 10;
       }
 
-      function getTotalPages() {
+      function calculateTotalPages() {
+        // Calculate how many icons fit on the screen
         const iconsPerPage = getIconsPerPage();
-        if (items.length <= iconsPerPage) return 1;
+        
+        // Calculate total width needed for all icons
+        const itemWidth = items[0].offsetWidth + 18; // 18 is the gap
+        const totalWidth = items.length * itemWidth;
+        const containerWidth = actionBarScroll.parentElement.clientWidth;
+        
+        // If all icons fit completely within the container, return 1 page
+        if (totalWidth <= containerWidth) {
+          return 1;
+        }
+        
+        // Otherwise calculate pages normally
         return Math.ceil(items.length / iconsPerPage);
       }
 
       function updateCarousel(pageIdx) {
-        const iconsPerPage = getIconsPerPage();
-        const itemWidth = items[0].offsetWidth + 18;
-        const maxTranslate = Math.max(0, (items.length - iconsPerPage) * itemWidth);
-        let translate = pageIdx * iconsPerPage * itemWidth;
-        if (translate > maxTranslate) translate = maxTranslate;
-        actionBarScroll.style.transform = `translateX(-${translate}px)`;
-        currentPage = pageIdx;
-        // Update dots
-        document.querySelectorAll('.indicator-dot').forEach((dot, i) => {
-          dot.classList.toggle('active', i === currentPage);
-        });
-      }
+  const iconsPerPage = getIconsPerPage();
+  const itemWidth = items[0].offsetWidth + 18; // 18 là gap
+  
+  // Ẩn tất cả icon
+  items.forEach(item => {
+    item.style.display = 'none';
+  });
+  
+  // Chỉ hiển thị icon thuộc trang hiện tại
+  const startIdx = pageIdx * iconsPerPage;
+  const endIdx = Math.min(startIdx + iconsPerPage, items.length);
+  
+  for (let i = startIdx; i < endIdx; i++) {
+    if (items[i]) {
+      items[i].style.display = 'flex';
+    }
+  }
+  
+  // Cập nhật dots
+  document.querySelectorAll('.indicator-dot').forEach(dot => dot.classList.remove('active'));
+  const dots = document.querySelectorAll('.indicator-dot');
+  if (dots[pageIdx]) dots[pageIdx].classList.add('active');
+}
 
       function renderIndicators() {
         indicatorBar.innerHTML = '';
-        const totalPages = getTotalPages();
-        if (totalPages <= 1) {
-          indicatorBar.style.display = 'none';
-          return;
-        }
-        indicatorBar.style.display = 'flex';
+        const totalPages = calculateTotalPages();
+
         for (let i = 0; i < totalPages; i++) {
           const dot = document.createElement('div');
           dot.className = 'indicator-dot' + (i === currentPage ? ' active' : '');
-          dot.addEventListener('click', () => updateCarousel(i));
+          dot.setAttribute('data-index', i);
+          dot.addEventListener('click', function () {
+            updateCarousel(i);
+          });
           indicatorBar.appendChild(dot);
         }
       }
@@ -684,34 +706,31 @@ const $=id=>document.getElementById(id);
       let touchStartX = 0;
       let touchEndX = 0;
       actionBarScroll.addEventListener('touchstart', function (e) {
-        if (e.touches.length === 1) {
-          touchStartX = e.touches[0].clientX;
-        }
-      }, {passive: true});
-      actionBarScroll.addEventListener('touchmove', function (e) {
-        if (e.touches.length === 1) {
-          touchEndX = e.touches[0].clientX;
-        }
-      }, {passive: true});
+        touchStartX = e.changedTouches[0].screenX;
+      });
       actionBarScroll.addEventListener('touchend', function (e) {
-        if (touchStartX && touchEndX) {
-          const dx = touchEndX - touchStartX;
-          const threshold = 30;
-          if (dx < -threshold && currentPage < getTotalPages() - 1) {
-            updateCarousel(currentPage + 1);
-          } else if (dx > threshold && currentPage > 0) {
-            updateCarousel(currentPage - 1);
-          }
+        touchEndX = e.changedTouches[0].screenX;
+        handleGesture();
+      });
+      function handleGesture() {
+        const threshold = 40;
+        const totalPages = calculateTotalPages();
+        if (touchEndX < touchStartX - threshold && currentPage < totalPages - 1) {
+          updateCarousel(currentPage + 1);
         }
-        touchStartX = 0;
-        touchEndX = 0;
-      }, {passive: true});
+        if (touchEndX > touchStartX + threshold && currentPage > 0) {
+          updateCarousel(currentPage - 1);
+        }
+      }
 
-      // Khởi tạo và cập nhật khi resize
       function rerenderAll() {
         renderIndicators();
         updateCarousel(0);
       }
+
+      // Khởi tạo ban đầu
       rerenderAll();
+
+      // Cập nhật khi resize màn hình
       window.addEventListener('resize', rerenderAll);
     });
