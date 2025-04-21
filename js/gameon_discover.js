@@ -106,17 +106,7 @@ function renderGameGrid(games) {
   const gameGrid = document.getElementById('gameGrid');
   gameGrid.innerHTML = '';
 
-  if (activeCategory == 'My Games') {
-    games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  } else if (activeCategory == 'Trending') {
-    games.sort((a, b) => ((b.game_trends && b.game_trends.trend_score) || 0) - ((a.game_trends && a.game_trends.trend_score) || 0));
-  } else if (activeCategory == 'Favorites') {
-    games.sort((a, b) => {
-      const aFav = (a.user_favorites && a.user_favorites[0] && a.user_favorites[0].created_at) || a.created_at;
-      const bFav = (b.user_favorites && b.user_favorites[0] && b.user_favorites[0].created_at) || b.created_at;
-      return new Date(bFav) - new Date(aFav);
-    });
-  }
+  games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   games.forEach(game => {
     const card = document.createElement('div');
@@ -158,17 +148,7 @@ function renderGameList(games) {
   const gameList = document.getElementById('gameList');
   gameList.innerHTML = '';
 
-  if (activeCategory == 'My Games') {
-    games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  } else if (activeCategory == 'Trending') {
-    games.sort((a, b) => ((b.game_trends && b.game_trends.trend_score) || 0) - ((a.game_trends && a.game_trends.trend_score) || 0));
-  } else if (activeCategory == 'Favorites') {
-    games.sort((a, b) => {
-      const aFav = (a.user_favorites && a.user_favorites[0] && a.user_favorites[0].created_at) || a.created_at;
-      const bFav = (b.user_favorites && b.user_favorites[0] && b.user_favorites[0].created_at) || b.created_at;
-      return new Date(bFav) - new Date(aFav);
-    });
-  }
+  games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   games.forEach(game => {
     const listItem = document.createElement('div');
