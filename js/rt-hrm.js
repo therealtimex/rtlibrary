@@ -683,13 +683,14 @@ function escapeBackticks(str) {
 }
 window.showNotifModal = function(title, html) {
   const modalBg = document.getElementById('modal-bg');
-  document.getElementById('notif-modal-title').innerHTML = title || '';
-  document.getElementById('notif-modal-body').innerHTML = html || '';
+  document.getElementById('modal-title2').innerHTML = title || '';
+  document.getElementById('modal-body2').innerHTML = html || '';
   modalBg.classList.add('show');
 }
 window.closeNotifModal = function() {
   document.getElementById('modal-bg').classList.remove('show');
 }
+
 document.getElementById('modal-bg').onclick = function(e) {
   if (e.target === this) closeNotifModal();
 };
