@@ -1,12 +1,3 @@
-function callActionQA() {
-  var json = '{\"type\":\"act_dm_view\",\"alias\":\"t72ep_t72ep01a9\",\"post\":\"{\\\"size\\\":1}\"}';
-  App.callActionButton(json);
-}
-
-function callActionArrow() {
-  var json = '{\"type\":\"act_dm_view\",\"alias\":\"t72ep_t72ep01a2\",\"post\":\"{\\\"size\\\":1}\"}';
-  App.callActionButton(json);
-}
 const $=id=>document.getElementById(id);
 const monthTitle=$('month-title');
 const weekTitle=$('week-title');
@@ -662,3 +653,44 @@ rerenderAll();
 // Cập nhật khi resize màn hình
 window.addEventListener('resize', rerenderAll);
 });
+
+function renderNotifCards(arr) {
+  const card = document.getElementById('notif-card');
+  card.innerHTML = arr.map(src => `
+    <div class="notif-item">
+      <div class="notif-img" style="background-image: url('${src.hrm_img || ''}');"></div>
+      <div class="notif-info">
+        <div class="notif-title" title="${src.title_vi || ''}">${src.title_vi || ''}</div>
+        <button class="notif-arrow" title="Xem chi tiết" onclick="showNotifModal('${escapeQuotes(src.title_vi)}', \`${escapeBackticks(src.hrm_html_vi)}\`)">
+          &#10095;
+        </button>
+      </div>
+      <div class="notif-time">
+        ${calendarIconSVG()}
+        <span>${src.endtime || ''}</span>
+      </div>
+    </div>
+  `).join('');
+}
+function calendarIconSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg>`;
+}
+function escapeQuotes(str) {
+  return String(str || '').replace(/'/g, "\\'");
+}
+function escapeBackticks(str) {
+  return String(str || '').replace(/`/g, '\\`');
+}
+window.showNotifModal = function(title, html) {
+  const modalBg = document.getElementById('modal-bg');
+  document.getElementById('notif-modal-title').innerHTML = title || '';
+  document.getElementById('notif-modal-body').innerHTML = html || '';
+  modalBg.classList.add('show');
+}
+window.closeNotifModal = function() {
+  document.getElementById('modal-bg').classList.remove('show');
+}
+document.getElementById('modal-bg').onclick = function(e) {
+  if (e.target === this) closeNotifModal();
+};
+fetchDataNotif();
