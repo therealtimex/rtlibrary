@@ -747,13 +747,12 @@ document.getElementById('modal-bg').onclick = function(e) {
 function closeModal2() {
   document.getElementById('modal-bg').classList.remove('show');
 }
-function sAll() {
-  fetchData();        // Cập nhật dữ liệu chấm công, nghỉ phép, nghỉ lễ, nút chấm công, lịch
-  fetchDataNotif();   // Cập nhật notif
+function autoRefreshAll() { 
+  fetchData();        
+  fetchDataNotif();   
 }
 
-// Gọi ngay khi trang load xong
 document.addEventListener('DOMContentLoaded', function() {
   autoRefreshAll();
-  setInterval(autoRefreshAll, 5000); // Tự động update mỗi 5s
+  setInterval(autoRefreshAll, 5000); 
 });
