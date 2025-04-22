@@ -654,6 +654,53 @@ rerenderAll();
 window.addEventListener('resize', rerenderAll);
 });
 
+// Hiển thị flash message
+function showFlashMessage(msg, duration = 1800) {
+  let flash = document.getElementById('flash-message');
+  if (!flash) {
+    flash = document.createElement('div');
+    flash.id = 'flash-message';
+    document.body.appendChild(flash);
+  }
+  flash.style.position = 'fixed';
+  flash.style.top = '32px';
+  flash.style.left = '50%';
+  flash.style.transform = 'translateX(-50%)';
+  flash.style.background = 'rgba(0,0,0,0.87)';
+  flash.style.color = '#fff';
+  flash.style.padding = '8px 18px';
+  flash.style.borderRadius = '8px';
+  flash.style.fontSize = '15px';
+  flash.style.zIndex = 9999;
+  flash.style.boxShadow = '0 2px 12px rgba(0,0,0,0.18)';
+  flash.style.opacity = 0;
+  flash.style.transition = 'opacity 0.2s';
+  flash.style.maxWidth = 'calc(100vw - 32px)';
+  flash.style.textAlign = 'center';
+  flash.style.pointerEvents = 'none';
+  flash.textContent = msg;
+  flash.style.opacity = 1;
+  setTimeout(() => {
+    flash.style.opacity = 0;
+  }, duration);
+}
+
+document.querySelectorAll('.action-bar-item').forEach(item => {
+  item.addEventListener('click', function() {
+    const action = this.getAttribute('data-action');
+    if (actionBarJson[action]) {
+      // Gọi hàm backend nếu có
+      if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+        App.callActionButton(JSON.stringify(actionBarJson[action]));
+      } else {
+        showFlashMessage('Không tìm thấy App.callActionButton');
+      }
+    } else {
+      showFlashMessage('Tính năng chưa hỗ trợ');
+    }
+  });
+});
+
 function renderNotifCards(arr) {
   const card = document.getElementById('notif-card');
   card.innerHTML = arr.map((src, idx) => `
@@ -697,8 +744,16 @@ window.closeNotifModal = function() {
 document.getElementById('modal-bg').onclick = function(e) {
   if (e.target === this) closeNotifModal();
 };
-fetchDataNotif();
-
 function closeModal2() {
   document.getElementById('modal-bg').classList.remove('show');
 }
+function sAll() {
+  fetchData();        // Cập nhật dữ liệu chấm công, nghỉ phép, nghỉ lễ, nút chấm công, lịch
+  fetchDataNotif();   // Cập nhật notif
+}
+
+// Gọi ngay khi trang load xong
+document.addEventListener('DOMContentLoaded', function() {
+  autoRefreshAll();
+  setInterval(autoRefreshAll, 5000); // Tự động update mỗi 5s
+});
