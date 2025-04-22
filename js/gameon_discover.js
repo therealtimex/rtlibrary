@@ -106,7 +106,7 @@ function renderGameGrid(games) {
   const gameGrid = document.getElementById('gameGrid');
   gameGrid.innerHTML = '';
 
-  games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  // games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   games.forEach(game => {
     const card = document.createElement('div');
@@ -148,7 +148,7 @@ function renderGameList(games) {
   const gameList = document.getElementById('gameList');
   gameList.innerHTML = '';
 
-  games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  // games.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   games.forEach(game => {
     const listItem = document.createElement('div');
