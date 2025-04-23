@@ -88,7 +88,7 @@ return sorted[0];
 }
 function updateLastCheckinInfo(checkin){
 if(!checkin){
-lastCheckinTime.textContent='N/A';
+lastCheckinTime.textContent='--:--';
 statusIndicator.className='status-indicator';
 return;
 }
@@ -191,13 +191,13 @@ const leaveEvents=filterEventsByDate(leaveData,formattedDate);
 const holidayEvents=filterEventsByDate(holidayData,formattedDate);
 const zeroEvents=filterEventsByDate(zeroWorkData,formattedDate);
 if(attendanceEvents.length>0){
-addEventDot(eventDots,'attendance',calculateTotalCount(attendanceEvents));
+addEventDot(eventDots,'attendance',calculateTotalCount(attendanceEvents), formattedDate);
 }
 if(leaveEvents.length>0){
-addEventDot(eventDots,'leave',calculateTotalCount(leaveEvents));
+addEventDot(eventDots,'leave',calculateTotalCount(leaveEvents), formattedDate);
 }
 if(holidayEvents.length>0){
-addEventDot(eventDots,'holiday',calculateTotalCount(holidayEvents));
+addEventDot(eventDots,'holiday',calculateTotalCount(holidayEvents), formattedDate);
 }
 if(zeroEvents.length>0&&(attendanceEvents.length>0||leaveEvents.length>0||holidayEvents.length>0)){
 addEventDot(eventDots,'zero',0);
@@ -207,7 +207,7 @@ cell.addEventListener('click',()=>{
 showEventDetails(formattedDate,attendanceEvents,leaveEvents,holidayEvents);
 });
 }
-return cell;
+return cell; 
 }
 function filterEventsByDate(events,dateString){
 return events.filter(event=>event.rta_date===dateString);
@@ -217,13 +217,29 @@ return events.reduce((total,event)=>{
 return total+parseFloat(event.nb_count||0);
 },0).toFixed(1);
 }
-function addEventDot(container,type,count){
-if(type==='zero'||parseFloat(count)<=0){return;}
-const dot=document.createElement('div');
-dot.className=`event-dot ${type}`;
-dot.textContent=count;
-container.appendChild(dot);
+
+
+function addEventDot(container, type, count, dateStr) {
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0]; 
+  if (['attendance', 'leave', 'holiday'].includes(type)) {
+    const parsedCount = parseFloat(count);
+    if (dateStr === todayStr) {
+      const dot = document.createElement('div');
+      dot.className = `event-dot ${type}`;
+      dot.textContent = Number.parseFloat(parsedCount.toFixed(1));
+      container.appendChild(dot);
+      return;
+    }
+    if (parsedCount > 0) {
+      const dot = document.createElement('div');
+      dot.className = `event-dot ${type}`;
+      dot.textContent = Number.parseFloat(parsedCount.toFixed(1));
+      container.appendChild(dot);
+    }
+  }
 }
+
 function showEventDetails(date,attendanceEvents,leaveEvents,holidayEvents){
 const formattedDate=formatDate(date);
 modalTitle.textContent=`Chi tiết ngày ${formattedDate}`;
@@ -238,7 +254,7 @@ content+=`
 <span class="event-count">${event.nb_count||'0'} công</span>
 </div>
 <div class="event-details">
-Check-in: ${event.chkin_time||'N/A'}  <br>Check-out: ${event.chkout_time||'N/A'}
+IN: ${event.chkin_time||'--:--'}  <br>OUT: ${event.chkout_time||'--:--'}
 </div>
 </div>
 `;
