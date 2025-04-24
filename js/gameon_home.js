@@ -244,8 +244,12 @@ function hideAllEmptyStates() {
 
 function setupCardEventListeners(card, game) {
   const showDescription = () => {
+    const author = (game.users?.user_profiles?.display_name)|| game.username
     document.getElementById('modalTitle').textContent = game.title;
-    document.getElementById('modalDescription').textContent = game.description || 'No description available.';
+    document.getElementById('modalDescription').innerHTML = `
+    <p>${game.description || 'No description available.'}</p>
+    <p class="mt-2 text-sm text-gray-500">Author: ${author}</p>
+    `;
     document.getElementById('descriptionModal').classList.remove('hidden');
   };
 
@@ -294,8 +298,12 @@ function setupListItemEventListeners(listItem, game) {
   const titleElement = listItem.querySelector('h5');
 
   const showDescription = () => {
+    const author = (game.users?.user_profiles?.display_name)|| game.username
     document.getElementById('modalTitle').textContent = game.title;
-    document.getElementById('modalDescription').textContent = game.description || 'No description available.';
+    document.getElementById('modalDescription').innerHTML = `
+    <p>${game.description || 'No description available.'}</p>
+    <p class="mt-2 text-sm text-gray-500">Author: ${author}</p>
+    `;
     document.getElementById('descriptionModal').classList.remove('hidden');
   };
 
