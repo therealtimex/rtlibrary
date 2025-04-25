@@ -32,7 +32,7 @@ let zeroWorkData=[];
 let latestCheckin=null;
 adjustToMonday(weekStartDate);
 const monthNames=["Tháng 1","Tháng 2","Tháng 3","Tháng 4","Tháng 5","Tháng 6","Tháng 7","Tháng 8","Tháng 9","Tháng 10","Tháng 11","Tháng 12"];
-const weekdayNames=["CN","Th2","Th3","Th4","Th5","Th6","Th7"];
+const weekdayNames=["CN","T2","T3","T4","T5","T6","T7"];
 function formatDate(dateString){
 if(!dateString)return'N/A';
 const parts=dateString.split('-');
@@ -202,7 +202,7 @@ addEventDot(eventDots,'holiday',calculateTotalCount(holidayEvents), formattedDat
 if(zeroEvents.length>0&&(attendanceEvents.length>0||leaveEvents.length>0||holidayEvents.length>0)){
 addEventDot(eventDots,'zero',0);
 }
-if(attendanceEvents.length>0||leaveEvents.length>0||holidayEvents.length>0||zeroEvents.length>0){
+if(attendanceEvents.length>0||leaveEvents.length>0||holidayEvents.length>0){
 cell.addEventListener('click',()=>{
 showEventDetails(formattedDate,attendanceEvents,leaveEvents,holidayEvents);
 });
@@ -771,4 +771,26 @@ function autoRefreshAll() {
 document.addEventListener('DOMContentLoaded', function() {
   autoRefreshAll();
   setInterval(autoRefreshAll, 5000); 
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Đăng ký sự kiện click cho nút Dashboard
+  const dashboardButton = document.getElementById('dashboard-btn'); // Đúng với HTML
+  if (dashboardButton) {
+    dashboardButton.addEventListener('click', function() {
+      const dashboardJson = {
+        "actionID": 5,
+        "orderNumber": 5,
+        "type": "act_dm_view",
+        "alias": "t72ep_t72ep01a5",
+        "post": "{\"size\":1}"
+      };
+      
+      if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+        App.callActionButton(JSON.stringify(dashboardJson));
+      } else {
+        showFlashMessage('Không thể kết nối tới chức năng Xem đồ thị!');
+      }
+    });
+  }
 });
