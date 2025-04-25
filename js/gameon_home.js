@@ -138,8 +138,8 @@ function renderGameGrid(games) {
               <button class="publish-button ml-2 px-3 py-1 bg-transparent" data-game-id="${game.game_id}">
                 <i class="fas fa-share-alt ${(game.is_published === true || game.is_published === 'true') ? 'text-green-500' : 'text-gray-400'}"></i>
               </button>` : ''}
-              <button class="about-button ml-2 px-3 py-1 bg-transparent" data-game-id="${game.game_id}">
-                <i class="fas fa-circle-info"></i>
+              <button class="about-button ml-2 px-3 py-1 bg-transparent text-gray-500" data-game-id="${game.game_id}">
+                <i class="fas fa-bars"></i>
               </button>
           </div>
           ${getActionButtonHTML(game, false, true)}
@@ -218,8 +218,8 @@ function renderGameList(games) {
                 <button class="publish-button ml-2 px-3 py-1 bg-transparent" data-game-id="${game.game_id}">
                   <i class="fas fa-share-alt ${(game.is_published === true || game.is_published === 'true') ? 'text-green-500' : 'text-gray-400'}"></i>
                 </button>` : ''}
-            <button class="about-button ml-2 px-3 py-1 bg-transparent" data-game-id="${game.game_id}">
-                <i class="fas fa-circle-info"></i>
+            <button class="about-button ml-2 px-3 py-1 bg-transparent text-gray-500" data-game-id="${game.game_id}">
+                <i class="fas fa-bars"></i>
               </button>
           </div>
           <div class="flex items-center">
