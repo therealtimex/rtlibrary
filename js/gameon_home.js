@@ -37,29 +37,29 @@ function getThumbnailHTML(game, isListView = false) {
 function getActionButtonHTML(game, isListView = false, isInline = false) {
   if (isListView) {
     return `<div class="flex space-x-1">
+      <button class="about-button px-4 py-1 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+        Details
+      </button>
       <button class="play-button px-4 py-1 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
         Play
-      </button>
-      <button class="about-button px-4 py-1 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
-        About
       </button>
     </div>`;
   } else if (isInline) {
     return `<div class="flex space-x-1">
+      <button class="about-button px-4 py-2 text-sm font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+        Details
+      </button>
       <button class="play-button px-4 py-2 text-sm font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
         Play
-      </button>
-      <button class="about-button px-4 py-2 text-sm font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
-        About
       </button>
     </div>`;
   } else {
     return `<div class="flex space-x-2 mt-2">
+      <button class="about-button w-full py-2 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
+        <i class="fas fa-info-circle mr-2"></i> Details
+      </button>
       <button class="play-button w-full py-2 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
         <i class="fas fa-play mr-2"></i> Play
-      </button>
-      <button class="about-button w-full py-2 font-semibold bg-theme-primary text-theme-text-onprimary rounded-lg" data-game-id="${game.game_id}">
-        <i class="fas fa-info-circle mr-2"></i> About
       </button>
     </div>`;
   }
