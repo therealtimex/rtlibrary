@@ -1,6 +1,6 @@
 * { box-sizing: border-box; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
 body { margin: 0; padding: 0px; background-color: var(--background-light); }
-.calendar-container { max-width: 100%; margin: 0 auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); overflow: hidden; }
+.calendar-container { max-width: 100%; margin: 0 auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); overflow: hidden; position: relative;}
 .month-header, .week-header { background-color: #fff; color: var(--text-main); padding: 3px; display: flex; justify-content: space-between; align-items: center; }
 .month-title, .week-title { font-size: 15px; font-weight: 600; margin: 0; }
 .nav-button { background: none; border: none; color: gray; font-size: 15px; cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: background-color 0.2s; }
@@ -20,7 +20,7 @@ body { margin: 0; padding: 0px; background-color: var(--background-light); }
 .event-dot.leave { background-color: var(--leave-color); }
 .event-dot.holiday { background-color: var(--holiday-color); }
 .event-dot.zero { background-color: var(--zero-color); display: none; }
-.expand-control { text-align: center; padding: 0; background-color: #f9f9f9; border-top: 1px solid var(--border-color); }
+.expand-control { text-align: center; padding: 0; background-color: #f9f9f9; border-top: 1px solid var(--border-color); position: relative;}
 .expand-button { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 10px; padding: 2px 15px; border-radius: 4px; transition: background-color 0.2s; }
 .expand-button:hover { background-color: #eee; }
 .loading-container { text-align: center; padding: 30px; color: var(--text-light); }
@@ -108,3 +108,6 @@ body { margin: 0; padding: 0px; background-color: var(--background-light); }
 .modal-body { background: #fff; padding: 24px 24px 24px 24px; color: #222; font-size: 16px; max-height: 60vh; overflow-y: auto; }
 @media (max-width: 600px) { .notif-img { min-height: 80px; } .modal-header2 { padding: 18px 44px 14px 16px; } .modal-body { padding: 14px 10px 12px 10px; font-size: 15px;} .modal-header h2 { font-size: 14px; } }
 #loading.loading-container { display: none !important; }
+#dashboard-btn { position: absolute; top: 2px; right: 3px; width: 26px; height: 20px; display: flex; align-items: center; /* Sửa lại cho đúng */ justify-content: center; border-radius: 5px; background: var(--surface-color, #fff); box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer; z-index: 5; padding: 0; border: none; outline: none; transition: background 0.15s, box-shadow 0.15s, transform 0.08s;}
+#dashboard-btn:active { background: #e0f7fa; box-shadow: 0 1px 2px rgba(0,0,0,0.06); transform: translateY(1px) scale(0.96); /* Hiệu ứng nhấn */}
+#dashboard-btn i { color: var(--primary-color, #009688); font-size: 18px;}
