@@ -263,12 +263,12 @@ function setupCardEventListeners(card, game) {
 
   if (imageContainer) {
     imageContainer.style.cursor = 'pointer';
-    imageContainer.addEventListener('click', showDescription);
+    // imageContainer.addEventListener('click', showDescription);
   }
 
   if (titleElement) {
     titleElement.style.cursor = 'pointer';
-    titleElement.addEventListener('click', showDescription);
+    // titleElement.addEventListener('click', showDescription);
   }
 
   const publishButton = card.querySelector('.publish-button');
