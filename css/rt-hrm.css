@@ -116,7 +116,7 @@ body { margin: 0; padding: 0px; background-color: var(--background-light); }
   margin-left: 0px;
   padding: 2px 10px;
   border-radius: 10px;
-  background: red;
+  background: var(--surface-color);
   color: var(--primary-color);
   font-size: 14px;
   font-weight: 400;
