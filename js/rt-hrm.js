@@ -62,20 +62,21 @@ const endMonth=(weekEnd.getMonth()+1).toString().padStart(2,'0');
 weekTitle.textContent = T.weekTitle(`${startDay}/${startMonth}`, `${endDay}/${endMonth}`);
 }
 function formatCheckInTime(timeString){
-if(!timeString)return'N/A';
-try{
-const date=new Date(timeString);
-const weekday=weekdayNames[date.getDay()];
-const day=date.getDate().toString().padStart(2,'0');
-const month=(date.getMonth()+1).toString().padStart(2,'0');
-const year=date.getFullYear();
-const hours=date.getHours().toString().padStart(2,'0');
-const minutes=date.getMinutes().toString().padStart(2,'0');
-return`${weekday} ${day}/${month}/${year} ${hours}:${minutes}`;
-}catch(error){
-return timeString;
+  if(!timeString)return 'N/A';
+  try{
+    const date=new Date(timeString);
+    const weekday=T.weekdayNames[date.getDay()];
+    const day=date.getDate().toString().padStart(2,'0');
+    const month=(date.getMonth()+1).toString().padStart(2,'0');
+    const year=date.getFullYear();
+    const hours=date.getHours().toString().padStart(2,'0');
+    const minutes=date.getMinutes().toString().padStart(2,'0');
+    return`${weekday} ${day}/${month}/${year} ${hours}:${minutes}`;
+  }catch(error){
+    return timeString;
+  }
 }
-}
+
 
 function findLatestCheckin(data){
 if(!data||data.length===0)return null;
