@@ -31,8 +31,8 @@ let holidayData=[];
 let zeroWorkData=[];
 let latestCheckin=null;
 adjustToMonday(weekStartDate);
-const monthNames=["Tháng 1","Tháng 2","Tháng 3","Tháng 4","Tháng 5","Tháng 6","Tháng 7","Tháng 8","Tháng 9","Tháng 10","Tháng 11","Tháng 12"];
-const weekdayNames=["CN","T2","T3","T4","T5","T6","T7"];
+const monthNames = T.monthNames;
+const weekdayNames = T.weekdayNames;
 function formatDate(dateString){
 if(!dateString)return'N/A';
 const parts=dateString.split('-');
@@ -43,7 +43,7 @@ function formatDateWithWeekday(date){
 const day=date.getDate().toString().padStart(2,'0');
 const month=(date.getMonth()+1).toString().padStart(2,'0');
 const year=date.getFullYear();
-const weekday=weekdayNames[date.getDay()];
+const weekday=T.weekdayNames[date.getDay()];
 return`${weekday} ${day}/${month}/${year}`;
 }
 function adjustToMonday(date){
@@ -59,7 +59,7 @@ const startDay=weekStartDate.getDate().toString().padStart(2,'0');
 const startMonth=(weekStartDate.getMonth()+1).toString().padStart(2,'0');
 const endDay=weekEnd.getDate().toString().padStart(2,'0');
 const endMonth=(weekEnd.getMonth()+1).toString().padStart(2,'0');
-weekTitle.textContent=`Tuần ${startDay}/${startMonth} - ${endDay}/${endMonth}`;
+weekTitle.textContent = T.weekTitle(`${startDay}/${startMonth}`, `${endDay}/${endMonth}`);
 }
 function formatCheckInTime(timeString){
 if(!timeString)return'N/A';
@@ -86,19 +86,44 @@ return timeB-timeA;
 });
 return sorted[0];
 }
+
 function updateLastCheckinInfo(checkin){
-if(!checkin){
-lastCheckinTime.textContent='--:--';
-statusIndicator.className='status-indicator';
-return;
-}
-lastCheckinTime.textContent=formatCheckInTime(checkin.rta_time_fm);
-statusIndicator.className='status-indicator';
-const viewMark=parseInt(checkin.view_mark||0);
-if(viewMark===1){statusIndicator.classList.add('status-green');}
-else if(viewMark===2){statusIndicator.classList.add('status-blue');}
-else if(viewMark===3){statusIndicator.classList.add('status-red');}
-}
+    const statusTag = document.getElementById('last-checkin-status');
+    if(!checkin){
+      lastCheckinTime.textContent='--:--';
+      statusIndicator.className='status-indicator';
+      if(statusTag) statusTag.textContent = '';
+      return;
+    }
+    lastCheckinTime.textContent = formatCheckInTime(checkin.rta_time_fm);
+    statusIndicator.className = 'status-indicator';
+  
+    // Xác định trạng thái dựa vào view_mark_lb
+    let statusText = '';
+    switch (checkin.view_mark_lb) {
+      case 'IN':
+        statusText = T.in;
+        break;
+      case 'TMPIN':
+        statusText = T.tempin;
+        break;
+      case 'OUT':
+        statusText = T.out;
+        break;
+      case 'TMPOUT':
+        statusText = T.tempout;
+        break;
+      default:
+        statusText = '';
+    }
+    if(statusTag) statusTag.textContent = statusText;
+  
+    // Giữ logic màu status-indicator như cũ
+    const viewMark = parseInt(checkin.view_mark || 0);
+    if(viewMark === 1){ statusIndicator.classList.add('status-green'); }
+    else if(viewMark === 2){ statusIndicator.classList.add('status-blue'); }
+    else if(viewMark === 3){ statusIndicator.classList.add('status-red'); }
+  }
 function calculateZeroWorkDays(){
 zeroWorkData=[];
 const year=currentYear;
@@ -132,7 +157,8 @@ updateWeekTitle();
 if(isMonthView){renderMonthView();}
 else{renderWeekView();}
 }
-function updateMonthTitle(){monthTitle.textContent=`${monthNames[currentMonth]}, ${currentYear}`;}
+function updateMonthTitle(){monthTitle.textContent = T.monthTitle(T.monthNames[currentMonth], currentYear);
+}
 function renderWeekView(){
 weekView.innerHTML='';
 for(let i=0;i<7;i++){
@@ -242,16 +268,16 @@ function addEventDot(container, type, count, dateStr) {
 
 function showEventDetails(date,attendanceEvents,leaveEvents,holidayEvents){
 const formattedDate=formatDate(date);
-modalTitle.textContent=`Chi tiết ngày ${formattedDate}`;
+modalTitle.textContent = T.dayDetail(formattedDate);
 let content='';
 if(attendanceEvents.length>0){
-content+=`<div class="event-list"><h4>Chấm công</h4>`;
+content+=`<div class="event-list"><h4>${T.attendance}</h4>`;
 attendanceEvents.forEach(event=>{
 content+=`
 <div class="event-item">
 <div class="event-header">
-<span class="event-title">${event.erp_shift_lb||'Chấm công'}</span>
-<span class="event-count">${event.nb_count||'0'} công</span>
+<span class="event-title">${event.erp_shift_lb||T.attendance}</span>
+<span class="event-count">${event.nb_count||'0'} ${T.unit||''}</span>
 </div>
 <div class="event-details">
 IN: ${event.chkin_time||'--:--'}  <br>OUT: ${event.chkout_time||'--:--'}
@@ -262,13 +288,13 @@ IN: ${event.chkin_time||'--:--'}  <br>OUT: ${event.chkout_time||'--:--'}
 content+=`</div>`;
 }
 if(leaveEvents.length>0){
-content+=`<div class="event-list"><h4>Nghỉ phép</h4>`;
+content+=`<div class="event-list"><h4>${T.leaveDetail}</h4>`;
 leaveEvents.forEach(event=>{
 content+=`
 <div class="event-item">
 <div class="event-header">
-<span class="event-title">${event.erp_shift_lb||'Nghỉ phép'}</span>
-<span class="event-count">${event.nb_count||'0'} công</span>
+<span class="event-title">${event.erp_shift_lb||T.leaveDetail}</span>
+<span class="event-count">${event.nb_count||'0'} ${T.unit||''}</span>
 
 </div>
 </div>
@@ -277,13 +303,13 @@ content+=`
 content+=`</div>`;
 }
 if(holidayEvents.length>0){
-content+=`<div class="event-list"><h4>Nghỉ lễ</h4>`;
+content+=`<div class="event-list"><h4>${T.holiday}</h4>`;
 holidayEvents.forEach(event=>{
 content+=`
 <div class="event-item">
 <div class="event-header">
-<span class="event-title">${event.erp_holiday_lb||'Nghỉ lễ'}</span>
-<span class="event-count">${event.nb_count||'0'} công</span>
+<span class="event-title">${event.erp_holiday_lb||T.holiday}</span>
+<span class="event-count">${event.nb_count||'0'} ${T.unit||''}</span>
 </div>
 <div class="event-details">
 ${event.erp_shift_lb||''}
@@ -388,7 +414,7 @@ App.callActionButton(JSON.stringify(json));
 }
 },
 checkin_remote:{
-label:'Từ xa',
+label: T.checkinRemote,
 icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M24 6C16.268 6 10 12.268 10 20c0 7.732 10.5 18 14 21.5C27.5 38 38 27.732 38 20c0-7.732-6.268-14-14-14Z" stroke="currentColor" stroke-width="7" fill="none"/><circle cx="24" cy="20" r="5" stroke="currentColor" stroke-width="3" fill="none"/><path d="M34 41a10 4 0 1 1-20 0" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`,
 onClick:function(){
 if(!latestCheckin)return;
@@ -412,7 +438,7 @@ App.callActionButton(JSON.stringify(json));
 }
 },
 checkin_temp:{
-label:'Tạm thời',
+label: T.checkinTemp,
 icon:`<i class="fa fa-hourglass-half attendance-btn-icon"></i>`,
 onClick:function(){
 if(!latestCheckin)return;
@@ -472,7 +498,7 @@ App.callActionButton(JSON.stringify(json));
 }
 },
 checkout_remote:{
-label:'Từ xa',
+  label: T.checkinRemote,
 icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M24 6C16.268 6 10 12.268 10 20c0 7.732 10.5 18 14 21.5C27.5 38 38 27.732 38 20c0-7.732-6.268-14-14-14Z" stroke="currentColor" stroke-width="7" fill="none"/><circle cx="24" cy="20" r="5" stroke="currentColor" stroke-width="3" fill="none"/><path d="M34 41a10 4 0 1 1-20 0" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`,
 onClick:function(){
 if(!latestCheckin)return;
@@ -502,7 +528,7 @@ App.callActionButton(JSON.stringify(json));
 }
 },
 checkout_temp:{
-label:'Tạm thời',
+  label: T.checkinTemp,
 icon:`<i class="fa fa-clock-o attendance-btn-icon"></i>`,
 onClick:function(){
 if(!latestCheckin)return;
@@ -533,13 +559,13 @@ App.callActionButton(JSON.stringify(json));
 }
 };
 if(view_mark==1){
-title='Check-Out';
+title=T.attendanceActionCheckout || 'Check-Out';
 buttons=[BTN.checkout_qr,BTN.checkout_remote,BTN.checkout_temp];
 }else if(view_mark==3){
-title='Check-In';
+title=T.attendanceActionCheckin || 'Check-In';
 buttons=[BTN.checkin_qr,BTN.checkin_remote];
 }else if(view_mark==2){
-title='Check-In';
+title=T.attendanceActionCheckin || 'Check-In';
 buttons=[BTN.checkin_temp];
 }
 if(title){
@@ -709,10 +735,10 @@ document.querySelectorAll('.action-bar-item').forEach(item => {
       if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
         App.callActionButton(JSON.stringify(actionBarJson[action]));
       } else {
-        showFlashMessage('Không tìm thấy App.callActionButton');
+        showFlashMessage(T.noAppCallActionButton || 'App.callActionButton not found');
       }
     } else {
-      showFlashMessage('Tính năng chưa hỗ trợ');
+      showFlashMessage(T.featureNotSupported || 'Feature not supported');
     }
   });
 });
@@ -789,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
         App.callActionButton(JSON.stringify(dashboardJson));
       } else {
-        showFlashMessage('Không thể kết nối tới chức năng Xem đồ thị!');
+        showFlashMessage(T.dashboardError || 'Cannot connect to dashboard!');
       }
     });
   }
