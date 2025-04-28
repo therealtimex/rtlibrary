@@ -327,7 +327,7 @@ function setupListItemEventListeners(listItem, game) {
       playGame(game.game_id);
     });
   }
-  const aboutButton = card.querySelector('.about-button');
+  const aboutButton = listItem.querySelector('.about-button');
   if (aboutButton) {
     aboutButton.addEventListener('click', (e) => {
       e.stopPropagation();
