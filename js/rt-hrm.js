@@ -65,7 +65,7 @@ function formatCheckInTime(timeString){
   if(!timeString)return 'N/A';
   try{
     const date=new Date(timeString);
-    const weekday=T.weekdayNames[date.getDay()];
+    const weekday=T.weekdayNames[(date.getDay()+6)%7];
     const day=date.getDate().toString().padStart(2,'0');
     const month=(date.getMonth()+1).toString().padStart(2,'0');
     const year=date.getFullYear();
