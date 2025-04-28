@@ -134,7 +134,7 @@ function renderGameGrid(games) {
               <i class="fas fa-comment-dots"></i>
             </span>
             <span class="ml-4 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 98, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swfdcv_80', args: { game_id: ${game.game_id}} }))">
-              <i class="fas fa-bars"></i>
+              <i class="fas fa-info"></i>
             </span>
           </div>
           ${getActionButtonHTML(game, false, true)}
@@ -201,7 +201,7 @@ function renderGameList(games) {
               <i class="fas fa-comment-dots"></i>
             </span>
             <span class="ml-4 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 98, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swfdcv_80', args: { game_id: ${game.game_id}} }))">
-              <i class="fas fa-bars"></i>
+              <i class="fas fa-info"></i>
             </span>
           </div>
           <div class="flex items-center">
