@@ -133,6 +133,9 @@ function renderGameGrid(games) {
              <span class="ml-4 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 99, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swfdcv_6', args: { game_id: ${game.game_id}, title: &quot;${game.title}&quot; } }))">
               <i class="fas fa-comment-dots"></i>
             </span>
+            <button class="about-button ml-2 px-3 py-1 bg-transparent text-gray-500" data-game-id="${game.game_id}">
+                <i class="fas fa-bars"></i>
+              </button>
           </div>
           ${getActionButtonHTML(game, false, true)}
         </div>
@@ -197,6 +200,9 @@ function renderGameList(games) {
              <span class="ml-1 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 99, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swfdcv_6', args: { game_id: ${game.game_id}, title: &quot;${game.title}&quot; } }))">
               <i class="fas fa-comment-dots"></i>
             </span>
+            <button class="about-button ml-2 px-3 py-1 bg-transparent text-gray-500" data-game-id="${game.game_id}">
+                <i class="fas fa-bars"></i>
+              </button>
           </div>
           <div class="flex items-center">
             ${getFavoriteButtonHTML(game, isFavorite, true)}
@@ -237,12 +243,12 @@ function setupCardEventListeners(card, game) {
 
   if (imageContainer) {
     imageContainer.style.cursor = 'pointer';
-    imageContainer.addEventListener('click', showDescription);
+    // imageContainer.addEventListener('click', showDescription);
   }
 
   if (titleElement) {
     titleElement.style.cursor = 'pointer';
-    titleElement.addEventListener('click', showDescription);
+    // titleElement.addEventListener('click', showDescription);
   }
 
   const publishButton = card.querySelector('.publish-button');
@@ -268,6 +274,13 @@ function setupCardEventListeners(card, game) {
       playGame(game.game_id);
     });
   }
+  const aboutButton = card.querySelector('.about-button');
+  if (aboutButton) {
+    aboutButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigateToScreen(8, "jxfmuo0swf", args = {game_id: game.game_id})
+    });
+  }
 }
 
 function setupListItemEventListeners(listItem, game) {
@@ -283,12 +296,12 @@ function setupListItemEventListeners(listItem, game) {
 
   if (imageContainer) {
     imageContainer.style.cursor = 'pointer';
-    imageContainer.addEventListener('click', showDescription);
+    // imageContainer.addEventListener('click', showDescription);
   }
 
   if (titleElement) {
     titleElement.style.cursor = 'pointer';
-    titleElement.addEventListener('click', showDescription);
+    // titleElement.addEventListener('click', showDescription);
   }
 
   const publishButton = listItem.querySelector('.publish-button');
@@ -312,6 +325,13 @@ function setupListItemEventListeners(listItem, game) {
     playButton.addEventListener('click', (e) => {
       e.stopPropagation();
       playGame(game.game_id);
+    });
+  }
+  const aboutButton = card.querySelector('.about-button');
+  if (aboutButton) {
+    aboutButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigateToScreen(8, "jxfmuo0swf", args = {game_id: game.game_id})
     });
   }
 }

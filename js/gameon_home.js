@@ -322,12 +322,12 @@ function setupListItemEventListeners(listItem, game) {
 
   if (imageContainer) {
     imageContainer.style.cursor = 'pointer';
-    imageContainer.addEventListener('click', showDescription);
+    // imageContainer.addEventListener('click', showDescription);
   }
 
   if (titleElement) {
     titleElement.style.cursor = 'pointer';
-    titleElement.addEventListener('click', showDescription);
+    // titleElement.addEventListener('click', showDescription);
   }
 
   const publishButton = listItem.querySelector('.publish-button');
@@ -351,6 +351,13 @@ function setupListItemEventListeners(listItem, game) {
     playButton.addEventListener('click', (e) => {
       e.stopPropagation();
       playGame(game.game_id);
+    });
+  }
+  const aboutButton = card.querySelector('.about-button');
+  if (aboutButton) {
+    aboutButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigateToScreen(8, args = {game_id: game.game_id})
     });
   }
 }
