@@ -119,6 +119,6 @@ body { margin: 0; padding: 0px; background-color: var(--background-light); }
   background: var(--surface-color);
   color: var(--primary-color);
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 600;
   vertical-align: middle;
 } 
