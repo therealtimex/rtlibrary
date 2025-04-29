@@ -193,15 +193,15 @@ weekView.appendChild(emptyCell);
 }
 }
 function createDayCell(date){
-const cell=document.createElement('div');
-cell.className='day-cell';
-const today=new Date();
-if(date.getDate()===today.getDate()&&date.getMonth()===today.getMonth()&&date.getFullYear()===today.getFullYear()){
-cell.classList.add('today');
+  const cell = document.createElement('div');
+  cell.className = 'day-cell';
+  const today = new Date();
+if(date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()){
+  cell.classList.add('today');
 }
-if(date.getMonth()!==currentMonth){
-cell.classList.add('empty');
-return cell;
+if(date.getMonth() !== currentMonth){
+  cell.classList.add('empty');
+
 }
 const dayNumber=document.createElement('div');
 dayNumber.className='day-number';
