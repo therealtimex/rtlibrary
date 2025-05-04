@@ -176,10 +176,15 @@ const lastDay=new Date(currentYear,currentMonth+1,0);
 const daysInMonth=lastDay.getDate();
 let firstDayOfWeek=firstDay.getDay()||7;
 for(let i=1;i<firstDayOfWeek;i++){
-const emptyCell=document.createElement('div');
-emptyCell.className='day-cell empty';
-weekView.appendChild(emptyCell);
+  // Lấy ngày cuối của tháng trước
+  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate();
+  const date = new Date(prevYear, prevMonth, daysInPrevMonth - (firstDayOfWeek - i - 1));
+  const dayCell = createDayCell(date, true); // true: là ngày ngoài tháng
+  weekView.appendChild(dayCell);
 }
+
 for(let i=1;i<=daysInMonth;i++){
 const date=new Date(currentYear,currentMonth,i);
 const dayCell=createDayCell(date);
@@ -187,14 +192,20 @@ weekView.appendChild(dayCell);
 }
 const lastDayOfWeek=lastDay.getDay()||7;
 for(let i=lastDayOfWeek+1;i<=7;i++){
-const emptyCell=document.createElement('div');
-emptyCell.className='day-cell empty';
-weekView.appendChild(emptyCell);
+  // Lấy ngày đầu của tháng sau
+  const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+  const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+  const date = new Date(nextYear, nextMonth, i - lastDayOfWeek);
+  const dayCell = createDayCell(date, true);
+  weekView.appendChild(dayCell);
 }
 }
-function createDayCell(date){
+function createDayCell(date, isOutsideMonth = false) {
   const cell = document.createElement('div');
   cell.className = 'day-cell';
+  if (date.getMonth() !== currentMonth) {
+    cell.classList.add('outside-month');
+  }
   const today = new Date();
 if(date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()){
   cell.classList.add('today');
