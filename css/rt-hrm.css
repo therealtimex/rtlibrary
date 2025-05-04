@@ -11,6 +11,8 @@ body { margin: 0; padding: 0px; background-color: var(--background-light); }
 .day-cell { min-height: 60px; border: 1px solid var(--border-color); padding: 3px; display: flex; flex-direction: column; position: relative; cursor: pointer; transition: background-color 0.2s; }
 .day-cell:hover, .day-cell.empty { background-color: #f9f9f9; }
 .day-cell.empty { cursor: default; }
+.day-cell.outside-month { background-color: #f0f0f0;}
+.day-cell.outside-month .day-number { color: #bbb;}
 .day-cell.today { background-color: var(--surface-color); }
 .day-number { font-weight: normal; padding: 2px 8px; border-radius: 50%; align-self: flex-start; margin-bottom: 3px; font-size: 12px; }
 .today .day-number { font-weight: bold; background-color: var(--COLOR_THEME_BACKGROUND); border-radius: 50%; padding: 2px 8px; color: #000; }
