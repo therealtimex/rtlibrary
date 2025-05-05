@@ -228,8 +228,22 @@ const attendanceEvents=filterEventsByDate(attendanceData,formattedDate);
 const leaveEvents=filterEventsByDate(leaveData,formattedDate);
 const holidayEvents=filterEventsByDate(holidayData,formattedDate);
 const zeroEvents=filterEventsByDate(zeroWorkData,formattedDate);
-if(attendanceEvents.length>0){
-addEventDot(eventDots,'attendance',calculateTotalCount(attendanceEvents), formattedDate);
+if (attendanceEvents.length > 0) {
+  attendanceEvents.forEach(event => {
+    let dot = document.createElement('div');
+    let count = Number.parseFloat(event.nb_count || 0).toFixed(1);
+    if (event.erp_salary_unit == 1) {
+      dot.className = 'event-dot attendance-day';
+      dot.textContent = count;
+    } else if (event.erp_salary_unit == 2) {
+      dot.className = 'event-dot attendance-hour';
+      dot.textContent = count;
+    } else if (event.erp_salary_unit == 3) {
+      dot.className = 'event-dot attendance-ot';
+      dot.textContent = ''; // No number inside
+    }
+    eventDots.appendChild(dot); // Sửa 'container' thành 'eventDots'
+  });
 }
 if(leaveEvents.length>0){
 addEventDot(eventDots,'leave',calculateTotalCount(leaveEvents), formattedDate);
@@ -278,63 +292,129 @@ function addEventDot(container, type, count, dateStr) {
   }
 }
 
-function showEventDetails(date,attendanceEvents,leaveEvents,holidayEvents){
-const formattedDate=formatDate(date);
-modalTitle.textContent = T.dayDetail(formattedDate);
-let content='';
-if(attendanceEvents.length>0){
-content+=`<div class="event-list"><h4>${T.attendance}</h4>`;
-attendanceEvents.forEach(event=>{
-content+=`
-<div class="event-item">
-<div class="event-header">
-<span class="event-title">${event.erp_shift_lb||T.attendance}</span>
-<span class="event-count">${event.nb_count||'0'} ${T.unit||''}</span>
-</div>
-<div class="event-details">
-IN: ${event.chkin_time||'--:--'}  <br>OUT: ${event.chkout_time||'--:--'}
-</div>
-</div>
-`;
-});
-content+=`</div>`;
-}
-if(leaveEvents.length>0){
-content+=`<div class="event-list"><h4>${T.leaveDetail}</h4>`;
-leaveEvents.forEach(event=>{
-content+=`
-<div class="event-item">
-<div class="event-header">
-<span class="event-title">${event.erp_shift_lb||T.leaveDetail}</span>
-<span class="event-count">${event.nb_count||'0'} ${T.unit||''}</span>
+function showEventDetails(date, attendanceEvents, leaveEvents, holidayEvents) {
+    const formattedDate = formatDate(date);
+    modalTitle.textContent = T.dayDetail(formattedDate);
+    let content = '';
 
-</div>
-</div>
-`;
-});
-content+=`</div>`;
+    // Helper function để lấy label đơn vị
+    function getUnitLabel(event) {
+        if (event.erp_salary_unit == 1) {
+            return appLanguage === 'en' ? 'Day(s)' : 'Ngày công';
+        }
+        if (event.erp_salary_unit == 2) {
+            return appLanguage === 'en' ? 'Hour(s)' : 'Giờ công';
+        }
+        if (event.erp_salary_unit == 3) {
+            return appLanguage === 'en' ? 'Overtime hour' : 'Giờ Tăng ca';
+        }
+        return T.unit; // Fallback
+    }
+
+    // Tạo hàm xử lý sự kiện click nút Report OT
+    window.reportOTClick = function(shiftId) {
+        const reportJson = {
+            "actionID": 1,
+            "orderNumber": 1,
+            "type": "act_fill_form",
+            "formID": "",
+            "familyID": "HR_OVERTIME_2",
+            "preload": [{
+                "key": "rta_shift_txt",
+                "value": shiftId
+            }]
+        };
+        
+        if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+            App.callActionButton(JSON.stringify(reportJson));
+        } else {
+            showFlashMessage(T.featureNotSupported || 'Feature not supported');
+        }
+    };
+
+    // Xử lý chấm công
+    if (attendanceEvents.length > 0) {
+        content += `<div class="event-list"><h4>${T.attendance}</h4>`;
+        attendanceEvents.forEach(event => {
+            content += `
+            <div class="event-item">
+                <div class="event-header">
+                    <span class="event-title">${event.erp_shift_lb || T.attendance}</span>`;
+            
+            // Kiểm tra nếu là giờ tăng ca
+            if (event.erp_salary_unit == 3) {
+                // Hiển thị nút Báo cáo OT
+                content += `
+                    <button class="ot-report-btn" onclick="reportOTClick('${event.rta_shift_id || ''}')">
+                        ${appLanguage === 'en' ? 'Report OT' : 'Báo cáo OT'}
+                    </button>`;
+            } else {
+                // Hiển thị số công và đơn vị như bình thường
+                content += `
+                    <span class="event-count">
+                        ${event.nb_count || '0'} ${getUnitLabel(event)}
+                    </span>`;
+            }
+            
+            content += `
+                </div>
+                ${event.chkin_time || event.chkout_time ? `
+                <div class="event-details">
+                    ${event.chkin_time ? `IN: ${event.chkin_time}` : ''}<br>
+                    ${event.chkout_time ? `OUT: ${event.chkout_time}` : ''}
+                </div>` : ''}
+            </div>`;
+        });
+        content += `</div>`;
+    }
+
+    // Xử lý nghỉ phép (không thay đổi)
+    if (leaveEvents.length > 0) {
+        content += `<div class="event-list"><h4>${T.leaveDetail}</h4>`;
+        leaveEvents.forEach(event => {
+            content += `
+            <div class="event-item">
+                <div class="event-header">
+                    <span class="event-title">${event.erp_shift_lb || T.leaveDetail}</span>
+                    <span class="event-count">
+                        ${event.nb_count || '0'} ${appLanguage === 'en' ? 'Day(s)' : 'Ngày công'}
+                    </span>
+                </div>
+            </div>`;
+        });
+        content += `</div>`;
+    }
+
+    // Xử lý ngày lễ (không thay đổi)
+    if (holidayEvents.length > 0) {
+        content += `<div class="event-list"><h4>${T.holiday}</h4>`;
+        holidayEvents.forEach(event => {
+            content += `
+            <div class="event-item">
+                <div class="event-header">
+                    <span class="event-title">${event.erp_holiday_lb || T.holiday}</span>
+                    <span class="event-count">
+                        ${event.nb_count || '0'} ${appLanguage === 'en' ? 'Day(s)' : 'Ngày công'}
+                    </span>
+                </div>
+                ${event.erp_shift_lb ? `
+                <div class="event-details">
+                    ${event.erp_shift_lb}
+                </div>` : ''}
+            </div>`;
+        });
+        content += `</div>`;
+    }
+
+    modalContent.innerHTML = content || `<div class="event-item">${T.notFound}</div>`;
+    modalOverlay.style.display = 'block';
+    eventModal.style.display = 'block';
 }
-if(holidayEvents.length>0){
-content+=`<div class="event-list"><h4>${T.holiday}</h4>`;
-holidayEvents.forEach(event=>{
-content+=`
-<div class="event-item">
-<div class="event-header">
-<span class="event-title">${event.erp_holiday_lb||T.holiday}</span>
-<span class="event-count">${event.nb_count||'0'} ${T.unit||''}</span>
-</div>
-<div class="event-details">
-${event.erp_shift_lb||''}
-</div>
-</div>
-`;
-});
-content+=`</div>`;
-}
-modalContent.innerHTML=content;
-modalOverlay.style.display='block';
-eventModal.style.display='block';
-}
+
+
+
+
+
 function toggleView(){
 isMonthView=!isMonthView;
 if(isMonthView){
