@@ -361,3 +361,87 @@ function setupListItemEventListeners(listItem, game) {
     });
   }
 }
+
+function displayNextAchievement() {
+  // If queue is empty or already displaying, exit
+  if (achievementsQueue.length === 0) {
+    isDisplayingAchievement = false;
+    console.log("No more achievements to display");
+    return;
+  }
+  // Set flag to prevent multiple displays
+  isDisplayingAchievement = true;
+  // Get the next achievement from the queue
+  const achievement = achievementsQueue.shift();
+  console.log("Displaying achievement:", achievement);
+  // Display it
+  displayAchievement(achievement);
+}
+
+function displayAchievement(achievement) {
+  // Set achievement details
+  const achievementTitle = document.getElementById('achievementTitle');
+  const achievementDescription = document.getElementById('achievementDescription');
+  const achievementIcon = document.querySelector('#achievementNotification .fas');
+  const notification = document.getElementById('achievementNotification');
+  // For debugging - create a default achievement if data is missing
+  if (!achievement.title && !achievement.description) {
+    console.log("Achievement missing title/description, using defaults");
+    // Use achievement_id to create a default title/description
+    achievement.achievements.name = achievement.achievements.name || `Achievement #${achievement.achievement_id} Unlocked!`;
+    achievement.achievements.description = achievement.achievements.description || "You've reached a new milestone!";
+  }
+  // Use the data directly from the achievement object
+  achievementTitle.textContent = achievement.achievements.name;
+  achievementDescription.textContent = achievement.achievements.description;
+  // Update icon if provided
+  if (achievement.icon) {
+    achievementIcon.className = achievement.achievements.icon + ' text-yellow-500 text-xl';
+  } else {
+    // Default to trophy icon
+    achievementIcon.className = 'fas fa-trophy text-yellow-500 text-xl';
+  }
+  // Reset any previous transitions
+  notification.classList.remove('opacity-100', 'opacity-0', 'translate-y-0', 'translate-y-4');
+  notification.classList.add('opacity-0');
+  // Show the notification
+  notification.classList.remove('hidden');
+  // Force a reflow to ensure transitions work
+  void notification.offsetWidth;
+  // Trigger animation
+  notification.classList.add('opacity-100', 'translate-y-0');
+  notification.classList.remove('translate-y-4');
+  // Add a subtle bounce effect
+  notification.animate([
+    { transform: 'translateY(10px) translateX(-50%)' },
+    { transform: 'translateY(-5px) translateX(-50%)' },
+    { transform: 'translateY(0) translateX(-50%)' }
+  ], {
+    duration: 600,
+    easing: 'ease-out'
+  });
+  // Mark achievement as notified
+  Data.update('user_achievements', 'keyid', achievement.keyid, {
+    username: currentUsername,
+    user_notified: true
+  })
+    .then(res => {
+      console.log('Achievement marked as notified:', res);
+    })
+    .catch(err => {
+      console.error('Error updating achievement notification status:', err);
+    });
+
+  // Auto-hide after 5 seconds with fade-out animation
+  setTimeout(() => {
+    notification.classList.remove('opacity-100');
+    notification.classList.add('opacity-0');
+    // Hide completely after animation completes and prepare for next achievement
+    setTimeout(() => {
+      notification.classList.add('hidden');
+      // Reset flag and display next achievement if any
+      isDisplayingAchievement = false;
+      displayNextAchievement();
+    }, 500);
+  }, 5000);
+}
