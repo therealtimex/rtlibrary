@@ -446,7 +446,7 @@ function displayAchievement(achievement) {
   }, 5000);
 }
 
-function fetchBalance(username) {
+function renderCurrency(username) {
   onsole.log("Checking for user achievements...");
   // Fetch user achievements that haven't been notified yet
   Data.supabaseClient
@@ -460,7 +460,21 @@ function fetchBalance(username) {
       }
       console.log("Unnotified achievements found:", response.data?.length || 0);
       if (response.data && response.data.length > 0) {
-        return [...response.data];
+        balanceData = [...response.data];
+        if ('##projectCode##' != 'C1295') {
+          userBalance = document.getElementById('user-balance')
+          display_content = `<div
+          class="bg-theme-primary-50 rounded-full px-4 py-2 flex items-center justify-between w-full">
+          <div class="flex items-center space-x-6">
+            <div class="flex items-center"><i class="fas fa-gem text-teal-500 mr-2"></i><span class="font-medium">${balanceData[0].gem_balance} Gems</span></div>
+            <div class="flex items-center"><i class="fas fa-coins text-yellow-500 mr-2"></i><span class="font-medium">${balanceData[0].gold_balance} Gold</span></div>
+          </div>
+          <button
+            class="text-theme-primary text-sm border border-theme-primary rounded-full px-3 py-1 hover:bg-theme-primary-50">Get
+            More</button>
+        </div>`
+        userBalance.innerHTML = display_content
+        }
       }
     })
     .catch(err => { console.error('Error checking achievements:', err); });
