@@ -447,18 +447,18 @@ function displayAchievement(achievement) {
 }
 
 function renderCurrency(username) {
-  onsole.log("Checking for user achievements...");
-  // Fetch user achievements that haven't been notified yet
+  console.log("Checking for user balance...");
+  // Fetch user balance that haven't been notified yet
   Data.supabaseClient
     .from('users')
     .select('gem_balance,gold_balance')
     .eq('username', username)
     .then(response => {
       if (response.error) {
-        console.error('Error fetching achievements:', response.error.message);
+        console.error('Error fetching balance:', response.error.message);
         return;
       }
-      console.log("Unnotified achievements found:", response.data?.length || 0);
+      console.log("Unnotified balance found:", response.data?.length || 0);
       if (response.data && response.data.length > 0) {
         balanceData = [...response.data];
         if ('##projectCode##' != 'C1295') {
@@ -477,5 +477,5 @@ function renderCurrency(username) {
         }
       }
     })
-    .catch(err => { console.error('Error checking achievements:', err); });
+    .catch(err => { console.error('Error checking balance:', err); });
 }
