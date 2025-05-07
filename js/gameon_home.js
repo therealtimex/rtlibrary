@@ -445,3 +445,23 @@ function displayAchievement(achievement) {
     }, 500);
   }, 5000);
 }
+
+function fetchBalance(username) {
+  onsole.log("Checking for user achievements...");
+  // Fetch user achievements that haven't been notified yet
+  Data.supabaseClient
+    .from('users')
+    .select('gem_balance,gold_balance')
+    .eq('username', username)
+    .then(response => {
+      if (response.error) {
+        console.error('Error fetching achievements:', response.error.message);
+        return;
+      }
+      console.log("Unnotified achievements found:", response.data?.length || 0);
+      if (response.data && response.data.length > 0) {
+        return [...response.data];
+      }
+    })
+    .catch(err => { console.error('Error checking achievements:', err); });
+}
