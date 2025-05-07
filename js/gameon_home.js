@@ -446,7 +446,7 @@ function displayAchievement(achievement) {
   }, 5000);
 }
 
-function renderCurrency(username) {
+function renderCurrency(username, project_code) {
   console.log("Checking for user balance...");
   // Fetch user balance that haven't been notified yet
   Data.supabaseClient
@@ -461,7 +461,7 @@ function renderCurrency(username) {
       console.log("Unnotified balance found:", response.data?.length || 0);
       if (response.data && response.data.length > 0) {
         balanceData = [...response.data];
-        if ('##projectCode##' != 'C1295') {
+        if (project_code != 'C1295') {
           userBalance = document.getElementById('user-balance')
           display_content = `<div
           class="bg-theme-primary-50 rounded-full px-4 py-2 flex items-center justify-between w-full">
