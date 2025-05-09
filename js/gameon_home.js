@@ -466,10 +466,10 @@ function renderCurrency(username, project_code) {
           display_content = `<div
           class="bg-theme-primary-50 rounded-full px-4 py-2 flex items-center justify-between w-full">
           <div class="flex items-center space-x-6">
-            <div class="flex items-center"><i class="fas fa-gem text-teal-500 mr-2"></i><span class="font-medium">${balanceData[0].gem_balance} Gems</span></div>
-            <div class="flex items-center"><i class="fas fa-coins text-yellow-500 mr-2"></i><span class="font-medium">${balanceData[0].gold_balance} Gold</span></div>
+            <div class="flex items-center"><i class="fas fa-gem text-teal-500 mr-2"></i><span id="userGem" class="font-medium">${balanceData[0].gem_balance} Gems</span></div>
+            <div class="flex items-center"><i class="fas fa-coins text-yellow-500 mr-2"></i><span id="userGold" class="font-medium">${balanceData[0].gold_balance} Gold</span></div>
           </div>
-          <button id = "getMore"
+          <button id="getMore"
             class="text-theme-primary text-sm border border-theme-primary rounded-full px-3 py-1 hover:bg-theme-primary-50">Get More</button>
         </div>`
         userBalance.innerHTML = display_content
@@ -481,5 +481,7 @@ function renderCurrency(username, project_code) {
 
 // Generate Game button
 document.getElementById('getMore').addEventListener('click', () => {
-  navigateToScreen(13); // Go to AI Game Generator
+  userGold = Number(document.getElementById("userGold").textContent).toFixed(1);
+  userGem = Number(document.getElementById("userGem").textContent).toFixed(1);
+  navigateToScreen(13, args = {"userGold": userGold, "userGem": userGem}); // Go to AI Game Generator
 });
