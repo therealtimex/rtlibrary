@@ -469,9 +469,8 @@ function renderCurrency(username, project_code) {
             <div class="flex items-center"><i class="fas fa-gem text-teal-500 mr-2"></i><span class="font-medium">${balanceData[0].gem_balance} Gems</span></div>
             <div class="flex items-center"><i class="fas fa-coins text-yellow-500 mr-2"></i><span class="font-medium">${balanceData[0].gold_balance} Gold</span></div>
           </div>
-          <button
-            class="text-theme-primary text-sm border border-theme-primary rounded-full px-3 py-1 hover:bg-theme-primary-50">Get
-            More</button>
+          <button id = "getMore"
+            class="text-theme-primary text-sm border border-theme-primary rounded-full px-3 py-1 hover:bg-theme-primary-50">Get More</button>
         </div>`
         userBalance.innerHTML = display_content
         }
@@ -479,3 +478,8 @@ function renderCurrency(username, project_code) {
     })
     .catch(err => { console.error('Error checking balance:', err); });
 }
+
+// Generate Game button
+document.getElementById('getMore').addEventListener('click', () => {
+  navigateToScreen(13); // Go to AI Game Generator
+});
