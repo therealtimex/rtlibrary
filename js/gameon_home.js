@@ -472,16 +472,16 @@ function renderCurrency(username, project_code) {
           <button id="getMore"
             class="text-theme-primary text-sm border border-theme-primary rounded-full px-3 py-1 hover:bg-theme-primary-50">Get More</button>
         </div>`
-        userBalance.innerHTML = display_content
+          userBalance.innerHTML = display_content
+          
+          // Add event listener after the button is created
+          document.getElementById('getMore').addEventListener('click', () => {
+            const userGold = Number(document.getElementById("userGold").textContent.split(' ')[0]);
+            const userGem = Number(document.getElementById("userGem").textContent.split(' ')[0]);
+            navigateToScreen(13, {"userGold": userGold, "userGem": userGem}); // Go to AI Game Generator
+          });
         }
       }
     })
     .catch(err => { console.error('Error checking balance:', err); });
 }
-
-// Generate Game button
-document.getElementById('getMore').addEventListener('click', () => {
-  userGold = Number(document.getElementById("userGold").textContent).toFixed(1);
-  userGem = Number(document.getElementById("userGem").textContent).toFixed(1);
-  navigateToScreen(13, args = {"userGold": userGold, "userGem": userGem}); // Go to AI Game Generator
-});
