@@ -93,7 +93,7 @@ function updateLastCheckinInfo(checkin){
     if(!checkin){
       lastCheckinTime.textContent='--:--';
       statusIndicator.className='status-indicator';
-      if(statusTag) statusTag.textContent = '';
+      if(statusTag) statusTag.textContent = T.firstCheckin;
       return;
     }
     lastCheckinTime.textContent = formatCheckInTime(checkin.rta_time_fm);
@@ -476,6 +476,8 @@ modalOverlay.style.display='none';
 eventModal.style.display='none';
 });
 document.addEventListener('DOMContentLoaded',()=>{fetchData();});
+
+
 function renderAttendanceActions(view_mark){
 const container=document.getElementById('attendance-action-container');
 container.innerHTML='';
@@ -492,11 +494,6 @@ actionID:1,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKIN",
-tracking_id:"tag_chkin_btn",
-override_ui_behavior:{
-timeout:20,
-behavior:"disable"
-},
 preload:[
 {key:"time_txt",value:latestCheckin.rta_time_fm||""},
 {key:"rta_type",value:"1"}
@@ -515,12 +512,6 @@ actionID:3,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKIN",
-tracking_id:"tag_chkin_btn",
-override_ui_behavior:{
-timeout:20,
-behavior:"disable"
-},
-imageUrl:"rta://icon/bootstrap/globe?color=__COLOR_THEME_PRIMARY__",
 preload:[
 {key:"time_txt",value:latestCheckin.rta_time_fm||""},
 {key:"rta_type",value:"2"}
@@ -529,6 +520,45 @@ preload:[
 App.callActionButton(JSON.stringify(json));
 }
 },
+
+new_qr:{
+label:'QR',
+icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="6" height="6" stroke="currentColor" stroke-width="4" rx="2"/><rect x="15" y="3" width="6" height="6" stroke="currentColor" stroke-width="4" rx="2"/><rect x="3" y="15" width="6" height="6" stroke="currentColor" stroke-width="4" rx="2"/><rect x="9" y="9" width="6" height="6" fill="currentColor" fill-opacity="0.12"/><rect x="17" y="17" width="2" height="2" fill="currentColor"/><rect x="13" y="17" width="2" height="2" fill="currentColor"/><rect x="17" y="13" width="2" height="2" fill="currentColor"/></svg>`,
+onClick:function(){
+if(!latestCheckin)return;
+const json={
+actionID:1,
+orderNumber:1,
+type:"act_fill_form",
+familyID:"HR_CHECKIN",
+preload:[
+{key:"time_txt",value:"2024-01-01 00:00:00"},
+{key:"rta_type",value:"1"}
+]
+};
+App.callActionButton(JSON.stringify(json));
+}
+},
+new_remote:{
+label: T.checkinRemote,
+icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M24 6C16.268 6 10 12.268 10 20c0 7.732 10.5 18 14 21.5C27.5 38 38 27.732 38 20c0-7.732-6.268-14-14-14Z" stroke="currentColor" stroke-width="7" fill="none"/><circle cx="24" cy="20" r="5" stroke="currentColor" stroke-width="3" fill="none"/><path d="M34 41a10 4 0 1 1-20 0" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`,
+onClick:function(){
+if(!latestCheckin)return;
+const json={
+actionID:3,
+orderNumber:1,
+type:"act_fill_form",
+familyID:"HR_CHECKIN",
+preload:[
+{key:"time_txt",value:"2024-01-01 00:00:00"},
+{key:"rta_type",value:"2"}
+]
+};
+App.callActionButton(JSON.stringify(json));
+}
+},
+
+
 checkin_temp:{
 label: T.checkinTemp,
 icon:`<i class="fa fa-hourglass-half attendance-btn-icon"></i>`,
@@ -539,11 +569,6 @@ actionID:7,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKIN",
-tracking_id:"tag_chkin_btn",
-override_ui_behavior:{
-timeout:20,
-behavior:"disable"
-},
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
@@ -569,11 +594,6 @@ actionID:2,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKOUT",
-tracking_id:"tag_chkout_btn",
-override_ui_behavior:{
-timeout:20,
-behavior:"disable"
-},
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
@@ -599,11 +619,6 @@ actionID:4,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKOUT",
-tracking_id:"tag_chkout_btn",
-override_ui_behavior:{
-timeout:20,
-behavior:"disable"
-},
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
@@ -629,11 +644,6 @@ actionID:8,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKOUT",
-tracking_id:"tag_chkout_btn",
-override_ui_behavior:{
-timeout:20,
-behavior:"disable"
-},
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
@@ -659,6 +669,9 @@ buttons=[BTN.checkin_qr,BTN.checkin_remote];
 }else if(view_mark==2){
 title=T.attendanceActionCheckin || 'Check-In';
 buttons=[BTN.checkin_temp];
+}else if(view_mark==0){
+title=T.attendanceActionCheckin || 'Check-In';
+buttons=[BTN.new_qr,BTN.new_remote];
 }
 if(title){
 container.innerHTML+=`<div class="attendance-action-title" style="color:#222;font-weight:bold;font-size:16px;padding-left:14px">${title}</div>`;
@@ -676,9 +689,9 @@ container.innerHTML+=html;
 window.attendanceButtonHandlers=buttons.map(btn=>btn.onClick);
 }
 }
-function updateAttendanceActions(){
-const view_mark=latestCheckin?Number(latestCheckin.view_mark):0;
-renderAttendanceActions(view_mark);
+function updateAttendanceActions() {
+  const view_mark = latestCheckin ? Number(latestCheckin.view_mark) : 0;
+  renderAttendanceActions(view_mark);
 }
 updateAttendanceActions();
 
