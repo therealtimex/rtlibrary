@@ -120,53 +120,62 @@ function updateUI() {
       tierPricing.forEach((tier) => {
         const card = document.createElement("div");
         card.className =
-          "border border-gray-200 rounded-lg p-3 flex justify-between items-center mb-2";
+          "border border-gray-200 rounded-lg p-3 flex flex-col mb-2";
 
-        card.innerHTML = `
+        // Create the top row with the icon, tier name, and benefits.
+        const topRow = document.createElement("div");
+        topRow.className = "flex items-center justify-between";
+        topRow.innerHTML = `
          <div class="flex items-center">
            <i class="fas fa-user-circle text-theme-primary text-xl mr-3"></i>
            <div>
              <div class="font-medium">${tier.tier_name}</div>
              <div class="text-sm text-theme-text-secondary">
-               ${tier.daily_gems_allowance} daily gems, max ${
-          tier.max_gems_capacity
-        }
+               ${tier.daily_gems_allowance} daily gems, max ${tier.max_gems_capacity}
              </div>
            </div>
-         </div>
-         <div class="font-semibold text-sm">
-           <i class="fas fa-coins text-yellow-500 mr-1 text-sm"></i>${tier.actual_monthly_cost.toFixed(
-             2
-           )}/mo
-         </div>
+         </div>`;
+
+        // Create the bottom row for the price
+        const priceRow = document.createElement("div");
+        priceRow.className = "font-semibold text-sm";
+        priceRow.innerHTML = `
+         <i class="fas fa-coins text-yellow-500 mr-1 text-sm"></i>${tier.actual_monthly_cost.toFixed(
+           2
+         )}/mo
        `;
 
-        // Disable the card if it is the current tier or if not enough gold to cover its cost.
+        // Append the top row and price row into the card
+        card.appendChild(topRow);
+        card.appendChild(priceRow);
+
+        // If the user does not have enough gold, create an extra row with the warning.
+        if (currentGoldBalance < tier.actual_monthly_cost) {
+          const warningRow = document.createElement("div");
+          warningRow.className = "text-xs text-red-500 mt-1 text-right";
+          warningRow.textContent = "Not enough gold";
+          card.appendChild(warningRow);
+        }
+
+        // Check whether the tier is the current tier or if the user lacks enough gold.
         if (
           tier.tier_name === currentTier ||
           currentGoldBalance < tier.actual_monthly_cost
         ) {
           card.classList.add("opacity-50");
           card.style.cursor = "not-allowed";
-          // Optionally, add an indicator if gold is insufficient:
-          if (currentGoldBalance < tier.actual_monthly_cost) {
-            const goldWarning = document.createElement("div");
-            goldWarning.className = "text-xs text-red-500 mt-1";
-            goldWarning.textContent = "Not enough gold";
-            card.appendChild(goldWarning);
-          }
         } else {
-          // Otherwise, make card selectable.
+          // Otherwise, allow selection.
           card.style.cursor = "pointer";
           card.addEventListener("click", () => {
-            // Clear selection highlighting from all other cards.
+            // Clear previous selection styling.
             const allCards = tiersContainer.querySelectorAll("div.border");
             allCards.forEach((c) =>
               c.classList.remove("border-4", "border-theme-primary")
             );
-            // Mark this card as selected.
+            // Mark current card as selected.
             card.classList.add("border-4", "border-theme-primary");
-            selectedTier = tier; // store the selected tier object
+            selectedTier = tier;
           });
         }
 
