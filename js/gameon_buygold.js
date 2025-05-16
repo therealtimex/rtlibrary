@@ -215,30 +215,50 @@ function updateUI() {
 }
 
 function updatePurchaseCalculations(gemAmount) {
-  // Compute available purchase slots based on user tier and current gems
+  // Calculate available slots based on user's tier capacity and current gem balance.
   const availableSlots = Math.max(0, maxGemCapacity - currentGemBalance);
-  // Clamp gemAmount to the available slots
+
+  // Clamp the desired purchase amount to available slots.
   const restrictedAmount = Math.min(gemAmount, availableSlots);
 
-  // Calculate the gold cost for the (restricted) gem purchase
+  // Calculate the gold cost.
   const goldCost = restrictedAmount * goldPerGem;
 
-  // Update cost and gems-to-receive displays
+  // Update the cost and gems-to-receive displays.
   safelyUpdateElement("goldCost", goldCost);
   safelyUpdateElement("gemsToPurchase", restrictedAmount);
 
-  // Also update the on-screen display of max purchasable gems using both available gold and available slot limits
+  // Update maxPurchaseAmount: the lower of gold-based limit and available slots.
   const availableByGold = Math.floor(currentGoldBalance / goldPerGem);
   safelyUpdateElement(
     "maxPurchaseAmount",
     Math.min(availableByGold, availableSlots)
   );
 
-  // Enable/disable the purchase button if the gold cost exceeds current gold or if no gems can be purchased (i.e. restrictedAmount is 0)
+  // Enable or disable the purchase button.
   const purchaseButton = document.getElementById("purchaseButton");
   if (purchaseButton) {
     purchaseButton.disabled =
       goldCost > currentGoldBalance || restrictedAmount <= 0;
+  }
+
+  // Display note if conditions prevent a purchase.
+  const purchaseNote = document.getElementById("purchaseNote");
+  if (availableSlots === 0) {
+    // User has reached their gem capacity.
+    if (purchaseNote) {
+      purchaseNote.textContent = "You have reached your gem capacity!";
+    }
+  } else if (goldCost > currentGoldBalance) {
+    // Not enough gold.
+    if (purchaseNote) {
+      purchaseNote.textContent = "Not enough gold to purchase gems!";
+    }
+  } else {
+    // Clear the note.
+    if (purchaseNote) {
+      purchaseNote.textContent = "";
+    }
   }
 }
 
