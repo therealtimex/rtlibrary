@@ -212,7 +212,7 @@ function renderGameList(games) {
           <div class="flex items-center">
             <span class="text-yellow-500 mr-1"><i class="fas fa-star"></i></span>
             <span class="font-medium text-sm mr-0.5">${rating.toFixed(1)}</span>
-            <span class="ml-1 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 99, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swf_6', args: { game_id: ${game.game_id}, title: &quot;${game.title}&quot; } }))">
+            <span class="ml-1 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 99, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swf_6', args: { game_id: ${game.game_id}, username: &quot;${game.username}&quot;, title: &quot;${game.title}&quot; } }))">
               <i class="fas fa-comment-dots"></i></span>
               ${game.username === currentUsername ? `
                 <button class="publish-button ml-2 px-3 py-1 bg-transparent" data-game-id="${game.game_id}">
