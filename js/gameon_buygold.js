@@ -118,12 +118,10 @@ function updateUI() {
         '<div class="text-center p-4 text-theme-text-secondary">No tiers available</div>';
     } else {
       tierPricing.forEach((tier) => {
-        // Create an individual tier card element
         const card = document.createElement("div");
         card.className =
           "border border-gray-200 rounded-lg p-3 flex justify-between items-center mb-2";
 
-        // Content for the card (you can also append additional text or an indicator if gold is insufficient)
         card.innerHTML = `
          <div class="flex items-center">
            <i class="fas fa-user-circle text-theme-primary text-xl mr-3"></i>
@@ -143,51 +141,39 @@ function updateUI() {
          </div>
        `;
 
-        // Determine whether to disable this card for two reasons:
-        // 1. It is the current tier.
-        // 2. The user does not have enough gold to cover the tier upgrade cost.
+        // Disable the card if it is the current tier or if not enough gold to cover its cost.
         if (
           tier.tier_name === currentTier ||
           currentGoldBalance < tier.actual_monthly_cost
         ) {
           card.classList.add("opacity-50");
           card.style.cursor = "not-allowed";
+          // Optionally, add an indicator if gold is insufficient:
+          if (currentGoldBalance < tier.actual_monthly_cost) {
+            const goldWarning = document.createElement("div");
+            goldWarning.className = "text-xs text-red-500 mt-1";
+            goldWarning.textContent = "Not enough gold";
+            card.appendChild(goldWarning);
+          }
         } else {
-          // The card is enabled: make it clickable.
+          // Otherwise, make card selectable.
           card.style.cursor = "pointer";
           card.addEventListener("click", () => {
-            // When the card is clicked, proceed to update the user's tier.
-            Data.update("users", "username", currentUsername, {
-              type: tier.tier_name,
-            })
-              .then((updatedData) => {
-                // Update local currentTier variable.
-                currentTier = tier.tier_name;
-                showPopup(
-                  `Tier upgraded to "${tier.tier_name}". Benefits updated accordingly.`
-                );
-                updateUI();
-              })
-              .catch((error) => {
-                console.error("Error upgrading tier:", error);
-                showPopup("Error upgrading tier. Please try again.");
-              });
+            // Clear selection highlighting from all other cards.
+            const allCards = tiersContainer.querySelectorAll("div.border");
+            allCards.forEach((c) =>
+              c.classList.remove("border-4", "border-theme-primary")
+            );
+            // Mark this card as selected.
+            card.classList.add("border-4", "border-theme-primary");
+            selectedTier = tier; // store the selected tier object
           });
-        }
-
-        // Optionally, if the card is disabled because of gold, add an indicator.
-        if (currentGoldBalance < tier.actual_monthly_cost) {
-          const goldWarning = document.createElement("div");
-          goldWarning.className = "text-xs text-red-500 mt-1";
-          goldWarning.textContent = "Not enough gold!";
-          card.appendChild(goldWarning);
         }
 
         tiersContainer.appendChild(card);
       });
     }
   }
-
   // Update conversion display
   const conversionDisplay = document.querySelector(
     "#getGems-content .flex.justify-between.items-center.mb-6"
