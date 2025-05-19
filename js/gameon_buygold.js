@@ -2,7 +2,7 @@
 function showPopup(message) {
   const popup = document.createElement("div");
   popup.className =
-    "fixed bg-theme-primary text-white px-4 py-2 rounded-lg shadow-lg z-50 text-wrap";
+    "fixed bg-theme-primary text-white px-4 py-2 rounded-lg shadow-lg z-50 text-wrap w-md";
   popup.style.top = "50%";
   popup.style.left = "50%";
   popup.style.transform = "translate(-50%, -50%)";
