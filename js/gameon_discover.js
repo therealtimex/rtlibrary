@@ -130,10 +130,10 @@ function renderGameGrid(games) {
           <div class="flex items-center">
             <span class="text-yellow-500 mr-1"><i class="fas fa-star"></i></span>
             <span class="font-medium text-sm">${rating.toFixed(1)}</span>
-             <span class="ml-4 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 99, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swf_6', args: { game_id: ${game.game_id}, username: &quot;${game.username}&quot;, title: &quot;${game.title}&quot; } }))">
+             <span class="ml-4 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 99, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swfdcv_6', args: { game_id: ${game.game_id}, username: &quot;${game.username}&quot;, title: &quot;${game.title}&quot; } }))">
               <i class="fas fa-comment-dots"></i>
             </span>
-            <span class="ml-4 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 98, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swf_8', args: { game_id: ${game.game_id}} }))">
+            <span class="ml-4 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 98, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swfdcv_80', args: { game_id: ${game.game_id}} }))">
               <i class="fas fa-bars"></i>
             </span>
           </div>
@@ -197,10 +197,10 @@ function renderGameList(games) {
           <div class="flex items-center">
             <span class="text-yellow-500 mr-1"><i class="fas fa-star"></i></span>
             <span class="font-medium text-sm mr-0.5">${rating.toFixed(1)}</span>
-             <span class="ml-1 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 99, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swf_6', args: { game_id: ${game.game_id}, username: &quot;${game.username}&quot;, title: &quot;${game.title}&quot; } }))">
+             <span class="ml-1 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 99, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swfdcv_6', args: { game_id: ${game.game_id}, username: &quot;${game.username}&quot;, title: &quot;${game.title}&quot; } }))">
               <i class="fas fa-comment-dots"></i>
             </span>
-            <span class="ml-4 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 98, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swf_8', args: { game_id: ${game.game_id}} }))">
+            <span class="ml-4 text-gray-500 cursor-pointer" onclick="App.callActionButton(JSON.stringify({ actionID: 98, orderNumber: 1, type: 'act_dm_view', label: 'no label', screen: '', alias: 'jxfmuo0swfdcv_80', args: { game_id: ${game.game_id}} }))">
               <i class="fas fa-bars"></i>
             </span>
           </div>
@@ -278,7 +278,7 @@ function setupCardEventListeners(card, game) {
   if (aboutButton) {
     aboutButton.addEventListener('click', (e) => {
       e.stopPropagation();
-      navigateToScreen(8, md_code = "jxfmuo0swf", args = {game_id: game.game_id})
+      navigateToScreen(80, md_code = "jxfmuo0swfdcv", args = {game_id: game.game_id})
     });
   }
 }
@@ -331,7 +331,7 @@ function setupListItemEventListeners(listItem, game) {
   if (aboutButton) {
     aboutButton.addEventListener('click', (e) => {
       e.stopPropagation();
-      navigateToScreen(8, md_code = "jxfmuo0swf", args = {game_id: game.game_id})
+      navigateToScreen(80, md_code = "jxfmuo0swfdcv", args = {game_id: game.game_id})
     });
   }
 }
