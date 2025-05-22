@@ -278,7 +278,7 @@ function setupCardEventListeners(card, game) {
   if (aboutButton) {
     aboutButton.addEventListener('click', (e) => {
       e.stopPropagation();
-      navigateToScreen(80, "jxfmuo0swfdcv", {game_id: game.game_id})
+      navigateToScreen(8, "jxfmuo0swf", {game_id: game.game_id})
     });
   }
 }
@@ -331,7 +331,7 @@ function setupListItemEventListeners(listItem, game) {
   if (aboutButton) {
     aboutButton.addEventListener('click', (e) => {
       e.stopPropagation();
-      navigateToScreen(80, "jxfmuo0swfdcv", {game_id: game.game_id})
+      navigateToScreen(8, "jxfmuo0swf", {game_id: game.game_id})
     });
   }
 }
