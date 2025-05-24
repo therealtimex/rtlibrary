@@ -383,81 +383,66 @@ function setupRequestJoinEvent() {
   const btnRequestJoin = document.getElementById('btn-request-join');
   if (btnRequestJoin) {
     btnRequestJoin.onclick = function () {
-  const orgId = T.foundOrgInfo.org_id;
-  const orgName = T.foundOrgInfo.org_name;
+      const orgId = T.foundOrgInfo?.org_id;
+      const orgName = T.foundOrgInfo?.org_name || 'Tổ chức';
 
-  fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      event_id: 'rthrm.user',
-      user_trial: '0',
-      project_code: PROJECT_CODE,
-      username: USERNAME,
-      fullname: USER_FULLNAME,
-      user_role: 'ea8018e243_HRM Staff',
-      org_id: orgId,
-      org_name: orgName
-    })
-  }).catch(err => {
-    console.error('Join fireEvent error:', err);
-  });
+      fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_id: 'rthrm.user',
+          user_trial: '0',
+          project_code: PROJECT_CODE,
+          username: USERNAME,
+          fullname: USER_FULLNAME,
+          user_role: 'ea8018e243_HRM Staff',
+          org_id: orgId,
+          org_name: orgName
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then(() => {
+        showJoinNotify(orgName, getUserEmail());
+      })
+      .catch(err => {
+        console.error('Join fireEvent error:', err);
+        showJoinError();
+      });
+    };
+  }
 
-  const popup = document.getElementById('official-mode-popup');
-  const container = popup.querySelector('.official-popup-inner');
+  function showJoinNotify(orgName, email) {
+    const popup = document.getElementById('official-mode-popup');
+    const container = popup.querySelector('.official-popup-inner');
+    container.innerHTML = `
+      <div style="font-size: 1rem; line-height: 1.6; color: #333; text-align: left;">
+        ${T.joinNotify.replace('{org}', `<b>${orgName}</b>`).replace('{email}', `<b>${email}</b>`)}
+      </div>
+      <div style="text-align: center; margin-top: 24px;">
+        <button style="background: var(--primary-color, #009688); color: #fff; border: none; border-radius: 6px; padding: 5px 15px; font-weight: 500; font-size: 0.9rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;" id="btn-close-request-join">${T.close}</button>
+      </div>
+    `;
+    document.getElementById('btn-close-request-join').onclick = closeOfficialPopup;
+  }
 
-  // Ẩn các thành phần
-  document.getElementById('official-title').style.display = 'none';
-  document.getElementById('org-code-input').style.display = 'none';
-  document.getElementById('clear-input-btn').style.display = 'none';
-  document.getElementById('org-found').style.display = 'none';
-  document.getElementById('btn-request-join').style.display = 'none';
-  document.getElementById('btn-create-org').style.display = 'none';
-  document.getElementById('official-or').style.display = 'none';
-
-  // Xóa thông báo cũ nếu có
-  const oldNotify = container.querySelector('.request-notify');
-  if (oldNotify) oldNotify.remove();
-
-  // Tạo nội dung thông báo + nút đóng bên dưới
-const notifyBox = document.createElement('div');
-notifyBox.className = 'request-notify';
-notifyBox.style.marginTop = '14px';
-notifyBox.style.fontSize = '0.95rem';
-notifyBox.style.padding = '12px';
-notifyBox.style.background = '#fff';
-notifyBox.style.color = '#000';
-notifyBox.style.borderRadius = '8px';
-notifyBox.innerHTML = `
-  <div style="font-size: 1rem; line-height: 1.6; color: #333; text-align: left;">
-    ${T.joinNotify
-      .replace('{org}', `<b>${orgName}</b>`)
-      .replace('{email}', `<b>${getUserEmail()}</b>`)}
-  </div>
-  <div style="text-align: center; margin-top: 24px;">
-    <button style="
-  background: var(--primary-color, #009688);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 5px 15px;
-  font-weight: 500;
-  font-size: 0.9rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  cursor: pointer;
-" id="btn-close-request-join">${T.close}</button>
-  </div>
-`;
-
-container.appendChild(notifyBox);
-
-// Gắn sự kiện cho nút "Đóng"
-document.getElementById('btn-close-request-join').onclick = closeOfficialPopup;
-};
-
-
+  function showJoinError() {
+    const popup = document.getElementById('official-mode-popup');
+    const container = popup.querySelector('.official-popup-inner');
+    container.innerHTML = `
+      <div style="color:red; font-weight:500; margin-bottom:8px;">
+        ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
+      </div>
+      <div style="text-align: center; margin-top: 24px;">
+        <button style="background: var(--primary-color, #009688); color: #fff; border: none; border-radius: 6px; padding: 5px 15px; font-weight: 500; font-size: 0.9rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;" id="btn-close-request-join">${T.close}</button>
+      </div>
+    `;
+    document.getElementById('btn-close-request-join').onclick = closeOfficialPopup;
   }
 }
+
 
 // ==== Nút khởi tạo tổ chức mới ====
 function setupCreateOrgEvent() {
@@ -466,7 +451,7 @@ function setupCreateOrgEvent() {
     btnCreateOrg.onclick = function () {
   document.getElementById('official-mode-popup').style.display = 'none';
   document.getElementById('modal-create-org').style.display = 'flex';
-  setTimeout(renderOrgFormLang, 50); // ⏱️ Gọi sau 50ms để chắc chắn DOM đã sẵn sàng
+  setTimeout(renderOrgFormLang, 50); 
 };
   }
 
@@ -522,17 +507,50 @@ function setupModeButtons() {
   const btnTrial = document.getElementById('btn-trial-mode');
   if (btnTrial) {
     btnTrial.onclick = function () {
-      const container = document.querySelector('.mode-selection-container');
-      if (container) {
-        container.innerHTML = `
-          <div style="font-size:1rem;margin-bottom:18px;text-align:left;line-height: 1.6">
-            ${T.trialNotify.replace('{user}', getUserName()).replace('{email}', getUserEmail())}
-          </div>
-          <button style="background:#009688;color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem" id="btn-close-notify-inplace">${T.close}</button>
-        `;
-        document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
-      }
-    };
+  fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      event_id: 'rthrm.user',
+      user_trial: '1',
+      project_code: PROJECT_CODE,
+      username: USERNAME,
+      fullname: USER_FULLNAME,
+      user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
+      org_id: 'ea8018e243',
+      org_name: 'Real-Time Analytics'
+    })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  })
+  .then(() => {
+    const container = document.querySelector('.mode-selection-container');
+    if (container) {
+      container.innerHTML = `
+        <div style="font-size:1rem;margin-bottom:18px;text-align:left;line-height: 1.6">
+          ${T.trialNotify.replace('{user}', getUserName()).replace('{email}', getUserEmail())}
+        </div>
+        <button style="background:#009688;color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem" id="btn-close-notify-inplace">${T.close}</button>
+      `;
+      document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
+    }
+  })
+  .catch(err => {
+    console.error('Trial fireEvent error:', err);
+    const container = document.querySelector('.mode-selection-container');
+    if (container) {
+      container.innerHTML = `
+        <div style="color:red; font-weight:500; margin-bottom:8px;">
+          ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
+        </div>
+        <button style="background:#009688;color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem" id="btn-close-notify-inplace">${T.close}</button>
+      `;
+      document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
+    }
+  });
+};
   }
 
   // Nút Chính thức
@@ -550,24 +568,6 @@ function setupTrialTagEvent() {
   if (trialTag) {
     trialTag.onclick = function () {
   openOfficialPopup('trial');
-
-  fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      event_id: 'rthrm.user',
-      user_trial: '1',
-      project_code: PROJECT_CODE,
-      username: USERNAME,
-      fullname: USER_FULLNAME,
-      user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
-      org_id: 'ea8018e243',
-      org_name: 'Real-Time Analytics'
-    })
-  })
-  .catch(err => {
-    console.error('Trial fireEvent error:', err);
-  });
 };
   }
 }
@@ -671,11 +671,15 @@ if (userType === 'trial') {
 
   fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
   method: 'POST',
-
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(payload)
 })
-.then(res => res.json())
+.then(res => {
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+  return res.json();
+})
 .then(() => {
   document.getElementById('modal-create-org').style.display = 'none';
   document.getElementById('notification-message').innerHTML = T.notify(orgName, contactEmail);
@@ -683,13 +687,16 @@ if (userType === 'trial') {
   form.reset();
 })
 .catch(err => {
+  console.error('Submit error:', err);
   document.getElementById('modal-create-org').style.display = 'none';
   document.getElementById('notification-message').innerHTML = `
     <div style="color: red; font-weight: 500; margin-bottom: 8px;">${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}</div>
-    
   `;
   document.getElementById('notification-popup').style.display = 'flex';
 });
+
+
+
   });
 }
 
