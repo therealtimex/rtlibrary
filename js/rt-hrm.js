@@ -505,53 +505,68 @@ function closeOfficialPopup() {
 function setupModeButtons() {
   // Nút Trải nghiệm
   const btnTrial = document.getElementById('btn-trial-mode');
-  if (btnTrial) {
-    btnTrial.onclick = function () {
-  fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      event_id: 'rthrm.user',
-      user_trial: '1',
-      project_code: PROJECT_CODE,
-      username: USERNAME,
-      fullname: USER_FULLNAME,
-      user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
-      org_id: 'ea8018e243',
-      org_name: 'Real-Time Analytics'
+if (btnTrial) {
+  btnTrial.onclick = function () {
+    btnTrial.disabled = true; // Tạm thời disable nút khi gửi
+
+    fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_id: 'rthrm.user',
+        user_trial: '1',
+        project_code: PROJECT_CODE,
+        username: USERNAME,
+        fullname: USER_FULLNAME,
+        user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
+        org_id: 'ea8018e243',
+        org_name: 'Real-Time Analytics'
+      })
     })
-  })
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.json();
-  })
-  .then(() => {
-    const container = document.querySelector('.mode-selection-container');
-    if (container) {
-      container.innerHTML = `
-        <div style="font-size:1rem;margin-bottom:18px;text-align:left;line-height: 1.6">
-          ${T.trialNotify.replace('{user}', getUserName()).replace('{email}', getUserEmail())}
-        </div>
-        <button style="background:#009688;color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem" id="btn-close-notify-inplace">${T.close}</button>
-      `;
-      document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
-    }
-  })
-  .catch(err => {
-    console.error('Trial fireEvent error:', err);
-    const container = document.querySelector('.mode-selection-container');
-    if (container) {
-      container.innerHTML = `
-        <div style="color:red; font-weight:500; margin-bottom:8px;">
-          ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
-        </div>
-        <button style="background:#009688;color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem" id="btn-close-notify-inplace">${T.close}</button>
-      `;
-      document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
-    }
-  });
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      return res.json();
+    })
+    .then(() => {
+      // Thành công: Hiển thị thông báo và disable nút trong 30 giây
+      const container = document.querySelector('.mode-selection-container');
+      if (container) {
+        container.innerHTML = `
+          <div style="font-size:1rem;margin-bottom:18px;text-align:left;line-height: 1.6">
+            ${T.trialNotify.replace('{user}', getUserName()).replace('{email}', getUserEmail())}
+          </div>
+          <button style="background:#009688;color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem" id="btn-close-notify-inplace">${T.close}</button>
+        `;
+        document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
+      }
+
+      // Disable nút trong 30s để tránh gửi nhiều lần
+      setTimeout(() => {
+        btnTrial.disabled = false; // Kích hoạt lại nút sau 30s
+      }, 30000);
+    })
+    .catch(err => {
+      console.error('Trial fireEvent error:', err);
+
+      // Thất bại: Hiển thị thông báo lỗi và vẫn giữ nút cho phép thử lại
+      const container = document.querySelector('.mode-selection-container');
+      if (container) {
+        container.innerHTML = `
+          <div style="color:red; font-weight:500; margin-bottom:8px;">
+            ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
+          </div>
+          <button style="background:#009688;color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem" id="btn-close-notify-inplace">${T.close}</button>
+        `;
+        document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
+      }
+
+      btnTrial.disabled = false; // Mở lại nút ngay khi lỗi
+    });
+  };
+}
+
 };
-  }
+  
 
   // Nút Chính thức
   const btnOfficial = document.getElementById('btn-official-mode');
@@ -560,7 +575,7 @@ function setupModeButtons() {
       openOfficialPopup('unidentified');
     };
   }
-}
+
 
 // ==== Gắn sự kiện cho tag trial user (nút cam góc phải) ====
 function setupTrialTagEvent() {
