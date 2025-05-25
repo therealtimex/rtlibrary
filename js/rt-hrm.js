@@ -296,7 +296,7 @@ function setupRequestJoinEvent() {
     const popup = document.getElementById('official-mode-popup');
     const container = popup.querySelector('.official-popup-inner');
     container.innerHTML = `
-      <div style="font-size: 1rem; line-height: 1.6; color: #333; text-align: left;">
+      <div style="font-size: 1rem; line-height: 1.6; color: #333; text-align: center;">
         ${T.joinNotify.replace('{org}', `<b>${orgName}</b>`).replace('{email}', `<b>${email}</b>`)}
       </div>
       <div style="text-align: center; margin-top: 24px;">
@@ -310,7 +310,7 @@ function setupRequestJoinEvent() {
     const popup = document.getElementById('official-mode-popup');
     const container = popup.querySelector('.official-popup-inner');
     container.innerHTML = `
-      <div style="color:red; font-weight:500; margin-bottom:8px;">
+      <div style="color:red; font-weight:500; margin-bottom:8px; text-align:center;">
         ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
       </div>
       <div style="text-align: center; margin-top: 24px;">
@@ -385,60 +385,73 @@ function setupModeButtons() {
   const btnTrial = document.getElementById('btn-trial-mode');
 if (btnTrial) {
   btnTrial.onclick = function () {
-  btnTrial.onclick = function () {
-  btnTrial.disabled = true;
+    btnTrial.disabled = true; // Disable tạm thời để tránh bấm nhanh liên tiếp
 
-  fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      event_id: 'rthrm.user',
-      user_trial: '1',
-      project_code: PROJECT_CODE,
-      username: USERNAME,
-      fullname: USER_FULLNAME,
-      user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
-      org_id: 'ea8018e243',
-      org_name: 'Real-Time Analytics'
+    fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_id: 'rthrm.user',
+        user_trial: '1',
+        project_code: PROJECT_CODE,
+        username: USERNAME,
+        fullname: USER_FULLNAME,
+        user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
+        org_id: 'ea8018e243',
+        org_name: 'Real-Time Analytics'
+      })
     })
-  })
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.json();
-  })
-  .then(() => {
-    // Cập nhật trạng thái userType
-    userType = 'trial';
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      return res.json();
+    })
+    .then(() => {
+      // Cập nhật trạng thái userType
+      userType = 'trial';
+      renderByUserType(); // Gọi lại UI đúng
 
-    // Gọi render lại UI dựa vào userType
-    renderByUserType();
+      // Hiển thị thông báo thành công
+      const container = document.querySelector('.mode-selection-container');
+      if (container) {
+        container.innerHTML = `
+          <div style="font-size:1rem;line-height:1.6;text-align:center;">
+            ${T.trialNotify.replace('{user}', getUserName()).replace('{email}', getUserEmail())}
+          </div>
+          <div style="text-align:center;margin-top:16px;">
+            <button style="background: var(--primary-color, #009688);color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem;" id="btn-close-notify-inplace">${T.close}</button>
+          </div>
+        `;
+        document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
+      }
 
-    // Disable nút 30s (nếu muốn)
-    setTimeout(() => {
+      // Disable nút 15s để tránh spam
+      setTimeout(() => {
+        btnTrial.disabled = false;
+      }, 15000);
+    })
+    .catch(err => {
+      console.error('Trial fireEvent error:', err);
+
+      // Hiển thị thông báo lỗi
+      const container = document.querySelector('.mode-selection-container');
+      if (container) {
+        container.innerHTML = `
+          <div style="color:red;font-weight:500;margin-bottom:8px;text-align:center;">
+            ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
+          </div>
+          <div style="text-align:center;margin-top:16px;">
+            <button style="background: var(--primary-color, #009688);color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem;" id="btn-close-notify-inplace">${T.close}</button>
+          </div>
+        `;
+        document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
+      }
+
+      // Gửi lỗi: mở lại nút Trial User
       btnTrial.disabled = false;
-    }, 30000);
-  })
-  .catch(err => {
-    console.error('Trial fireEvent error:', err);
-    const container = document.querySelector('.mode-selection-container');
-    if (container) {
-      container.innerHTML = `
-        <div style="color:red; font-weight:500; margin-bottom:8px;">
-          ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
-        </div>
-        <button style="background:#009688;color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem" id="btn-close-notify-inplace">${T.close}</button>
-      `;
-      document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
-    }
-
-    btnTrial.disabled = false;
-  });
-};
-  
-    
+    });
+  };
 }
 
-  }
 
   // Nút Chính thức
   const btnOfficial = document.getElementById('btn-official-mode');
@@ -577,7 +590,7 @@ if (userType === 'trial') {
   console.error('Submit error:', err);
   document.getElementById('modal-create-org').style.display = 'none';
   document.getElementById('notification-message').innerHTML = `
-    <div style="color: red; font-weight: 500; margin-bottom: 8px;">${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}</div>
+    <div style="color: red; font-weight: 500; margin-bottom: 8px; text-align:center;">${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}</div>
   `;
   document.getElementById('notification-popup').style.display = 'flex';
 });
