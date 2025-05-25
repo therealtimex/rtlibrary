@@ -1,149 +1,19 @@
-const LANG = {
-      vi: {
-        monthNames: [
-          "Tháng 1","Tháng 2","Tháng 3","Tháng 4","Tháng 5","Tháng 6",
-          "Tháng 7","Tháng 8","Tháng 9","Tháng 10","Tháng 11","Tháng 12"
-        ],
-        weekdayNames: ["T2","T3","T4","T5","T6","T7","CN"],
-        loading: "Đang tải dữ liệu...",
-        error: "Không thể tải dữ liệu. Vui lòng thử lại sau.",
-        weekTitle: (start, end) => `Tuần ${start} - ${end}`,
-        monthTitle: (month, year) => `${month}, ${year}`,
-        checkinHistory: "Lịch sử chấm công",
-        leave: "Nghỉ phép",
-        ot: "Tăng ca",
-        salary: "Lương",
-        business: "Công tác",
-        rule: "Nội quy",
-        benefit: "Phúc lợi",
-        task: "Công việc",
-        asset: "Tài sản",
-        expense: "Thu chi",
-        dayDetail: date => `Chi tiết ngày ${date}`,
-        attendance: "Chấm công",
-        leaveDetail: "Nghỉ phép",
-        holiday: "Nghỉ lễ",
-        in: "Đã Check-In",
-        tempin: "Đã Check-In tạm",
-        out: "Đã Check-Out",
-        tempout: "Đã Check-Out tạm",
-        notFound: "Chưa có dữ liệu chấm công trong năm hiện tại.",
-        firstCheckin: "Chấm công lần đầu",
-        dashboard: "Dashboard",
-        unit: "Ngày",
-        unitHour: "Giờ",
-        unitOT: "Giờ",
-        reportOT: "Báo cáo OT",
-        attendanceActionCheckin: "Thực hiện Check-In",
-        attendanceActionCheckout: "Thực hiện Check-Out",
-        checkinRemote: "Từ xa",
-        checkinTemp: "Tạm thời",
-        noAppCallActionButton: "Không tìm được chức năng!",
-        featureNotSupported: "Tính năng chưa được hỗ trợ!",
-        dashboardError: "Không tạo được Dashboard. Kiểm tra lại kết nối mạng!",
-        unidentifiedTitle: "Bạn đang là Người dùng thuộc <b id='unidentified-org-name'>##user.organization_name##</b>",
-    unidentifiedDesc: "Tiếp tục sử dụng Real-time HRM với vai trò:",
-    trialBtn: "Người dùng trải nghiệm",
-    officialBtn: "Người dùng chính thức",
-    trialNotify: "Hệ thống đang xử lý yêu cầu sử dụng Real-time HRM - Người dùng trải nghiệm cho <b>{user}</b>, vui lòng chờ 3-5 phút để xác nhận thông tin và khởi tạo dữ liệu!<br>Kết quả sẽ được gửi qua <b>{email}</b> và mục Thông báo hệ thống trên App.<br>Trân trọng!",
-    close: "Đóng",
-    officialTitle: "Chuyển sang Người dùng chính thức",
-    orgPlaceholder: "Nhập mã tổ chức",
-    confirm: "Xác nhận",
-    join: "Yêu cầu tham gia",
-    or: "hoặc",
-    createOrg: "Khởi tạo tổ chức mới",
-    error_empty: "Vui lòng nhập mã tổ chức.",
-    error_notfound: "Không tìm thấy tổ chức với mã này. Vui lòng kiểm tra lại.",
-    
-    joinNotify: "Hệ thống đã gửi yêu cầu tham gia đến <b>{org}</b>, vui lòng chờ bộ phận Quản lý xác nhận!<br>Kết quả sẽ được gửi qua <b>{email}</b> và mục Thông báo hệ thống trên App.<br>Trân trọng!",
-    createOrgConfirm: "Bạn có muốn khởi tạo Tổ chức mới không?",
-    trialTag: "Người dùng trải nghiệm",
-    orgName: "Tên Tổ chức",
-  shortName: "Tên ngắn gọn (dưới 30 ký tự)",
-  
-  contactName: "Họ và tên",
-  contactEmail: "Email",
-  contactPhone: "Số điện thoại",
-  submitBtn: "GỬI",
-  notify: (org, email) => `Hệ thống đang xử lý yêu cầu Khởi tạo Tổ chức mới cho <b>${org}</b>, vui lòng chờ 3-5 phút để xác nhận thông tin và khởi tạo dữ liệu!<br>Kết quả sẽ được gửi qua <b>${email}</b> và mục Thông báo hệ thống trên App.<br>Trân trọng!`
-      },
-      en: {
-        monthNames: [
-          "January","February","March","April","May","June",
-          "July","August","September","October","November","December"
-        ],
-        weekdayNames: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-        loading: "Loading data...",
-        error: "Cannot load data. Please try again later.",
-        weekTitle: (start, end) => `Week ${start} - ${end}`,
-        monthTitle: (month, year) => `${month}, ${year}`,
-        checkinHistory: "Attendance History",
-        leave: "Leave",
-        ot: "Overtime",
-        salary: "Salary",
-        business: "Business Trip",
-        rule: "Regulation",
-        benefit: "Benefit",
-        task: "Task",
-        asset: "Asset",
-        expense: "Expense",
-        dayDetail: date => `Day details ${date}`,
-        attendance: "Attendance",
-        leaveDetail: "Leave",
-        holiday: "Holiday",
-        in: "Checked In",
-        tempin: "Temp Checked In",
-        out: "Checked Out",
-        tempout: "Temp Checked Out",
-        notFound: "No attendance data found for current year.",
-        firstCheckin: "First Check-in",
-        dashboard: "Dashboard",
-        unit: "Day(s)",
-        unitHour: "Hour(s)",
-        unitOT: "Hour(s)",
-        reportOT: "Report OT",
-        attendanceActionCheckin: "Check-In",
-        attendanceActionCheckout: "Check-Out", 
-        checkinRemote: "Remote",
-        checkinTemp: "Temp",
-        noAppCallActionButton: "App.callActionButton not found",
-        featureNotSupported: "Feature not supported",
-        dashboardError: "Cannot connect to dashboard!",
-        unidentifiedTitle: "You are a user of <b id='unidentified-org-name'>##user.organization_name##</b>",
-    unidentifiedDesc: "Continue using Real-time HRM as:",
-    trialBtn: "Trial user",
-    officialBtn: "Official user",
-    trialNotify: "The system is processing the request to use Real-time HRM - User Trial for <b>{user}</b>. Please wait 3-5 minutes for verification and data initialization!<br>The result will be sent to <b>{email}</b> and the System Notification section in the App.<br>Thank you!",
-    close: "Close",
-    officialTitle: "Switch to Official User",
-    orgPlaceholder: "Enter organization code",
-    confirm: "Confirm",
-    join: "Request to join",
-    or: "or",
-    createOrg: "Create new organization",
-    error_empty: "Please enter organization code.",
-    error_notfound: "Organization not found. Please check your code.",
-    
-    joinNotify: "The system has sent a join request to <b>{org}</b>. Please wait for admin approval!<br>The result will be sent to <b>{email}</b> and the System Notification section in the App.<br>Thank you!",
-    createOrgConfirm: "Do you want to create a new organization?",
-    trialTag: "Trial user",
-    orgName: "Organization Name",
-  shortName: "Short Name (under 30 characters)",
-  
-  contactName: "Contact Name",
-  contactEmail: "Email",
-  contactPhone: "Phone Number",
-  submitBtn: "SUBMIT",
-  notify: (org, email) => `We are processing your request to create the new organization <b>${org}</b>. Please wait 3-5 minutes for confirmation and data initialization.<br>The result will be sent to <b>${email}</b> and the System Notification section in the App.<br>Thank you!`
+function renderOrgFormLang() {
+  document.getElementById('org-form-desc').textContent = 
+  appLanguage === 'vi' 
+  ? "Vui lòng cung cấp Thông tin để Hệ thống khởi tạo Tổ chức mới:" 
+  : "Please provide the information so the system can create a New organization:";
+  document.getElementById('org-form-title').textContent = appLanguage === 'vi' ? 'Khởi tạo tổ chức mới' : 'Create New Organization';
 
-      }
-    };
+  document.getElementById('label-org-name').textContent = T.orgName;
+  document.getElementById('label-org-short').textContent = T.shortName;
+  document.getElementById('label-contact-name').textContent = T.contactName;
+  document.getElementById('label-contact-email').textContent = T.contactEmail;
+  document.getElementById('label-contact-phone').textContent = T.contactPhone;
+  document.getElementById('btn-submit-org').textContent = T.submitBtn;
+}
 
-    // Đọc biến appLanguage từ backend
-    const appLanguage = APP_LANGUAGE === "en" ? "en" : "vi";
-    const T = LANG[appLanguage];
-
+;
     // ==== Hàm lấy thông tin user ====
 function getUserEmail() {
   return USER_EMAIL || 'user@example.com';
@@ -270,24 +140,32 @@ function showUnidentifiedScreen() {
 
 // ==== Reset input mã tổ chức + trạng thái popup ====
 function resetOrgCodeInput() {
-  document.getElementById('official-title').style.display = '';
-  document.getElementById('org-code-input').style.display = '';
-  document.getElementById('org-code-input').value = '';
-  document.getElementById('clear-input-btn').style.display = 'none';
-  document.getElementById('org-code-error').style.display = 'none';
-  document.getElementById('org-found').style.display = 'none';
-  document.getElementById('btn-request-join').style.display = 'block';
-  document.getElementById('btn-create-org').style.display = 'block';
-  document.getElementById('official-or').style.display = 'block';
-  document.getElementById('org-name').textContent = '';
-  const btnVerify = document.getElementById('btn-verify-org');
-  if (btnVerify) btnVerify.style.display = 'block';
-
-  // Xóa thông báo nếu có
   const container = document.querySelector('.official-popup-inner');
-  const notifyBox = container?.querySelector('.request-notify');
-  if (notifyBox) notifyBox.remove();
+  
+  if (container) {
+    container.innerHTML = `
+      <div class="official-title" id="official-title">${T.officialTitle}</div>
+      <div class="official-org-input">
+        <input id="org-code-input" type="text" placeholder="${T.orgPlaceholder}" />
+        <button id="clear-input-btn" style="display:none;">×</button>
+      </div>
+      <div id="org-code-error" class="input-error" style="display:none;"></div>
+      <div id="org-found" class="org-found-container" style="display:none;">
+        <div><b id="org-name"></b></div>
+        <button id="btn-request-join">${T.join}</button>
+      </div>
+      <button id="btn-verify-org">${T.confirm}</button>
+      <div class="divider" id="official-or">${T.or}</div>
+      <button id="btn-create-org">${T.createOrg}</button>
+    `;
+  }
+
+  // Gắn lại sự kiện cho các nút và input
+  setupOrgCodeEvents();
+  setupRequestJoinEvent();
+  setupCreateOrgEvent();
 }
+
 
 // ==== Hàm cập nhật song ngữ cho popup chuyển chính thức ====
 function renderOfficialPopupLang() {
@@ -507,66 +385,60 @@ function setupModeButtons() {
   const btnTrial = document.getElementById('btn-trial-mode');
 if (btnTrial) {
   btnTrial.onclick = function () {
-    btnTrial.disabled = true; // Tạm thời disable nút khi gửi
+  btnTrial.onclick = function () {
+  btnTrial.disabled = true;
 
-    fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event_id: 'rthrm.user',
-        user_trial: '1',
-        project_code: PROJECT_CODE,
-        username: USERNAME,
-        fullname: USER_FULLNAME,
-        user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
-        org_id: 'ea8018e243',
-        org_name: 'Real-Time Analytics'
-      })
+  fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      event_id: 'rthrm.user',
+      user_trial: '1',
+      project_code: PROJECT_CODE,
+      username: USERNAME,
+      fullname: USER_FULLNAME,
+      user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
+      org_id: 'ea8018e243',
+      org_name: 'Real-Time Analytics'
     })
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      return res.json();
-    })
-    .then(() => {
-      // Thành công: Hiển thị thông báo và disable nút trong 30 giây
-      const container = document.querySelector('.mode-selection-container');
-      if (container) {
-        container.innerHTML = `
-          <div style="font-size:1rem;margin-bottom:18px;text-align:left;line-height: 1.6">
-            ${T.trialNotify.replace('{user}', getUserName()).replace('{email}', getUserEmail())}
-          </div>
-          <button style="background:#009688;color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem" id="btn-close-notify-inplace">${T.close}</button>
-        `;
-        document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
-      }
+  })
+  .then(res => {
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  })
+  .then(() => {
+    // Cập nhật trạng thái userType
+    userType = 'trial';
 
-      // Disable nút trong 30s để tránh gửi nhiều lần
-      setTimeout(() => {
-        btnTrial.disabled = false; // Kích hoạt lại nút sau 30s
-      }, 30000);
-    })
-    .catch(err => {
-      console.error('Trial fireEvent error:', err);
+    // Gọi render lại UI dựa vào userType
+    renderByUserType();
 
-      // Thất bại: Hiển thị thông báo lỗi và vẫn giữ nút cho phép thử lại
-      const container = document.querySelector('.mode-selection-container');
-      if (container) {
-        container.innerHTML = `
-          <div style="color:red; font-weight:500; margin-bottom:8px;">
-            ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
-          </div>
-          <button style="background:#009688;color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem" id="btn-close-notify-inplace">${T.close}</button>
-        `;
-        document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
-      }
+    // Disable nút 30s (nếu muốn)
+    setTimeout(() => {
+      btnTrial.disabled = false;
+    }, 30000);
+  })
+  .catch(err => {
+    console.error('Trial fireEvent error:', err);
+    const container = document.querySelector('.mode-selection-container');
+    if (container) {
+      container.innerHTML = `
+        <div style="color:red; font-weight:500; margin-bottom:8px;">
+          ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
+        </div>
+        <button style="background:#009688;color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem" id="btn-close-notify-inplace">${T.close}</button>
+      `;
+      document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
+    }
 
-      btnTrial.disabled = false; // Mở lại nút ngay khi lỗi
-    });
-  };
-}
-
+    btnTrial.disabled = false;
+  });
 };
   
+    
+}
+
+  }
 
   // Nút Chính thức
   const btnOfficial = document.getElementById('btn-official-mode');
@@ -575,7 +447,7 @@ if (btnTrial) {
       openOfficialPopup('unidentified');
     };
   }
-
+}
 
 // ==== Gắn sự kiện cho tag trial user (nút cam góc phải) ====
 function setupTrialTagEvent() {
