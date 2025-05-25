@@ -767,7 +767,7 @@ function callActionArrow() {
     1,
     "username.raw",
     [
-      { term: { "org_id.raw": { value: USER_ORG_ID } } },
+      { term: { "organization_id.raw": { value: USER_ORG_ID } } },
       { term: { "username.raw": { value: USERNAME } } }
     ],
     "added_date",
