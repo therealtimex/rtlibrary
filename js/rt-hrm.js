@@ -259,39 +259,45 @@ function setupOrgCodeEvents() {
 // ==== Yêu cầu tham gia tổ chức ====
 function setupRequestJoinEvent() {
   const btnRequestJoin = document.getElementById('btn-request-join');
-  if (btnRequestJoin) {
-    btnRequestJoin.onclick = function () {
-      const orgId = T.foundOrgInfo?.org_id;
-      const orgName = T.foundOrgInfo?.org_name || 'Tổ chức';
+if (btnRequestJoin) {
+  btnRequestJoin.onclick = function () {
+    const orgId = T.foundOrgInfo?.org_id;
+    const orgName = T.foundOrgInfo?.org_name;
 
-      fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event_id: 'rthrm.user',
-          user_trial: '0',
-          project_code: PROJECT_CODE,
-          email: USER_EMAIL,
-          username: USERNAME,
-          fullname: USER_FULLNAME,
-          user_role: 'ea8018e243_HRM Staff',
-          org_id: orgId,
-          org_name: orgName
-        })
+    if (!orgId || !orgName) {
+      alert('Vui lòng nhập mã tổ chức hợp lệ và xác nhận trước khi yêu cầu tham gia.');
+      return;
+    }
+
+    fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_id: 'rthrm.user',
+        user_trial: '0',
+        project_code: PROJECT_CODE,
+        email: USER_EMAIL,
+        username: USERNAME,
+        fullname: USER_FULLNAME,
+        user_role: 'ea8018e243_HRM Staff',
+        org_id: orgId,
+        org_name: orgName
       })
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then(() => {
-        showJoinNotify(orgName, getUserEmail());
-      })
-      .catch(err => {
-        console.error('Join fireEvent error:', err);
-        showJoinError();
-      });
-    };
-  }
+    })
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      return res.json();
+    })
+    .then(() => {
+      showJoinNotify(orgName, getUserEmail());
+    })
+    .catch(err => {
+      console.error('Join fireEvent error:', err);
+      showJoinError();
+    });
+  };
+}
+
 
   function showJoinNotify(orgName, email) {
     const popup = document.getElementById('official-mode-popup');
