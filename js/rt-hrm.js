@@ -240,10 +240,15 @@ function setupOrgCodeEvents() {
         });
         const data = await response.json();
         if (data.hits && data.hits.hits && data.hits.hits.length > 0) {
+          const foundOrg = data.hits.hits[0]._source; 
           errorElement.style.display = 'none';
           btnVerifyOrg.style.display = 'none';
           document.getElementById('org-name').textContent = data.hits.hits[0]._source.org_lb || (appLanguage === 'en' ? 'Organization' : 'Tổ chức');
           document.getElementById('org-found').style.display = 'block';
+          T.foundOrgInfo = {
+    org_id: foundOrg.org_id,
+    org_name: foundOrg.org_lb
+  };
         } else {
           errorElement.textContent = T.error_notfound;
           errorElement.style.display = 'block';
@@ -261,14 +266,19 @@ function setupRequestJoinEvent() {
   const btnRequestJoin = document.getElementById('btn-request-join');
 if (btnRequestJoin) {
   btnRequestJoin.onclick = function () {
+   
+
+    // Lấy thông tin từ T.foundOrgInfo đã được gán sau bước xác thực mã tổ chức
     const orgId = T.foundOrgInfo?.org_id;
     const orgName = T.foundOrgInfo?.org_name;
 
+    // Nếu không có giá trị hợp lệ, cảnh báo và return
     if (!orgId || !orgName) {
       alert('Vui lòng nhập mã tổ chức hợp lệ và xác nhận trước khi yêu cầu tham gia.');
       return;
     }
 
+    // Gửi JSON yêu cầu tham gia
     fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -297,6 +307,7 @@ if (btnRequestJoin) {
     });
   };
 }
+
 
 
   function showJoinNotify(orgName, email) {
