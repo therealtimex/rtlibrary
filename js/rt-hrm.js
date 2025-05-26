@@ -283,16 +283,20 @@ if (btnRequestJoin) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        event_id: 'rthrm.user',
-        user_trial: '0',
-        project_code: PROJECT_CODE,
-        email: USER_EMAIL,
-        username: USERNAME,
-        fullname: USER_FULLNAME,
-        user_role: 'ea8018e243_HRM Staff',
-        org_id: orgId,
-        org_name: orgName
-      })
+    event_id: 'rthrm.user',
+    user_trial: '0',
+    project_code: PROJECT_CODE,
+    data: [
+        {
+            username: USERNAME,
+            fullname: USER_FULLNAME,
+            user_role: 'ea8018e243_HRM Staff',
+            email: USER_EMAIL,
+            org_id: orgId,
+            org_name: orgName
+        }
+    ]
+})
     })
     .then(res => {
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -412,16 +416,20 @@ if (btnTrial) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        event_id: 'rthrm.user',
-        user_trial: '1',
-        project_code: PROJECT_CODE,
-        username: USERNAME,
-        email: USER_EMAIL,
-        fullname: USER_FULLNAME,
-        user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
-        org_id: 'ea8018e243',
-        org_name: 'Real-Time Analytics'
-      })
+            event_id: 'rthrm.user',
+            user_trial: '1',
+            project_code: PROJECT_CODE,
+            data: [
+                {
+                    username: USERNAME,
+                    fullname: USER_FULLNAME,
+                    user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
+                    email: USER_EMAIL,
+                    org_id: 'ea8018e243',
+                    org_name: 'Real-Time Analytics'
+                }
+            ]
+        })
     })
     .then(res => {
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -579,19 +587,23 @@ if (userType === 'trial') {
 }
 
     const payload = {
-      event_id: 'rthrm.neworg',
-      new_org: '1',
-      project_code: PROJECT_CODE,
-      username: USERNAME,
-      email: USER_EMAIL,
-      fullname: USER_FULLNAME,
-      org_id: orgId,
-      org_name: shortName,
-      user_role: 'ea8018e243_HRM Manager',
-      contact_name: contactName,
-      contact_email: contactEmail,
-      contact_phone: contactPhone
-    };
+    event_id: 'rthrm.neworg',
+    new_org: '1',
+    project_code: PROJECT_CODE,
+    data: [
+        {
+            username: USERNAME,
+            fullname: USER_FULLNAME,
+            user_role: 'ea8018e243_HRM Manager',
+            email: USER_EMAIL,
+            org_id: orgId,
+            org_name: shortName,
+            contact_name: contactName,
+            contact_email: contactEmail,
+            contact_phone: contactPhone
+        }
+    ]
+};
 
   fetch('https://automation.rta.vn/webhook/rthrm-events', {
   method: 'POST',
