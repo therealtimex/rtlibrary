@@ -279,7 +279,7 @@ if (btnRequestJoin) {
     }
 
     // Gửi JSON yêu cầu tham gia
-    fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
+    fetch('https://automation.rta.vn/webhook/rthrm-events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -402,10 +402,13 @@ function setupModeButtons() {
   // Nút Trải nghiệm
   const btnTrial = document.getElementById('btn-trial-mode');
 if (btnTrial) {
-  btnTrial.onclick = function () {
-    btnTrial.disabled = true; // Disable tạm thời để tránh bấm nhanh liên tiếp
+  let trialButtonDisabledTimeout; // Biến lưu timeout để reset nút sau 30s
 
-    fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
+  btnTrial.onclick = function () {
+    // Disable nút ngay khi nhấn để tránh spam
+    btnTrial.disabled = true;
+
+    fetch('https://automation.rta.vn/webhook/rthrm-events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -425,15 +428,11 @@ if (btnTrial) {
       return res.json();
     })
     .then(() => {
-      // Cập nhật trạng thái userType
-      userType = 'trial';
-      renderByUserType(); // Gọi lại UI đúng
-
       // Hiển thị thông báo thành công
       const container = document.querySelector('.mode-selection-container');
       if (container) {
         container.innerHTML = `
-          <div style="font-size:1rem;line-height:1.6;text-align:center;">
+          <div style="font-size:1rem;line-height:1.6;text-align:left;">
             ${T.trialNotify.replace('{user}', getUserName()).replace('{email}', getUserEmail())}
           </div>
           <div style="text-align:center;margin-top:16px;">
@@ -443,10 +442,10 @@ if (btnTrial) {
         document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
       }
 
-      // Disable nút 15s để tránh spam
-      setTimeout(() => {
+      // Đặt timeout 30s để enable nút Trial lại
+      trialButtonDisabledTimeout = setTimeout(() => {
         btnTrial.disabled = false;
-      }, 15000);
+      }, 30000);
     })
     .catch(err => {
       console.error('Trial fireEvent error:', err);
@@ -465,11 +464,16 @@ if (btnTrial) {
         document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
       }
 
-      // Gửi lỗi: mở lại nút Trial User
+      // Enable nút lại ngay để thử lại
       btnTrial.disabled = false;
+
+      // Xóa timeout trước đó nếu có
+      if (trialButtonDisabledTimeout) clearTimeout(trialButtonDisabledTimeout);
     });
   };
 }
+
+
 
 
   // Nút Chính thức
@@ -589,7 +593,7 @@ if (userType === 'trial') {
       contact_phone: contactPhone
     };
 
-  fetch('https://rthrm.rtworkspace.com/services/fireEvent', {
+  fetch('https://automation.rta.vn/webhook/rthrm-events', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(payload)
