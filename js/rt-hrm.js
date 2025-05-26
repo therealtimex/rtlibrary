@@ -292,7 +292,7 @@ if (btnRequestJoin) {
             fullname: USER_FULLNAME,
             user_role: 'ea8018e243_HRM Staff',
             cellphone: USER_PHONE, 
-            user_status: '1',
+            user_status: '0',
             email: USER_EMAIL,
             org_id: orgId,
             org_name: orgName
@@ -427,7 +427,7 @@ if (btnTrial) {
                     fullname: USER_FULLNAME,
                     user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
                     cellphone: USER_PHONE, 
-                    user_status: '1',
+                    user_status: '0',
                     email: USER_EMAIL,
                     org_id: 'ea8018e243',
                     org_name: 'Real-Time Analytics'
@@ -601,7 +601,7 @@ if (userType === 'trial') {
             user_role: 'ea8018e243_HRM Manager',
             email: USER_EMAIL,
             cellphone: USER_PHONE, 
-            user_status: '1',
+            user_status: '0',
             org_id: orgId,
             org_name: shortName,
             contact_name: contactName,
