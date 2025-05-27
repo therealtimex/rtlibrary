@@ -543,7 +543,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const observer = new MutationObserver(() => {
   if (modalCreateOrg.style.display === 'flex') {
     renderOrgFormLang();
-    document.getElementById('org-name-input').value = USER_ORG_NAME;
+    
     document.getElementById('contact-name').value = USER_FULLNAME;
     document.getElementById('contact-phone').value = USER_PHONE;
     document.getElementById('contact-email').value = USER_EMAIL;
