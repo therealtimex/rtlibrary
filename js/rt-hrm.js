@@ -433,7 +433,8 @@ if (!shortName) shortName = orgName;
           org_name: shortName,
           contact_name: contactName,
           contact_email: contactEmail,
-          contact_phone: contactPhone || '0'
+          contact_phone: contactPhone || '0',
+          context_title: `${shortName}-HRM`
         }]
       };
 
