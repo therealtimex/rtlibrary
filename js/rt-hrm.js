@@ -1,571 +1,385 @@
-function renderOrgFormLang() {
-  document.getElementById('org-form-desc').textContent = 
-  appLanguage === 'vi' 
-  ? "Vui lòng cung cấp Thông tin để Hệ thống khởi tạo Tổ chức mới:" 
-  : "Please provide the information so the system can create a New organization:";
-  document.getElementById('org-form-title').textContent = appLanguage === 'vi' ? 'Khởi tạo tổ chức mới' : 'Create New Organization';
+// Xác định loại người dùng
+let userType = 'unidentified'; 
+const TRIAL_ORG_ID = 'ea8018e243';
 
-  document.getElementById('label-org-name').textContent = T.orgName;
-  document.getElementById('label-org-short').textContent = T.shortName;
-  document.getElementById('label-contact-name').textContent = T.contactName;
-  document.getElementById('label-contact-email').textContent = T.contactEmail;
-  document.getElementById('label-contact-phone').textContent = T.contactPhone;
-  document.getElementById('btn-submit-org').textContent = T.submitBtn;
+// Hiện thông báo, ẩn giao diện khác
+function showCombineResult(msg, color = '#222') {
+  document.getElementById('combine-user-screen').style.display = 'none';
+  document.getElementById('combine-result-screen').style.display = 'flex';
+  const msgElem = document.getElementById('combine-result-message');
+  msgElem.innerHTML = msg;
+  msgElem.style.color = color;
 }
 
-;
-    // ==== Hàm lấy thông tin user ====
-function getUserEmail() {
-  return USER_EMAIL || 'user@example.com';
+// Reset giao diện combine về trạng thái ban đầu
+function resetCombineForm() {
+  document.getElementById('combine-org-code').value = '';
+  document.getElementById('combine-org-error').style.display = 'none';
+  foundOrg = null;
+  combineScreenMode = 'default';
+  document.getElementById('combine-btn-confirm').textContent = T.confirm;
+  document.getElementById('combine-btn-confirm').disabled = false;
 }
-function getUserName() {
-  const profileName = document.querySelector('.profile-name');
-  return profileName ? profileName.textContent : (appLanguage === 'en' ? 'User' : 'Người dùng');
+
+// ==== Hàm đổi ngôn ngữ UI combine ====
+function renderCombineLang() {
+  const combineTitle = document.getElementById('combine-title');
+  if (combineTitle) {
+    combineTitle.innerHTML = T.welcome.replace('##user.name##', USER_FULLNAME || 'User');
+  }
+  const combineDesc = document.getElementById('combine-desc');
+  if (combineDesc) combineDesc.textContent = T.desc;
+  
+  const combineOrgCode = document.getElementById('combine-org-code');
+  if (combineOrgCode) combineOrgCode.placeholder = T.orgPlaceholder;
+  
+  const combineBtnConfirm = document.getElementById('combine-btn-confirm');
+  if (combineBtnConfirm) combineBtnConfirm.textContent = T.confirm;
+  
+  const combineOr = document.getElementById('combine-or');
+  if (combineOr) combineOr.textContent = T.or;
+  
+  const combineBtnCreateOrg = document.getElementById('combine-btn-create-org');
+  if (combineBtnCreateOrg) combineBtnCreateOrg.textContent = T.createOrg;
+  
+  const combineBtnTrial = document.getElementById('combine-btn-trial');
+  if (combineBtnTrial) combineBtnTrial.textContent = T.trial;
+  
+  // Update trial tag
+  const trialTag = document.getElementById('trial-user-tag');
+  if (trialTag) trialTag.textContent = T.trialTag;
+
+  // Update close button
+  const btnCloseResult = document.getElementById('combine-btn-close-result');
+  if (btnCloseResult) btnCloseResult.textContent = T.close;
 }
 
-    // Xác định loại người dùng
-    let userType = 'unidentified'; // unidentified, trial, official
-    const TRIAL_ORG_ID = 'ea8018e243';
-
-    // Hàm kiểm tra loại người dùng
-    async function checkUserType() {
-      // Lấy organization_id từ hệ thống
-      const userOrgId = USER_ORG_ID;
-      
-      if (userOrgId === TRIAL_ORG_ID) {
-        userType = 'trial';
-        return 'trial';
-      }
-      
-      try {
-        // Kiểm tra với API nếu là người dùng chính thức
-        const response = await fetch('https://es.rta.vn/nerp_org/_search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            "size": 10000,
-            "collapse": {"field": "org_id.raw"},
-            "_source": {"includes": ["org_id"]},
-            "sort": [{"endtime": {"order": "desc"}}]
-          })
-        });
-        
-        const data = await response.json();
-        const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
-
+// Hàm kiểm tra loại người dùng
+async function checkUserType() {
+  const userOrgId = USER_ORG_ID;
+  
+  if (userOrgId === TRIAL_ORG_ID) {
+    userType = 'trial';
+    return 'trial';
+  }
+  
+  try {
+    const response = await fetch('https://es.rta.vn/nerp_org/_search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        "size": 10000,
+        "collapse": {"field": "org_id.raw"},
+        "_source": {"includes": ["org_id"]},
+        "sort": [{"endtime": {"order": "desc"}}]
+      })
+    });
     
-        
-        if (officialOrgIds.includes(userOrgId)) {
-          userType = 'official';
-          return 'official';
-        }
-        
-        return 'unidentified';
-      } catch (error) {
-        console.error("Error checking user type:", error);
-        return 'unidentified';
-      }
+    const data = await response.json();
+    const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
+    
+    if (officialOrgIds.includes(userOrgId)) {
+      userType = 'official';
+      return 'official';
     }
+    
+    return 'unidentified';
+  } catch (error) {
+    console.error("Error checking user type:", error);
+    return 'unidentified';
+  }
+}
 
-
-    // ==== Hàm hiển thị giao diện theo loại người dùng ====
+// ==== Hàm hiển thị giao diện theo loại người dùng ====
 function renderByUserType() {
   const hrmMain = document.getElementById('hrm-main');
-  const unidentifiedScreen = document.getElementById('unidentified-user-screen');
+  const combineScreen = document.getElementById('combine-user-screen');
   const trialTag = document.getElementById('trial-user-tag');
 
   if (userType === 'unidentified') {
-    // Hiện màn hình chọn vai trò, ẩn HRM
+    // Hiện màn hình combine, ẩn HRM
     if (hrmMain) hrmMain.style.display = 'none';
-    if (unidentifiedScreen) {
-      unidentifiedScreen.style.display = 'block';
-      showUnidentifiedScreen();
-    }
+    if (combineScreen) combineScreen.style.display = 'flex';
     if (trialTag) trialTag.style.display = 'none';
   } else if (userType === 'trial') {
     // Hiện HRM, hiện tag "Người dùng trải nghiệm"
     if (hrmMain) hrmMain.style.display = 'block';
-    if (unidentifiedScreen) unidentifiedScreen.style.display = 'none';
+    if (combineScreen) combineScreen.style.display = 'none';
     if (trialTag) {
       trialTag.style.display = 'inline-block';
       trialTag.textContent = T.trialTag;
       
-      // Thêm sự kiện click để mở popup chính thức
+      // Thêm sự kiện click để mở giao diện combine
       trialTag.onclick = function() {
-        document.getElementById('unidentified-user-screen').style.display = 'none';
-        document.getElementById('official-mode-popup').style.display = 'flex';
-        document.getElementById('hrm-main').style.display = 'none'; // Ẩn HRM
-        resetOrgCodeInput();
-        renderOfficialPopupLang();
+        combineScreenMode = 'trial-back';
+        showCombineScreen();
       };
     }
   } else if (userType === 'official') {
     // Hiện HRM, ẩn tag trải nghiệm
     if (hrmMain) hrmMain.style.display = 'block';
-    if (unidentifiedScreen) unidentifiedScreen.style.display = 'none';
+    if (combineScreen) combineScreen.style.display = 'none';
     if (trialTag) trialTag.style.display = 'none';
   }
 }
 
-// ==== Hàm hiển thị lại màn hình chọn vai trò ====
-function showUnidentifiedScreen() {
-  const screen = document.getElementById('unidentified-user-screen');
-  if (!screen) return;
-  screen.style.display = 'block';
-  document.body.style.overflow = 'hidden';
-  // Reset nội dung popup
-  const container = screen.querySelector('.mode-selection-container');
-  if (container) {
-    container.innerHTML = `
-      <div style="font-size:1.1rem; font-weight:700; margin-bottom: 18px;">
-        ${T.unidentifiedTitle}
-      </div>
-      <div style="font-size:1rem; margin-bottom: 18px;">
-        ${T.unidentifiedDesc}
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <button id="btn-trial-mode" class="mode-btn trial-btn">${T.trialBtn}</button>
-        <button id="btn-official-mode" class="mode-btn official-btn">${T.officialBtn}</button>
-      </div>
-    `;
-    setupModeButtons();
+// ==== Hiển thị giao diện combine ====
+function showCombineScreen() {
+  document.getElementById('hrm-main').style.display = 'none';
+  document.getElementById('combine-user-screen').style.display = 'flex';
+  document.getElementById('combine-result-screen').style.display = 'none';
+  document.getElementById('combine-org-code').value = '';
+  document.getElementById('combine-org-error').style.display = 'none';
+  foundOrg = null;
+  document.getElementById('combine-btn-confirm').textContent = T.confirm;
+  document.getElementById('combine-btn-confirm').disabled = false;
+  // Ẩn tag trial user khi vào từ tag
+  if (userType === 'trial' && combineScreenMode === 'trial-back') {
+    document.getElementById('trial-user-tag').style.display = 'none';
   }
-  // Ẩn popup khác
-  const officialPopup = document.getElementById('official-mode-popup');
-  if (officialPopup) officialPopup.style.display = 'none';
-  const modalCreateOrg = document.getElementById('modal-create-org');
-  if (modalCreateOrg) modalCreateOrg.style.display = 'none';
+  renderCombineLang();
 }
 
-
-// ==== Reset input mã tổ chức + trạng thái popup ====
-function resetOrgCodeInput() {
-  const container = document.querySelector('.official-popup-inner');
+// ==== Ẩn giao diện combine, trở về HRM ====
+function hideCombineScreen() {
+  const hrmMain = document.getElementById('hrm-main');
+  const combineScreen = document.getElementById('combine-user-screen');
   
-  if (container) {
-    container.innerHTML = `
-      <div class="official-title" id="official-title">${T.officialTitle}</div>
-      <div class="official-org-input">
-        <input id="org-code-input" type="text" placeholder="${T.orgPlaceholder}" />
-        <button id="clear-input-btn" style="display:none;">×</button>
-      </div>
-      <div id="org-code-error" class="input-error" style="display:none;"></div>
-      <div id="org-found" class="org-found-container" style="display:none;">
-        <div><b id="org-name"></b></div>
-        <button id="btn-request-join">${T.join}</button>
-      </div>
-      <button id="btn-verify-org">${T.confirm}</button>
-      <div class="divider" id="official-or">${T.or}</div>
-      <button id="btn-create-org">${T.createOrg}</button>
-    `;
+  if (userType === 'trial' || userType === 'official') {
+    if (hrmMain) hrmMain.style.display = 'block';
   }
-
-  // Gắn lại sự kiện cho các nút và input
-  setupOrgCodeEvents();
-  setupRequestJoinEvent();
-  setupCreateOrgEvent();
+  if (combineScreen) combineScreen.style.display = 'none';
 }
 
-
-// ==== Hàm cập nhật song ngữ cho popup chuyển chính thức ====
-function renderOfficialPopupLang() {
-  document.getElementById('official-title').innerHTML = T.officialTitle;
-  document.getElementById('org-code-input').placeholder = T.orgPlaceholder;
-  document.getElementById('btn-verify-org').textContent = T.confirm;
-  document.getElementById('btn-request-join').textContent = T.join;
-  document.getElementById('official-or').textContent = T.or;
-  document.getElementById('btn-create-org').textContent = T.createOrg;
- 
-}
-
-// ==== Xử lý popup chuyển chính thức: đóng về màn hình chọn vai trò + reset input ====
-function setupOfficialPopupEvents() {
-  // Đóng bằng nút X hoặc overlay
-  document.querySelectorAll('#official-mode-popup .modal-close-x, #official-mode-popup button[aria-label="Đóng"]').forEach(btn => {
-    btn.onclick = function () {
-      document.getElementById('official-mode-popup').style.display = 'none';
-      showUnidentifiedScreen();
-      resetOrgCodeInput();
-    };
-  });
-  // Đóng khi click ra ngoài
-  const officialPopup = document.getElementById('official-mode-popup');
-  if (officialPopup) {
-    officialPopup.addEventListener('click', function (e) {
-      if (e.target === this) {
-        this.style.display = 'none';
-        showUnidentifiedScreen();
-        resetOrgCodeInput();
+// ==== Xử lý nút Confirm (nhập mã tổ chức) ====
+document.addEventListener('DOMContentLoaded', function() {
+  const combineBtnConfirm = document.getElementById('combine-btn-confirm');
+  if (combineBtnConfirm) {
+    combineBtnConfirm.onclick = async function () {
+      const code = document.getElementById('combine-org-code').value.trim();
+      const errorElem = document.getElementById('combine-org-error');
+      errorElem.style.display = 'none';
+      errorElem.style.color = '#e74c3c';
+      
+      if (!foundOrg) {
+        // Bước 1: Tìm tổ chức
+        if (!code) {
+          errorElem.textContent = T.error_empty;
+          errorElem.style.display = 'block';
+          return;
+        }
+        this.disabled = true;
+        this.textContent = T.confirm + '...';
+        try {
+          const response = await fetch('https://es.rta.vn/nerp_org/_search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              "size": 1,
+              "query": { "bool": { "must": [{ "term": { "org_id.raw": { "value": code } } }] } }
+            })
+          });
+          const data = await response.json();
+          this.disabled = false;
+          this.textContent = T.confirm;
+          if (data.hits && data.hits.hits && data.hits.hits.length > 0) {
+            foundOrg = data.hits.hits[0]._source;
+            errorElem.innerHTML = `<b class="org-name-found">${foundOrg.org_lb || foundOrg.org_name || code}</b>`;
+            errorElem.style.display = 'block';
+            this.textContent = appLanguage === 'vi' ? 'Yêu cầu tham gia' : 'Request to join';
+          } else {
+            errorElem.textContent = T.error_notfound;
+            errorElem.style.display = 'block';
+          }
+        } catch (err) {
+          this.disabled = false;
+          this.textContent = T.confirm;
+          errorElem.textContent = T.error;
+          errorElem.style.display = 'block';
+        }
+      } else {
+        // Bước 2: Gửi yêu cầu tham gia
+        this.disabled = true;
+        this.textContent = (appLanguage === 'vi' ? 'Đang gửi...' : 'Sending...');
+        try {
+          await fetch('https://automation.rta.vn/webhook/rthrm-events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event_id: 'rthrm.user',
+              user_trial: '0',
+              project_code: PROJECT_CODE,
+              data: [{
+                username: USERNAME,
+                fullname: USER_FULLNAME,
+                user_role: 'ea8018e243_HRM Staff',
+                cellphone: USER_PHONE,
+                user_status: '1',
+                email: USER_EMAIL,
+                org_id: foundOrg.org_id,
+                org_name: foundOrg.org_lb
+              }]
+            })
+          });
+          // Gửi thành công: hiện popup
+          showCombineResult(T.joinSuccess.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code), "#222");
+        } catch (err) {
+          // Gửi lỗi: hiện lỗi đỏ dưới nút, giữ nguyên màn hình
+          errorElem.style.color = '#e74c3c';
+          errorElem.textContent = T.error;
+          errorElem.style.display = 'block';
+        }
+        this.disabled = false;
+        this.textContent = appLanguage === 'vi' ? 'Yêu cầu tham gia' : 'Request to join';
       }
-    });
-  }
-}
-
-// ==== Xác nhận mã tổ chức ====
-function setupOrgCodeEvents() {
-  const orgCodeInput = document.getElementById('org-code-input');
-  const clearBtn = document.getElementById('clear-input-btn');
-  const btnVerifyOrg = document.getElementById('btn-verify-org');
-  const errorElement = document.getElementById('org-code-error');
-
-  if (orgCodeInput && clearBtn) {
-    orgCodeInput.addEventListener('input', function () {
-      clearBtn.style.display = this.value.trim() !== '' ? 'block' : 'none';
-    });
-    clearBtn.onclick = function () {
-      orgCodeInput.value = '';
-      clearBtn.style.display = 'none';
-      errorElement.style.display = 'none';
-      document.getElementById('org-found').style.display = 'none';
-      btnVerifyOrg.style.display = 'block';
-      orgCodeInput.focus();
     };
   }
-  if (btnVerifyOrg) {
-    btnVerifyOrg.onclick = async function () {
-      const code = orgCodeInput.value.trim();
-      if (!code) {
-        errorElement.textContent = T.error_empty;
-        errorElement.style.display = 'block';
+});
+
+// ==== Xử lý nút Trial user ====
+document.addEventListener('DOMContentLoaded', function() {
+  const combineBtnTrial = document.getElementById('combine-btn-trial');
+  if (combineBtnTrial) {
+    combineBtnTrial.onclick = async function () {
+      // Nếu là trial user và vào từ tag, chỉ quay lại HRM, không gửi request, không hiện thông báo
+      if (userType === 'trial' && typeof combineScreenMode !== 'undefined' && combineScreenMode === 'trial-back') {
+        document.getElementById('combine-user-screen').style.display = 'none';
+        document.getElementById('hrm-main').style.display = 'block';
+        document.getElementById('trial-user-tag').style.display = 'inline-block';
+        combineScreenMode = 'default';
         return;
       }
+      
+      // Trường hợp user chưa xác định: gửi request
+      const btn = this;
+      const errorElem = document.getElementById('combine-org-error');
+      btn.disabled = true;
+      btn.textContent = appLanguage === 'vi' ? 'Đang xử lý...' : 'Processing...';
+      
       try {
-        const response = await fetch('https://es.rta.vn/nerp_org/_search', {
+        await fetch('https://automation.rta.vn/webhook/rthrm-events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            "size": 1,
-            "query": { "bool": { "must": [{ "term": { "org_id.raw": { "value": code } } }] } }
-          })
-        });
-        const data = await response.json();
-        if (data.hits && data.hits.hits && data.hits.hits.length > 0) {
-          const foundOrg = data.hits.hits[0]._source; 
-          errorElement.style.display = 'none';
-          btnVerifyOrg.style.display = 'none';
-          document.getElementById('org-name').textContent = data.hits.hits[0]._source.org_lb || (appLanguage === 'en' ? 'Organization' : 'Tổ chức');
-          document.getElementById('org-found').style.display = 'block';
-          T.foundOrgInfo = {
-    org_id: foundOrg.org_id,
-    org_name: foundOrg.org_lb
-  };
-        } else {
-          errorElement.textContent = T.error_notfound;
-          errorElement.style.display = 'block';
-        }
-      } catch (error) {
-        errorElement.textContent = T.error_notfound;
-        errorElement.style.display = 'block';
-      }
-    };
-  }
-}
-
-// ==== Yêu cầu tham gia tổ chức ====
-function setupRequestJoinEvent() {
-  const btnRequestJoin = document.getElementById('btn-request-join');
-if (btnRequestJoin) {
-  btnRequestJoin.onclick = function () {
-   
-
-    // Lấy thông tin từ T.foundOrgInfo đã được gán sau bước xác thực mã tổ chức
-    const orgId = T.foundOrgInfo?.org_id;
-    const orgName = T.foundOrgInfo?.org_name;
-
-    // Nếu không có giá trị hợp lệ, cảnh báo và return
-    if (!orgId || !orgName) {
-      alert('Vui lòng nhập mã tổ chức hợp lệ và xác nhận trước khi yêu cầu tham gia.');
-      return;
-    }
-
-    // Gửi JSON yêu cầu tham gia
-    fetch('https://automation.rta.vn/webhook/rthrm-events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-    event_id: 'rthrm.user',
-    user_trial: '0',
-    project_code: PROJECT_CODE,
-    data: [
-        {
-            username: USERNAME,
-            fullname: USER_FULLNAME,
-            user_role: 'ea8018e243_HRM Staff',
-            cellphone: USER_PHONE, 
-            user_status: '1',
-            email: USER_EMAIL,
-            org_id: orgId,
-            org_name: orgName
-        }
-    ]
-})
-    })
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      return res.json();
-    })
-    .then(() => {
-      showJoinNotify(orgName, getUserEmail());
-    })
-    .catch(err => {
-      console.error('Join fireEvent error:', err);
-      showJoinError();
-    });
-  };
-}
-
-
-
-  function showJoinNotify(orgName, email) {
-    const popup = document.getElementById('official-mode-popup');
-    const container = popup.querySelector('.official-popup-inner');
-    container.innerHTML = `
-      <div style="font-size: 1rem; line-height: 1.6; color: #333; text-align: center;">
-        ${T.joinNotify.replace('{org}', `<b>${orgName}</b>`).replace('{email}', `<b>${email}</b>`)}
-      </div>
-      <div style="text-align: center; margin-top: 24px;">
-        <button style="background: var(--primary-color, #009688); color: #fff; border: none; border-radius: 6px; padding: 5px 15px; font-weight: 500; font-size: 0.9rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;" id="btn-close-request-join">${T.close}</button>
-      </div>
-    `;
-    document.getElementById('btn-close-request-join').onclick = closeOfficialPopup;
-  }
-
-  function showJoinError() {
-    const popup = document.getElementById('official-mode-popup');
-    const container = popup.querySelector('.official-popup-inner');
-    container.innerHTML = `
-      <div style="color:red; font-weight:500; margin-bottom:8px; text-align:center;">
-        ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
-      </div>
-      <div style="text-align: center; margin-top: 24px;">
-        <button style="background: var(--primary-color, #009688); color: #fff; border: none; border-radius: 6px; padding: 5px 15px; font-weight: 500; font-size: 0.9rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;" id="btn-close-request-join">${T.close}</button>
-      </div>
-    `;
-    document.getElementById('btn-close-request-join').onclick = closeOfficialPopup;
-  }
-}
-
-
-// ==== Nút khởi tạo tổ chức mới ====
-function setupCreateOrgEvent() {
-  const btnCreateOrg = document.getElementById('btn-create-org');
-  if (btnCreateOrg) {
-    btnCreateOrg.onclick = function () {
-  document.getElementById('official-mode-popup').style.display = 'none';
-  document.getElementById('modal-create-org').style.display = 'flex';
-  setTimeout(renderOrgFormLang, 50); 
-};
-  }
-
-  // Đóng modal tạo tổ chức
-  const modalCreateOrg = document.getElementById('modal-create-org');
-  if (modalCreateOrg) {
-    modalCreateOrg.querySelector('.modal-close-x').onclick = function () {
-      modalCreateOrg.style.display = 'none';
-      showUnidentifiedScreen();
-    };
-  }
-}
-
-
-// ==== Biến toàn cục để lưu nguồn mở popup ====
-let popupOrigin = null; // 'unidentified' hoặc 'trial'
-
-// ==== Hàm mở popup chuyển sang người dùng chính thức ====
-function openOfficialPopup(origin) {
-  popupOrigin = origin;
-  document.getElementById('official-mode-popup').style.display = 'flex';
-  renderOfficialPopupLang();
-  resetOrgCodeInput();
-
-  // Ẩn/hiện nền phía sau popup theo nguồn mở
-  if (origin === 'unidentified') {
-    document.getElementById('unidentified-user-screen').style.display = 'none';
-    document.getElementById('hrm-main').style.display = 'none';
-  } else if (origin === 'trial') {
-    // HRM vẫn hiện, chỉ cần show popup
-    document.getElementById('unidentified-user-screen').style.display = 'none';
-    document.getElementById('hrm-main').style.display = 'block';
-  }
-}
-
-// ==== Hàm đóng popup chuyển chính thức, trở lại màn hình ban đầu ====
-function closeOfficialPopup() {
-  document.getElementById('official-mode-popup').style.display = 'none';
-  if (popupOrigin === 'unidentified') {
-    document.getElementById('unidentified-user-screen').style.display = 'block';
-    document.getElementById('hrm-main').style.display = 'none';
-  } else if (popupOrigin === 'trial') {
-    document.getElementById('hrm-main').style.display = 'block';
-    document.getElementById('unidentified-user-screen').style.display = 'none';
-  }
-  popupOrigin = null;
-  resetOrgCodeInput();
-}
-
-// ==== Gắn sự kiện cho các nút mở popup ====
-function setupModeButtons() {
-  // Nút Trải nghiệm
-  const btnTrial = document.getElementById('btn-trial-mode');
-if (btnTrial) {
-  let trialButtonDisabledTimeout; // Biến lưu timeout để reset nút sau 30s
-
-  btnTrial.onclick = function () {
-    // Disable nút ngay khi nhấn để tránh spam
-    btnTrial.disabled = true;
-
-    fetch('https://automation.rta.vn/webhook/rthrm-events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
             event_id: 'rthrm.user',
             user_trial: '1',
             project_code: PROJECT_CODE,
-            data: [
-                {
-                    username: USERNAME,
-                    fullname: USER_FULLNAME,
-                    user_role: 'ea8018e243_Nhóm trải nghiệm sản phẩm',
-                    cellphone: USER_PHONE, 
-                    user_status: '1',
-                    email: USER_EMAIL,
-                    org_id: 'ea8018e243',
-                    org_name: 'Real-Time Analytics'
-                }
-            ]
-        })
-    })
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      return res.json();
-    })
-    .then(() => {
-      // Hiển thị thông báo thành công
-      const container = document.querySelector('.mode-selection-container');
-      if (container) {
-        container.innerHTML = `
-          <div style="font-size:1rem;line-height:1.6;text-align:left;">
-            ${T.trialNotify.replace('{user}', getUserName()).replace('{email}', getUserEmail())}
-          </div>
-          <div style="text-align:center;margin-top:16px;">
-            <button style="background: var(--primary-color, #009688);color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem;" id="btn-close-notify-inplace">${T.close}</button>
-          </div>
-        `;
-        document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
+            data: [{
+              username: USERNAME,
+              fullname: USER_FULLNAME,
+              user_role: 'ea8018e243_HRM - User Trial',
+              cellphone: USER_PHONE,
+              user_status: '1',
+              email: USER_EMAIL,
+              org_id: 'ea8018e243',
+              org_name: 'HRM Demo'
+            }]
+          })
+        });
+        // Thành công: hiện popup
+        showCombineResult(T.trialSuccess.replace('{user}', USER_FULLNAME), "#222");
+      } catch (err) {
+        // Lỗi: hiện text đỏ dưới nút Trial user, giữ nguyên màn hình
+        errorElem.style.color = '#e74c3c';
+        errorElem.textContent = T.error;
+        errorElem.style.display = 'block';
       }
-
-      // Đặt timeout 30s để enable nút Trial lại
-      trialButtonDisabledTimeout = setTimeout(() => {
-        btnTrial.disabled = false;
-      }, 30000);
-    })
-    .catch(err => {
-      console.error('Trial fireEvent error:', err);
-
-      // Hiển thị thông báo lỗi
-      const container = document.querySelector('.mode-selection-container');
-      if (container) {
-        container.innerHTML = `
-          <div style="color:red;font-weight:500;margin-bottom:8px;text-align:center;">
-            ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
-          </div>
-          <div style="text-align:center;margin-top:16px;">
-            <button style="background: var(--primary-color, #009688);color:#fff;border:none;border-radius:4px;padding:6px 18px;font-size:0.95rem;" id="btn-close-notify-inplace">${T.close}</button>
-          </div>
-        `;
-        document.getElementById('btn-close-notify-inplace').onclick = showUnidentifiedScreen;
-      }
-
-      // Enable nút lại ngay để thử lại
-      btnTrial.disabled = false;
-
-      // Xóa timeout trước đó nếu có
-      if (trialButtonDisabledTimeout) clearTimeout(trialButtonDisabledTimeout);
-    });
-  };
-}
-
-
-
-
-  // Nút Chính thức
-  const btnOfficial = document.getElementById('btn-official-mode');
-  if (btnOfficial) {
-    btnOfficial.onclick = function () {
-      openOfficialPopup('unidentified');
+      btn.disabled = false;
+      btn.textContent = T.trial;
     };
   }
-}
+});
 
-// ==== Gắn sự kiện cho tag trial user (nút cam góc phải) ====
-function setupTrialTagEvent() {
-  const trialTag = document.getElementById('trial-user-tag');
-  if (trialTag) {
-    trialTag.onclick = function () {
-  openOfficialPopup('trial');
-};
-  }
-}
-
-// ==== Gắn sự kiện đóng popup chính thức ====
-function setupOfficialPopupEvents() {
-  // Đóng bằng dấu X
-  document.querySelectorAll('#official-mode-popup .modal-close-x, #official-mode-popup button[aria-label="Đóng"]').forEach(btn => {
-    btn.onclick = closeOfficialPopup;
-  });
-  // Đóng khi click ra ngoài
-  const officialPopup = document.getElementById('official-mode-popup');
-  if (officialPopup) {
-    officialPopup.addEventListener('click', function (e) {
-      if (e.target === this) closeOfficialPopup();
-    });
-  }
-}
-
-document.addEventListener('DOMContentLoaded', async function () {
-  // 1. Gọi checkUserType
-  await checkUserType();
-
-  // 2. Cập nhật giao diện theo loại người dùng
-  renderOfficialPopupLang();
-  renderByUserType();
-
-  // 3. Gắn các sự kiện
-  setupModeButtons();
-  setupTrialTagEvent();
-  setupOfficialPopupEvents();
-  setupOrgCodeEvents();
-  setupRequestJoinEvent();
-  setupCreateOrgEvent();
-
-    const modalCreateOrg = document.getElementById('modal-create-org');
-  if (modalCreateOrg) {
-    const observer = new MutationObserver(() => {
-  if (modalCreateOrg.style.display === 'flex') {
-    renderOrgFormLang();
-    
-    document.getElementById('contact-name').value = USER_FULLNAME;
-    document.getElementById('contact-phone').value = USER_PHONE;
-    document.getElementById('contact-email').value = USER_EMAIL;
+// ==== Xử lý nút đóng popup kết quả ====
+document.addEventListener('DOMContentLoaded', function() {
+  var btnCloseResult = document.getElementById('combine-btn-close-result');
+  if (btnCloseResult) {
+    btnCloseResult.onclick = function () {
+      document.getElementById('combine-result-screen').style.display = 'none';
+      // Reset về trạng thái ban đầu
+      foundOrg = null;
+      combineScreenMode = 'default';
+      document.getElementById('combine-org-code').value = '';
+      document.getElementById('combine-org-error').style.display = 'none';
+      document.getElementById('combine-btn-confirm').textContent = T.confirm;
+      document.getElementById('combine-btn-confirm').disabled = false;
+      // Hiện lại màn hình ban đầu
+      if (userType === 'unidentified') {
+        document.getElementById('combine-user-screen').style.display = 'flex';
+      } else {
+        document.getElementById('hrm-main').style.display = 'block';
+        if (userType === 'trial') {
+          document.getElementById('trial-user-tag').style.display = 'inline-block';
+        }
+      }
+    };
   }
 });
-    observer.observe(modalCreateOrg, { attributes: true, attributeFilter: ['style'] });
-  }
 
-  const btnCloseNotification = document.getElementById('btn-close-notification');
-if (btnCloseNotification) {
-  btnCloseNotification.textContent = T.close;
-  btnCloseNotification.onclick = function () {
-    document.getElementById('notification-popup').style.display = 'none';
-    if (userType === 'unidentified') {
-      showUnidentifiedScreen();
-    } else if (userType === 'trial') {
-      document.getElementById('hrm-main').style.display = 'block';
-    } else if (userType === 'official') {
-      document.getElementById('hrm-main').style.display = 'block';
-    }
-  };
+// ==== Xử lý nút Create new organization ====
+document.addEventListener('DOMContentLoaded', function() {
+  const combineBtnCreateOrg = document.getElementById('combine-btn-create-org');
+  if (combineBtnCreateOrg) {
+    combineBtnCreateOrg.onclick = function () {
+      document.getElementById('combine-user-screen').style.display = 'none';
+      document.getElementById('modal-create-org').style.display = 'flex';
+      setTimeout(renderOrgFormLang, 50);
+    };
+  }
+});
+
+// ==== Đóng modal tạo tổ chức ====
+function closeModalCreateOrg() {
+  document.getElementById('modal-create-org').style.display = 'none';
+  if (userType === 'unidentified') {
+    showCombineScreen();
+  } else {
+    hideCombineScreen();
+  }
 }
+
+// ==== Đặt lại ngôn ngữ và label cho form tạo tổ chức ====
+function renderOrgFormLang() {
+  const T = LANG[appLanguage];
+  const orgFormTitle = document.getElementById('org-form-title');
+  if (orgFormTitle) orgFormTitle.textContent = T.orgName;
+  
+  const orgFormDesc = document.getElementById('org-form-desc');
+  if (orgFormDesc) {
+    orgFormDesc.textContent = appLanguage === 'vi' 
+      ? "Vui lòng cung cấp Thông tin để Hệ thống khởi tạo Tổ chức mới:" 
+      : "Please provide the information so the system can create a New organization:";
+  }
+  
+  const labelOrgName = document.getElementById('label-org-name');
+  if (labelOrgName) labelOrgName.textContent = T.orgName;
+  
+  const labelOrgShort = document.getElementById('label-org-short');
+  if (labelOrgShort) labelOrgShort.textContent = T.shortName;
+  
+  const labelContactName = document.getElementById('label-contact-name');
+  if (labelContactName) labelContactName.textContent = T.contactName;
+  
+  const labelContactEmail = document.getElementById('label-contact-email');
+  if (labelContactEmail) labelContactEmail.textContent = T.contactEmail;
+  
+  const labelContactPhone = document.getElementById('label-contact-phone');
+  if (labelContactPhone) labelContactPhone.textContent = T.contactPhone;
+  
+  const btnSubmitOrg = document.getElementById('btn-submit-org');
+  if (btnSubmitOrg) btnSubmitOrg.textContent = T.submitBtn;
+  
+  // Pre-fill contact info
+  const contactName = document.getElementById('contact-name');
+  if (contactName) contactName.value = USER_FULLNAME;
+  
+  const contactPhone = document.getElementById('contact-phone');
+  if (contactPhone) contactPhone.value = USER_PHONE;
+  
+  const contactEmail = document.getElementById('contact-email');
+  if (contactEmail) contactEmail.value = USER_EMAIL;
+}
+
 function generateRandomId(length) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
@@ -574,75 +388,97 @@ function generateRandomId(length) {
   }
   return result;
 }
+
+// ==== Khởi tạo chính ====
+document.addEventListener('DOMContentLoaded', async function () {
+
+  document.getElementById('hrm-main').style.display = 'none';
+  document.getElementById('combine-user-screen').style.display = 'none';
+  document.getElementById('trial-user-tag').style.display = 'none';
+  
+  await checkUserType();
+  renderByUserType();
+  renderCombineLang();
+  
   const form = document.getElementById('org-create-form');
-if (form) {
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    const orgName = document.getElementById('org-name-input').value.trim();
-    const shortName = document.getElementById('org-shortname').value.trim();
-    const contactName = document.getElementById('contact-name').value.trim();
-    const contactEmail = document.getElementById('contact-email').value.trim();
-    const contactPhone = document.getElementById('contact-phone').value.trim();
-    let orgId;
-if (userType === 'trial') {
-  orgId = 'p' + generateRandomId(9);
-} else if (userType === 'unidentified') {
-  orgId = USER_ORG_ID;
-}
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const orgName = document.getElementById('org-name-input').value.trim();
+      let shortName = document.getElementById('org-shortname').value.trim();
+if (!shortName) shortName = orgName;
+      const contactName = document.getElementById('contact-name').value.trim();
+      const contactEmail = document.getElementById('contact-email').value.trim();
+      const contactPhone = document.getElementById('contact-phone').value.trim();
+      
+      let orgId;
+      if (userType === 'trial' || USER_ORG_ID === '324fd') {
+        orgId = 'p' + generateRandomId(9);
+      } else if (userType === 'unidentified') {
+        orgId = USER_ORG_ID;
+      }
 
-    const payload = {
-    event_id: 'rthrm.neworg',
-    new_org: '1',
-    project_code: PROJECT_CODE,
-    data: [
-        {
-            username: USERNAME,
-            fullname: USER_FULLNAME,
-            user_role: 'ea8018e243_HRM Manager',
-            email: USER_EMAIL,
-            cellphone: USER_PHONE, 
-            user_status: '1',
-            org_id: orgId,
-            org_name: shortName,
-            contact_name: contactName,
-            contact_email: contactEmail,
-            contact_phone: contactPhone
+      const payload = {
+        event_id: 'rthrm.neworg',
+        new_org: '1',
+        project_code: PROJECT_CODE,
+        data: [{
+          username: USERNAME,
+          fullname: USER_FULLNAME,
+          user_role: 'ea8018e243_HRM Manager',
+          email: USER_EMAIL,
+          cellphone: USER_PHONE || '0',
+          user_status: '1',
+          org_id: orgId,
+          org_name: shortName,
+          contact_name: contactName,
+          contact_email: contactEmail,
+          contact_phone: contactPhone || '0'
+        }]
+      };
+
+      fetch('https://automation.rta.vn/webhook/rthrm-events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
         }
-    ]
-};
-
-  fetch('https://automation.rta.vn/webhook/rthrm-events', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(payload)
-})
-.then(res => {
-  if (!res.ok) {
-    throw new Error(`HTTP error! status: ${res.status}`);
-  }
-  return res.json();
-})
-.then(() => {
+        return res.json();
+      })
+      .then(() => {
   document.getElementById('modal-create-org').style.display = 'none';
-  document.getElementById('notification-message').innerHTML = T.notify(orgName, contactEmail);
-  document.getElementById('notification-popup').style.display = 'flex';
+  showCombineResult(T.notify(orgName, contactEmail), "#222");
   form.reset();
 })
-.catch(err => {
-  console.error('Submit error:', err);
-  document.getElementById('modal-create-org').style.display = 'none';
-  document.getElementById('notification-message').innerHTML = `
-    <div style="color: red; font-weight: 500; margin-bottom: 8px; text-align:center;">${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}</div>
-  `;
-  document.getElementById('notification-popup').style.display = 'flex';
-});
+      .catch(err => {
+        console.error('Submit error:', err);
+        document.getElementById('modal-create-org').style.display = 'none';
+        document.getElementById('notification-message').innerHTML = `
+          <div style="color: red; font-weight: 500; margin-bottom: 8px; text-align:center;">${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}</div>
+        `;
+        document.getElementById('notification-popup').style.display = 'flex';
+      });
+    });
+  }
 
+  // 4. Setup notification close button
+  const btnCloseNotification = document.getElementById('btn-close-notification');
+  if (btnCloseNotification) {
+    btnCloseNotification.textContent = T.close;
+    btnCloseNotification.onclick = function () {
+      document.getElementById('notification-popup').style.display = 'none';
+      if (userType === 'unidentified') {
+        showCombineScreen();
+      } else if (userType === 'trial' || userType === 'official') {
+        hideCombineScreen();
+      }
+    };
+  }
 
-
-  });
-}
-
-  // 4. Cập nhật ngôn ngữ, tiêu đề, label
+  // 5. Cập nhật ngôn ngữ, tiêu đề, label cho HRM
   document.getElementById('month-title').textContent = T.monthTitle(T.monthNames[new Date().getMonth()], new Date().getFullYear());
   document.getElementById('week-title').textContent = T.weekTitle("14/04", "20/04");
 
@@ -669,8 +505,8 @@ if (userType === 'trial') {
   document.getElementById('dashboard-btn').title = T.dashboard;
   document.getElementById('modal-title').textContent = T.dayDetail("dd/mm/yyyy");
 });
-    
-  // JSON cho Nghỉ phép và Tăng ca
+
+// ==== JSON cho Nghỉ phép và Tăng ca ====
 const actionBarJson = {
   leave: {
     actionID: 1,
@@ -694,7 +530,9 @@ const actionBarJson = {
     destinationType: "module"
   }
 };
-  async function fetchData(){
+
+// [Phần còn lại của code HRM giữ nguyên từ file gốc - calendar, attendance, notifications, etc.]
+async function fetchData(){
   showLoading(false);
   errorElem.style.display='none';
   try{
