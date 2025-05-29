@@ -1,0 +1,268 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .fullscreen-iframe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      margin: 0;
+      padding: 0;
+      z-index: 9999;
+      background: black;
+    }
+
+    .simulated-fullscreen {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 9999 !important;
+      background: black !important;
+      border: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-theme-primary-50">
+  <div id="appContainer" class="container mx-auto px-4 py-6 relative overflow-hidden">
+    <div class="flex items-center justify-center mb-6">
+      <h1 id="gameTitle" class="text-xl font-bold text-theme-text-primary">##title##</h1>
+      <button id="fullscreenBtn" title="Toggle Fullscreen"
+        class="fixed bottom-6 right-6 z-[10000] w-12 h-12 bg-black text-white rounded-full shadow-lg hover:bg-theme-primary-600 transition flex items-center justify-center">
+        <i class="fas fa-expand" id="fullscreenIcon"></i>
+      </button>
+    </div>
+
+    <div id="loadingIndicator" class="flex flex-col items-center justify-center py-8">
+      <div class="bg-theme-primary w-24 h-24 rounded-xl flex items-center justify-center mb-8">
+        <i class="fas fa-gamepad text-theme-text-onprimary text-3xl"></i>
+      </div>
+      <p class="text-theme-text-primary text-lg mb-2">Preparing your adventure...</p>
+      <p class="text-theme-text-secondary text-sm mb-4"><span id="progressPercentage">0</span>% Complete</p>
+    </div>
+
+    <div id="didYouKnow" class="bg-theme-surface rounded-xl p-4 border border-theme-primary-100">
+      <div class="flex items-start">
+        <div class="text-theme-warning mr-3">
+          <i class="fas fa-bolt"></i>
+        </div>
+        <div>
+          <h3 class="font-medium text-theme-text-primary mb-1">Did you know?</h3>
+          <p class="text-theme-text-secondary text-sm">GamesOn AI can generate custom games based on your ideas in
+            seconds! Try describing your dream game after playing this one.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="gameContainer" class="hidden w-full bg-theme-surface h-[calc(100vh-8rem)] mt-4 relative">
+      <iframe id="gameFrame" class="w-full h-full bg-theme-background rounded-lg" frameborder="0"
+        allowfullscreen></iframe>
+    </div>
+
+    <div id="errorMessage" class="hidden bg-theme-error-background text-theme-error-text p-4 rounded-lg mt-4">
+      <p>There was an error loading the game. Please try again later.</p>
+    </div>
+  </div>
+
+  <script>
+    // Progress update logic
+    let progress = 0;
+    const progressElement = document.getElementById('progressPercentage');
+    progressElement.textContent = progress;
+    const progressInterval = setInterval(() => {
+      progress += Math.floor(Math.random() * 3) + 1;
+      if (progress <= 100) {
+        progressElement.textContent = progress;
+      } else {
+        clearInterval(progressInterval);
+        progressElement.textContent = '100';
+      }
+    }, 600);
+
+    // Fullscreen toggle
+    const appContainer = document.getElementById('appContainer');
+    // Other element references remain the same
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const gameFrame = document.getElementById('gameFrame');
+    const gameTitle = document.getElementById('gameTitle');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const didYouKnow = document.getElementById('didYouKnow');
+    const gameContainer = document.getElementById('gameContainer');
+
+    function isFullscreen() {
+      return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+    }
+
+    function requestFullscreen(element) {
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
+      } else if (element.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+      } else if (element.msRequestFullscreen) {
+        element.msRequestFullscreen();
+      }
+    }
+
+    function exitFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+    }
+
+    function toggleFullscreen() {
+      const fullscreenIcon = document.getElementById('fullscreenIcon');
+      const isFull = isFullscreen() || gameFrame.classList.contains('simulated-fullscreen');
+
+      if (!isFull) {
+        // Try fullscreen API first
+        if (appContainer.requestFullscreen) {
+          appContainer.requestFullscreen().catch(() => {
+            // If fullscreen API fails (common on mobile), fallback to simulated fullscreen
+            gameFrame.classList.add('simulated-fullscreen');
+          });
+        } else {
+          // No fullscreen API, fallback to simulated fullscreen
+          gameFrame.classList.add('simulated-fullscreen');
+        }
+
+        gameTitle.style.display = 'none';
+        loadingIndicator.style.display = 'none';
+        didYouKnow.style.display = 'none';
+        gameContainer.style.height = '100vh';
+
+        fullscreenIcon.classList.remove('fa-expand');
+        fullscreenIcon.classList.add('fa-compress');
+      } else {
+        // Exit fullscreen API if active
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {
+            // If exit fullscreen fails, remove simulated fullscreen
+            gameFrame.classList.remove('simulated-fullscreen');
+          });
+        } else {
+          // No exit fullscreen API, remove simulated fullscreen
+          gameFrame.classList.remove('simulated-fullscreen');
+        }
+
+        gameFrame.classList.remove('fullscreen-iframe');
+        gameTitle.style.display = '';
+        loadingIndicator.style.display = '';
+        didYouKnow.style.display = '';
+        gameContainer.style.height = 'calc(100vh - 8rem)';
+
+        fullscreenIcon.classList.remove('fa-compress');
+        fullscreenIcon.classList.add('fa-expand');
+      }
+    }
+
+    // Use both click and touchend for mobile compatibility
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    fullscreenBtn.addEventListener('touchend', (e) => {
+      e.preventDefault(); // Prevent double event firing
+      toggleFullscreen();
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      const fullscreenIcon = document.getElementById('fullscreenIcon');
+      if (!isFullscreen()) {
+        gameFrame.classList.remove('fullscreen-iframe');
+        gameTitle.style.display = '';
+        loadingIndicator.style.display = '';
+        didYouKnow.style.display = '';
+        gameContainer.style.height = 'calc(100vh - 8rem)';
+        fullscreenIcon.classList.remove('fa-compress');
+        fullscreenIcon.classList.add('fa-expand');
+      }
+    });
+    document.addEventListener('webkitfullscreenchange', () => {
+      const fullscreenIcon = document.getElementById('fullscreenIcon');
+      if (!isFullscreen()) {
+        gameFrame.classList.remove('fullscreen-iframe');
+        gameTitle.style.display = '';
+        loadingIndicator.style.display = '';
+        didYouKnow.style.display = '';
+        gameContainer.style.height = 'calc(100vh - 8rem)';
+        fullscreenIcon.classList.remove('fa-compress');
+        fullscreenIcon.classList.add('fa-expand');
+      }
+    });
+    document.addEventListener('msfullscreenchange', () => {
+      const fullscreenIcon = document.getElementById('fullscreenIcon');
+      if (!isFullscreen()) {
+        gameFrame.classList.remove('fullscreen-iframe');
+        gameTitle.style.display = '';
+        loadingIndicator.style.display = '';
+        didYouKnow.style.display = '';
+        gameContainer.style.height = 'calc(100vh - 8rem)';
+        fullscreenIcon.classList.remove('fa-compress');
+        fullscreenIcon.classList.add('fa-expand');
+      }
+    });
+
+    // Game loading logic (simulate onUpdate)
+    function onUpdate(data) {
+      if (!data || data.length === 0) {
+        loadingIndicator.classList.add('hidden');
+        document.getElementById('errorMessage').classList.remove('hidden');
+        return;
+      }
+      const game = data[0];
+      gameTitle.textContent = game.title;
+      try {
+        gameFrame.srcdoc = game.game_code;
+        gameFrame.onload = function () {
+          loadingIndicator.classList.add('hidden');
+          document.getElementById('backgroundDots')?.classList.add('hidden');
+          didYouKnow.classList.add('hidden');
+          gameContainer.classList.remove('hidden');
+        };
+      } catch (error) {
+        console.error('Error loading game:', error);
+        loadingIndicator.classList.add('hidden');
+        document.getElementById('errorMessage').classList.remove('hidden');
+      }
+    }
+   const testData =  [{
+        "game_id": 2114,
+        "title": "quick math challenge",
+        "description": "You've awoken in a strange elevator that doesn't seem to indicate what floor it is on. You know you've started on floor 1. Each floor makes different demands of your mental facilities. After you've completed the task, you must select an amount of floors to go up or down. You'll need to keep track of your current floor yourself.\n\nDon't let the time run out, and whatever you do, make sure you stay away from floor 13!",
+        "is_generated": true,
+        "is_published": true,
+        "published_at": "2025-04-26T09:53:14.014708+00:00",
+        "username": "rta",
+        "created_at": "2025-04-26T09:53:14.014708+00:00",
+        "game_code":"<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"UTF-8\">\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\r\n    <title>Math Speed Challenge<\/title>\r\n    <script src=\"https:\/\/cdnjs.cloudflare.com\/ajax\/libs\/p5.js\/1.9.0\/p5.min.js\"><\/script>\r\n    <style>\r\n        html, body {\r\n            margin: 0;\r\n            padding: 0;\r\n            overflow: hidden; \/* Prevent scrolling *\/\r\n            font-family: Arial, sans-serif;\r\n            touch-action: manipulation;\r\n        }\r\n        canvas {\r\n            display: block;\r\n        }\r\n    <\/style>\r\n<\/head>\r\n<body>\r\n    <script>\r\n        \/\/ Game variables\r\n        let gameState = 'menu'; \/\/ menu, game, gameOver\r\n        let score = 0;\r\n        let timeLeft = 60; \/\/ in seconds\r\n        let level = 1;\r\n        let currentProblem = {};\r\n        let userAnswer = '';\r\n        let lastUpdateTime = 0;\r\n        let buttons = [];\r\n        let correctAnswers = 0;\r\n        let wrongAnswers = 0;\r\n        \r\n        \/\/ Colors\r\n        const COLORS = {\r\n            background: '#f0f0f0',\r\n            primary: '#4285F4',\r\n            secondary: '#34A853',\r\n            accent: '#EA4335',\r\n            neutral: '#FBBC05',\r\n            text: '#202124',\r\n            buttonText: '#ffffff'\r\n        };\r\n\r\n        function setup() {\r\n            createCanvas(windowWidth, windowHeight);\r\n            textAlign(CENTER, CENTER);\r\n            generateProblem();\r\n            createButtons();\r\n        }\r\n\r\n        function draw() {\r\n            background(COLORS.background);\r\n            \r\n            \/\/ Update timer\r\n            if (gameState === 'game' && millis() - lastUpdateTime >= 1000) {\r\n                timeLeft--;\r\n                lastUpdateTime = millis();\r\n                \r\n                if (timeLeft <= 0) {\r\n                    gameState = 'gameOver';\r\n                }\r\n            }\r\n            \r\n            \/\/ Draw appropriate screen based on game state\r\n            if (gameState === 'menu') {\r\n                drawMenu();\r\n            } else if (gameState === 'game') {\r\n                drawGame();\r\n            } else if (gameState === 'gameOver') {\r\n                drawGameOver();\r\n            }\r\n        }\r\n        \r\n        function drawMenu() {\r\n            \/\/ Title\r\n            fill(COLORS.primary);\r\n            textSize(windowWidth * 0.08);\r\n            text('MATH SPEED CHALLENGE', width\/2, height * 0.2);\r\n            \r\n            \/\/ Instructions\r\n            fill(COLORS.text);\r\n            textSize(windowWidth * 0.04);\r\n            text('Gi\u1EA3i ph\u00E9p t\u00EDnh nhanh nh\u1EA5t c\u00F3 th\u1EC3!', width\/2, height * 0.3);\r\n            textSize(windowWidth * 0.035);\r\n            text('M\u1ED7i c\u00E2u tr\u1EA3 l\u1EDDi \u0111\u00FAng: +10 \u0111i\u1EC3m', width\/2, height * 0.4);\r\n            text('M\u1ED7i c\u00E2u tr\u1EA3 l\u1EDDi sai: -5 gi\u00E2y', width\/2, height * 0.45);\r\n            \r\n            \/\/ Level selection\r\n            textSize(windowWidth * 0.05);\r\n            text('Ch\u1ECDn c\u1EA5p \u0111\u1ED9:', width\/2, height * 0.55);\r\n            \r\n            \/\/ Draw level buttons\r\n            for (let btn of buttons) {\r\n                if (btn.screen === 'menu') {\r\n                    btn.display();\r\n                }\r\n            }\r\n        }\r\n        \r\n        function drawGame() {\r\n            \/\/ Display level and score\r\n            fill(COLORS.primary);\r\n            textSize(windowWidth * 0.05);\r\n            text('C\u1EA5p \u0111\u1ED9: ' + level, width\/2, height * 0.1);\r\n            \r\n            fill(COLORS.secondary);\r\n            textSize(windowWidth * 0.04);\r\n            text('\u0110i\u1EC3m: ' + score, width\/2, height * 0.17);\r\n            \r\n            \/\/ Display timer\r\n            fill(timeLeft <= 10 ? COLORS.accent : COLORS.neutral);\r\n            textSize(windowWidth * 0.04);\r\n            text('Th\u1EDDi gian: ' + timeLeft + 's', width\/2, height * 0.24);\r\n            \r\n            \/\/ Display problem\r\n            fill(COLORS.text);\r\n            textSize(windowWidth * 0.08);\r\n            text(currentProblem.text, width\/2, height * 0.35);\r\n            \r\n            \/\/ Display user input\r\n            fill(COLORS.primary);\r\n            textSize(windowWidth * 0.07);\r\n            text(userAnswer === '' ? '_' : userAnswer, width\/2, height * 0.45);\r\n            \r\n            \/\/ Draw number pad buttons\r\n            for (let btn of buttons) {\r\n                if (btn.screen === 'game') {\r\n                    btn.display();\r\n                }\r\n            }\r\n        }\r\n        \r\n        function drawGameOver() {\r\n            \/\/ Game over title\r\n            fill(COLORS.accent);\r\n            textSize(windowWidth * 0.08);\r\n            text('GAME OVER', width\/2, height * 0.2);\r\n            \r\n            \/\/ Display final score\r\n            fill(COLORS.primary);\r\n            textSize(windowWidth * 0.06);\r\n            text('\u0110i\u1EC3m cu\u1ED1i c\u00F9ng: ' + score, width\/2, height * 0.3);\r\n            \r\n            \/\/ Display statistics\r\n            fill(COLORS.text);\r\n            textSize(windowWidth * 0.04);\r\n            text('\u0110\u00FAng: ' + correctAnswers + ' | Sai: ' + wrongAnswers, width\/2, height * 0.38);\r\n            \r\n            \/\/ Calculate accuracy\r\n            let accuracy = correctAnswers + wrongAnswers > 0 ? \r\n                Math.round((correctAnswers \/ (correctAnswers + wrongAnswers)) * 100) : 0;\r\n            text('\u0110\u1ED9 ch\u00EDnh x\u00E1c: ' + accuracy + '%', width\/2, height * 0.45);\r\n            \r\n            \/\/ Draw restart button\r\n            for (let btn of buttons) {\r\n                if (btn.screen === 'gameOver') {\r\n                    btn.display();\r\n                }\r\n            }\r\n        }\r\n        \r\n        function generateProblem() {\r\n            let a, b, operation, text, answer;\r\n            \r\n            switch(level) {\r\n                case 1: \/\/ Simple addition and subtraction\r\n                    a = Math.floor(Math.random() * 20) + 1;\r\n                    b = Math.floor(Math.random() * 20) + 1;\r\n                    if (Math.random() > 0.5) {\r\n                        text = a + \" + \" + b + \" = ?\";\r\n                        answer = a + b;\r\n                    } else {\r\n                        \/\/ Ensure a >= b for subtraction\r\n                        if (a < b) [a, b] = [b, a];\r\n                        text = a + \" - \" + b + \" = ?\";\r\n                        answer = a - b;\r\n                    }\r\n                    break;\r\n                    \r\n                case 2: \/\/ Multiplication and division\r\n                    if (Math.random() > 0.5) {\r\n                        a = Math.floor(Math.random() * 12) + 1;\r\n                        b = Math.floor(Math.random() * 12) + 1;\r\n                        text = a + \" \u00D7 \" + b + \" = ?\";\r\n                        answer = a * b;\r\n                    } else {\r\n                        b = Math.floor(Math.random() * 10) + 1;\r\n                        answer = Math.floor(Math.random() * 10) + 1;\r\n                        a = answer * b;\r\n                        text = a + \" \u00F7 \" + b + \" = ?\";\r\n                    }\r\n                    break;\r\n                    \r\n                case 3: \/\/ Mixed operations\r\n                    operation = Math.floor(Math.random() * 4);\r\n                    \r\n                    switch(operation) {\r\n                        case 0: \/\/ Addition\r\n                            a = Math.floor(Math.random() * 50) + 10;\r\n                            b = Math.floor(Math.random() * 50) + 10;\r\n                            text = a + \" + \" + b + \" = ?\";\r\n                            answer = a + b;\r\n                            break;\r\n                            \r\n                        case 1: \/\/ Subtraction\r\n                            a = Math.floor(Math.random() * 90) + 10;\r\n                            b = Math.floor(Math.random() * a) + 1;\r\n                            text = a + \" - \" + b + \" = ?\";\r\n                            answer = a - b;\r\n                            break;\r\n                            \r\n                        case 2: \/\/ Multiplication\r\n                            a = Math.floor(Math.random() * 15) + 2;\r\n                            b = Math.floor(Math.random() * 15) + 2;\r\n                            text = a + \" \u00D7 \" + b + \" = ?\";\r\n                            answer = a * b;\r\n                            break;\r\n                            \r\n                        case 3: \/\/ Division (with whole number results)\r\n                            b = Math.floor(Math.random() * 12) + 2;\r\n                            answer = Math.floor(Math.random() * 12) + 1;\r\n                            a = answer * b;\r\n                            text = a + \" \u00F7 \" + b + \" = ?\";\r\n                            break;\r\n                    }\r\n                    break;\r\n            }\r\n            \r\n            currentProblem = {\r\n                text: text,\r\n                answer: answer\r\n            };\r\n        }\r\n        \r\n        function createButtons() {\r\n            buttons = [];\r\n            \r\n            \/\/ Menu screen buttons - Level selection\r\n            const levelBtnWidth = windowWidth * 0.6;\r\n            const levelBtnHeight = windowHeight * 0.08;\r\n            const levelBtnY = height * 0.65;\r\n            const levelBtnSpacing = levelBtnHeight * 1.3;\r\n            \r\n            for (let i = 1; i <= 3; i++) {\r\n                let levelText;\r\n                switch(i) {\r\n                    case 1: levelText = \"D\u1EC5 (C\u1ED9ng\/Tr\u1EEB)\"; break;\r\n                    case 2: levelText = \"Trung b\u00ECnh (Nh\u00E2n\/Chia)\"; break;\r\n                    case 3: levelText = \"Kh\u00F3 (H\u1ED7n h\u1EE3p)\"; break;\r\n                }\r\n                \r\n                buttons.push({\r\n                    x: width\/2 - levelBtnWidth\/2,\r\n                    y: levelBtnY + (i-1) * levelBtnSpacing,\r\n                    width: levelBtnWidth,\r\n                    height: levelBtnHeight,\r\n                    text: levelText,\r\n                    screen: 'menu',\r\n                    action: function() {\r\n                        level = i;\r\n                        startGame();\r\n                    },\r\n                    display: function() {\r\n                        fill(COLORS.primary);\r\n                        rect(this.x, this.y, this.width, this.height, 10);\r\n                        fill(COLORS.buttonText);\r\n                        textSize(windowWidth * 0.04);\r\n                        text(this.text, this.x + this.width\/2, this.y + this.height\/2);\r\n                    }\r\n                });\r\n            }\r\n            \r\n            \/\/ Game screen buttons - Number pad\r\n            const numPadWidth = windowWidth * 0.8;\r\n            const btnSize = numPadWidth \/ 3;\r\n            const numPadX = (width - numPadWidth) \/ 2;\r\n            const numPadY = height * 0.55;\r\n            const padding = btnSize * 0.1;\r\n            \r\n            \/\/ Numbers 1-9\r\n            for (let i = 0; i < 9; i++) {\r\n                const row = Math.floor(i \/ 3);\r\n                const col = i % 3;\r\n                buttons.push({\r\n                    x: numPadX + col * btnSize + padding\/2,\r\n                    y: numPadY + row * btnSize + padding\/2,\r\n                    width: btnSize - padding,\r\n                    height: btnSize - padding,\r\n                    text: (i + 1).toString(),\r\n                    screen: 'game',\r\n                    action: function() {\r\n                        userAnswer += this.text;\r\n                    },\r\n                    display: function() {\r\n                        fill(COLORS.neutral);\r\n                        rect(this.x, this.y, this.width, this.height, 10);\r\n                        fill(COLORS.text);\r\n                        textSize(windowWidth * 0.06);\r\n                        text(this.text, this.x + this.width\/2, this.y + this.height\/2);\r\n                    }\r\n                });\r\n            }\r\n            \r\n            \/\/ 0, Delete, Submit\r\n            buttons.push({\r\n                x: numPadX + padding\/2,\r\n                y: numPadY + 3 * btnSize + padding\/2,\r\n                width: btnSize - padding,\r\n                height: btnSize - padding,\r\n                text: \"0\",\r\n                screen: 'game',\r\n                action: function() {\r\n                    userAnswer += \"0\";\r\n                },\r\n                display: function() {\r\n                    fill(COLORS.neutral);\r\n                    rect(this.x, this.y, this.width, this.height, 10);\r\n                    fill(COLORS.text);\r\n                    textSize(windowWidth * 0.06);\r\n                    text(this.text, this.x + this.width\/2, this.y + this.height\/2);\r\n                }\r\n            });\r\n            \r\n            buttons.push({\r\n                x: numPadX + btnSize + padding\/2,\r\n                y: numPadY + 3 * btnSize + padding\/2,\r\n                width: btnSize - padding,\r\n                height: btnSize - padding,\r\n                text: \"\u232B\",\r\n                screen: 'game',\r\n                action: function() {\r\n                    userAnswer = userAnswer.slice(0, -1);\r\n                },\r\n                display: function() {\r\n                    fill(COLORS.accent);\r\n                    rect(this.x, this.y, this.width, this.height, 10);\r\n                    fill(COLORS.buttonText);\r\n                    textSize(windowWidth * 0.06);\r\n                    text(this.text, this.x + this.width\/2, this.y + this.height\/2);\r\n                }\r\n            });\r\n            \r\n            buttons.push({\r\n                x: numPadX + 2 * btnSize + padding\/2,\r\n                y: numPadY + 3 * btnSize + padding\/2,\r\n                width: btnSize - padding,\r\n                height: btnSize - padding,\r\n                text: \"\u2713\",\r\n                screen: 'game',\r\n                action: function() {\r\n                    checkAnswer();\r\n                },\r\n                display: function() {\r\n                    fill(COLORS.secondary);\r\n                    rect(this.x, this.y, this.width, this.height, 10);\r\n                    fill(COLORS.buttonText);\r\n                    textSize(windowWidth * 0.06);\r\n                    text(this.text, this.x + this.width\/2, this.y + this.height\/2);\r\n                }\r\n            });\r\n            \r\n            \/\/ Game over screen - Restart button\r\n            buttons.push({\r\n                x: width\/2 - levelBtnWidth\/2,\r\n                y: height * 0.6,\r\n                width: levelBtnWidth,\r\n                height: levelBtnHeight,\r\n                text: \"Ch\u01A1i l\u1EA1i\",\r\n                screen: 'gameOver',\r\n                action: function() {\r\n                    gameState = 'menu';\r\n                },\r\n                display: function() {\r\n                    fill(COLORS.primary);\r\n                    rect(this.x, this.y, this.width, this.height, 10);\r\n                    fill(COLORS.buttonText);\r\n                    textSize(windowWidth * 0.05);\r\n                    text(this.text, this.x + this.width\/2, this.y + this.height\/2);\r\n                }\r\n            });\r\n        }\r\n        \r\n        function startGame() {\r\n            gameState = 'game';\r\n            score = 0;\r\n            timeLeft = 60;\r\n            userAnswer = '';\r\n            lastUpdateTime = millis();\r\n            correctAnswers = 0;\r\n            wrongAnswers = 0;\r\n            generateProblem();\r\n        }\r\n        \r\n        function checkAnswer() {\r\n            if (userAnswer === '') return;\r\n            \r\n            const numAnswer = parseInt(userAnswer);\r\n            \r\n            if (numAnswer === currentProblem.answer) {\r\n                \/\/ Correct answer\r\n                score += 10;\r\n                correctAnswers++;\r\n                generateProblem();\r\n            } else {\r\n                \/\/ Wrong answer\r\n                timeLeft = Math.max(0, timeLeft - 5);\r\n                wrongAnswers++;\r\n            }\r\n            \r\n            userAnswer = '';\r\n        }\r\n        \r\n        function touchStarted() {\r\n            \/\/ Check if any button was pressed\r\n            for (let btn of buttons) {\r\n                if (btn.screen === gameState && \r\n                    mouseX >= btn.x && mouseX <= btn.x + btn.width &&\r\n                    mouseY >= btn.y && mouseY <= btn.y + btn.height) {\r\n                    btn.action();\r\n                    return false; \/\/ Prevent default\r\n                }\r\n            }\r\n            return false; \/\/ Prevent default\r\n        }\r\n        \r\n        function windowResized() {\r\n            resizeCanvas(windowWidth, windowHeight);\r\n            createButtons(); \/\/ Recreate buttons for new window size\r\n        }\r\n    <\/script>\r\n<\/body>\r\n<\/html>\r\n"
+   }]
+    onUpdate(testData)
+  </script>
+</body>
+
+</html>
