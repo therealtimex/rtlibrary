@@ -223,8 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           // Gửi thành công: hiện popup
           showCombineResult(T.joinSuccess.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code), "#222");
-          const originalOrgId = USER_ORG_ID;
-          checkOrgIdChanged(originalOrgId);
+          
         } catch (err) {
           // Gửi lỗi: hiện lỗi đỏ dưới nút, giữ nguyên màn hình
           errorElem.style.color = '#e74c3c';
@@ -280,8 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         // Thành công: hiện popup
         showCombineResult(T.trialSuccess.replace('{user}', USER_FULLNAME), "#222");
-        const originalOrgId = USER_ORG_ID;
-        checkOrgIdChanged(originalOrgId);
+        
       } catch (err) {
       
         errorElem.style.color = '#e74c3c';
@@ -391,54 +389,6 @@ function renderOrgFormLang() {
   if (contactEmail) contactEmail.value = USER_EMAIL;
 }
 
-// ==== Thêm hàm kiểm tra organization_id ====
-function checkOrgIdChanged(originalOrgId, retryCount = 0, maxRetries = 5, delay = 8000) {
-  fetch(`https://rthrm.rtworkspace.com/api/user/getUserDetails?_=d84c0c6d3154fb853916&username=${USERNAME}`)
-    .then(response => response.json())
-    .then(data => {
-      if (data.status === "success" && data.data.organization_id !== originalOrgId) {
-        console.log("Organization ID has changed to:", data.data.organization_id);
-        location.reload();
-      } else {
-        if (retryCount < maxRetries) {
-          console.log(`Organization ID not changed. Retrying in ${delay / 1000} seconds...`);
-          setTimeout(() => {
-            checkOrgIdChanged(originalOrgId, retryCount + 1, maxRetries, delay);
-          }, delay);
-        } else {
-          console.log("Max retries reached. Organization ID not changed.");
-        }
-      }
-    })
-    .catch(err => {
-      console.error("Error checking organization_id:", err);
-      if (retryCount < maxRetries) {
-        setTimeout(() => {
-          checkOrgIdChanged(originalOrgId, retryCount + 1, maxRetries, delay);
-        }, delay);
-      }
-    });
-}
-
-async function fetchUserOrgDetails() {
-  try {
-    const response = await fetch(`https://rthrm.rtworkspace.com/api/user/getUserDetails?_=d84c0c6d3154fb853916&username=${USERNAME}`);
-    const data = await response.json();
-    if (data.status === "success") {
-      USER_ORG_ID = data.data.organization_id;
-      USER_ORG_NAME = data.data.organization_name;
-      console.log("Updated USER_ORG_ID:", USER_ORG_ID);
-      console.log("Updated USER_ORG_NAME:", USER_ORG_NAME);
-    } else {
-      console.error("Failed to fetch organization details:", data);
-    }
-  } catch (error) {
-    console.error("Error fetching organization details:", error);
-  }
-}
-
-
-
 function generateRandomId(length) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
@@ -454,7 +404,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   document.getElementById('hrm-main').style.display = 'none';
   document.getElementById('combine-user-screen').style.display = 'none';
   document.getElementById('trial-user-tag').style.display = 'none';
-  await fetchUserOrgDetails();
+  
   await checkUserType();
   renderByUserType();
   renderCombineLang();
@@ -512,8 +462,7 @@ if (!shortName) shortName = orgName;
   document.getElementById('modal-create-org').style.display = 'none';
   showCombineResult(T.notify(orgName, contactEmail), "#222");
   form.reset();
-  const originalOrgId = USER_ORG_ID;
-  checkOrgIdChanged(originalOrgId);
+
 })
 .catch(err => {
   console.error('Submit error:', err);
@@ -1670,3 +1619,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+async function fetchAndPopulateProfile() {
+  try {
+    const response = await fetch('https://es.rta.vn/ss_userlist_v2/_search', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        size: 1,
+        collapse: { field: 'username.raw' },
+        query: {
+          bool: {
+            must: [
+              { term: { 'username.raw': { value: USERNAME } } },
+              { term: { 'organization_id.raw': { value: USER_ORG_ID } } }
+            ]
+          }
+        },
+        sort: [{ added_date: { order: 'desc' } }]
+      })
+    });
+
+    const data = await response.json();
+    const user = data.hits?.hits[0]?._source;
+
+    if (user) {
+      document.querySelector('.profile-image img').src = user.pr_photo_path || 'default-avatar.png';
+      document.querySelector('.profile-name').textContent = user.fullname || '-----';
+      document.querySelector('.profile-position').textContent = `${user.title || ''} - ${user.department || ''}`;
+    } else {
+      console.warn('Không tìm thấy dữ liệu người dùng.');
+    }
+  } catch (error) {
+    console.error('Lỗi khi lấy dữ liệu user profile:', error);
+  }
+}
+
+// Gọi hàm sau khi DOM tải xong
+document.addEventListener('DOMContentLoaded', fetchAndPopulateProfile);
