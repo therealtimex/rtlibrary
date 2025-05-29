@@ -397,6 +397,7 @@ function checkOrgIdChanged(originalOrgId, retryCount = 0, maxRetries = 5, delay 
     .then(response => response.json())
     .then(data => {
       if (data.status === "success" && data.data.organization_id !== originalOrgId) {
+        localStorage.setItem(`${USERNAME}_orgId`, data.data.organization_id);
         console.log("Organization ID has changed to:", data.data.organization_id);
         location.reload();
       } else {
@@ -419,6 +420,7 @@ function checkOrgIdChanged(originalOrgId, retryCount = 0, maxRetries = 5, delay 
       }
     });
 }
+
 
 
 function generateRandomId(length) {
