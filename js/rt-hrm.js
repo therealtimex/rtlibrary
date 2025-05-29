@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 username: USERNAME,
                 fullname: USER_FULLNAME,
                 user_role: 'ea8018e243_HRM Staff',
-                cellphone: USER_PHONE,
+                cellphone: USER_PHONE && USER_PHONE.trim() ? USER_PHONE : '0',
                 user_status: '1',
                 email: USER_EMAIL,
                 org_id: foundOrg.org_id,
@@ -223,6 +223,8 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           // Gửi thành công: hiện popup
           showCombineResult(T.joinSuccess.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code), "#222");
+          const originalOrgId = USER_ORG_ID;
+          checkOrgIdChanged(originalOrgId);
         } catch (err) {
           // Gửi lỗi: hiện lỗi đỏ dưới nút, giữ nguyên màn hình
           errorElem.style.color = '#e74c3c';
@@ -268,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
               username: USERNAME,
               fullname: USER_FULLNAME,
               user_role: 'ea8018e243_HRM - User Trial',
-              cellphone: USER_PHONE,
+              cellphone: USER_PHONE && USER_PHONE.trim() ? USER_PHONE : '0',
               user_status: '1',
               email: USER_EMAIL,
               org_id: 'ea8018e243',
@@ -278,6 +280,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         // Thành công: hiện popup
         showCombineResult(T.trialSuccess.replace('{user}', USER_FULLNAME), "#222");
+        const originalOrgId = USER_ORG_ID;
+        checkOrgIdChanged(originalOrgId);
       } catch (err) {
         // Lỗi: hiện text đỏ dưới nút Trial user, giữ nguyên màn hình
         errorElem.style.color = '#e74c3c';
@@ -342,13 +346,20 @@ function closeModalCreateOrg() {
 function renderOrgFormLang() {
   const T = LANG[appLanguage];
   const orgFormTitle = document.getElementById('org-form-title');
-  if (orgFormTitle) orgFormTitle.textContent = T.orgName;
-  
+  if (orgFormTitle) {
+    orgFormTitle.textContent = (appLanguage === 'vi') 
+      ? "Thông tin Tổ chức" 
+      : "Organization Information";
+  }
+
   const orgFormDesc = document.getElementById('org-form-desc');
   if (orgFormDesc) {
-    orgFormDesc.textContent = appLanguage === 'vi' 
+    orgFormDesc.textContent = (appLanguage === 'vi')
       ? "Vui lòng cung cấp Thông tin để Hệ thống khởi tạo Tổ chức mới:" 
       : "Please provide the information so the system can create a New organization:";
+    orgFormDesc.style.fontStyle = 'italic';  
+    orgFormDesc.style.fontWeight = 'bold';  
+    orgFormDesc.style.color = '#000'; 
   }
   
   const labelOrgName = document.getElementById('label-org-name');
@@ -379,6 +390,36 @@ function renderOrgFormLang() {
   const contactEmail = document.getElementById('contact-email');
   if (contactEmail) contactEmail.value = USER_EMAIL;
 }
+
+// ==== Thêm hàm kiểm tra organization_id ====
+function checkOrgIdChanged(originalOrgId, retryCount = 0, maxRetries = 5, delay = 8000) {
+  fetch(`https://rthrm.rtworkspace.com/api/user/getUserDetails?_=d84c0c6d3154fb853916&username=${USERNAME}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === "success" && data.data.organization_id !== originalOrgId) {
+        console.log("Organization ID has changed to:", data.data.organization_id);
+        location.reload();
+      } else {
+        if (retryCount < maxRetries) {
+          console.log(`Organization ID not changed. Retrying in ${delay / 1000} seconds...`);
+          setTimeout(() => {
+            checkOrgIdChanged(originalOrgId, retryCount + 1, maxRetries, delay);
+          }, delay);
+        } else {
+          console.log("Max retries reached. Organization ID not changed.");
+        }
+      }
+    })
+    .catch(err => {
+      console.error("Error checking organization_id:", err);
+      if (retryCount < maxRetries) {
+        setTimeout(() => {
+          checkOrgIdChanged(originalOrgId, retryCount + 1, maxRetries, delay);
+        }, delay);
+      }
+    });
+}
+
 
 function generateRandomId(length) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -427,7 +468,7 @@ if (!shortName) shortName = orgName;
           fullname: USER_FULLNAME,
           user_role: 'ea8018e243_HRM Manager',
           email: USER_EMAIL,
-          cellphone: USER_PHONE || '0',
+          cellphone: USER_PHONE && USER_PHONE.trim() ? USER_PHONE : '0',
           user_status: '1',
           org_id: orgId,
           org_name: shortName,
@@ -439,29 +480,33 @@ if (!shortName) shortName = orgName;
       };
 
       fetch('https://automation.rta.vn/webhook/rthrm-events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(() => {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload)
+})
+.then(res => {
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+  return res.json(); 
+})
+.then(() => {
   document.getElementById('modal-create-org').style.display = 'none';
   showCombineResult(T.notify(orgName, contactEmail), "#222");
   form.reset();
+  const originalOrgId = USER_ORG_ID;
+  checkOrgIdChanged(originalOrgId);
 })
-      .catch(err => {
-        console.error('Submit error:', err);
-        document.getElementById('modal-create-org').style.display = 'none';
-        document.getElementById('notification-message').innerHTML = `
-          <div style="color: red; font-weight: 500; margin-bottom: 8px; text-align:center;">${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}</div>
-        `;
-        document.getElementById('notification-popup').style.display = 'flex';
-      });
+.catch(err => {
+  console.error('Submit error:', err);
+  document.getElementById('modal-create-org').style.display = 'none';
+  document.getElementById('notification-message').innerHTML = `
+    <div style="color: red; font-weight: 500; margin-bottom: 8px; text-align:center;">
+      ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
+    </div>`;
+  document.getElementById('notification-popup').style.display = 'flex';
+});
+
     });
   }
 
