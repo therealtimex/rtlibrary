@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const originalOrgId = USER_ORG_ID;
         checkOrgIdChanged(originalOrgId);
       } catch (err) {
-        // Lỗi: hiện text đỏ dưới nút Trial user, giữ nguyên màn hình
+      
         errorElem.style.color = '#e74c3c';
         errorElem.textContent = T.error;
         errorElem.style.display = 'block';
@@ -397,7 +397,6 @@ function checkOrgIdChanged(originalOrgId, retryCount = 0, maxRetries = 5, delay 
     .then(response => response.json())
     .then(data => {
       if (data.status === "success" && data.data.organization_id !== originalOrgId) {
-        localStorage.setItem(`${USERNAME}_orgId`, data.data.organization_id);
         console.log("Organization ID has changed to:", data.data.organization_id);
         location.reload();
       } else {
@@ -421,6 +420,23 @@ function checkOrgIdChanged(originalOrgId, retryCount = 0, maxRetries = 5, delay 
     });
 }
 
+async function fetchUserOrgDetails() {
+  try {
+    const response = await fetch(`https://rthrm.rtworkspace.com/api/user/getUserDetails?_=d84c0c6d3154fb853916&username=${USERNAME}`);
+    const data = await response.json();
+    if (data.status === "success") {
+      USER_ORG_ID = data.data.organization_id;
+      USER_ORG_NAME = data.data.organization_name;
+      console.log("Updated USER_ORG_ID:", USER_ORG_ID);
+      console.log("Updated USER_ORG_NAME:", USER_ORG_NAME);
+    } else {
+      console.error("Failed to fetch organization details:", data);
+    }
+  } catch (error) {
+    console.error("Error fetching organization details:", error);
+  }
+}
+
 
 
 function generateRandomId(length) {
@@ -438,7 +454,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   document.getElementById('hrm-main').style.display = 'none';
   document.getElementById('combine-user-screen').style.display = 'none';
   document.getElementById('trial-user-tag').style.display = 'none';
-  
+  await fetchUserOrgDetails();
   await checkUserType();
   renderByUserType();
   renderCombineLang();
