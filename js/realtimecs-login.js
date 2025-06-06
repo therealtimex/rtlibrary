@@ -271,9 +271,9 @@ function setupEventHandlers() {
     };
 
     // Organization settings button (from official banner)
-    document.getElementById('btn-org-settings').onclick = function() {
-        alert(T.settings_alert);
-    };
+    // document.getElementById('btn-org-settings').onclick = function() {
+    //     alert(T.settings_alert);
+    // };
 
     // Close setup dialog
     document.getElementById('btn-close-setup').onclick = function() {
