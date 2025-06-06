@@ -534,7 +534,7 @@ const interval = setInterval(async () => {
     const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
     if (officialOrgIds.includes(USER_ORG_ID)) {
       clearInterval(interval);
-      userType = 'official';
+      await checkUserType();
       renderByUserType();
       // Ẩn popup kết quả
       document.getElementById('combine-result-screen').style.display = 'none';
