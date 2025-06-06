@@ -139,10 +139,10 @@ function applyLanguage() {
     document.getElementById('trial-mode-desc').textContent = T.trial_mode_desc;
     document.getElementById('btn-setup-trial').textContent = T.setup_btn;
     document.getElementById('official-status').textContent = T.official_status;
-    document.getElementById('btn-org-settings').textContent = T.settings_btn;
+    // document.getElementById('btn-org-settings').textContent = T.settings_btn;
 
     // Update welcome texts
-    document.getElementById('welcome-message').textContent = T.welcome_app;
+    // document.getElementById('welcome-message').textContent = T.welcome_app;
 
     // Update setup dialog
     document.getElementById('setup-org-title').textContent = T.setup_org_title;
@@ -230,7 +230,7 @@ function showBanner() {
         // Show trial banner
         document.getElementById('trial-banner').classList.remove('hidden');
         document.getElementById('official-banner').classList.add('hidden');
-        document.getElementById('welcome-subtitle').textContent = T.trial_mode_subtitle;
+        // document.getElementById('welcome-subtitle').textContent = T.trial_mode_subtitle;
     } else {
         // Show official banner
         document.getElementById('official-banner').classList.remove('hidden');
@@ -239,7 +239,7 @@ function showBanner() {
         // Update organization info
         document.getElementById('org-name-display').textContent = config.userOrgName || 'Your Organization';
         document.getElementById('org-id-display').textContent = `ID: ${config.userOrgId}`;
-        document.getElementById('welcome-subtitle').textContent = `${config.userOrgName || 'Your Organization'} - ${T.official_mode_subtitle}`;
+        // document.getElementById('welcome-subtitle').textContent = `${config.userOrgName || 'Your Organization'} - ${T.official_mode_subtitle}`;
     }
 }
 
