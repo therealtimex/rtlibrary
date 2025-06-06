@@ -139,7 +139,7 @@ function applyLanguage() {
     document.getElementById('trial-mode-desc').textContent = T.trial_mode_desc;
     document.getElementById('btn-setup-trial').textContent = T.setup_btn;
     document.getElementById('official-status').textContent = T.official_status;
-    document.getElementById('btn-org-settings').textContent = T.settings_btn;
+    // document.getElementById('btn-org-settings').textContent = T.settings_btn;
 
     // Update welcome texts
     // document.getElementById('welcome-message').textContent = T.welcome_app;
