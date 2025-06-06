@@ -64,7 +64,7 @@
  .attendance-action-title { font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #222; padding-left: 14px; }
  .attendance-action-title .highlight { color: #16a75c; text-transform: uppercase; }
  .attendance-action-buttons { display: flex; gap: 16px; flex-wrap: nowrap; justify-content: center; padding: 2px 0; border: 0; border-radius: 12px; background: #fff; margin: 0 8px; }
- .attendance-btn { background: var(--surface-color); border: none; border-radius: 15px; box-shadow: 0 1px 4px rgba(22,167,92,0.08); min-width: 100px; min-height: 60px; padding: 8px 4px 6px 4px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; margin: 10px 10px 10px 10px;}
+ .attendance-btn { background: var(--surface-color); border: 1.5px solid var(--primary-color); border-radius: 15px; box-shadow: 0 2px 8px rgba(22,167,92,0.10); min-width: 100px; min-height: 60px; padding: 8px 4px 6px 4px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; margin: 10px 10px 10px 10px;}
  .attendance-btn:active { background-color: var(--primary-color); transform: scale(0.95); }
  .attendance-btn-icon-bg { background: var(--surface-color); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: background 0.18s; }
  .attendance-btn-icon { font-size: 30px; color: var(--primary-color); line-height: 1; width: 1em; height: 1em; }
@@ -168,11 +168,12 @@
 #combine-result-message { text-align: left; margin-left: 0; margin-right: 0; color: #222!important; font-size: 1.05rem; margin-bottom: 20px;}
  @media (max-width: 700px) {.combine-card { padding: 24px 6vw 20px 6vw; max-width: 98vw;}}
 .org-name-found { color: #222; font-weight: bold; font-size: 1.08rem; display: block; margin-bottom: 4px;}
-
-.indicator-bar, .indicator-dot {
-  display: none !important;
-}
-
+.notif-full-modal {width: 100vw !important; max-width: 100vw !important; min-width: 0 !important; height: 100vh !important; max-height: 100vh !important; border-radius: 0 !important; box-shadow: none !important; display: flex; flex-direction: column; justify-content: flex-start; padding: 0 !important; position: relative; background: #fff; overflow-y: auto;}
+#modal-bg {align-items: flex-start !important;}
+#modal-body2 {flex: 1 1 0%; padding: 24px 14px 0 14px !important; font-size: 1.08rem; overflow-y: auto; max-height: none !important;}
+.notif-close-btn {display: inline-block; background: var(--primary-color); color: #fff; font-weight: bold; font-size: 1.08rem; border: none; border-radius: 16px; padding: 12px 48px; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.09); cursor: pointer; transition: background 0.18s;}
+.notif-close-btn:hover, .notif-close-btn:focus {background: var(--primary-color);}
+.indicator-bar, .indicator-dot {display: none !important;}
 
 /* Ẩn các nút action bar theo label hoặc data-action */
 .action-bar-item [id^="label-salary"],

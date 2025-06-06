@@ -1641,25 +1641,31 @@ document.querySelectorAll('.action-bar-item').forEach(item => {
 
 function renderNotifCards(arr) {
   const card = document.getElementById('notif-card');
-  card.innerHTML = arr.map((src, idx) => `
-    <div class="notif-item" tabindex="0"
-      onclick="showNotifModal('${escapeQuotes(src.title_vi)}', \`${escapeBackticks(src.hrm_html_vi)}\`)"
-      onkeypress="if(event.key==='Enter'){showNotifModal('${escapeQuotes(src.title_vi)}', \`${escapeBackticks(src.hrm_html_vi)}\`)}"
+  card.innerHTML = arr.map((src, idx) => {
+    // Lấy đúng nội dung và tiêu đề theo ngôn ngữ
+    const title = appLanguage === 'en' ? (src.title_en || src.title_vi || '') : (src.title_vi || src.title_en || '');
+    const html = appLanguage === 'en' ? (src.hrm_html_en || src.hrm_html_vi || '') : (src.hrm_html_vi || src.hrm_html_en || '');
+    return `
+      <div class="notif-item" tabindex="0"
+        onclick="showNotifModal('${escapeQuotes(title)}', \`${escapeBackticks(html)}\`)"
+        onkeypress="if(event.key==='Enter'){showNotifModal('${escapeQuotes(title)}', \`${escapeBackticks(html)}\`)}"
       >
-      <div class="notif-img" style="background-image: url('${src.hrm_img || ''}');"></div>
-      <div class="notif-info">
-        <div class="notif-title" title="${src.title_vi || ''}">${src.title_vi || ''}</div>
-        <button class="notif-arrow" tabindex="-1" aria-hidden="true">
-          &#10095;
-        </button>
+        <div class="notif-img" style="background-image: url('${src.hrm_img || ''}');"></div>
+        <div class="notif-info">
+          <div class="notif-title" title="${title}">${title}</div>
+          <button class="notif-arrow" tabindex="-1" aria-hidden="true">
+            &#10095;
+          </button>
+        </div>
+        <div class="notif-time">
+          ${calendarIconSVG()}
+          <span>${src.endtime || ''}</span>
+        </div>
       </div>
-      <div class="notif-time">
-        ${calendarIconSVG()}
-        <span>${src.endtime || ''}</span>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
+
 
 function calendarIconSVG() {
   return `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg>`;
@@ -1679,6 +1685,13 @@ window.showNotifModal = function(title, html) {
 window.closeNotifModal = function() {
   document.getElementById('modal-bg').classList.remove('show');
 }
+document.addEventListener('DOMContentLoaded', function() {
+    const notifCloseBtn = document.getElementById('notif-close-btn');
+    if (notifCloseBtn) {
+      notifCloseBtn.textContent = appLanguage === 'vi' ? 'ĐÓNG' : 'CLOSE';
+    }
+  });
+
 document.getElementById('modal-bg').onclick = function(e) {
   if (e.target === this) closeNotifModal();
 };
