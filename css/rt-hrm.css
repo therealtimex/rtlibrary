@@ -197,7 +197,7 @@
 }
 .notif-close-btn {
   display: inline-block;
-  background: #009688;
+  background: var(--primary-color, #009688);
   color: #fff;
   font-weight: bold;
   font-size: 1.08rem;
@@ -210,7 +210,7 @@
   transition: background 0.18s;
 }
 .notif-close-btn:hover, .notif-close-btn:focus {
-  background: #00796b;
+  background: var(--primary-color, #009688);
 }
 
 .indicator-bar, .indicator-dot {
