@@ -124,60 +124,67 @@ const LANG = {
 };
 
 // Global variables
-let userType = 'unidentified';
+let userType = 'trial';
 let foundOrg = null;
 let isTrialMode = false;
 let currentLang, T, config;
 
 // Apply language to all elements
-function applyLanguage() {
-    // Set HTML lang attribute
-    document.documentElement.lang = currentLang;
-
-    // Update banner texts
-    document.getElementById('trial-mode-title').textContent = T.trial_mode_title;
-    document.getElementById('trial-mode-desc').textContent = T.trial_mode_desc;
-    document.getElementById('btn-setup-trial').textContent = T.setup_btn;
-    document.getElementById('official-status').textContent = T.official_status;
-    // document.getElementById('btn-org-settings').textContent = T.settings_btn;
-
-    // Update welcome texts
-    // document.getElementById('welcome-message').textContent = T.welcome_app;
-
-    // Update setup dialog
-    document.getElementById('setup-org-title').textContent = T.setup_org_title;
-    document.getElementById('setup-org-desc').textContent = T.setup_org_desc;
-    document.getElementById('create-org-title').textContent = T.create_org_title;
-    document.getElementById('create-org-desc').textContent = T.create_org_desc;
-    document.getElementById('join-org-title').textContent = T.join_org_title;
-    document.getElementById('join-org-desc').textContent = T.join_org_desc;
-    document.getElementById('btn-continue-trial').textContent = T.continue_trial;
-
-    // Update form labels
-    document.getElementById('org-name-label').textContent = T.org_name_label;
-    document.getElementById('org-name-input').placeholder = T.org_name_placeholder;
-    document.getElementById('org-shortname-label').textContent = T.org_shortname_label;
-    document.getElementById('org-shortname').placeholder = T.org_shortname_placeholder;
-    document.getElementById('business-type-label').textContent = T.business_type_label;
-    document.getElementById('business-auto').textContent = T.business_auto;
-    document.getElementById('business-electronics').textContent = T.business_electronics;
-    document.getElementById('business-ac').textContent = T.business_ac;
-    document.getElementById('business-appliance').textContent = T.business_appliance;
-    document.getElementById('business-other').textContent = T.business_other;
-    document.getElementById('contact-name-label').textContent = T.contact_name_label;
-    document.getElementById('contact-email-label').textContent = T.contact_email_label;
-    document.getElementById('contact-phone-label').textContent = T.contact_phone_label;
-    document.getElementById('org-code-label').textContent = T.org_code_label;
-    document.getElementById('org-code-input').placeholder = T.org_code_placeholder;
-    document.getElementById('org-code-help').textContent = T.org_code_help;
-
-    // Update buttons
-    document.getElementById('btn-back-create').textContent = T.back_btn;
-    document.getElementById('btn-submit-org').textContent = T.create_org_btn;
-    document.getElementById('btn-back-join').textContent = T.back_btn;
-    document.getElementById('btn-confirm-join').textContent = T.join_btn;
-    document.getElementById('btn-close-result').textContent = T.close_btn;
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
 }
+
+function setPlaceholder(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.placeholder = value;
+}
+
+function applyLanguage() {
+  document.documentElement.lang = currentLang;
+
+  // Banner texts
+  setText('trial-mode-title', T.trial_mode_title);
+  setText('trial-mode-desc', T.trial_mode_desc);
+  setText('btn-setup-trial', T.setup_btn);
+  setText('official-status', T.official_status);
+  // setText('btn-org-settings', T.settings_btn);
+
+  // Setup dialog
+  setText('setup-org-title', T.setup_org_title);
+  setText('setup-org-desc', T.setup_org_desc);
+  setText('create-org-title', T.create_org_title);
+  setText('create-org-desc', T.create_org_desc);
+  setText('join-org-title', T.join_org_title);
+  setText('join-org-desc', T.join_org_desc);
+  setText('btn-continue-trial', T.continue_trial);
+
+  // Form labels and placeholders
+  setText('org-name-label', T.org_name_label);
+  setPlaceholder('org-name-input', T.org_name_placeholder);
+  setText('org-shortname-label', T.org_shortname_label);
+  setPlaceholder('org-shortname', T.org_shortname_placeholder);
+  setText('business-type-label', T.business_type_label);
+  setText('business-auto', T.business_auto);
+  setText('business-electronics', T.business_electronics);
+  setText('business-ac', T.business_ac);
+  setText('business-appliance', T.business_appliance);
+  setText('business-other', T.business_other);
+  setText('contact-name-label', T.contact_name_label);
+  setText('contact-email-label', T.contact_email_label);
+  setText('contact-phone-label', T.contact_phone_label);
+  setText('org-code-label', T.org_code_label);
+  setPlaceholder('org-code-input', T.org_code_placeholder);
+  setText('org-code-help', T.org_code_help);
+
+  // Buttons
+  setText('btn-back-create', T.back_btn);
+  setText('btn-submit-org', T.create_org_btn);
+  setText('btn-back-join', T.back_btn);
+  setText('btn-confirm-join', T.join_btn);
+  setText('btn-close-result', T.close_btn);
+}
+
 
 // Generate random ID
 function generateRandomId(length = 9) {
@@ -191,7 +198,7 @@ function generateRandomId(length = 9) {
 
 // Check user type and determine display mode
 async function checkUserType() {
-    if (config.userOrgId === config.trialOrgId || config.userOrgId === 'rta') {
+    if (config.userOrgId === config.trialOrgId) {
         userType = 'trial';
         isTrialMode = true;
         return 'trial';
@@ -246,8 +253,21 @@ function showBanner() {
 // Setup event handlers
 function setupEventHandlers() {
     // Setup trial button (from trial banner)
+    // document.getElementById('btn-setup-trial').onclick = function() {
+    //     showSetupDialog();
+    // };
+
     document.getElementById('btn-setup-trial').onclick = function() {
-        showSetupDialog();
+        const actionData = {
+            actionID: 99,
+            orderNumber: 1,
+            type: "act_dm_view",
+            label: "no label",
+            screen: "realtimecs-realtimecs00-realtimecs010obj1-screen10",
+            alias: "realtimecs_realtimecs00obj1",
+            args: { user_type: userType }
+        };
+        App.callActionButton(JSON.stringify(actionData));
     };
 
     // Organization settings button (from official banner)
@@ -278,8 +298,20 @@ function setupEventHandlers() {
     };
 
     // Continue trial button
+    // document.getElementById('btn-continue-trial').onclick = function() {
+    //     hideSetupDialog();
+    // };
     document.getElementById('btn-continue-trial').onclick = function() {
-        hideSetupDialog();
+        const actionData = {
+            actionID: 99,
+            orderNumber: 1,
+            type: "act_dm_view",
+            label: "no label",
+            screen: "realtimecs-realtimecs00-realtimecs010obj1-screen1",
+            alias: "realtimecs_realtimecs00obj1",
+            args: { user_type: userType }
+        };
+        App.callActionButton(JSON.stringify(actionData));
     };
 
     // Back buttons
@@ -306,7 +338,7 @@ function setupEventHandlers() {
         let orgId;
         if (userType === 'trial') {
             orgId = 's' + generateRandomId();
-        } else if (userType === 'unidentified') {
+        } else if (userType === 'official') {
             orgId = config.userOrgId;
         }
 
@@ -428,7 +460,18 @@ function setupEventHandlers() {
 
     // Close result button
     document.getElementById('btn-close-result').onclick = function() {
-        document.getElementById('result-screen').classList.add('hidden');
+        const actionData = {
+            actionID: 99,
+            orderNumber: 1,
+            type: "act_dm_view",
+            label: "no label",
+            screen: "realtimecs-realtimecs00-realtimecs010obj1-screen1",
+            alias: "realtimecs_realtimecs00obj1",
+            args: { user_type: userType }
+        };
+        App.callActionButton(JSON.stringify(actionData));
+
+        // document.getElementById('result-screen').classList.add('hidden');
     };
 }
 
