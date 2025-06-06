@@ -763,11 +763,12 @@ function callActionArrow() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           "size": 10000,
-          "collapse": { "field": "key_ins.raw" },
+          "collapse": { "field": "keyid.raw" },
           "query": {
             "bool": {
               "must": [
-                { "term": { "org_id.raw": { "value": USER_ORG_ID } } }
+                { "term": { "org_id.raw": { "value": USER_ORG_ID } } },
+                {"range":{"endday":{"gte":"now/d"}}}
               ]
             }
           },
@@ -1284,7 +1285,7 @@ App.callActionButton(JSON.stringify(json));
 }
 },
 checkin_remote:{
-label: T.checkinRemote,
+label: 'T.checkinRemote',
 icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M24 6C16.268 6 10 12.268 10 20c0 7.732 10.5 18 14 21.5C27.5 38 38 27.732 38 20c0-7.732-6.268-14-14-14Z" stroke="currentColor" stroke-width="7" fill="none"/><circle cx="24" cy="20" r="5" stroke="currentColor" stroke-width="3" fill="none"/><path d="M34 41a10 4 0 1 1-20 0" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`,
 onClick:function(){
 if(!latestCheckin)return;
@@ -1391,7 +1392,7 @@ App.callActionButton(JSON.stringify(json));
 }
 },
 checkout_remote:{
-  label: T.checkinRemote,
+  label: T.checkoutRemote,
 icon:`<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M24 6C16.268 6 10 12.268 10 20c0 7.732 10.5 18 14 21.5C27.5 38 38 27.732 38 20c0-7.732-6.268-14-14-14Z" stroke="currentColor" stroke-width="7" fill="none"/><circle cx="24" cy="20" r="5" stroke="currentColor" stroke-width="3" fill="none"/><path d="M34 41a10 4 0 1 1-20 0" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`,
 onClick:function(){
 if(!latestCheckin)return;
@@ -1454,8 +1455,13 @@ buttons=[BTN.checkin_temp];
 title=T.attendanceActionCheckin || 'Check-In';
 buttons=[BTN.new_qr,BTN.new_remote];
 }
+
+// Ẩn tạm thời các nút QR và Tạm thời
+  buttons = buttons.filter(btn => btn.label !== 'QR' && btn.label !== T.checkinTemp);
+
+  
 if(title){
-container.innerHTML+=`<div class="attendance-action-title" style="color:#222;font-weight:bold;font-size:16px;padding-left:14px">${title}</div>`;
+container.innerHTML+=`<div class="attendance-action-title" style="color:#222;font-weight:bold;font-size:16px;padding-left:14px"></div>`;
 }
 if(buttons.length){
 let html=`<div class="attendance-action-buttons">`;
@@ -1470,6 +1476,10 @@ container.innerHTML+=html;
 window.attendanceButtonHandlers=buttons.map(btn=>btn.onClick);
 }
 }
+
+
+
+
 function updateAttendanceActions() {
   const view_mark = latestCheckin ? Number(latestCheckin.view_mark) : 0;
   renderAttendanceActions(view_mark);

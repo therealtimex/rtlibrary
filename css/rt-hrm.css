@@ -64,11 +64,11 @@
  .attendance-action-title { font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #222; padding-left: 14px; }
  .attendance-action-title .highlight { color: #16a75c; text-transform: uppercase; }
  .attendance-action-buttons { display: flex; gap: 16px; flex-wrap: nowrap; justify-content: center; padding: 2px 0; border: 0; border-radius: 12px; background: #fff; margin: 0 8px; }
- .attendance-btn { background: #fff; border: none; border-radius: 15px; box-shadow: 0 1px 4px rgba(22,167,92,0.08); min-width: 80px; min-height: 60px; padding: 8px 4px 6px 4px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; margin: 10px 10px 10px 10px;}
+ .attendance-btn { background: var(--surface-color); border: none; border-radius: 15px; box-shadow: 0 1px 4px rgba(22,167,92,0.08); min-width: 100px; min-height: 60px; padding: 8px 4px 6px 4px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; margin: 10px 10px 10px 10px;}
  .attendance-btn:active { background-color: var(--primary-color); transform: scale(0.95); }
  .attendance-btn-icon-bg { background: var(--surface-color); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: background 0.18s; }
  .attendance-btn-icon { font-size: 30px; color: var(--primary-color); line-height: 1; width: 1em; height: 1em; }
- .attendance-btn-label { font-size: 14px; color: #222; margin-top: 1px; text-align: center; }
+ .attendance-btn-label { font-size: 16px; color: var(--info-color); font-weight: 600; margin-top: 1px; text-align: center; }
  .action-bar-outer { background: #f0f0f0; padding: 20px 0 0 0; overflow: hidden; max-width: 100vw; }
  .action-bar-scroll { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(70px,1fr); gap: 18px; width: 100%; max-width: 95vw; margin: 0 auto; transition: transform 0.4s cubic-bezier(.4,2.2,.2,1); will-change: transform; overflow: hidden; }
  .action-bar-item { display: flex; flex-direction: column; align-items: center; background: transparent; padding: 8px 4px 6px 4px;border-radius: 15px;}
@@ -168,3 +168,29 @@
 #combine-result-message { text-align: left; margin-left: 0; margin-right: 0; color: #222!important; font-size: 1.05rem; margin-bottom: 20px;}
  @media (max-width: 700px) {.combine-card { padding: 24px 6vw 20px 6vw; max-width: 98vw;}}
 .org-name-found { color: #222; font-weight: bold; font-size: 1.08rem; display: block; margin-bottom: 4px;}
+
+.indicator-bar, .indicator-dot {
+  display: none !important;
+}
+
+
+/* Ẩn các nút action bar theo label hoặc data-action */
+.action-bar-item [id^="label-salary"],
+.action-bar-item [id^="label-business"],
+.action-bar-item [id^="label-rule"],
+.action-bar-item [id^="label-benefit"],
+.action-bar-item [id^="label-task"],
+.action-bar-item [id^="label-asset"],
+.action-bar-item [id^="label-expense"] {
+  display: none !important;
+}
+/* Ẩn action-bar-item chứa các label trên */
+.action-bar-item:has([id^="label-salary"]),
+.action-bar-item:has([id^="label-business"]),
+.action-bar-item:has([id^="label-rule"]),
+.action-bar-item:has([id^="label-benefit"]),
+.action-bar-item:has([id^="label-task"]),
+.action-bar-item:has([id^="label-asset"]),
+.action-bar-item:has([id^="label-expense"]) {
+  display: none !important;
+}
