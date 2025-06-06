@@ -63,8 +63,24 @@ function renderCombineLang() {
   
   // Update trial tag
   const trialTag = document.getElementById('trial-user-tag');
-  if (trialTag) {
-  trialTag.innerHTML = `<i class="fa fa-refresh" style="color:gray; background:white; border-radius:50%; padding:2px; margin-right:4px;"></i> ${T.trialTag}`;
+if (trialTag) {
+  trialTag.innerHTML = `
+  <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <div style="flex: 1; text-align: left;">${T.trialTag}</div>
+    <button onclick="showCombineScreen()" style="
+      background: #fff;
+      border: 1px solid #FFCC80;
+      border-radius: 4px;
+      padding: 4px 12px;
+      font-size: 13px;
+      color: #333;
+      font-weight: 500;
+      white-space: nowrap;
+    ">
+      ${T.exitTrial}
+    </button>
+  </div>
+`;
 }
 
   // Update close button

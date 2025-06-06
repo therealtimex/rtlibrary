@@ -123,8 +123,7 @@
  .ot-report-btn {background: #ff9800; color: white; border: none; border-radius: 6px; padding: 3px 3px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s;}
  .ot-report-btn:hover {background: #e08600;}
  .ot-report-btn:active {transform: scale(0.95); background: #e08600;}
- #trial-user-tag { position: absolute; top: 3px; right: 3px; background: var(--warning-color); color: #fff; border-radius: 4px; padding: 4px 12px; font-size: 12px; font-weight: 400; z-index: 100; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
- #trial-user-tag:hover { background: var(--warning-dark); }
+ #trial-user-tag {display: flex; align-items: center; justify-content: space-between; width: 100%; background-color: #FFF3E0; color: #212121; padding: 8px 16px; font-size: 14px; font-weight: 500; border-bottom: 1px solid #FFCC80; gap: 8px;}
  #unidentified-user-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); z-index: 1000; padding: 24px; display: none; }
  .mode-selection-container { background: #fff; border-radius: 8px; padding: 28px 20px 24px 20px; margin: 48px auto; max-width: 480px; box-shadow: 0 4px 24px rgba(0,0,0,0.12); border: 1px solid #eee; text-align: center; }
  .mode-btn { width: 100%; border: none; border-radius: 4px; padding: 12px 0; font-weight: 600; font-size: 1rem; margin-bottom: 12px; cursor: pointer; transition: background 0.2s; }
@@ -132,15 +131,13 @@
  .trial-btn:hover { background: var(--warning-dark); }
  .official-btn { background: var(--primary-color); color: #fff; }
  .official-btn:hover { background: #00796b; }
- .divider { color: #bdbdbd; margin: 8px 0; font-size: 0.95em;
-font-weight: 600; }
+ .divider { color: #bdbdbd; margin: 8px 0; font-size: 0.95em; font-weight: 600; }
  .input-error { color: #d32f2f; font-size: 0.9em; margin: 4px 0 8px 0; text-align: left; display: none; }
  .org-found-container { display: none; margin-bottom: 8px; }
 #official-mode-popup.modal-bg { display: none; position: fixed; z-index: 1000; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.27); align-items: center; justify-content: center; }
 .official-popup-content { background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.12); padding: 0; margin: 48px auto; max-width: 400px; width: 98%; position: relative; animation: fadeIn 0.3s; }
 .official-popup-inner { padding: 26px 20px 24px 20px; }
-.official-title { font-size: 1.02rem; font-weight: 700; margin-bottom: 12px; /* gần input hơn */
- text-align: center; }
+.official-title { font-size: 1.02rem; font-weight: 700; margin-bottom: 12px; text-align: center; }
 .official-org-input { position: relative; margin-bottom: 14px; }
 #org-code-input { width: 100%; padding: 10px 12px; border-radius: 4px; border: 1px solid #ddd; font-size: 1rem; }
 #clear-input-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: #888; padding: 0; }
@@ -153,12 +150,9 @@ font-weight: 600; }
 #official-mode-popup.modal-bg.trial-bg { background: rgba(255,255,255,0.9); }
 #official-mode-popup.modal-bg.unidentified-bg { background: rgba(0,0,0,0.5); }
 #org-form-title { font-size: 16px !important; font-weight: 600; }
-
 #hrm-main, #trial-user-tag, #combine-user-screen { display: none; }
 #combine-user-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f5f5f5; }
-
 .combine-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.10); width: 100vw; text-align: center; height: 100vh;}
-
 .combine-card input[type="text"] { margin-bottom: 14px; font-size: 1rem; padding: 10px 12px; border-radius: 6px; border: 1px solid #ccc; width: 100%; }
 .combine-card button { margin-bottom: 10px; font-size: 1.05rem; font-weight: 500; border-radius: 6px; width: 100%; padding: 9px 0; border: none; transition: background 0.15s; cursor: pointer; }
  #combine-btn-confirm { background: #009688; color: #fff; }
