@@ -9,7 +9,23 @@ function showCombineResult(msg, color = '#222') {
   const msgElem = document.getElementById('combine-result-message');
   msgElem.innerHTML = msg;
   msgElem.style.color = color;
+
+  // Ẩn nút Đóng khi popup vừa hiện
+  const btnClose = document.getElementById('combine-btn-close-result');
+  if (btnClose) btnClose.style.display = 'none';
+
+  // Hiện spinner nếu có
+  const spinner = document.getElementById('combine-result-spinner');
+  if (spinner) spinner.style.display = 'block';
+
+  // Sau 60s mới hiện lại nút Đóng, ẩn spinner
+  setTimeout(() => {
+    if (btnClose) btnClose.style.display = 'block';
+    if (spinner) spinner.style.display = 'none';
+  }, 60000);
 }
+
+
 
 // Reset giao diện combine về trạng thái ban đầu
 function resetCombineForm() {
@@ -300,6 +316,8 @@ document.addEventListener('DOMContentLoaded', function() {
   if (btnCloseResult) {
     btnCloseResult.onclick = function () {
       document.getElementById('combine-result-screen').style.display = 'none';
+      document.getElementById('combine-result-spinner').style.display = 'none';
+      btnCloseResult.style.display = 'block';
       // Reset về trạng thái ban đầu
       foundOrg = null;
       combineScreenMode = 'default';
@@ -469,23 +487,52 @@ if (!shortName) shortName = orgName;
   }
   return res.json(); 
 })
-.then(() => {
-      setTimeout(() => {
-        updateApiRequest(); 
-      }, 10000);
 
-      setTimeout(() => {
-        updateApiRequest(); 
-      }, 20000);
-
-      setTimeout(() => {
-        updateApiRequest(); 
-      }, 30000);
-    })
 .then(() => {
   document.getElementById('modal-create-org').style.display = 'none';
   showCombineResult(T.notify(orgName, contactEmail), "#222");
   form.reset();
+
+  let elapsed = 0;
+const btnClose = document.getElementById('combine-btn-close-result');
+const spinner = document.getElementById('combine-result-spinner');
+// Ẩn nút đóng, hiện spinner (đã có trong showCombineResult, nhưng đảm bảo lại)
+if (btnClose) btnClose.style.display = 'none';
+if (spinner) spinner.style.display = 'block';
+
+// Cứ 10s gọi lại API kiểm tra user
+const interval = setInterval(async () => {
+  elapsed += 10;
+  try {
+    const response = await fetch('https://es.rta.vn/nerp_org/_search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        "size": 10000,
+        "collapse": {"field": "org_id.raw"},
+        "_source": {"includes": ["org_id"]},
+        "sort": [{"endtime": {"order": "desc"}}]
+      })
+    });
+    const data = await response.json();
+    const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
+    if (officialOrgIds.includes(USER_ORG_ID)) {
+      clearInterval(interval);
+      userType = 'official';
+      renderByUserType();
+      // Ẩn popup kết quả
+      document.getElementById('combine-result-screen').style.display = 'none';
+  if (spinner) spinner.style.display = 'none';
+    }
+  } catch (err) {
+    // Có thể log lỗi nếu cần
+  }
+  if (elapsed >= 60) {
+    clearInterval(interval);
+    if (btnClose) btnClose.style.display = 'block';
+    if (spinner) spinner.style.display = 'none';
+  }
+}, 10000);
 
 })
 .catch(err => {
