@@ -129,7 +129,7 @@ let foundOrg = null;
 let isTrialMode = false;
 let currentLang, T, config;
 
-// Apply language to all elements
+
 function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = value;
@@ -140,12 +140,16 @@ function setPlaceholder(id, value) {
   if (el) el.placeholder = value;
 }
 
+// Apply language to all elements
 function applyLanguage() {
   document.documentElement.lang = currentLang;
 
   // Banner texts
   setText('trial-mode-title', T.trial_mode_title);
-  setText('trial-mode-desc', T.trial_mode_desc);
+  var trialModeDescElem = document.getElementById('trial-mode-desc');
+  if (trialModeDescElem) {
+    trialModeDescElem.textContent = T.trial_mode_desc;
+  }
   setText('btn-setup-trial', T.setup_btn);
   setText('official-status', T.official_status);
   // setText('btn-org-settings', T.settings_btn);
@@ -211,53 +215,68 @@ async function checkUserType() {
 
 // Show result message
 function showResult(msg, color = '#333') {
-    document.getElementById('setup-dialog').classList.add('hidden');
-    document.getElementById('result-screen').classList.remove('hidden');
+    const setupDialog = document.getElementById('setup-dialog');
+    if (setupDialog) setupDialog.classList.add('hidden');
+
+    const resultScreen = document.getElementById('result-screen');
+    if (resultScreen) resultScreen.classList.remove('hidden');
+
     const msgElem = document.getElementById('result-message');
-    msgElem.innerHTML = msg;
-    msgElem.style.color = color;
+    if (msgElem) {
+        msgElem.innerHTML = msg;
+        msgElem.style.color = color;
+    }
 }
 
 // Show setup dialog
 function showSetupDialog() {
-    document.getElementById('setup-dialog').classList.remove('hidden');
-    document.getElementById('setup-selection').classList.remove('hidden');
-    document.getElementById('create-org-form').classList.add('hidden');
-    document.getElementById('join-org-form').classList.add('hidden');
+    // Nếu giao diện đang được hiển thị dạng phẳng, không cần xử lý gì thêm
+    // Bạn có thể xóa nội dung hoặc comment code ẩn/hiện
 }
+
 
 // Hide setup dialog
 function hideSetupDialog() {
-    document.getElementById('setup-dialog').classList.add('hidden');
+    // Không ẩn giao diện, hoặc xử lý theo logic giao diện phẳng
 }
+
 
 // Show appropriate banner based on user type
 function showBanner() {
+    const trialBanner = document.getElementById('trial-banner');
+    const officialBanner = document.getElementById('official-banner');
+    const orgNameDisplay = document.getElementById('org-name-display');
+    const orgIdDisplay = document.getElementById('org-id-display');
+    // const welcomeSubtitle = document.getElementById('welcome-subtitle');
+
     if (isTrialMode) {
         // Show trial banner
-        document.getElementById('trial-banner').classList.remove('hidden');
-        document.getElementById('official-banner').classList.add('hidden');
-        // document.getElementById('welcome-subtitle').textContent = T.trial_mode_subtitle;
+        if (trialBanner) trialBanner.classList.remove('hidden');
+        if (officialBanner) officialBanner.classList.add('hidden');
+        // if (welcomeSubtitle) welcomeSubtitle.textContent = T.trial_mode_subtitle;
     } else {
         // Show official banner
-        document.getElementById('official-banner').classList.remove('hidden');
-        document.getElementById('trial-banner').classList.add('hidden');
+        if (officialBanner) officialBanner.classList.remove('hidden');
+        if (trialBanner) trialBanner.classList.add('hidden');
 
         // Update organization info
-        document.getElementById('org-name-display').textContent = config.userOrgName || 'Your Organization';
-        document.getElementById('org-id-display').textContent = `ID: ${config.userOrgId}`;
-        // document.getElementById('welcome-subtitle').textContent = `${config.userOrgName || 'Your Organization'} - ${T.official_mode_subtitle}`;
+        if (orgNameDisplay) orgNameDisplay.textContent = config.userOrgName || 'Your Organization';
+        if (orgIdDisplay) orgIdDisplay.textContent = `ID: ${config.userOrgId}`;
+        // if (welcomeSubtitle) welcomeSubtitle.textContent = `${config.userOrgName || 'Your Organization'} - ${T.official_mode_subtitle}`;
     }
 }
+
 
 // Setup event handlers
 function setupEventHandlers() {
     // Setup trial button (from trial banner)
-    // document.getElementById('btn-setup-trial').onclick = function() {
-    //     showSetupDialog();
-    // };
+    var btnSetupTrial = document.getElementById('btn-setup-trial');
+    if (btnSetupTrial) {
+      btnSetupTrial.onclick = function() {
+        showSetupDialog();
+      };
 
-    document.getElementById('btn-setup-trial').onclick = function() {
+      btnSetupTrial.addEventListener('click', function() {
         const actionData = {
             actionID: 99,
             orderNumber: 1,
@@ -268,7 +287,8 @@ function setupEventHandlers() {
             args: { user_type: userType }
         };
         App.callActionButton(JSON.stringify(actionData));
-    };
+      });
+    }
 
     // Organization settings button (from official banner)
     // document.getElementById('btn-org-settings').onclick = function() {
@@ -276,32 +296,50 @@ function setupEventHandlers() {
     // };
 
     // Close setup dialog
-    document.getElementById('btn-close-setup').onclick = function() {
+    var btnCloseSetup = document.getElementById('btn-close-setup');
+    if (btnCloseSetup) {
+      btnCloseSetup.addEventListener('click', function() {
         hideSetupDialog();
-    };
+      });
+    }
 
     // Create org button
-    document.getElementById('btn-create-org').onclick = function() {
-        document.getElementById('setup-selection').classList.add('hidden');
-        document.getElementById('create-org-form').classList.remove('hidden');
+    var btnCreateOrg = document.getElementById('btn-create-org');
+    if (btnCreateOrg) {
+      btnCreateOrg.addEventListener('click', function() {
+        var setupSelection = document.getElementById('setup-selection');
+        if (setupSelection) setupSelection.classList.add('hidden');
+        var createOrgForm = document.getElementById('create-org-form');
+        if (createOrgForm) createOrgForm.classList.remove('hidden');
 
         // Pre-fill form
-        document.getElementById('contact-name').value = config.userFullName;
-        document.getElementById('contact-email').value = config.userEmail;
-        document.getElementById('contact-phone').value = config.userPhone;
-    };
+        var contactName = document.getElementById('contact-name');
+        if (contactName) contactName.value = config.userFullName;
+        var contactEmail = document.getElementById('contact-email');
+        if (contactEmail) contactEmail.value = config.userEmail;
+        var contactPhone = document.getElementById('contact-phone');
+        if (contactPhone) contactPhone.value = config.userPhone;
+      });
+    }
 
     // Join org button
-    document.getElementById('btn-join-org').onclick = function() {
-        document.getElementById('setup-selection').classList.add('hidden');
-        document.getElementById('join-org-form').classList.remove('hidden');
-    };
+    var btnJoinOrg = document.getElementById('btn-join-org');
+    if (btnJoinOrg) {
+      btnJoinOrg.addEventListener('click', function() {
+        var setupSelection = document.getElementById('setup-selection');
+        if (setupSelection) setupSelection.classList.add('hidden');
+        var joinOrgForm = document.getElementById('join-org-form');
+        if (joinOrgForm) joinOrgForm.classList.remove('hidden');
+      });
+    }
 
     // Continue trial button
     // document.getElementById('btn-continue-trial').onclick = function() {
     //     hideSetupDialog();
     // };
-    document.getElementById('btn-continue-trial').onclick = function() {
+    var btnContinueTrial = document.getElementById('btn-continue-trial');
+    if (btnContinueTrial) {
+      btnContinueTrial.addEventListener('click', function() {
         const actionData = {
             actionID: 99,
             orderNumber: 1,
@@ -312,87 +350,106 @@ function setupEventHandlers() {
             args: { user_type: userType }
         };
         App.callActionButton(JSON.stringify(actionData));
-    };
+      });
+    }
 
     // Back buttons
-    document.getElementById('btn-back-create').onclick = function() {
-        document.getElementById('create-org-form').classList.add('hidden');
-        document.getElementById('setup-selection').classList.remove('hidden');
-    };
+    var btnBackCreate = document.getElementById('btn-back-create');
+    if (btnBackCreate) {
+      btnBackCreate.addEventListener('click', function() {
+        var createOrgForm = document.getElementById('create-org-form');
+        if (createOrgForm) createOrgForm.classList.add('hidden');
+        var setupSelection = document.getElementById('setup-selection');
+        if (setupSelection) setupSelection.classList.remove('hidden');
+      });
+    }
 
-    document.getElementById('btn-back-join').onclick = function() {
-        document.getElementById('join-org-form').classList.add('hidden');
-        document.getElementById('setup-selection').classList.remove('hidden');
-    };
+    var btnBackJoin = document.getElementById('btn-back-join');
+    if (btnBackJoin) {
+      btnBackJoin.addEventListener('click', function() {
+        var joinOrgForm = document.getElementById('join-org-form');
+        if (joinOrgForm) joinOrgForm.classList.add('hidden');
+        var setupSelection = document.getElementById('setup-selection');
+        if (setupSelection) setupSelection.classList.remove('hidden');
+      });
+    }
 
     // Create org form submit
-    document.getElementById('org-create-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const orgName = document.getElementById('org-name-input').value.trim();
-        let shortName = document.getElementById('org-shortname').value.trim();
-        if (!shortName) shortName = orgName;
-        const contactName = document.getElementById('contact-name').value.trim();
-        const contactEmail = document.getElementById('contact-email').value.trim();
-        const contactPhone = document.getElementById('contact-phone').value.trim();
+var orgCreateForm = document.getElementById('org-create-form');
+if (orgCreateForm) {
+  orgCreateForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const orgName = document.getElementById('org-name-input').value.trim();
+    let shortName = document.getElementById('org-shortname').value.trim();
+    if (!shortName) shortName = orgName;
+    const contactName = document.getElementById('contact-name').value.trim();
+    const contactEmail = document.getElementById('contact-email').value.trim();
+    const contactPhone = document.getElementById('contact-phone').value.trim();
 
-        let orgId;
-        if (userType === 'trial') {
-            orgId = 's' + generateRandomId();
-        } else if (userType === 'official') {
-            orgId = config.userOrgId;
-        }
+    let orgId;
+    if (userType === 'trial') {
+      orgId = 's' + generateRandomId();
+    } else if (userType === 'official') {
+      orgId = config.userOrgId;
+    }
 
-        const payload = {
-            event_id: `rt${config.appShortName.toLowerCase()}.neworg`,
-            new_org: '1',
-            project_code: config.projectCode,
-            data: [{
-                username: config.username,
-                fullname: config.userFullName,
-                user_role: config.userRoledefault,
-                email: config.userEmail,
-                cellphone: config.userPhone && config.userPhone.trim() ? config.userPhone : '0',
-                user_status: '1',
-                org_id: orgId,
-                org_name: shortName,
-                contact_name: contactName,
-                contact_email: contactEmail,
-                contact_phone: contactPhone || '0',
-                context_title: `${shortName}-${config.appShortName}`
-            }]
-        };
+    const payload = {
+      event_id: `rt${config.appShortName.toLowerCase()}.neworg`,
+      new_org: '1',
+      project_code: config.projectCode,
+      data: [{
+        username: config.username,
+        fullname: config.userFullName,
+        user_role: config.userRoledefault,
+        email: config.userEmail,
+        cellphone: config.userPhone && config.userPhone.trim() ? config.userPhone : '0',
+        user_status: '1',
+        org_id: orgId,
+        org_name: shortName,
+        contact_name: contactName,
+        contact_email: contactEmail,
+        contact_phone: contactPhone || '0',
+        context_title: `${shortName}-${config.appShortName}`
+      }]
+    };
 
-        fetch(config.apiEndpoints.webhook, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            return res.json(); 
-        })
-        .then(() => {
-            showResult(T.notify(orgName, contactEmail));
-            this.reset();
-        })
-        .catch(err => {
-            console.error('Submit error:', err);
-            showResult(T.error, '#e74c3c');
-        });
+    fetch(config.apiEndpoints.webhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json(); 
+    })
+    .then(() => {
+      showResult(T.notify(orgName, contactEmail));
+      orgCreateForm.reset();
+    })
+    .catch(err => {
+      console.error('Submit error:', err);
+      showResult(T.error, '#e74c3c');
     });
+  });
+}
 
     // Join org confirm button
-    document.getElementById('btn-confirm-join').onclick = async function() {
-        const code = document.getElementById('org-code-input').value.trim();
+    var btnConfirmJoin = document.getElementById('btn-confirm-join');
+    if (btnConfirmJoin) {
+      btnConfirmJoin.addEventListener('click', async function() {
+        var orgCodeInput = document.getElementById('org-code-input');
+        const code = orgCodeInput ? orgCodeInput.value.trim() : '';
         const errorElem = document.getElementById('org-error');
-        errorElem.style.display = 'none';
+        if (errorElem) errorElem.style.display = 'none';
 
         if (!foundOrg) {
             if (!code) {
-                errorElem.textContent = T.error_empty;
-                errorElem.style.display = 'block';
+                if (errorElem) {
+                    errorElem.textContent = T.error_empty;
+                    errorElem.style.display = 'block';
+                }
                 return;
             }
             this.disabled = true;
@@ -411,19 +468,25 @@ function setupEventHandlers() {
                 this.textContent = T.confirm_btn;
                 if (data.hits && data.hits.hits && data.hits.hits.length > 0) {
                     foundOrg = data.hits.hits[0]._source;
-                    errorElem.innerHTML = `<b class="org-name-found">${foundOrg.org_lb || foundOrg.org_name || code}</b>`;
-                    errorElem.style.display = 'block';
-                    errorElem.style.color = '#16a75c';
+                    if (errorElem) {
+                        errorElem.innerHTML = `<b class="org-name-found">${foundOrg.org_lb || foundOrg.org_name || code}</b>`;
+                        errorElem.style.display = 'block';
+                        errorElem.style.color = '#16a75c';
+                    }
                     this.textContent = T.request_join;
                 } else {
-                    errorElem.textContent = T.error_notfound;
-                    errorElem.style.display = 'block';
+                    if (errorElem) {
+                        errorElem.textContent = T.error_notfound;
+                        errorElem.style.display = 'block';
+                    }
                 }
             } catch (err) {
                 this.disabled = false;
                 this.textContent = T.confirm_btn;
-                errorElem.textContent = T.error;
-                errorElem.style.display = 'block';
+                if (errorElem) {
+                    errorElem.textContent = T.error;
+                    errorElem.style.display = 'block';
+                }
             }
         } else {
             this.disabled = true;
@@ -450,16 +513,21 @@ function setupEventHandlers() {
                 });
                 showResult(T.join_success.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code));
             } catch (err) {
-                errorElem.textContent = T.error;
-                errorElem.style.display = 'block';
+                if (errorElem) {
+                    errorElem.textContent = T.error;
+                    errorElem.style.display = 'block';
+                }
             }
             this.disabled = false;
             this.textContent = T.request_join;
         }
-    };
+      });
+    }
 
     // Close result button
-    document.getElementById('btn-close-result').onclick = function() {
+    var btnCloseResult = document.getElementById('btn-close-result');
+    if (btnCloseResult) {
+      btnCloseResult.addEventListener('click', function() {
         const actionData = {
             actionID: 99,
             orderNumber: 1,
@@ -471,8 +539,10 @@ function setupEventHandlers() {
         };
         App.callActionButton(JSON.stringify(actionData));
 
-        // document.getElementById('result-screen').classList.add('hidden');
-    };
+        // var resultScreen = document.getElementById('result-screen');
+        // if (resultScreen) resultScreen.classList.add('hidden');
+      });
+    }
 }
 
 // Initialize the application
