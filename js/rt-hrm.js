@@ -1715,8 +1715,8 @@ async function fetchAndPopulateProfile() {
     const user = data.hits?.hits[0]?._source;
 
     if (user) {
-      document.querySelector('.profile-image img').src = user.pr_photo_path || 'default-avatar.png';
-      document.querySelector('.profile-name').textContent = user.fullname || '-----';
+      document.querySelector('.profile-image img').src = user.pr_photo_path || 'https://eventlog.rta.vn/assets/d23217dc-67cd-4f7a-9824-7dbf2b9934b3';
+      document.querySelector('.profile-name').textContent = user.fullname || ##user.username##;
       document.querySelector('.profile-position').textContent = `${user.title || ''} - ${user.department || ''}`;
     } else {
       console.warn('Không tìm thấy dữ liệu người dùng.');
