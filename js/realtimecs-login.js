@@ -263,7 +263,7 @@ function setupEventHandlers() {
             orderNumber: 1,
             type: "act_dm_view",
             label: "no label",
-            screen: "realtimecs-realtimecs00-realtimecs010obj1-screen10",
+            screen: "realtimecs-realtimecs00-realtimecs00obj1-screen10",
             alias: "realtimecs_realtimecs00obj1",
             args: { user_type: userType }
         };
@@ -307,7 +307,7 @@ function setupEventHandlers() {
             orderNumber: 1,
             type: "act_dm_view",
             label: "no label",
-            screen: "realtimecs-realtimecs00-realtimecs010obj1-screen1",
+            screen: "realtimecs-realtimecs00-realtimecs00obj1-screen1",
             alias: "realtimecs_realtimecs00obj1",
             args: { user_type: userType }
         };
@@ -465,7 +465,7 @@ function setupEventHandlers() {
             orderNumber: 1,
             type: "act_dm_view",
             label: "no label",
-            screen: "realtimecs-realtimecs00-realtimecs010obj1-screen1",
+            screen: "realtimecs-realtimecs00-realtimecs00obj1-screen1",
             alias: "realtimecs_realtimecs00obj1",
             args: { user_type: userType }
         };
