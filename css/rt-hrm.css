@@ -64,7 +64,7 @@
  .attendance-action-title { font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #222; padding-left: 14px; }
  .attendance-action-title .highlight { color: #16a75c; text-transform: uppercase; }
  .attendance-action-buttons { display: flex; gap: 16px; flex-wrap: nowrap; justify-content: center; padding: 2px 0; border: 0; border-radius: 12px; background: #fff; margin: 0 8px; }
- .attendance-btn { background: var(--surface-color); border: 0px solid var(--primary-color); border-radius: 15px; box-shadow: 0 2px 8px rgba(22,167,92,0.10); min-width: 100px; min-height: 60px; padding: 8px 4px 6px 4px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; margin: 10px 10px 10px 10px;}
+ .attendance-btn { background: var(--surface-color); border: 0.5px solid var(--primary-color); border-radius: 15px; box-shadow: 0 2px 8px rgba(22,167,92,0.10); min-width: 100px; min-height: 60px; padding: 8px 4px 6px 4px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; margin: 10px 10px 10px 10px;}
  .attendance-btn:active { background-color: var(--primary-color); transform: scale(0.95); }
  .attendance-btn-icon-bg { background: var(--surface-color); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: background 0.18s; }
  .attendance-btn-icon { font-size: 30px; color: var(--primary-color); line-height: 1; width: 1em; height: 1em; }

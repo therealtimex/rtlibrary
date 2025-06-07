@@ -755,30 +755,35 @@ function callActionArrow() {
   );
 }
 
+async function fetchDataNotif() {
+  const res = await fetch('https://es.rta.vn/hrm_notif/_search', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      "size": 10000,
+      "collapse": { "field": "keyid.raw" },
+      "query": {
+        "bool": {
+          "must": [
+            { "term": { "org_id.raw": { "value": USER_ORG_ID } } }
+          ]
+        }
+      },
+      "sort": [{ "endtime": { "order": "desc" } }]
+    })
+  });
 
+  const data = await res.json();
+  const todayStr = new Date().toISOString().split('T')[0]; 
 
-  async function fetchDataNotif() {
-      const res = await fetch('https://es.rta.vn/hrm_notif/_search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          "size": 10000,
-          "collapse": { "field": "keyid.raw" },
-          "query": {
-            "bool": {
-              "must": [
-                { "term": { "org_id.raw": { "value": USER_ORG_ID } } },
-                {"range":{"endday":{"gte":"now/d"}}}
-              ]
-            }
-          },
-          "sort": [{ "endtime": { "order": "desc" } }]
-        })
-      });
-      const data = await res.json();
-      const items = data.hits.hits.filter(i => i._source.status == 1);
-      renderNotifCards(items.map(i => i._source));
-    }   
+  const items = data.hits.hits.filter(i => {
+    const src = i._source;
+    return src.status == 1 && src.endday >= todayStr;
+  });
+
+  renderNotifCards(items.map(i => i._source));
+}
+
 
 const $=id=>document.getElementById(id);
 const monthTitle=$('month-title');
