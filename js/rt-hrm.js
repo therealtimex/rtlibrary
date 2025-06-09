@@ -462,6 +462,10 @@ document.addEventListener('DOMContentLoaded', async function () {
   document.getElementById('trial-user-tag').style.display = 'none';
   document.getElementById('auth-loading').style.display = 'block';
 
+  if (!USER_ORG_ID || USER_ORG_ID.trim() === '') {
+    return;
+  }
+
   await checkUserType();
   renderByUserType();
   document.getElementById('auth-loading').style.display = 'none';
