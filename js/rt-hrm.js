@@ -313,6 +313,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         // Thành công: hiện popup
         showCombineResult(T.trialSuccess.replace('{user}', USER_FULLNAME), "#222");
+        let elapsed = 0;
+        const btnClose = document.getElementById('combine-btn-close-result');
+        const spinner = document.getElementById('combine-result-spinner');
+        const interval = setInterval(async () => {
+          elapsed += 10;
+          try {
+            await checkUserType();
+            renderByUserType();
+            if (userType === 'trial' || userType === 'official') {
+              clearInterval(interval);
+              document.getElementById('combine-result-screen').style.display = 'none';
+              if (spinner) spinner.style.display = 'none';
+            }
+          } catch (err) {
+            console.error("Error checking user type:", err);
+          }
+          if (elapsed >= 60) {
+            clearInterval(interval);
+            if (btnClose) btnClose.style.display = 'block';
+            if (spinner) spinner.style.display = 'none';
+          }
+        }, 10000);
         
       } catch (err) {
       
@@ -434,15 +456,15 @@ function generateRandomId(length) {
   return result;
 }
 
-// ==== Khởi tạo chính ====
 document.addEventListener('DOMContentLoaded', async function () {
-
   document.getElementById('hrm-main').style.display = 'none';
   document.getElementById('combine-user-screen').style.display = 'none';
   document.getElementById('trial-user-tag').style.display = 'none';
-  
+  document.getElementById('auth-loading').style.display = 'block';
+
   await checkUserType();
   renderByUserType();
+  document.getElementById('auth-loading').style.display = 'none';
   renderCombineLang();
   
   const form = document.getElementById('org-create-form');
@@ -631,7 +653,6 @@ const actionBarJson = {
   }
 };
 
-// [Phần còn lại của code HRM giữ nguyên từ file gốc - calendar, attendance, notifications, etc.]
 async function fetchData(){
   showLoading(false);
   errorElem.style.display='none';
@@ -1264,7 +1285,24 @@ eventModal.style.display='none';
 });
 document.addEventListener('DOMContentLoaded',()=>{fetchData();});
 
+let lastCheckinTimeValue = null;
+let checkCount = 0;
+let intervalId = null;
+const maxChecks = 12;
 
+function checkLastCheckinChange() {
+  fetchData();
+  checkCount++;
+  if (latestCheckin && latestCheckin.rta_time_fm !== lastCheckinTimeValue) {
+    clearInterval(intervalId);
+    intervalId = null;
+    return;
+  }
+  if (checkCount >= maxChecks) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+}
 function renderAttendanceActions(view_mark){
 const container=document.getElementById('attendance-action-container');
 container.innerHTML='';
@@ -1478,12 +1516,21 @@ html+=`<button class="attendance-btn" type="button" onclick="attendanceButtonHan
 });
 html+=`</div>`;
 container.innerHTML+=html;
-window.attendanceButtonHandlers=buttons.map(btn=>btn.onClick);
+window.attendanceButtonHandlers = buttons.map(btn => function() {
+      btn.onClick();
+      if (latestCheckin) {
+        lastCheckinTimeValue = latestCheckin.rta_time_fm;
+      } else {
+        lastCheckinTimeValue = null;
+      }
+      checkCount = 0;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      intervalId = setInterval(checkLastCheckinChange, 5000);
+    });
 }
 }
-
-
-
 
 function updateAttendanceActions() {
   const view_mark = latestCheckin ? Number(latestCheckin.view_mark) : 0;
@@ -1710,7 +1757,7 @@ function autoRefreshAll() {
 
 document.addEventListener('DOMContentLoaded', function() {
   autoRefreshAll();
-  setInterval(autoRefreshAll, 5000); 
+  setInterval(autoRefreshAll, 60 * 60 * 1000);
 });
 
 document.addEventListener('DOMContentLoaded', function() {
