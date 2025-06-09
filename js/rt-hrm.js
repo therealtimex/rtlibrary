@@ -553,7 +553,7 @@ if (!shortName) shortName = orgName;
   showCombineResult(T.notify(orgName, contactEmail), "#222");
   form.reset();
 
-  let elapsed = 0;
+let elapsed = 0;
 const btnClose = document.getElementById('combine-btn-close-result');
 const spinner = document.getElementById('combine-result-spinner');
 // Ẩn nút đóng, hiện spinner (đã có trong showCombineResult, nhưng đảm bảo lại)
@@ -593,7 +593,7 @@ const interval = setInterval(async () => {
   } catch (err) {
     // Có thể log lỗi nếu cần
   }
-  if (elapsed >= 60) {
+  if (elapsed >= 80) {
     clearInterval(interval);
     if (btnClose) btnClose.style.display = 'block';
     if (spinner) spinner.style.display = 'none';
