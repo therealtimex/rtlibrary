@@ -511,7 +511,7 @@ if (form) {
       orgId = USER_ORG_ID;
     }
 
-    pendingOrgId = orgId; // ⛔ Không gán vào USER_ORG_ID tại đây
+    pendingOrgId = orgId;
 
     const payload = {
       event_id: 'rthrm.neworg',
@@ -576,16 +576,21 @@ if (form) {
           const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
 
           if (pendingOrgId && officialOrgIds.includes(pendingOrgId)) {
+            
             clearInterval(interval);
+
             USER_ORG_ID = pendingOrgId;
-            userType = 'official';
 
-            await checkUserType();
-            renderByUserType();
+            await checkUserType(); 
 
-            document.getElementById('combine-result-screen').style.display = 'none';
-            document.getElementById('hrm-main').style.display = 'block';
-            if (spinner) spinner.style.display = 'none';
+            if (userType === 'official') {
+              renderByUserType();
+              document.getElementById('combine-result-screen').style.display = 'none';
+              document.getElementById('hrm-main').style.display = 'block';
+              if (spinner) spinner.style.display = 'none';
+            } else {
+              console.warn('Tổ chức đã index nhưng userType chưa chính thức.');
+            }
           }
 
         } catch (err) {
@@ -612,6 +617,7 @@ if (form) {
     });
   });
 }
+
 
 
 
