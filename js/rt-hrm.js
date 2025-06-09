@@ -488,9 +488,9 @@ document.addEventListener('DOMContentLoaded', async function () {
   renderByUserType();
   document.getElementById('auth-loading').style.display = 'none';
   renderCombineLang();
-  
-  const form = document.getElementById('org-create-form');
-let pendingOrgId = null;
+  let pendingOrgId = null;
+
+const form = document.getElementById('org-create-form');
 
 if (form) {
   form.addEventListener('submit', function (e) {
@@ -504,9 +504,14 @@ if (form) {
     const contactEmail = document.getElementById('contact-email').value.trim();
     const contactPhone = document.getElementById('contact-phone').value.trim();
 
-    // Chỉ tạo ID, chưa gán vào USER_ORG_ID ngay
-    const generatedOrgId = 'p' + generateRandomId(9);
-    pendingOrgId = generatedOrgId;
+    let orgId;
+    if (userType === 'trial' || USER_ORG_ID === '324fd') {
+      orgId = 'p' + generateRandomId(9);
+    } else if (userType === 'unidentified') {
+      orgId = USER_ORG_ID;
+    }
+
+    pendingOrgId = orgId; // ⛔ Không gán vào USER_ORG_ID tại đây
 
     const payload = {
       event_id: 'rthrm.neworg',
@@ -520,7 +525,7 @@ if (form) {
         email: USER_EMAIL,
         cellphone: USER_PHONE?.trim() || '0',
         user_status: '1',
-        org_id: generatedOrgId,
+        org_id: orgId,
         org_name_full: orgName,
         org_name: shortName,
         contact_name: contactName,
@@ -541,8 +546,7 @@ if (form) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    })
-    .then(() => {
+    }).then(() => {
       document.getElementById('modal-create-org').style.display = 'none';
       showCombineResult(T.notify(orgName, contactEmail), "#222");
       form.reset();
@@ -571,12 +575,12 @@ if (form) {
           const data = await response.json();
           const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
 
-          if (officialOrgIds.includes(pendingOrgId)) {
-           
+          if (pendingOrgId && officialOrgIds.includes(pendingOrgId)) {
+            clearInterval(interval);
             USER_ORG_ID = pendingOrgId;
             userType = 'official';
-            clearInterval(interval);
-            await checkUserType(); 
+
+            await checkUserType();
             renderByUserType();
 
             document.getElementById('combine-result-screen').style.display = 'none';
@@ -593,19 +597,22 @@ if (form) {
           if (btnClose) btnClose.style.display = 'block';
           if (spinner) spinner.style.display = 'none';
         }
+
       }, 10000);
-    })
-    .catch(err => {
+    }).catch(err => {
       console.error('Submit error:', err);
       document.getElementById('modal-create-org').style.display = 'none';
       document.getElementById('notification-message').innerHTML = `
         <div style="color: red; font-weight: 500; margin-bottom: 8px; text-align:center;">
-          ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
+          ${appLanguage === 'vi'
+            ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!'
+            : 'An error occurred while submitting the request.<br>Please try again!'}
         </div>`;
       document.getElementById('notification-popup').style.display = 'flex';
     });
   });
 }
+
 
 
   // 4. Setup notification close button
