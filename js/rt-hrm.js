@@ -490,129 +490,123 @@ document.addEventListener('DOMContentLoaded', async function () {
   renderCombineLang();
   
   const form = document.getElementById('org-create-form');
-  if (form) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      const orgName = document.getElementById('org-name-input').value.trim();
-      let shortName = document.getElementById('org-shortname').value.trim();
-if (!shortName) shortName = orgName;
-      const contactName = document.getElementById('contact-name').value.trim();
-      const contactEmail = document.getElementById('contact-email').value.trim();
-      const contactPhone = document.getElementById('contact-phone').value.trim();
-      
-      let orgId;
-      if (userType === 'trial' || USER_ORG_ID === '324fd') {
-        orgId = 'p' + generateRandomId(9);
-      } else if (userType === 'unidentified') {
-        orgId = USER_ORG_ID;
-      }
+let pendingOrgId = null;
 
-      const payload = {
-        event_id: 'rthrm.neworg',
-        new_org: '1',
-        project_code: PROJECT_CODE,
-        user_language: APP_LANGUAGE, 
-        data: [{
-          username: USERNAME,
-          fullname: USER_FULLNAME,
-          user_role: 'ea8018e243_HRM Manager',
-          email: USER_EMAIL,
-          cellphone: USER_PHONE && USER_PHONE.trim() ? USER_PHONE : '0',
-          user_status: '1',
-          org_id: orgId,
-          org_name_full: orgName,
-          org_name: shortName,
-          contact_name: contactName,
-          contact_email: contactEmail,
-          contact_phone: contactPhone || '0',
-          context_title: `${orgName}-HRM`,
-          number_codes: '1',
-          expiry_datetime: '2050-12-31',
-          approval_mode: 'none',
-          allowed_times_use: '500',
-          rolegen: 'ea8018e243_HRM Staff',
-          user_power: '10',
-          typegen: 'registration'
-        }]
-      };
+if (form) {
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
 
-      fetch('https://automation.rta.vn/webhook/rthrm-events', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(payload)
-})
-.then(res => {
-  if (!res.ok) {
-    throw new Error(`HTTP error! status: ${res.status}`);
-  }
-  return res.json(); 
-})
+    const orgName = document.getElementById('org-name-input').value.trim();
+    let shortName = document.getElementById('org-shortname').value.trim();
+    if (!shortName) shortName = orgName;
 
-.then(() => {
-  document.getElementById('modal-create-org').style.display = 'none';
-  showCombineResult(T.notify(orgName, contactEmail), "#222");
-  form.reset();
+    const contactName = document.getElementById('contact-name').value.trim();
+    const contactEmail = document.getElementById('contact-email').value.trim();
+    const contactPhone = document.getElementById('contact-phone').value.trim();
 
-let elapsed = 0;
-const btnClose = document.getElementById('combine-btn-close-result');
-const spinner = document.getElementById('combine-result-spinner');
-// Ẩn nút đóng, hiện spinner (đã có trong showCombineResult, nhưng đảm bảo lại)
-if (btnClose) btnClose.style.display = 'none';
-if (spinner) spinner.style.display = 'block';
+    // Chỉ tạo ID, chưa gán vào USER_ORG_ID ngay
+    const generatedOrgId = 'p' + generateRandomId(9);
+    pendingOrgId = generatedOrgId;
 
-// Cứ 10s gọi lại API kiểm tra user
-const interval = setInterval(async () => {
-  elapsed += 10;
-  try {
-    const response = await fetch('https://es.rta.vn/nerp_org/_search', {
+    const payload = {
+      event_id: 'rthrm.neworg',
+      new_org: '1',
+      project_code: PROJECT_CODE,
+      user_language: APP_LANGUAGE,
+      data: [{
+        username: USERNAME,
+        fullname: USER_FULLNAME,
+        user_role: 'ea8018e243_HRM Manager',
+        email: USER_EMAIL,
+        cellphone: USER_PHONE?.trim() || '0',
+        user_status: '1',
+        org_id: generatedOrgId,
+        org_name_full: orgName,
+        org_name: shortName,
+        contact_name: contactName,
+        contact_email: contactEmail,
+        contact_phone: contactPhone || '0',
+        context_title: `${orgName}-HRM`,
+        number_codes: '1',
+        expiry_datetime: '2050-12-31',
+        approval_mode: 'none',
+        allowed_times_use: '500',
+        rolegen: 'ea8018e243_HRM Staff',
+        user_power: '10',
+        typegen: 'registration'
+      }]
+    };
+
+    fetch('https://automation.rta.vn/webhook/rthrm-events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        "size": 10000,
-        "collapse": {"field": "org_id.raw"},
-        "_source": {"includes": ["org_id"]},
-        "sort": [{"endtime": {"order": "desc"}}]
-      })
-    });
-    const data = await response.json();
-    const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
-    if (officialOrgIds.includes(USER_ORG_ID)) {
-      clearInterval(interval);
-      await checkUserType();
-      if (userType === 'official') {
-       document.getElementById('combine-result-screen').style.display = 'none';
-       document.getElementById('hrm-main').style.display = 'block';
-      } else {
-        showCombineScreen(); // fallback nếu vẫn chưa được xác nhận
-      }
-      renderByUserType();
-      // Ẩn popup kết quả
-      document.getElementById('combine-result-screen').style.display = 'none';
-  if (spinner) spinner.style.display = 'none';
-    }
-  } catch (err) {
-    // Có thể log lỗi nếu cần
-  }
-  if (elapsed >= 80) {
-    clearInterval(interval);
-    if (btnClose) btnClose.style.display = 'block';
-    if (spinner) spinner.style.display = 'none';
-  }
-}, 10000);
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      document.getElementById('modal-create-org').style.display = 'none';
+      showCombineResult(T.notify(orgName, contactEmail), "#222");
+      form.reset();
 
-})
-.catch(err => {
-  console.error('Submit error:', err);
-  document.getElementById('modal-create-org').style.display = 'none';
-  document.getElementById('notification-message').innerHTML = `
-    <div style="color: red; font-weight: 500; margin-bottom: 8px; text-align:center;">
-      ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
-    </div>`;
-  document.getElementById('notification-popup').style.display = 'flex';
-});
+      const btnClose = document.getElementById('combine-btn-close-result');
+      const spinner = document.getElementById('combine-result-spinner');
+      if (btnClose) btnClose.style.display = 'none';
+      if (spinner) spinner.style.display = 'block';
 
+      let elapsed = 0;
+      const interval = setInterval(async () => {
+        elapsed += 10;
+
+        try {
+          const response = await fetch('https://es.rta.vn/nerp_org/_search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              size: 10000,
+              collapse: { field: 'org_id.raw' },
+              _source: { includes: ['org_id'] },
+              sort: [{ endtime: { order: 'desc' } }]
+            })
+          });
+
+          const data = await response.json();
+          const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
+
+          if (officialOrgIds.includes(pendingOrgId)) {
+           
+            USER_ORG_ID = pendingOrgId;
+            userType = 'official';
+            clearInterval(interval);
+            await checkUserType(); 
+            renderByUserType();
+
+            document.getElementById('combine-result-screen').style.display = 'none';
+            document.getElementById('hrm-main').style.display = 'block';
+            if (spinner) spinner.style.display = 'none';
+          }
+
+        } catch (err) {
+          console.error("Polling error:", err);
+        }
+
+        if (elapsed >= 80) {
+          clearInterval(interval);
+          if (btnClose) btnClose.style.display = 'block';
+          if (spinner) spinner.style.display = 'none';
+        }
+      }, 10000);
+    })
+    .catch(err => {
+      console.error('Submit error:', err);
+      document.getElementById('modal-create-org').style.display = 'none';
+      document.getElementById('notification-message').innerHTML = `
+        <div style="color: red; font-weight: 500; margin-bottom: 8px; text-align:center;">
+          ${appLanguage === 'vi' ? 'Đã xảy ra lỗi khi gửi yêu cầu.<br>Vui lòng thử lại sau!' : 'An error occurred while submitting the request.<br>Please try again!'}
+        </div>`;
+      document.getElementById('notification-popup').style.display = 'flex';
     });
-  }
+  });
+}
+
 
   // 4. Setup notification close button
   const btnCloseNotification = document.getElementById('btn-close-notification');
