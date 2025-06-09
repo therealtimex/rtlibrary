@@ -239,36 +239,45 @@
   display: none !important;
 }
 
-.input-x-container input {
+.input-x-container {
+  position: relative;
   width: 100%;
-  padding-right: 36px; /* Đủ chỗ cho nút x */
+}
+
+.input-x-container input {
   height: 40px;
+  line-height: 40px;
+  padding-right: 36px;
   border-radius: 8px;
-  box-sizing: border-box;
   background: #fff;
   border: 1px solid #e0e0e0;
+  box-sizing: border-box;
+  font-size: 15px; 
+}
+
+.input-x-container input:focus {
+  border: 1px solid var(--primary-color, #2196f3);
+  outline: none;
+  box-shadow: none;
 }
 
 .input-x-container button {
   position: absolute;
-  right: 12px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  border: none;
-  background: transparent;
-  font-size: 18px;
-  color: #444;
-  cursor: pointer;
-  display: none;
+  height: 20px;
+  width: 20px;
+  font-size: 14px;
   line-height: 1;
   padding: 0;
-  z-index: 2;
-  height: 24px;
-  width: 24px;
-  border-radius: 50%;
   display: flex;
-  align-items: center; 
-  justify-content: center; 
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
 .input-x-container button:hover {
