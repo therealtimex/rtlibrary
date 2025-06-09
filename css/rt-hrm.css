@@ -238,3 +238,40 @@
 .action-bar-item:has([id^="label-expense"]) {
   display: none !important;
 }
+
+.input-x-container input {
+  width: 100%;
+  padding-right: 36px; /* Đủ chỗ cho nút x */
+  height: 40px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+}
+
+.input-x-container button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: #444;
+  cursor: pointer;
+  display: none;
+  line-height: 1;
+  padding: 0;
+  z-index: 2;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
+}
+
+.input-x-container button:hover {
+  background: #eee;
+  color: #333;
+}

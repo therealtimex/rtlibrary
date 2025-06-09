@@ -184,6 +184,28 @@ function hideCombineScreen() {
   }
   if (combineScreen) combineScreen.style.display = 'none';
 }
+const orgCodeInput = document.getElementById('combine-org-code');
+const clearButton = document.getElementById('combine-org-clear');
+const combineBtnConfirm = document.getElementById('combine-btn-confirm');
+
+orgCodeInput.addEventListener('input', function() {
+  clearButton.style.display = this.value.trim() ? 'block' : 'none';
+  // Reset lại nút kiểm tra mã nếu cần
+  combineBtnConfirm.textContent = T.confirm;
+  combineBtnConfirm.disabled = false;
+  foundOrg = null;
+  document.getElementById('combine-org-error').style.display = 'none';
+});
+
+clearButton.addEventListener('click', function() {
+  orgCodeInput.value = '';
+  clearButton.style.display = 'none';
+  combineBtnConfirm.textContent = T.confirm;
+  combineBtnConfirm.disabled = false;
+  foundOrg = null;
+  document.getElementById('combine-org-error').style.display = 'none';
+  orgCodeInput.focus();
+});
 
 // ==== Xử lý nút Confirm (nhập mã tổ chức) ====
 document.addEventListener('DOMContentLoaded', function() {
