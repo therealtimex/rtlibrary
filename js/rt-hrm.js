@@ -579,6 +579,12 @@ const interval = setInterval(async () => {
     if (officialOrgIds.includes(USER_ORG_ID)) {
       clearInterval(interval);
       await checkUserType();
+      if (userType === 'official') {
+       document.getElementById('combine-result-screen').style.display = 'none';
+       document.getElementById('hrm-main').style.display = 'block';
+      } else {
+        showCombineScreen(); // fallback nếu vẫn chưa được xác nhận
+      }
       renderByUserType();
       // Ẩn popup kết quả
       document.getElementById('combine-result-screen').style.display = 'none';
