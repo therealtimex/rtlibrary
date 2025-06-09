@@ -338,19 +338,25 @@ document.addEventListener('DOMContentLoaded', function() {
         let elapsed = 0;
         const btnClose = document.getElementById('combine-btn-close-result');
         const spinner = document.getElementById('combine-result-spinner');
+        let trialPollingMode = true; 
+
         const interval = setInterval(async () => {
           elapsed += 10;
+
           try {
             await checkUserType();
-            renderByUserType();
-            if (userType === 'trial' || userType === 'official') {
+
+            if (trialPollingMode && userType === 'trial') {
+              renderByUserType();
               clearInterval(interval);
               document.getElementById('combine-result-screen').style.display = 'none';
               if (spinner) spinner.style.display = 'none';
             }
+
           } catch (err) {
             console.error("Error checking user type:", err);
           }
+
           if (elapsed >= 60) {
             clearInterval(interval);
             if (btnClose) btnClose.style.display = 'block';
