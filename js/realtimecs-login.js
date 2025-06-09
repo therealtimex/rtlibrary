@@ -10,12 +10,12 @@ const LANG = {
         settings_btn: "Cài đặt",
 
         // Welcome texts
-        welcome_app: "Chào mừng đến với Realtime CS",
+        welcome_app: "Chào mừng đến với RealTime CS",
         app_description: "Hệ thống quản lý nhân sự thời gian thực",
 
         // Setup dialog
         setup_org_title: "Thiết lập tổ chức",
-        setup_org_desc: "Chọn cách bạn muốn sử dụng Realtime CS",
+        setup_org_desc: "Chọn cách bạn muốn sử dụng RealTime CS",
         create_org_title: "Tạo tổ chức mới",
         create_org_desc: "Tạo workspace mới cho cửa hàng của bạn",
         join_org_title: "Gia nhập tổ chức",
@@ -70,12 +70,12 @@ const LANG = {
         settings_btn: "Settings",
 
         // Welcome texts
-        welcome_app: "Welcome to Realtime CS",
+        welcome_app: "Welcome to RealTime CS",
         app_description: "Real-time Human Resource Management System",
 
         // Setup dialog
         setup_org_title: "Organization Setup",
-        setup_org_desc: "Choose how you want to use Realtime CS",
+        setup_org_desc: "Choose how you want to use RealTime CS",
         create_org_title: "Create New Organization",
         create_org_desc: "Create a new workspace for your business",
         join_org_title: "Join Organization",
@@ -247,6 +247,7 @@ function showBanner() {
     const officialBanner = document.getElementById('official-banner');
     const orgNameDisplay = document.getElementById('org-name-display');
     const orgIdDisplay = document.getElementById('org-id-display');
+    const userDisplay = document.getElementById('org-user-display');
     // const welcomeSubtitle = document.getElementById('welcome-subtitle');
 
     if (isTrialMode) {
@@ -262,6 +263,7 @@ function showBanner() {
         // Update organization info
         if (orgNameDisplay) orgNameDisplay.textContent = config.userOrgName || 'Your Organization';
         if (orgIdDisplay) orgIdDisplay.textContent = `ID: ${config.userOrgId}`;
+        if (userDisplay) userDisplay.textContent = `${config.userFullName}`;
         // if (welcomeSubtitle) welcomeSubtitle.textContent = `${config.userOrgName || 'Your Organization'} - ${T.official_mode_subtitle}`;
     }
 }
@@ -343,7 +345,7 @@ function setupEventHandlers() {
         const actionData = {
             actionID: 99,
             orderNumber: 1,
-            type: "act_dm_view",
+            type: "act_exit",
             label: "no label",
             screen: "realtimecs-realtimecs00-realtimecs00obj1-screen1",
             alias: "realtimecs_realtimecs00obj1",
@@ -425,6 +427,17 @@ if (orgCreateForm) {
       return res.json(); 
     })
     .then(() => {
+      // Ẩn giao diện nhập liệu hoàn toàn bằng cách set style display = 'none'
+      const createOrgFormElem = document.getElementById('create-org-form');
+      if (createOrgFormElem) {
+        createOrgFormElem.style.display = 'none';
+      }
+      const setupSelectionElem = document.getElementById('setup-selection');
+      if (setupSelectionElem) {
+        setupSelectionElem.style.display = 'none';
+      }
+
+      // Hiển thị màn hình kết quả
       showResult(T.notify(orgName, contactEmail));
       orgCreateForm.reset();
     })
@@ -531,7 +544,7 @@ if (orgCreateForm) {
         const actionData = {
             actionID: 99,
             orderNumber: 1,
-            type: "act_dm_view",
+            type: "act_exit",
             label: "no label",
             screen: "realtimecs-realtimecs00-realtimecs00obj1-screen1",
             alias: "realtimecs_realtimecs00obj1",
