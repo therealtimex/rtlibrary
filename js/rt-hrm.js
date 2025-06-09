@@ -488,9 +488,10 @@ document.addEventListener('DOMContentLoaded', async function () {
   renderByUserType();
   document.getElementById('auth-loading').style.display = 'none';
   renderCombineLang();
-  let pendingOrgId = null;
+  
 
 const form = document.getElementById('org-create-form');
+let pendingOrgId = null;
 
 if (form) {
   form.addEventListener('submit', function (e) {
@@ -588,9 +589,7 @@ if (form) {
               document.getElementById('combine-result-screen').style.display = 'none';
               document.getElementById('hrm-main').style.display = 'block';
               if (spinner) spinner.style.display = 'none';
-            } else {
-              console.warn('Tổ chức đã index nhưng userType chưa chính thức.');
-            }
+            } 
           }
 
         } catch (err) {
