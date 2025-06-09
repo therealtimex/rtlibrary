@@ -413,11 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ==== Đóng modal tạo tổ chức ====
 function closeModalCreateOrg() {
   document.getElementById('modal-create-org').style.display = 'none';
-  if (userType === 'unidentified') {
-    showCombineScreen();
-  } else {
-    hideCombineScreen();
-  }
+  showCombineScreen();
 }
 
 // ==== Đặt lại ngôn ngữ và label cho form tạo tổ chức ====
