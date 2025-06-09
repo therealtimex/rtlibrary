@@ -305,16 +305,19 @@ function setupEventHandlers() {
       });
     }
 
-    // Create org button
     var btnCreateOrg = document.getElementById('btn-create-org');
     if (btnCreateOrg) {
       btnCreateOrg.addEventListener('click', function() {
+        // Ẩn mô tả setup-org-desc
+        var setupOrgDesc = document.getElementById('setup-org-desc');
+        if (setupOrgDesc) setupOrgDesc.classList.add('hidden');
+        // Ẩn phần lựa chọn setup
         var setupSelection = document.getElementById('setup-selection');
         if (setupSelection) setupSelection.classList.add('hidden');
+        // Hiện form tạo tổ chức
         var createOrgForm = document.getElementById('create-org-form');
         if (createOrgForm) createOrgForm.classList.remove('hidden');
-
-        // Pre-fill form
+        // Thiết lập giá trị mặc định cho form
         var contactName = document.getElementById('contact-name');
         if (contactName) contactName.value = config.userFullName;
         var contactEmail = document.getElementById('contact-email');
@@ -324,12 +327,16 @@ function setupEventHandlers() {
       });
     }
 
-    // Join org button
     var btnJoinOrg = document.getElementById('btn-join-org');
     if (btnJoinOrg) {
       btnJoinOrg.addEventListener('click', function() {
+        // Ẩn mô tả setup-org-desc
+        var setupOrgDesc = document.getElementById('setup-org-desc');
+        if (setupOrgDesc) setupOrgDesc.classList.add('hidden');
+        // Ẩn phần lựa chọn setup
         var setupSelection = document.getElementById('setup-selection');
         if (setupSelection) setupSelection.classList.add('hidden');
+        // Hiện form gia nhập tổ chức
         var joinOrgForm = document.getElementById('join-org-form');
         if (joinOrgForm) joinOrgForm.classList.remove('hidden');
       });
@@ -355,7 +362,6 @@ function setupEventHandlers() {
       });
     }
 
-    // Back buttons
     var btnBackCreate = document.getElementById('btn-back-create');
     if (btnBackCreate) {
       btnBackCreate.addEventListener('click', function() {
@@ -363,6 +369,9 @@ function setupEventHandlers() {
         if (createOrgForm) createOrgForm.classList.add('hidden');
         var setupSelection = document.getElementById('setup-selection');
         if (setupSelection) setupSelection.classList.remove('hidden');
+        // Hiện lại phần mô tả setup-org-desc
+        var setupOrgDesc = document.getElementById('setup-org-desc');
+        if (setupOrgDesc) setupOrgDesc.classList.remove('hidden');
       });
     }
 
@@ -373,6 +382,9 @@ function setupEventHandlers() {
         if (joinOrgForm) joinOrgForm.classList.add('hidden');
         var setupSelection = document.getElementById('setup-selection');
         if (setupSelection) setupSelection.classList.remove('hidden');
+        // Hiện lại phần mô tả setup-org-desc
+        var setupOrgDesc = document.getElementById('setup-org-desc');
+        if (setupOrgDesc) setupOrgDesc.classList.remove('hidden');
       });
     }
 
