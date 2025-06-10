@@ -491,9 +491,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   await checkUserType();
-  if (!pendingOrgId) {
-    renderByUserType(); 
-  }
+  renderByUserType(); 
+
   document.getElementById('auth-loading').style.display = 'none';
   renderCombineLang();
   
