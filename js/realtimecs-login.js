@@ -562,7 +562,8 @@ if (orgCreateForm) {
             alias: "realtimecs_realtimecs00obj1",
             args: { user_type: userType }
         };
-        App.callActionButton(JSON.stringify(actionData));
+        // App.callActionButton(JSON.stringify(actionData));
+        App.close();
 
         // var resultScreen = document.getElementById('result-screen');
         // if (resultScreen) resultScreen.classList.add('hidden');
