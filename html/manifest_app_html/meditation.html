@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Meditation Session</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="util.js"></script>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8">
+  <h2 class="text-2xl font-bold mb-4">Meditation Session</h2>
+  <p class="mb-6">Listen to your personalized guided meditation. Please complete the session to continue.</p>
+  <audio id="audio" src="meditation.mp3"></audio>
+  <button id="startBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg">Start Meditation</button>
+  <p id="timer" class="mt-4 text-gray-600"></p>
+<script>
+const audio=document.getElementById('audio');
+audio.controls=false;
+let duration=0;
+let started=false;
+document.getElementById('startBtn').addEventListener('click',()=>{
+    if(!started){
+      audio.play();
+      started=true;
+      duration=Math.floor(audio.duration)||600;
+      document.getElementById('startBtn').style.display='none';
+      updateTimer();
+    }
+});
+audio.addEventListener('ended',()=>{
+    window.location.href='scripting.html';
+});
+function updateTimer(){
+  const timerEl=document.getElementById('timer');
+  const interval=setInterval(()=>{
+    const current=Math.floor(audio.currentTime);
+    const remaining=duration-current;
+    const mins=Math.floor(remaining/60).toString().padStart(2,'0');
+    const secs=(remaining%60).toString().padStart(2,'0');
+    timerEl.innerText=`Time remaining: ${mins}:${secs}`;
+    if(audio.ended){
+      clearInterval(interval);
+    }
+  },1000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Daily Completion</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="util.js"></script>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen bg-indigo-700 text-white text-center p-8">
+  <h2 class="text-3xl font-bold mb-4">Great job!</h2>
+  <p id="badge" class="text-6xl mb-6"></p>
+  <p class="mb-6" id="message"></p>
+  <a href="home.html" class="bg-white text-indigo-700 font-semibold px-6 py-3 rounded-lg shadow">See you tomorrow</a>
+<script>
+const state=getState();
+document.getElementById('badge').innerText=currentBadge(state.streak) || '⭐';
+const messages={7:['Foundation','You\'ve planted the seeds of change!'],14:['Momentum','Your manifestation energy is building!'],21:['Transformation','You\'ve rewired your reality!'],28:['Manifestor','You are a powerful manifestor!']};
+const msg=messages[state.streak];
+document.getElementById('message').innerText=msg?msg[1]:'Streak updated!';
+confetti({ spread: 120, particleCount: 150 });
+</script>
+</body>
+</html>

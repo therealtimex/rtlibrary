@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Scripting</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="util.js"></script>
+</head>
+<body class="min-h-screen flex flex-col bg-white">
+  <header class="p-4 bg-purple-600 text-white text-center">
+    <h2 class="text-xl font-bold">Scripting</h2>
+  </header>
+  <main class="flex-grow p-6">
+    <p class="mb-4">Write about your desire as if it's already happened:</p>
+    <textarea id="entry" rows="8" class="w-full border rounded p-3 mb-2" placeholder="I am so grateful that..."></textarea>
+    <div class="flex justify-between items-center mb-6">
+      <span id="charCount">0 characters</span>
+      <button id="saveBtn" class="bg-purple-600 text-white px-6 py-2 rounded">Save Entry</button>
+    </div>
+    <h3 class="text-lg font-semibold mb-2">Previous Entries</h3>
+    <div id="history" class="space-y-4 overflow-y-auto max-h-60 border rounded p-3 bg-gray-50"></div>
+  </main>
+<script>
+const entryEl=document.getElementById('entry');
+entryEl.addEventListener('input',()=>document.getElementById('charCount').innerText=`${entryEl.value.length} characters`);
+function loadHistory(){
+    const state=getState();
+    const history=state.entries||[];
+    const container=document.getElementById('history');
+    container.innerHTML='';
+    history.slice().reverse().forEach(e=>{
+       const div=document.createElement('div');
+       div.className='p-3 bg-white rounded shadow';
+       div.innerHTML=`<p class="text-sm text-gray-600">${e.date}</p><p>${e.text}</p>`;
+       container.appendChild(div);
+    });
+}
+loadHistory();
+document.getElementById('saveBtn').addEventListener('click',()=>{
+    const text=entryEl.value.trim();
+    if(text.split(/[.!?]/).filter(s=>s.trim().length>0).length<3){
+       alert('Please write at least 3 sentences.');
+       return;
+    }
+    let state=getState();
+    state=incrementStreak(state);
+    state.entries.push({date:new Date().toLocaleDateString(),text});
+    saveState(state);
+    window.location.href='completion.html';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What do you want to manifest?</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="util.js"></script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+  <form id="desireForm" class="bg-white p-8 rounded-xl shadow w-full max-w-md">
+    <h2 class="text-xl font-bold mb-4 text-center">What do you want to manifest?</h2>
+    <input id="desireInput" type="text" placeholder='e.g. "Finding my soulmate"' class="w-full border border-gray-300 rounded p-3 mb-4" required>
+    <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg">Create Meditation</button>
+  </form>
+<script>
+  document.getElementById('desireForm').addEventListener('submit',function(e){
+      e.preventDefault();
+      const desire=document.getElementById('desireInput').value.trim();
+      let state=getState();
+      state.desire=desire;
+      saveState(state);
+      window.location.href='loading.html';
+  });
+</script>
+</body>
+</html>

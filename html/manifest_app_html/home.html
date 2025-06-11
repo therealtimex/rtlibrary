@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Manifest App - Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="util.js"></script>
+</head>
+<body class="min-h-screen flex flex-col bg-gray-50">
+  <header class="text-center p-6 bg-indigo-700 text-white">
+    <h1 class="text-3xl font-bold">Manifest App</h1>
+  </header>
+  <main class="flex-grow flex flex-col items-center justify-center p-8">
+    <div class="text-center">
+      <p class="text-gray-600 mb-2">Current Streak</p>
+      <h2 id="streak" class="text-6xl font-extrabold text-indigo-700 mb-6">0</h2>
+      <button id="meditateBtn" class="bg-indigo-600 text-white px-8 py-4 rounded-xl shadow-lg mb-8">Today's Meditation</button>
+      <div class="w-64 mx-auto">
+        <div class="w-full bg-gray-300 rounded-full h-4 mb-2">
+          <div id="progressBar" class="bg-indigo-600 h-4 rounded-full" style="width:0%"></div>
+        </div>
+        <p id="milestoneText" class="text-gray-600"></p>
+      </div>
+    </div>
+  </main>
+</body>
+<script>
+const state=getState();
+document.getElementById('streak').innerText=state.streak;
+const remaining=nextMilestoneDays(state.streak);
+document.getElementById('progressBar').style.width=((state.streak%7)/7)*100+'%';
+document.getElementById('milestoneText').innerText=remaining===0?'Milestone achieved!':`${remaining} day(s) until next milestone`;
+document.getElementById('meditateBtn').addEventListener('click',()=>{
+   if(hasCompletedToday(state)){
+     alert('You have already completed today\'s session!');
+   }else{
+     window.location.href='meditation.html';
+   }
+});
+</script>
+</html>
