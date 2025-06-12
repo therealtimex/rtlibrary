@@ -574,6 +574,12 @@ if (orgCreateForm) {
                 }
             }
         } else {
+            // Ẩn giao diện nhập liệu của join-org-form
+            var joinOrgFormElem = document.getElementById('join-org-form');
+            if (joinOrgFormElem) {
+              joinOrgFormElem.style.display = 'none';
+            }
+            // Vô hiệu hóa nút gửi và cập nhật label
             this.disabled = true;
             this.textContent = T.sending;
             try {
