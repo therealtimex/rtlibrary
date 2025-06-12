@@ -937,43 +937,62 @@ return timeB-timeA;
 return sorted[0];
 }
 
-function updateLastCheckinInfo(checkin){
-    const statusTag = document.getElementById('last-checkin-status');
-    if(!checkin){
-      lastCheckinTime.textContent='--:--';
-      statusIndicator.className='status-indicator';
-      if(statusTag) statusTag.textContent = T.firstCheckin;
-      return;
-    }
-    lastCheckinTime.textContent = formatCheckInTime(checkin.rta_time_fm);
+function updateLastCheckinInfo(checkin) {
+  const statusTag = document.getElementById('last-checkin-status');
+  if (!statusTag) return;
+  // Hiển thị thời gian checkin
+  if (!checkin) {
+    lastCheckinTime.textContent = '--:--';
     statusIndicator.className = 'status-indicator';
-  
-    // Xác định trạng thái dựa vào view_mark_lb
-    let statusText = '';
-    switch (checkin.view_mark_lb) {
-      case 'IN':
-        statusText = T.in;
-        break;
-      case 'TMPIN':
-        statusText = T.tempin;
-        break;
-      case 'OUT':
-        statusText = T.out;
-        break;
-      case 'TMPOUT':
-        statusText = T.tempout;
-        break;
-      default:
-        statusText = '';
-    }
-    if(statusTag) statusTag.textContent = statusText;
-  
-    // Giữ logic màu status-indicator như cũ
-    const viewMark = parseInt(checkin.view_mark || 0);
-    if(viewMark === 1){ statusIndicator.classList.add('status-green'); }
-    else if(viewMark === 2){ statusIndicator.classList.add('status-blue'); }
-    else if(viewMark === 3){ statusIndicator.classList.add('status-red'); }
+    statusTag.textContent = T.firstCheckin;
+    statusTag.className = 'checkin-status-tag'; // Giữ nguyên màu mặc định
+    return;
   }
+  lastCheckinTime.textContent = formatCheckInTime(checkin.rta_time_fm);
+  statusIndicator.className = 'status-indicator';
+
+
+  let statusText = '';
+  let extraClass = '';
+  switch (checkin.view_mark_lb) {
+    case 'IN':
+      statusText = T.in;
+      extraClass = ''; 
+      break;
+    case 'TMPIN':
+      statusText = T.tempin;
+      extraClass = '';
+      break;
+    case 'OUT':
+      statusText = T.out;
+      extraClass = 'checkout'; 
+      break;
+    case 'TMPOUT':
+      statusText = T.tempout;
+      extraClass = 'tempout'; 
+      break;
+    default:
+      statusText = '';
+      extraClass = '';
+  }
+  statusTag.textContent = statusText;
+  // Reset class về mặc định rồi thêm class màu nếu cần
+  statusTag.className = 'checkin-status-tag';
+  if (extraClass) statusTag.classList.add(extraClass);
+
+  // Màu chấm tròn trạng thái (giữ nguyên logic cũ)
+  const viewMark = parseInt(checkin.view_mark || 0);
+  if (viewMark === 1) {
+    statusIndicator.classList.add('status-green');
+  } else if (viewMark === 2) {
+    statusIndicator.classList.add('status-blue');
+  } else if (viewMark === 3) {
+    statusIndicator.classList.add('status-red');
+  }
+}
+
+
+
 function calculateZeroWorkDays(){
 zeroWorkData=[];
 const year=currentYear;
@@ -1360,9 +1379,14 @@ actionID:1,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKIN",
+openArgs:{
+org_id:USER_ORG_ID
+},
 preload:[
 {key:"time_txt",value:latestCheckin.rta_time_fm||""},
-{key:"rta_type",value:"1"}
+{key:"rta_type",value:"1"},
+{key:"org_id",value:USER_ORG_ID},
+{key:"org_lb",value:USER_ORG_NAME}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1378,9 +1402,14 @@ actionID:3,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKIN",
+openArgs:{
+org_id:USER_ORG_ID
+},
 preload:[
 {key:"time_txt",value:latestCheckin.rta_time_fm||""},
-{key:"rta_type",value:"2"}
+{key:"rta_type",value:"2"},
+{key:"org_id",value:USER_ORG_ID},
+{key:"org_lb",value:USER_ORG_NAME}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1397,9 +1426,14 @@ actionID:1,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKIN",
+openArgs:{
+org_id:USER_ORG_ID
+},
 preload:[
 {key:"time_txt",value:"2024-01-01 00:00:00"},
-{key:"rta_type",value:"1"}
+{key:"rta_type",value:"1"},
+{key:"org_id",value:USER_ORG_ID},
+{key:"org_lb",value:USER_ORG_NAME}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1415,9 +1449,14 @@ actionID:3,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKIN",
+openArgs:{
+org_id:USER_ORG_ID
+},
 preload:[
 {key:"time_txt",value:"2024-01-01 00:00:00"},
-{key:"rta_type",value:"2"}
+{key:"rta_type",value:"2"},
+{key:"org_id",value:USER_ORG_ID},
+{key:"org_lb",value:USER_ORG_NAME}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1438,13 +1477,16 @@ familyID:"HR_CHECKIN",
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
-rta_datetime_in:latestCheckin.chkin_time_fm||""
+rta_datetime_in:latestCheckin.chkin_time_fm||"",
+org_id:USER_ORG_ID
 },
 preload:[
 {key:"rta_type",value:"3"},
 {key:"shift_lb_en",value:latestCheckin.shift_lb_en||""},
 {key:"shift_lb_vi",value:latestCheckin.shift_lb_vi||""},
-{key:"time_txt",value:latestCheckin.rta_time_fm||""}
+{key:"time_txt",value:latestCheckin.rta_time_fm||""},
+{key:"org_id",value:USER_ORG_ID},
+{key:"org_lb",value:USER_ORG_NAME}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1463,13 +1505,16 @@ familyID:"HR_CHECKOUT",
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
-rta_datetime_in:latestCheckin.chkin_time_fm||""
+rta_datetime_in:latestCheckin.chkin_time_fm||"",
+org_id:USER_ORG_ID
 },
 preload:[
 {key:"rta_type",value:"1"},
 {key:"shift_lb_en",value:latestCheckin.shift_lb_en||""},
 {key:"shift_lb_vi",value:latestCheckin.shift_lb_vi||""},
-{key:"time_txt",value:latestCheckin.rta_time_fm||""}
+{key:"time_txt",value:latestCheckin.rta_time_fm||""},
+{key:"org_id",value:USER_ORG_ID},
+{key:"org_lb",value:USER_ORG_NAME}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1488,13 +1533,16 @@ familyID:"HR_CHECKOUT",
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
-rta_datetime_in:latestCheckin.chkin_time_fm||""
+rta_datetime_in:latestCheckin.chkin_time_fm||"",
+org_id:USER_ORG_ID
 },
 preload:[
 {key:"rta_type",value:"2"},
 {key:"shift_lb_en",value:latestCheckin.shift_lb_en||""},
 {key:"shift_lb_vi",value:latestCheckin.shift_lb_vi||""},
-{key:"time_txt",value:latestCheckin.rta_time_fm||""}
+{key:"time_txt",value:latestCheckin.rta_time_fm||""},
+{key:"org_id",value:USER_ORG_ID},
+{key:"org_lb",value:USER_ORG_NAME}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1513,13 +1561,16 @@ familyID:"HR_CHECKOUT",
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
-rta_datetime_in:latestCheckin.chkin_time_fm||""
+rta_datetime_in:latestCheckin.chkin_time_fm||"",
+org_id:USER_ORG_ID
 },
 preload:[
 {key:"rta_type",value:"3"},
 {key:"shift_lb_en",value:latestCheckin.shift_lb_en||""},
 {key:"shift_lb_vi",value:latestCheckin.shift_lb_vi||""},
-{key:"time_txt",value:latestCheckin.rta_time_fm||""}
+{key:"time_txt",value:latestCheckin.rta_time_fm||""},
+{key:"org_id",value:USER_ORG_ID},
+{key:"org_lb",value:USER_ORG_NAME}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1549,12 +1600,18 @@ container.innerHTML+=`<div class="attendance-action-title" style="color:#222;fon
 }
 if(buttons.length){
 let html=`<div class="attendance-action-buttons">`;
-buttons.forEach((btn,idx)=>{
-html+=`<button class="attendance-btn" type="button" onclick="attendanceButtonHandlers[${idx}]()">
-<div class="attendance-btn-icon-bg">${btn.icon}</div>
-<span class="attendance-btn-label">${btn.label}</span>
-</button>`;
+buttons.forEach((btn, idx) => {
+  let extraClass = '';
+  const plainLabel = btn.label.replace(/<[^>]+>/g, '').trim().toUpperCase();
+  if (plainLabel === 'HẾT CA' || plainLabel === 'CHECK-OUT') {
+    extraClass = 'checkout-end';
+  }
+  html += `<button class="attendance-btn ${extraClass}" type="button" onclick="attendanceButtonHandlers[${idx}]()">
+    <div class="attendance-btn-icon-bg">${btn.icon}</div>
+    <span class="attendance-btn-label">${btn.label}</span>
+  </button>`;
 });
+
 html+=`</div>`;
 container.innerHTML+=html;
 window.attendanceButtonHandlers = buttons.map(btn => function() {
