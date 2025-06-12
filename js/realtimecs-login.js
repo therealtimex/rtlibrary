@@ -213,7 +213,65 @@ async function checkUserType() {
     }
 }
 
-// Show result message
+function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval = 5000) {
+  let attempts = 0;
+  
+  // Hiển thị Spinner trước khi bắt đầu polling
+  const spinner = document.getElementById('loading-spinner');
+  const spinnerLabel = document.getElementById('spinner-label');
+  if (spinner) {
+    spinner.classList.remove('hidden');
+    spinnerLabel.textContent = T.processing;
+  }
+
+  const checkUpdate = () => {
+    fetch(`https://testcrm.rtworkspace.com/api/dm/getData?token=your_token_here&dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${config.username}"`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0 && data[0].organization_id !== originalOrgId) {
+          // Nếu organization_id đã thay đổi, tiến hành 2 hành động:
+          App.callActionButton(JSON.stringify({
+            actionID: 24703,
+            orderNumber: 1,
+            type: "act_fetch_rcm",
+            label: "Fetch RCM"
+          }));
+          setTimeout(() => {
+            App.callActionButton(JSON.stringify({
+              actionID: 24704,
+              orderNumber: 2,
+              type: "act_reload_app",
+              label: "Reload App"
+            }));
+            // Ẩn Spinner sau khi hoàn tất
+            if (spinner) spinner.classList.add('hidden');
+            // Hiển thị popup kết quả
+            showResult(resultMessage);
+          }, 3000);
+        } else {
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(checkUpdate, interval);
+          } else {
+            if (spinner) spinner.classList.add('hidden');
+            showResult("Không xác định được cập nhật tổ chức.", "#e74c3c");
+          }
+        }
+      })
+      .catch(err => {
+        console.error("Lỗi polling:", err);
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(checkUpdate, interval);
+        } else {
+          if (spinner) spinner.classList.add('hidden');
+          showResult("Lỗi khi kiểm tra cập nhật tổ chức.", "#e74c3c");
+        }
+      });
+  };
+  setTimeout(checkUpdate, 2000);
+  checkUpdate();
+}
 function showResult(msg, color = '#333') {
     const setupDialog = document.getElementById('setup-dialog');
     if (setupDialog) setupDialog.classList.add('hidden');
@@ -448,9 +506,11 @@ if (orgCreateForm) {
       if (setupSelectionElem) {
         setupSelectionElem.style.display = 'none';
       }
-
+      
+      const originalOrgId = config.userOrgId;
+      pollOrgUpdate(originalOrgId, T.notify(orgName, contactEmail));
       // Hiển thị màn hình kết quả
-      showResult(T.notify(orgName, contactEmail));
+      // showResult(T.notify(orgName, contactEmail));
       orgCreateForm.reset();
     })
     .catch(err => {
@@ -536,7 +596,9 @@ if (orgCreateForm) {
                         }]
                     })
                 });
-                showResult(T.join_success.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code));
+                const originalOrgId = config.userOrgId;
+                pollOrgUpdate(originalOrgId, T.join_success.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code));
+                // showResult(T.join_success.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code));
             } catch (err) {
                 if (errorElem) {
                     errorElem.textContent = T.error;
@@ -562,8 +624,7 @@ if (orgCreateForm) {
             alias: "realtimecs_realtimecs00obj1",
             args: { user_type: userType }
         };
-        // App.callActionButton(JSON.stringify(actionData));
-        App.close();
+        App.callActionButton(JSON.stringify(actionData));
 
         // var resultScreen = document.getElementById('result-screen');
         // if (resultScreen) resultScreen.classList.add('hidden');
