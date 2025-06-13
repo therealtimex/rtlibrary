@@ -55,11 +55,13 @@ const LANG = {
         error_notfound: "Không tìm thấy tổ chức với mã này. Vui lòng kiểm tra lại.",
         error: "Đã xảy ra lỗi. Vui lòng thử lại sau!",
         trial_success: "Hệ thống đang xử lý yêu cầu sử dụng {appName} - Người dùng trải nghiệm cho <b>{user}</b>, vui lòng chờ hệ thống xác nhận thông tin và khởi tạo dữ liệu!",
-        join_success: "Hệ thống đã gửi yêu cầu tham gia đến <b>{org}</b>, vui lòng chờ bộ phận Quản lý xác nhận!",
+        join_success: "Yêu cầu tham gia <b>{org}</b> của bạn đã được xử lý thành công",
         notify: (org, email) => `Hệ thống đang xử lý yêu cầu Khởi tạo Tổ chức mới cho <b>${org}</b>, vui lòng chờ hệ thống xác nhận thông tin và khởi tạo dữ liệu!`,
         trial_mode_subtitle: "Bạn đang sử dụng chế độ trải nghiệm",
         official_mode_subtitle: "Phiên bản chính thức",
-        settings_alert: "Chức năng cài đặt tổ chức sẽ được phát triển"
+        settings_alert: "Chức năng cài đặt tổ chức sẽ được phát triển",
+        org_update_timeout: "Không xác định được cập nhật tổ chức.",
+        org_update_error: "Lỗi khi kiểm tra cập nhật tổ chức."
     },
     en: {
         // Banner texts
@@ -115,11 +117,13 @@ const LANG = {
         error_notfound: "Organization not found. Please check your code.",
         error: "An error occurred. Please try again later!",
         trial_success: "The system is processing the request to use {appName} - Trial User for <b>{user}</b>. Please wait for the system to confirm the information and initialize the data!",
-        join_success: "The system has sent a join request to <b>{org}</b>. Please wait for admin approval!",
+        join_success: "Your request to join <b>{org}</b> has been successfully processed",
         notify: (org, email) => `We are processing your request to create the new organization <b>${org}</b>. Please wait for the system to confirm the information and initialize the data.`,
         trial_mode_subtitle: "You are using trial mode",
         official_mode_subtitle: "Official Version",
-        settings_alert: "Organization settings feature will be developed"
+        settings_alert: "Organization settings feature will be developed",
+        org_update_timeout: "Organization update not recognized.",
+        org_update_error: "Error checking organization update."
     }
 };
 
@@ -215,7 +219,37 @@ async function checkUserType() {
 
 function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval = 5000) {
   let attempts = 0;
-  
+
+  function displayRetryUI(message) {
+    const retryPopup = document.getElementById('retry-popup');
+    const retryMessage = document.getElementById('retry-popup-message');
+    const btnRetryPopup = document.getElementById('btn-retry-popup');
+
+    if (retryMessage) {
+      retryMessage.textContent = message;
+    }
+
+    if (retryPopup) {
+      retryPopup.classList.remove('hidden');
+    }
+
+    if (btnRetryPopup) {
+      btnRetryPopup.onclick = function() {
+        // Ẩn popup retry
+        retryPopup.classList.add('hidden');
+        // Hiển thị lại spinner
+        const spinner = document.getElementById('loading-spinner');
+        const spinnerLabel = document.getElementById('spinner-label');
+        if (spinner) {
+            spinner.classList.remove('hidden');
+            if (spinnerLabel) spinnerLabel.textContent = T.processing;
+        }
+        attempts = 0; // Reset số lượt thử lại
+        checkUpdate();
+      };
+    }
+  }
+
   // Hiển thị Spinner trước khi bắt đầu polling
   const spinner = document.getElementById('loading-spinner');
   const spinnerLabel = document.getElementById('spinner-label');
@@ -225,7 +259,7 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
   }
 
   const checkUpdate = () => {
-    fetch(`https://testcrm.rtworkspace.com/api/dm/getData?token=your_token_here&dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${config.username}"`)
+    fetch(`${config.projectURL}/api/dm/getData?token=your_token_here&dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${config.username}"`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0 && data[0].organization_id !== originalOrgId) {
@@ -254,7 +288,7 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
             setTimeout(checkUpdate, interval);
           } else {
             if (spinner) spinner.classList.add('hidden');
-            showResult("Không xác định được cập nhật tổ chức.", "#e74c3c");
+            displayRetryUI(T.org_update_timeout);
           }
         }
       })
@@ -265,13 +299,16 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
           setTimeout(checkUpdate, interval);
         } else {
           if (spinner) spinner.classList.add('hidden');
-          showResult("Lỗi khi kiểm tra cập nhật tổ chức.", "#e74c3c");
+          displayRetryUI(T.org_update_error);
         }
       });
   };
+
   setTimeout(checkUpdate, 2000);
-  checkUpdate();
+  // checkUpdate();
 }
+
+
 function showResult(msg, color = '#333') {
     const setupDialog = document.getElementById('setup-dialog');
     if (setupDialog) setupDialog.classList.add('hidden');
