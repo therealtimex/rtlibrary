@@ -304,7 +304,7 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
       });
   };
 
-  setTimeout(checkUpdate, 2000);
+  setTimeout(checkUpdate, 5000);
   // checkUpdate();
 }
 
