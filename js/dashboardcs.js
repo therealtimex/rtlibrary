@@ -362,7 +362,7 @@ function updatePriorityChartFromAggs(priorityAggs) {
 
 
 // Call action button
-function callActionButton(action) {
+function callActionButton2(action) {
     if (typeof App !== 'undefined' && App && typeof App.callActionButton === 'function') {
         App.callActionButton(JSON.stringify(action));
     } else {
