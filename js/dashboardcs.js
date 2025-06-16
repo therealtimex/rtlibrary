@@ -414,9 +414,9 @@ function updateMetricsFromAggs(statusAggs) {
 `;
         
         // Thêm sự kiện click để hiển thị alert với số lượng
-        statusBar.addEventListener('click', function() {
-            alert(`${statusInfo[app_language]}: ${count} phiếu`);
-        });
+        // statusBar.addEventListener('click', function() {
+        //     alert(`${statusInfo[app_language]}: ${count} phiếu`);
+        // });
         
                     statusOverview.appendChild(statusBar);
                 }
