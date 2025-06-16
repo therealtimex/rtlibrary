@@ -247,6 +247,15 @@ const translations = {
             }
         }
 
+function callActionButton(action) {
+            if (typeof App !== 'undefined' && App && typeof App.callActionButton === 'function') {
+                App.callActionButton(JSON.stringify(action));
+            } else {
+                console.warn('App.callActionButton is not defined. Please ensure the native bridge is properly initialized.');
+                alert('Action: ' + action.action + '\nData: ' + JSON.stringify(action.data)); // Fallback for web testing
+            }
+        } 
+             
 function getDateRange(filter) {
             const now = new Date();
             let startDate, endDate = now;
@@ -379,7 +388,6 @@ function updateMetricsFromAggs(statusAggs) {
                 'Completed': 'completed',
                 'Ready for Pickup': 'completed',
                 'Delivered': 'completed',
-                'Closed': 'completed',
                 'On Hold': 'hold',
                 'Waiting Customer': 'hold',
                 'Cancelled': 'cancelled',
@@ -539,3 +547,40 @@ function updateRecentActivityFromAggs(recentTickets) {
         }
 
 
+async function fetchData() {
+            try {
+                document.getElementById('loading-container').style.display = 'flex';
+                document.getElementById('dashboard-content').style.display = 'none';
+                document.getElementById('error-message').style.display = 'none';
+
+                const query = buildAggregationQuery(currentTimeFilter);
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(query)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+
+                // Process aggregation results
+                const statusAggs = data.aggregations.status_distribution.buckets;
+                const priorityAggs = data.aggregations.priority_distribution.buckets;
+                // Update the dashboard with aggregated data
+                updateDashboardWithAggregations(statusAggs, priorityAggs);
+
+                document.getElementById('loading-container').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'block';
+                await fetchRecentActivities();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('loading-container').style.display = 'none';
+                document.getElementById('error-message').style.display = 'block';
+            }
+        }
