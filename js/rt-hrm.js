@@ -592,6 +592,22 @@ if (form) {
             await checkUserType(); 
 
             if (userType === 'official') {
+              App.callActionButton(JSON.stringify({
+              actionID: 24703,
+              orderNumber: 1,
+              type: "act_fetch_rcm",
+              label: "Fetch RCM"
+            }));
+
+             // Sau 3 giây, reload app
+             setTimeout(() => {
+               App.callActionButton(JSON.stringify({
+               actionID: 24704,
+               orderNumber: 2,
+               type: "act_reload_app",
+               label: "Reload App"
+             }));
+             }, 3000);
               renderByUserType();
               document.getElementById('combine-result-screen').style.display = 'none';
               document.getElementById('hrm-main').style.display = 'block';
