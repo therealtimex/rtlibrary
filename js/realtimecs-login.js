@@ -5,7 +5,7 @@ const LANG = {
         // Banner texts
         trial_mode_title: "Chế độ trải nghiệm",
         trial_mode_desc: "Bạn đang sử dụng phiên bản dùng thử. Dữ liệu sẽ bị xóa sau 7 ngày.",
-        setup_btn: "Thiết lập",
+        setup_btn: "Nâng cấp",
         official_status: "Chính thức",
         settings_btn: "Cài đặt",
 
@@ -67,7 +67,7 @@ const LANG = {
         // Banner texts
         trial_mode_title: "Trial Mode",
         trial_mode_desc: "You are using the trial version. Data will be deleted after 7 days.",
-        setup_btn: "Setup",
+        setup_btn: "Upgrade",
         official_status: "Official",
         settings_btn: "Settings",
 
