@@ -631,7 +631,7 @@ if (orgCreateForm) {
                             username: config.username,
                             fullname: config.userFullName,
                             user_role: config.userRoledefault,
-                            cellphone: config.userPhone && config.userPhone.trim() ? config.userPhone : '0',
+                            cellphone: (config.userPhone && config.userPhone.trim() && !/^n\/?a$/i.test(config.userPhone.trim())) ? config.userPhone : '0',
                             user_status: '1',
                             email: config.userEmail,
                             org_id: foundOrg.org_id,
