@@ -45,22 +45,22 @@ function renderCombineLang() {
   }
   const combineDesc = document.getElementById('combine-desc');
   if (combineDesc) combineDesc.textContent = T.desc;
-
+  
   const combineOrgCode = document.getElementById('combine-org-code');
   if (combineOrgCode) combineOrgCode.placeholder = T.orgPlaceholder;
-
+  
   const combineBtnConfirm = document.getElementById('combine-btn-confirm');
   if (combineBtnConfirm) combineBtnConfirm.textContent = T.confirm;
-
+  
   const combineOr = document.getElementById('combine-or');
   if (combineOr) combineOr.textContent = T.or;
-
+  
   const combineBtnCreateOrg = document.getElementById('combine-btn-create-org');
   if (combineBtnCreateOrg) combineBtnCreateOrg.textContent = T.createOrg;
-
+  
   const combineBtnTrial = document.getElementById('combine-btn-trial');
   if (combineBtnTrial) combineBtnTrial.textContent = T.trial;
-
+  
   // Update trial tag
   const trialTag = document.getElementById('trial-user-tag');
 if (trialTag) {
@@ -91,12 +91,12 @@ if (trialTag) {
 // Hàm kiểm tra loại người dùng
 async function checkUserType() {
   const userOrgId = USER_ORG_ID;
-
+  
   if (userOrgId === TRIAL_ORG_ID) {
     userType = 'trial';
     return 'trial';
   }
-
+  
   try {
     const response = await fetch('https://es.rta.vn/nerp_org/_search', {
       method: 'POST',
@@ -108,15 +108,15 @@ async function checkUserType() {
         "sort": [{"endtime": {"order": "desc"}}]
       })
     });
-
+    
     const data = await response.json();
     const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
-
+    
     if (officialOrgIds.includes(userOrgId)) {
       userType = 'official';
       return 'official';
     }
-
+    
     return 'unidentified';
   } catch (error) {
     console.error("Error checking user type:", error);
@@ -142,7 +142,7 @@ function renderByUserType() {
     if (trialTag) {
       trialTag.style.display = 'inline-block';
       trialTag.textContent = T.trialTag;
-
+      
       // Thêm sự kiện click để mở giao diện combine
       trialTag.onclick = function() {
         combineScreenMode = 'trial-back';
@@ -178,7 +178,7 @@ function showCombineScreen() {
 function hideCombineScreen() {
   const hrmMain = document.getElementById('hrm-main');
   const combineScreen = document.getElementById('combine-user-screen');
-
+  
   if (userType === 'trial' || userType === 'official') {
     if (hrmMain) hrmMain.style.display = 'block';
   }
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const errorElem = document.getElementById('combine-org-error');
       errorElem.style.display = 'none';
       errorElem.style.color = '#e74c3c';
-
+      
       if (!foundOrg) {
         // Bước 1: Tìm tổ chức
         if (!code) {
@@ -279,7 +279,46 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           // Gửi thành công: hiện popup
           showCombineResult(T.joinSuccess.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code), "#222");
-
+          let elapsed = 0;
+const btnClose = document.getElementById('combine-btn-close-result');
+const spinner = document.getElementById('combine-result-spinner');
+const orgIdMoi = foundOrg.org_id; // Mã tổ chức vừa nhập
+const interval = setInterval(async () => {
+  elapsed += 8;
+  await checkUserType();
+  if (USER_ORG_ID === orgIdMoi) {
+    clearInterval(interval);
+    if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+      // 1. Gọi Fetch RCM
+      App.callActionButton(JSON.stringify({
+        actionID: 24703,
+        orderNumber: 1,
+        type: "act_fetch_rcm",
+        label: "Fetch RCM"
+      }));
+      // 2. Sau 3 giây, reload app
+      setTimeout(() => {
+        App.callActionButton(JSON.stringify({
+          actionID: 24704,
+          orderNumber: 2,
+          type: "act_reload_app",
+          label: "Reload App"
+        }));
+        // 3. Chuyển giao diện đúng
+        renderByUserType();
+        document.getElementById('combine-result-screen').style.display = 'none';
+        document.getElementById('hrm-main').style.display = 'block';
+        if (spinner) spinner.style.display = 'none';
+      }, 3000);
+    }
+  }
+  if (elapsed >= 120) {
+    clearInterval(interval);
+    if (btnClose) btnClose.style.display = 'block';
+    if (spinner) spinner.style.display = 'none';
+  }
+}, 8000);
+          
         } catch (err) {
           // Gửi lỗi: hiện lỗi đỏ dưới nút, giữ nguyên màn hình
           errorElem.style.color = '#e74c3c';
@@ -306,13 +345,13 @@ document.addEventListener('DOMContentLoaded', function() {
         combineScreenMode = 'default';
         return;
       }
-
+      
       // Trường hợp user chưa xác định: gửi request
       const btn = this;
       const errorElem = document.getElementById('combine-org-error');
       btn.disabled = true;
       btn.textContent = appLanguage === 'vi' ? 'Đang xử lý...' : 'Processing...';
-
+      
       try {
         await fetch('https://automation.rta.vn/webhook/rthrm-events', {
           method: 'POST',
@@ -335,37 +374,53 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         // Thành công: hiện popup
         showCombineResult(T.trialSuccess.replace('{user}', USER_FULLNAME), "#222");
+
+
         let elapsed = 0;
         const btnClose = document.getElementById('combine-btn-close-result');
         const spinner = document.getElementById('combine-result-spinner');
-        let trialPollingMode = true; 
-
+        let trialPollingMode = true;
         const interval = setInterval(async () => {
-          elapsed += 10;
-
+          elapsed += 8;
           try {
             await checkUserType();
-
             if (trialPollingMode && userType === 'trial') {
-              renderByUserType();
               clearInterval(interval);
-              document.getElementById('combine-result-screen').style.display = 'none';
-              if (spinner) spinner.style.display = 'none';
+              // Gọi Fetch RCM
+              if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+                App.callActionButton(JSON.stringify({
+                  actionID: 24703,
+                  orderNumber: 1,
+                  type: "act_fetch_rcm",
+                  label: "Fetch RCM"
+                }));
+                setTimeout(() => {
+                  App.callActionButton(JSON.stringify({
+                    actionID: 24704,
+                    orderNumber: 2,
+                    type: "act_reload_app",
+                    label: "Reload App"
+                  }));
+                  renderByUserType();
+                  document.getElementById('combine-result-screen').style.display = 'none';
+                  document.getElementById('hrm-main').style.display = 'block';
+                  if (spinner) spinner.style.display = 'none';
+                }, 3000);
+              }
             }
+  } catch (err) {
+    console.error("Error checking user type:", err);
+  }
+  if (elapsed >= 120) {
+    clearInterval(interval);
+    if (btnClose) btnClose.style.display = 'block';
+    if (spinner) spinner.style.display = 'none';
+  }
+}, 8000);
 
-          } catch (err) {
-            console.error("Error checking user type:", err);
-          }
-
-          if (elapsed >= 60) {
-            clearInterval(interval);
-            if (btnClose) btnClose.style.display = 'block';
-            if (spinner) spinner.style.display = 'none';
-          }
-        }, 10000);
-
+        
       } catch (err) {
-
+      
         errorElem.style.color = '#e74c3c';
         errorElem.textContent = T.error;
         errorElem.style.display = 'block';
@@ -441,32 +496,32 @@ function renderOrgFormLang() {
     orgFormDesc.style.fontWeight = 'bold';  
     orgFormDesc.style.color = '#000'; 
   }
-
+  
   const labelOrgName = document.getElementById('label-org-name');
   if (labelOrgName) labelOrgName.textContent = T.orgName;
-
+  
   const labelOrgShort = document.getElementById('label-org-short');
   if (labelOrgShort) labelOrgShort.textContent = T.shortName;
-
+  
   const labelContactName = document.getElementById('label-contact-name');
   if (labelContactName) labelContactName.textContent = T.contactName;
-
+  
   const labelContactEmail = document.getElementById('label-contact-email');
   if (labelContactEmail) labelContactEmail.textContent = T.contactEmail;
-
+  
   const labelContactPhone = document.getElementById('label-contact-phone');
   if (labelContactPhone) labelContactPhone.textContent = T.contactPhone;
-
+  
   const btnSubmitOrg = document.getElementById('btn-submit-org');
   if (btnSubmitOrg) btnSubmitOrg.textContent = T.submitBtn;
-
+  
   // Pre-fill contact info
   const contactName = document.getElementById('contact-name');
   if (contactName) contactName.value = USER_FULLNAME;
-
+  
   const contactPhone = document.getElementById('contact-phone');
   if (contactPhone) contactPhone.value = USER_PHONE;
-
+  
   const contactEmail = document.getElementById('contact-email');
   if (contactEmail) contactEmail.value = USER_EMAIL;
 }
@@ -495,7 +550,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   document.getElementById('auth-loading').style.display = 'none';
   renderCombineLang();
-
+  
 
 const form = document.getElementById('org-create-form');
 let pendingOrgId = null;
@@ -566,7 +621,7 @@ if (form) {
 
       let elapsed = 0;
       const interval = setInterval(async () => {
-        elapsed += 8;
+        elapsed += 10;
 
         try {
           const response = await fetch('https://es.rta.vn/nerp_org/_search', {
@@ -584,7 +639,7 @@ if (form) {
           const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
 
           if (pendingOrgId && officialOrgIds.includes(pendingOrgId)) {
-
+            
             clearInterval(interval);
 
             USER_ORG_ID = pendingOrgId;
@@ -608,6 +663,7 @@ if (form) {
                label: "Reload App"
              }));
              }, 3000);
+             
               renderByUserType();
               document.getElementById('combine-result-screen').style.display = 'none';
               document.getElementById('hrm-main').style.display = 'block';
@@ -625,7 +681,7 @@ if (form) {
           if (spinner) spinner.style.display = 'none';
         }
 
-      }, 10000);
+      }, 8000);
     }).catch(err => {
       console.error('Submit error:', err);
       document.getElementById('modal-create-org').style.display = 'none';
@@ -1208,7 +1264,7 @@ function showEventDetails(date, attendanceEvents, leaveEvents, holidayEvents) {
                 "value": shiftId
             }]
         };
-
+        
         if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
             App.callActionButton(JSON.stringify(reportJson));
         } else {
@@ -1224,7 +1280,7 @@ function showEventDetails(date, attendanceEvents, leaveEvents, holidayEvents) {
             <div class="event-item">
                 <div class="event-header">
                     <span class="event-title">${event.erp_shift_lb || T.attendance}</span>`;
-
+            
             // Kiểm tra nếu là giờ tăng ca
             if (event.erp_salary_unit == 3) {
                 // Hiển thị nút Báo cáo OT
@@ -1239,7 +1295,7 @@ function showEventDetails(date, attendanceEvents, leaveEvents, holidayEvents) {
                         ${event.nb_count || '0'} ${getUnitLabel(event)}
                     </span>`;
             }
-
+            
             content += `
                 </div>
                 ${event.chkin_time || event.chkout_time ? `
@@ -1395,14 +1451,9 @@ actionID:1,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKIN",
-openArgs:{
-org_id:USER_ORG_ID
-},
 preload:[
 {key:"time_txt",value:latestCheckin.rta_time_fm||""},
-{key:"rta_type",value:"1"},
-{key:"org_id",value:USER_ORG_ID},
-{key:"org_lb",value:USER_ORG_NAME}
+{key:"rta_type",value:"1"}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1418,14 +1469,9 @@ actionID:3,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKIN",
-openArgs:{
-org_id:USER_ORG_ID
-},
 preload:[
 {key:"time_txt",value:latestCheckin.rta_time_fm||""},
-{key:"rta_type",value:"2"},
-{key:"org_id",value:USER_ORG_ID},
-{key:"org_lb",value:USER_ORG_NAME}
+{key:"rta_type",value:"2"}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1442,14 +1488,9 @@ actionID:1,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKIN",
-openArgs:{
-org_id:USER_ORG_ID
-},
 preload:[
 {key:"time_txt",value:"2024-01-01 00:00:00"},
-{key:"rta_type",value:"1"},
-{key:"org_id",value:USER_ORG_ID},
-{key:"org_lb",value:USER_ORG_NAME}
+{key:"rta_type",value:"1"}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1465,14 +1506,9 @@ actionID:3,
 orderNumber:1,
 type:"act_fill_form",
 familyID:"HR_CHECKIN",
-openArgs:{
-org_id:USER_ORG_ID
-},
 preload:[
 {key:"time_txt",value:"2024-01-01 00:00:00"},
-{key:"rta_type",value:"2"},
-{key:"org_id",value:USER_ORG_ID},
-{key:"org_lb",value:USER_ORG_NAME}
+{key:"rta_type",value:"2"}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1493,16 +1529,13 @@ familyID:"HR_CHECKIN",
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
-rta_datetime_in:latestCheckin.chkin_time_fm||"",
-org_id:USER_ORG_ID
+rta_datetime_in:latestCheckin.chkin_time_fm||""
 },
 preload:[
 {key:"rta_type",value:"3"},
 {key:"shift_lb_en",value:latestCheckin.shift_lb_en||""},
 {key:"shift_lb_vi",value:latestCheckin.shift_lb_vi||""},
-{key:"time_txt",value:latestCheckin.rta_time_fm||""},
-{key:"org_id",value:USER_ORG_ID},
-{key:"org_lb",value:USER_ORG_NAME}
+{key:"time_txt",value:latestCheckin.rta_time_fm||""}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1521,16 +1554,13 @@ familyID:"HR_CHECKOUT",
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
-rta_datetime_in:latestCheckin.chkin_time_fm||"",
-org_id:USER_ORG_ID
+rta_datetime_in:latestCheckin.chkin_time_fm||""
 },
 preload:[
 {key:"rta_type",value:"1"},
 {key:"shift_lb_en",value:latestCheckin.shift_lb_en||""},
 {key:"shift_lb_vi",value:latestCheckin.shift_lb_vi||""},
-{key:"time_txt",value:latestCheckin.rta_time_fm||""},
-{key:"org_id",value:USER_ORG_ID},
-{key:"org_lb",value:USER_ORG_NAME}
+{key:"time_txt",value:latestCheckin.rta_time_fm||""}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1549,16 +1579,13 @@ familyID:"HR_CHECKOUT",
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
-rta_datetime_in:latestCheckin.chkin_time_fm||"",
-org_id:USER_ORG_ID
+rta_datetime_in:latestCheckin.chkin_time_fm||""
 },
 preload:[
 {key:"rta_type",value:"2"},
 {key:"shift_lb_en",value:latestCheckin.shift_lb_en||""},
 {key:"shift_lb_vi",value:latestCheckin.shift_lb_vi||""},
-{key:"time_txt",value:latestCheckin.rta_time_fm||""},
-{key:"org_id",value:USER_ORG_ID},
-{key:"org_lb",value:USER_ORG_NAME}
+{key:"time_txt",value:latestCheckin.rta_time_fm||""}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1577,16 +1604,13 @@ familyID:"HR_CHECKOUT",
 openArgs:{
 erp_shift_id:latestCheckin.erp_shift_id||"",
 rta_shift_id:latestCheckin.rta_shift_id||"",
-rta_datetime_in:latestCheckin.chkin_time_fm||"",
-org_id:USER_ORG_ID
+rta_datetime_in:latestCheckin.chkin_time_fm||""
 },
 preload:[
 {key:"rta_type",value:"3"},
 {key:"shift_lb_en",value:latestCheckin.shift_lb_en||""},
 {key:"shift_lb_vi",value:latestCheckin.shift_lb_vi||""},
-{key:"time_txt",value:latestCheckin.rta_time_fm||""},
-{key:"org_id",value:USER_ORG_ID},
-{key:"org_lb",value:USER_ORG_NAME}
+{key:"time_txt",value:latestCheckin.rta_time_fm||""}
 ]
 };
 App.callActionButton(JSON.stringify(json));
@@ -1610,7 +1634,7 @@ buttons=[BTN.new_qr,BTN.new_remote];
 // Ẩn tạm thời các nút QR và Tạm thời
   buttons = buttons.filter(btn => btn.label !== 'QR' && btn.label !== T.checkinTemp);
 
-
+  
 if(title){
 container.innerHTML+=`<div class="attendance-action-title" style="color:#222;font-weight:bold;font-size:16px;padding-left:14px"></div>`;
 }
@@ -1844,7 +1868,7 @@ function escapeBackticks(str) {
 }
 window.showNotifModal = function(title, html) {
   const modalBg = document.getElementById('modal-bg');
-
+  
   document.getElementById('modal-body2').innerHTML = html || '';
   modalBg.classList.add('show');
 }
@@ -1886,7 +1910,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "alias": "t72ep_t72ep01a5",
         "post": "{\"size\":1}"
       };
-
+      
       if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
         App.callActionButton(JSON.stringify(dashboardJson));
       } else {
