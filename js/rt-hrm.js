@@ -1969,6 +1969,4 @@ async function fetchAndPopulateProfile() {
 
 // Gọi hàm sau khi DOM tải xong
 document.addEventListener('DOMContentLoaded', fetchAndPopulateProfile);
-</script>
-</body>
-</html>
+
