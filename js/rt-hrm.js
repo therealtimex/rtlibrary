@@ -279,45 +279,61 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           // Gửi thành công: hiện popup
           showCombineResult(T.joinSuccess.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code), "#222");
-          let elapsed = 0;
+          let pollingCount = 0;
+const maxPolling = 24; // 24 lần * 5s = 120s
+const pollingInterval = 5000; // 5 giây
 const btnClose = document.getElementById('combine-btn-close-result');
 const spinner = document.getElementById('combine-result-spinner');
-const orgIdMoi = foundOrg.org_id; // Mã tổ chức vừa nhập
-const interval = setInterval(async () => {
-  elapsed += 8;
-  await checkUserType();
-  if (USER_ORG_ID === orgIdMoi) {
-    clearInterval(interval);
-    if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
-      // 1. Gọi Fetch RCM
-      App.callActionButton(JSON.stringify({
-        actionID: 24703,
-        orderNumber: 1,
-        type: "act_fetch_rcm",
-        label: "Fetch RCM"
-      }));
-      // 2. Sau 3 giây, reload app
-      setTimeout(() => {
+const orgIdMoi = foundOrg.org_id;
+
+if (btnClose) btnClose.style.display = 'none';
+if (spinner) spinner.style.display = 'block';
+
+const intervalId = setInterval(async () => {
+  pollingCount++;
+  try {
+    const res = await fetch(`${PROJECT_URL}/api/dm/getData?token=your_token_here&dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${USERNAME}"`);
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0 && data[0].organization_id === orgIdMoi) {
+      clearInterval(intervalId);
+      if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
         App.callActionButton(JSON.stringify({
-          actionID: 24704,
-          orderNumber: 2,
-          type: "act_reload_app",
-          label: "Reload App"
+          actionID: 24703,
+          orderNumber: 1,
+          type: "act_fetch_rcm",
+          label: "Fetch RCM"
         }));
-        // 3. Chuyển giao diện đúng
-        renderByUserType();
-        document.getElementById('combine-result-screen').style.display = 'none';
-        document.getElementById('hrm-main').style.display = 'block';
-        if (spinner) spinner.style.display = 'none';
-      }, 3000);
+        setTimeout(() => {
+          App.callActionButton(JSON.stringify({
+            actionID: 24704,
+            orderNumber: 2,
+            type: "act_reload_app",
+            label: "Reload App"
+          }));
+          renderByUserType();
+          document.getElementById('combine-result-screen').style.display = 'none';
+          document.getElementById('hrm-main').style.display = 'block';
+          if (spinner) spinner.style.display = 'none';
+        }, 3000);
+      }
+    } else if (pollingCount >= maxPolling) {
+      clearInterval(intervalId);
+      if (btnClose) btnClose.style.display = 'block';
+      if (spinner) spinner.style.display = 'none';
+    }
+  } catch (err) {
+    if (pollingCount >= maxPolling) {
+      clearInterval(intervalId);
+      if (btnClose) btnClose.style.display = 'block';
+      if (spinner) spinner.style.display = 'none';
     }
   }
-  if (elapsed >= 120) {
-    clearInterval(interval);
-    if (btnClose) btnClose.style.display = 'block';
-    if (spinner) spinner.style.display = 'none';
-  }
-}, 8000);
+}, pollingInterval);
+
+
+
+
+
           
         } catch (err) {
           // Gửi lỗi: hiện lỗi đỏ dưới nút, giữ nguyên màn hình
@@ -376,47 +392,56 @@ document.addEventListener('DOMContentLoaded', function() {
         showCombineResult(T.trialSuccess.replace('{user}', USER_FULLNAME), "#222");
 
 
-        let elapsed = 0;
-        const btnClose = document.getElementById('combine-btn-close-result');
-        const spinner = document.getElementById('combine-result-spinner');
-        let trialPollingMode = true;
-        const interval = setInterval(async () => {
-          elapsed += 8;
-          try {
-            await checkUserType();
-            if (trialPollingMode && userType === 'trial') {
-              clearInterval(interval);
-              // Gọi Fetch RCM
-              if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
-                App.callActionButton(JSON.stringify({
-                  actionID: 24703,
-                  orderNumber: 1,
-                  type: "act_fetch_rcm",
-                  label: "Fetch RCM"
-                }));
-                setTimeout(() => {
-                  App.callActionButton(JSON.stringify({
-                    actionID: 24704,
-                    orderNumber: 2,
-                    type: "act_reload_app",
-                    label: "Reload App"
-                  }));
-                  renderByUserType();
-                  document.getElementById('combine-result-screen').style.display = 'none';
-                  document.getElementById('hrm-main').style.display = 'block';
-                  if (spinner) spinner.style.display = 'none';
-                }, 3000);
-              }
-            }
+        let pollingCount = 0;
+const maxPolling = 24; // 24 lần * 5s = 120s
+const pollingInterval = 5000; // 5 giây
+const btnClose = document.getElementById('combine-btn-close-result');
+const spinner = document.getElementById('combine-result-spinner');
+const orgIdMoi = 'ea8018e243';
+
+if (btnClose) btnClose.style.display = 'none';
+if (spinner) spinner.style.display = 'block';
+
+const intervalId = setInterval(async () => {
+  pollingCount++;
+  try {
+    const res = await fetch(`${PROJECT_URL}/api/dm/getData?token=your_token_here&dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${USERNAME}"`);
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0 && data[0].organization_id === orgIdMoi) {
+      clearInterval(intervalId);
+      if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+        App.callActionButton(JSON.stringify({
+          actionID: 24703,
+          orderNumber: 1,
+          type: "act_fetch_rcm",
+          label: "Fetch RCM"
+        }));
+        setTimeout(() => {
+          App.callActionButton(JSON.stringify({
+            actionID: 24704,
+            orderNumber: 2,
+            type: "act_reload_app",
+            label: "Reload App"
+          }));
+          renderByUserType();
+          document.getElementById('combine-result-screen').style.display = 'none';
+          document.getElementById('hrm-main').style.display = 'block';
+          if (spinner) spinner.style.display = 'none';
+        }, 3000);
+      }
+    } else if (pollingCount >= maxPolling) {
+      clearInterval(intervalId);
+      if (btnClose) btnClose.style.display = 'block';
+      if (spinner) spinner.style.display = 'none';
+    }
   } catch (err) {
-    console.error("Error checking user type:", err);
+    if (pollingCount >= maxPolling) {
+      clearInterval(intervalId);
+      if (btnClose) btnClose.style.display = 'block';
+      if (spinner) spinner.style.display = 'none';
+    }
   }
-  if (elapsed >= 120) {
-    clearInterval(interval);
-    if (btnClose) btnClose.style.display = 'block';
-    if (spinner) spinner.style.display = 'none';
-  }
-}, 8000);
+}, pollingInterval);
 
         
       } catch (err) {
@@ -613,76 +638,62 @@ if (form) {
       document.getElementById('modal-create-org').style.display = 'none';
       showCombineResult(T.notify(orgName, contactEmail), "#222");
       form.reset();
-
+      
       const btnClose = document.getElementById('combine-btn-close-result');
-      const spinner = document.getElementById('combine-result-spinner');
-      if (btnClose) btnClose.style.display = 'none';
-      if (spinner) spinner.style.display = 'block';
+const spinner = document.getElementById('combine-result-spinner');
+if (btnClose) btnClose.style.display = 'none';
+if (spinner) spinner.style.display = 'block';
 
-      let elapsed = 0;
-      const interval = setInterval(async () => {
-        elapsed += 10;
+let pollingCount = 0;
+const maxPolling = 24; // 24 lần * 5s = 120s
+const pollingInterval = 5000; // 5 giây
+const orgIdMoi = pendingOrgId;
 
-        try {
-          const response = await fetch('https://es.rta.vn/nerp_org/_search', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              size: 10000,
-              collapse: { field: 'org_id.raw' },
-              _source: { includes: ['org_id'] },
-              sort: [{ endtime: { order: 'desc' } }]
-            })
-          });
-
-          const data = await response.json();
-          const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
-
-          if (pendingOrgId && officialOrgIds.includes(pendingOrgId)) {
-            
-            clearInterval(interval);
-
-            USER_ORG_ID = pendingOrgId;
-
-            await checkUserType(); 
-
-            if (userType === 'official') {
-              App.callActionButton(JSON.stringify({
-              actionID: 24703,
-              orderNumber: 1,
-              type: "act_fetch_rcm",
-              label: "Fetch RCM"
-            }));
-
-             // Sau 3 giây, reload app
-             setTimeout(() => {
-               App.callActionButton(JSON.stringify({
-               actionID: 24704,
-               orderNumber: 2,
-               type: "act_reload_app",
-               label: "Reload App"
-             }));
-             }, 3000);
-             
-              renderByUserType();
-              document.getElementById('combine-result-screen').style.display = 'none';
-              document.getElementById('hrm-main').style.display = 'block';
-              if (spinner) spinner.style.display = 'none';
-            } 
-          }
-
-        } catch (err) {
-          console.error("Polling error:", err);
-        }
-
-        if (elapsed >= 120) {
-          clearInterval(interval);
-          if (btnClose) btnClose.style.display = 'block';
+const intervalId = setInterval(async () => {
+  pollingCount++;
+  try {
+    const res = await fetch(`${PROJECT_URL}/api/dm/getData?token=your_token_here&dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${USERNAME}"`);
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0 && data[0].organization_id === orgIdMoi) {
+      clearInterval(intervalId);
+      if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+        App.callActionButton(JSON.stringify({
+          actionID: 24703,
+          orderNumber: 1,
+          type: "act_fetch_rcm",
+          label: "Fetch RCM"
+        }));
+        setTimeout(() => {
+          App.callActionButton(JSON.stringify({
+            actionID: 24704,
+            orderNumber: 2,
+            type: "act_reload_app",
+            label: "Reload App"
+          }));
+          renderByUserType();
+          document.getElementById('combine-result-screen').style.display = 'none';
+          document.getElementById('hrm-main').style.display = 'block';
           if (spinner) spinner.style.display = 'none';
-        }
+        }, 3000);
+      }
+    } else if (pollingCount >= maxPolling) {
+      clearInterval(intervalId);
+      if (btnClose) btnClose.style.display = 'block';
+      if (spinner) spinner.style.display = 'none';
+    }
+  } catch (err) {
+    if (pollingCount >= maxPolling) {
+      clearInterval(intervalId);
+      if (btnClose) btnClose.style.display = 'block';
+      if (spinner) spinner.style.display = 'none';
+    }
+  }
+}, pollingInterval);
 
-      }, 8000);
-    }).catch(err => {
+
+
+      
+    .catch(err => {
       console.error('Submit error:', err);
       document.getElementById('modal-create-org').style.display = 'none';
       document.getElementById('notification-message').innerHTML = `
@@ -1958,3 +1969,6 @@ async function fetchAndPopulateProfile() {
 
 // Gọi hàm sau khi DOM tải xong
 document.addEventListener('DOMContentLoaded', fetchAndPopulateProfile);
+</script>
+</body>
+</html>
