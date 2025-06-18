@@ -279,6 +279,45 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           // Gửi thành công: hiện popup
           showCombineResult(T.joinSuccess.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code), "#222");
+          let elapsed = 0;
+const btnClose = document.getElementById('combine-btn-close-result');
+const spinner = document.getElementById('combine-result-spinner');
+const orgIdMoi = foundOrg.org_id; // Mã tổ chức vừa nhập
+const interval = setInterval(async () => {
+  elapsed += 8;
+  await checkUserType();
+  if (USER_ORG_ID === orgIdMoi) {
+    clearInterval(interval);
+    if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+      // 1. Gọi Fetch RCM
+      App.callActionButton(JSON.stringify({
+        actionID: 24703,
+        orderNumber: 1,
+        type: "act_fetch_rcm",
+        label: "Fetch RCM"
+      }));
+      // 2. Sau 3 giây, reload app
+      setTimeout(() => {
+        App.callActionButton(JSON.stringify({
+          actionID: 24704,
+          orderNumber: 2,
+          type: "act_reload_app",
+          label: "Reload App"
+        }));
+        // 3. Chuyển giao diện đúng
+        renderByUserType();
+        document.getElementById('combine-result-screen').style.display = 'none';
+        document.getElementById('hrm-main').style.display = 'block';
+        if (spinner) spinner.style.display = 'none';
+      }, 3000);
+    }
+  }
+  if (elapsed >= 120) {
+    clearInterval(interval);
+    if (btnClose) btnClose.style.display = 'block';
+    if (spinner) spinner.style.display = 'none';
+  }
+}, 8000);
           
         } catch (err) {
           // Gửi lỗi: hiện lỗi đỏ dưới nút, giữ nguyên màn hình
@@ -335,34 +374,50 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         // Thành công: hiện popup
         showCombineResult(T.trialSuccess.replace('{user}', USER_FULLNAME), "#222");
+
+
         let elapsed = 0;
-        const btnClose = document.getElementById('combine-btn-close-result');
-        const spinner = document.getElementById('combine-result-spinner');
-        let trialPollingMode = true; 
+const btnClose = document.getElementById('combine-btn-close-result');
+const spinner = document.getElementById('combine-result-spinner');
+let trialPollingMode = true;
+const interval = setInterval(async () => {
+  elapsed += 8;
+  try {
+    await checkUserType();
+    if (trialPollingMode && userType === 'trial') {
+      clearInterval(interval);
+      // Gọi Fetch RCM
+      if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+        App.callActionButton(JSON.stringify({
+          actionID: 24703,
+          orderNumber: 1,
+          type: "act_fetch_rcm",
+          label: "Fetch RCM"
+        }));
+        setTimeout(() => {
+          App.callActionButton(JSON.stringify({
+            actionID: 24704,
+            orderNumber: 2,
+            type: "act_reload_app",
+            label: "Reload App"
+          }));
+          renderByUserType();
+          document.getElementById('combine-result-screen').style.display = 'none';
+          document.getElementById('hrm-main').style.display = 'block';
+          if (spinner) spinner.style.display = 'none';
+        }, 3000);
+      }
+    }
+  } catch (err) {
+    console.error("Error checking user type:", err);
+  }
+  if (elapsed >= 120) {
+    clearInterval(interval);
+    if (btnClose) btnClose.style.display = 'block';
+    if (spinner) spinner.style.display = 'none';
+  }
+}, 8000);
 
-        const interval = setInterval(async () => {
-          elapsed += 10;
-
-          try {
-            await checkUserType();
-
-            if (trialPollingMode && userType === 'trial') {
-              renderByUserType();
-              clearInterval(interval);
-              document.getElementById('combine-result-screen').style.display = 'none';
-              if (spinner) spinner.style.display = 'none';
-            }
-
-          } catch (err) {
-            console.error("Error checking user type:", err);
-          }
-
-          if (elapsed >= 60) {
-            clearInterval(interval);
-            if (btnClose) btnClose.style.display = 'block';
-            if (spinner) spinner.style.display = 'none';
-          }
-        }, 10000);
         
       } catch (err) {
       
@@ -619,13 +674,13 @@ if (form) {
           console.error("Polling error:", err);
         }
 
-        if (elapsed >= 80) {
+        if (elapsed >= 120) {
           clearInterval(interval);
           if (btnClose) btnClose.style.display = 'block';
           if (spinner) spinner.style.display = 'none';
         }
 
-      }, 10000);
+      }, 8000);
     }).catch(err => {
       console.error('Submit error:', err);
       document.getElementById('modal-create-org').style.display = 'none';
