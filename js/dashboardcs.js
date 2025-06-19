@@ -632,3 +632,110 @@ function updateRepliedActivityList(repliedHits) {
         lucide.createIcons({ icons: { user: true }, root: activityItem });
     });
 }
+
+
+function setupMetricCardActions(org_id, project_code) {
+            const dateRange = getDateRange(currentTimeFilter);
+            // Cấu hình các metric card với action data cụ thể
+            const metricCardConfigs = {
+                'metric-total': {
+                    actionID: 11,
+                    orderNumber: 1,
+                    type: "act_dm_view",
+                    alias: "realtimecsutils_realtimecsutils01obj5",
+                    post: "{\"size\":1000,\"collapse\":{\"field\":\"session_id.keyword\"},\"sort\":[{\"timestamp.keyword\":\"desc\"}],\"_source\":{\"excludes\":[\"__system_update_timestamp__\"]},\"query\":{\"bool\":{\"must\":[{\"term\":{\"event_type.keyword\":{\"value\":\"CS-ORD\"}}},{\"bool\":{\"should\":[{\"terms\":{\"metadata.org_id.keyword\":[\"##user.organization_id##\"]}}]}}],\"must_not\":[{\"terms\":{\"session_name.keyword\":[\"Processing-Done\"]}}]}}}"
+                },
+                'metric-new': {
+                    actionID: 12,
+                    orderNumber: 2,
+                    type: "act_dm_view",
+                    alias: "realtimecsutils_realtimecsutils01obj5",
+                    post: "{\"size\":1000,\"collapse\":{\"field\":\"session_id.keyword\"},\"sort\":[{\"timestamp.keyword\":\"desc\"}],\"_source\":{\"excludes\":[\"__system_update_timestamp__\"]},\"query\":{\"bool\":{\"must\":[{\"term\":{\"event_type.keyword\":{\"value\":\"CS-ORD\"}}},{\"bool\":{\"should\":[{\"terms\":{\"metadata.org_id.keyword\":[\"##user.organization_id##\"]}}]}},{\"terms\":{\"output.data_formatted.current_status.keyword\":[\"Received\"]}}],\"must_not\":[{\"terms\":{\"session_name.keyword\":[\"Processing-Done\"]}}]}}}"
+                },
+                'metric-processing': {
+                    actionID: 13,
+                    orderNumber: 3,
+                    type: "act_dm_view",
+                    alias: "realtimecsutils_realtimecsutils01obj5",
+                    post: "{\"size\":1000,\"collapse\":{\"field\":\"session_id.keyword\"},\"sort\":[{\"timestamp.keyword\":\"desc\"}],\"_source\":{\"excludes\":[\"__system_update_timestamp__\"]},\"query\":{\"bool\":{\"must\":[{\"term\":{\"event_type.keyword\":{\"value\":\"CS-ORD\"}}},{\"bool\":{\"should\":[{\"terms\":{\"metadata.org_id.keyword\":[\"##user.organization_id##\"]}}]}},{\"terms\":{\"output.data_formatted.current_status.keyword\":[\"Quote Pending\",\"Quote Approved\",\"Diagnosed\",\"Waiting for Parts\",\"Parts Ordered\",\"Parts Received\",\"In Progress\",\"Testing\",\"Quality Check\"]}}],\"must_not\":[{\"terms\":{\"session_name.keyword\":[\"Processing-Done\"]}}]}}}"
+                },
+                'metric-completed': {
+                    actionID: 14,
+                    orderNumber: 4,
+                    type: "act_dm_view",
+                    alias: "realtimecsutils_realtimecsutils01obj5",
+                    post: "{\"size\":1000,\"collapse\":{\"field\":\"session_id.keyword\"},\"sort\":[{\"timestamp.keyword\":\"desc\"}],\"_source\":{\"excludes\":[\"__system_update_timestamp__\"]},\"query\":{\"bool\":{\"must\":[{\"term\":{\"event_type.keyword\":{\"value\":\"CS-ORD\"}}},{\"bool\":{\"should\":[{\"terms\":{\"metadata.org_id.keyword\":[\"##user.organization_id##\"]}}]}},{\"terms\":{\"output.data_formatted.current_status.keyword\":[\"Completed\",\"Ready for Pickup\",\"Delivered\"]}}],\"must_not\":[{\"terms\":{\"session_name.keyword\":[\"Processing-Done\"]}}]}}}"
+                },
+                'metric-hold': {
+                    actionID: 15,
+                    orderNumber: 5,
+                    type: "act_dm_view",
+                    alias: "realtimecsutils_realtimecsutils01obj5",
+                    post: "{\"size\":1000,\"collapse\":{\"field\":\"session_id.keyword\"},\"sort\":[{\"timestamp.keyword\":\"desc\"}],\"_source\":{\"excludes\":[\"__system_update_timestamp__\"]},\"query\":{\"bool\":{\"must\":[{\"term\":{\"event_type.keyword\":{\"value\":\"CS-ORD\"}}},{\"bool\":{\"should\":[{\"terms\":{\"metadata.org_id.keyword\":[\"##user.organization_id##\"]}}]}},{\"terms\":{\"output.data_formatted.current_status.keyword\":[\"On Hold\",\"Waiting Customer\"]}}],\"must_not\":[{\"terms\":{\"session_name.keyword\":[\"Processing-Done\"]}}]}}}"
+                },
+                'metric-cancelled': {
+                    actionID: 16,
+                    orderNumber: 6,
+                    type: "act_dm_view",
+                    alias: "realtimecsutils_realtimecsutils01obj5",
+                    post: "{\"size\":1000,\"collapse\":{\"field\":\"session_id.keyword\"},\"sort\":[{\"timestamp.keyword\":\"desc\"}],\"_source\":{\"excludes\":[\"__system_update_timestamp__\"]},\"query\":{\"bool\":{\"must\":[{\"term\":{\"event_type.keyword\":{\"value\":\"CS-ORD\"}}},{\"bool\":{\"should\":[{\"terms\":{\"metadata.org_id.keyword\":[\"##user.organization_id##\"]}}]}},{\"terms\":{\"output.data_formatted.current_status.keyword\":[\"Cancelled\"]}}],\"must_not\":[{\"terms\":{\"session_name.keyword\":[\"Processing-Done\"]}}]}}}"
+                },
+                'metric-warranty': {
+                    actionID: 17,
+                    orderNumber: 7,
+                    type: "act_dm_view",
+                    alias: "realtimecsutils_realtimecsutils01obj5",
+                    post: "{\"size\":1000,\"collapse\":{\"field\":\"session_id.keyword\"},\"sort\":[{\"timestamp.keyword\":\"desc\"}],\"_source\":{\"excludes\":[\"__system_update_timestamp__\"]},\"query\":{\"bool\":{\"must\":[{\"term\":{\"event_type.keyword\":{\"value\":\"CS-ORD\"}}},{\"bool\":{\"should\":[{\"terms\":{\"metadata.org_id.keyword\":[\"##user.organization_id##\"]}}]}},{\"terms\":{\"output.data_formatted.current_status.keyword\":[\"Warranty Claim\"]}}],\"must_not\":[{\"terms\":{\"session_name.keyword\":[\"Processing-Done\"]}}]}}}"
+                },
+                'metric-closed': {
+                    actionID: 18,
+                    orderNumber: 8,
+                    type: "act_dm_view",
+                    alias: "realtimecsutils_realtimecsutils01obj5",
+                    post: "{\"size\":1000,\"collapse\":{\"field\":\"session_id.keyword\"},\"sort\":[{\"timestamp.keyword\":\"desc\"}],\"_source\":{\"excludes\":[\"__system_update_timestamp__\"]},\"query\":{\"bool\":{\"must\":[{\"term\":{\"event_type.keyword\":{\"value\":\"CS-ORD\"}}},{\"bool\":{\"should\":[{\"terms\":{\"metadata.org_id.keyword\":[\"##user.organization_id##\"]}}]}},{\"terms\":{\"output.data_formatted.current_status.keyword\":[\"Closed\"]}}],\"must_not\":[{\"terms\":{\"session_name.keyword\":[\"Processing-Done\"]}}]}}}"
+                }
+            };
+            
+            // Thêm điều kiện range (range filter) vào từng config
+            Object.values(metricCardConfigs).forEach(config => {
+                const commentStr = '/*{"query_string":{"query":"*__input__*","fields":["project_code","org_id","metadata.username","metadata.fullname","output.data_formatted.customer_name","output.data_formatted.customer_phone","output.data_formatted.customer_address","output.data_formatted.customer_reported_issue","output.data_formatted.device_type","output.data_formatted.device_brand","output.data_formatted.device_model","output.data_formatted.issue_original_notes"],"allow_leading_wildcard":"true","default_operator":"AND"}},*/';
+                let postObj = JSON.parse(config.post);
+                if (Array.isArray(postObj.query?.bool?.must)) {
+                    postObj.query.bool.must.push({
+                        range: {
+                            "timestamp.keyword": {
+                                gte: dateRange.start,
+                                lte: dateRange.end
+                            }
+                        }
+                    });
+                }
+                let postString = JSON.stringify(postObj);
+                postString = postString.replace(/("must":\s*\[)/, `$1${commentStr}`);
+                postString = postString.replace(/##user.organization_id##/g, org_id)
+                                       .replace(/##projectCode##/g, project_code);
+                config.post = postString;
+            });
+
+            // Gán event listener cho các metric card, đảm bảo loại bỏ listener cũ trước khi gán lại
+            Object.keys(metricCardConfigs).forEach(cardId => {
+                const card = document.getElementById(cardId);
+                if (card) {
+                    // Nếu đã có listener cũ, xóa nó đi trước
+                    if (card.metricCardListener) {
+                        card.removeEventListener('click', card.metricCardListener);
+                    }
+                    // Tạo listener mới với thông tin cập nhật
+                    const listener = function(event) {
+                        event.stopPropagation();
+                        console.log(`Card "${cardId}" clicked.`);
+                        console.log('Post payload:', metricCardConfigs[cardId].post);
+                        callActionButton(metricCardConfigs[cardId]);
+                    };
+                    // Gán listener mới cho card
+                    card.addEventListener('click', listener);
+                    // Lưu lại listener vào thuộc tính của phần tử để lần sau có thể remove được
+                    card.metricCardListener = listener;
+                }
+            });
+        }
