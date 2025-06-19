@@ -16,8 +16,10 @@ const translations = {
                 status_overview_title: 'Tình trạng phiếu',
                 priority_chart_title: 'Phân bố độ ưu tiên',
                 recent_activity_title: 'Hoạt động gần đây',
+                replied_activity_title: 'Khách hàng phản hồi',
                 error_text: 'Không thể tải dữ liệu. Vui lòng thử lại sau.',
                 no_recent_activity: 'Không có hoạt động gần đây',
+                no_customer_replied: 'Không có dữ liệu phản hồi',
                 today: 'hôm nay',
                 week: 'tuần này',
                 month: 'tháng này',
@@ -57,8 +59,10 @@ const translations = {
                 status_overview_title: 'Ticket Status',
                 priority_chart_title: 'Priority Distribution',
                 recent_activity_title: 'Recent Activity',
+                replied_activity_title: 'Customer Replied',
                 error_text: 'Unable to load data. Please try again later.',
                 no_recent_activity: 'No recent activity',
+                no_customer_replied: 'No custom replied',
                 today: 'today',
                 week: 'this week',
                 month: 'this month',
@@ -231,6 +235,7 @@ const translations = {
             document.getElementById('status-overview-title').textContent = t.status_overview_title;
             document.getElementById('priority-chart-title').textContent = t.priority_chart_title;
             document.getElementById('recent-activity-title').textContent = t.recent_activity_title;
+            document.getElementById('replied-activity-title').textContent = t.replied_activity_title;
             document.getElementById('error-text').textContent = t.error_text;
 
             // Update dropdown items
@@ -578,9 +583,52 @@ async function fetchData() {
                 document.getElementById('loading-container').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
                 await fetchRecentActivities();
+                await fetchCustomerReplied();
             } catch (error) {
                 console.error('Error fetching data:', error);
                 document.getElementById('loading-container').style.display = 'none';
                 document.getElementById('error-message').style.display = 'block';
             }
         }
+
+
+function updateRepliedActivityList(repliedHits) {
+    const repliedList = document.getElementById('replied-activity-list');
+    repliedList.innerHTML = '';
+    if (repliedHits.length === 0) {
+        const t = translations[app_language];
+        repliedList.innerHTML = `<p class="text-center text-gray-500">${t.no_customer_replied}</p>`;
+        return;
+    }
+
+    repliedHits.forEach(hit => {
+        const ticket = hit._source;
+        // Giả sử ticket có các trường như: customer_name, customer_email, message, timestamp
+        const customerName = ticket.metadata?.fullname || '';
+        const customerEmail = ticket.metadata?.user_email_sso || '';
+        const message = ticket.output?.data_formatted?.content_update || '';
+        const time = ticket.timestamp;
+
+        const activityItem = document.createElement('div');
+        activityItem.className = 'activity-item';
+        activityItem.innerHTML = `
+           <div class="activity-content">
+                <div class="activity-header">
+                    <span class="activity-ticket">#${ticket.output?.data_formatted?.order_id || ''}</span>
+                    <span class="activity-time">${time}</span>
+                </div>
+                <div class="activity-customer">
+                    <i data-lucide="user" style="width: 10px; height: 10px;"></i>
+                    <span>${customerEmail} ${customerName}</span>
+                </div>
+                <p class="activity-description">
+                    <i data-lucide="message-circle" style="width: 12px; height: 12px; margin-right: 4px; color: #4b5563;"></i>
+                    ${message}
+                </p>
+            </div>
+        `;
+        repliedList.appendChild(activityItem);
+        // Khởi tạo lại icon nếu cần
+        lucide.createIcons({ icons: { user: true }, root: activityItem });
+    });
+}
