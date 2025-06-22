@@ -949,7 +949,7 @@ async function fetchDataNotif() {
 
   const items = data.hits.hits.filter(i => {
     const src = i._source;
-    return src.status == 1 && src.endday >= todayStr;
+    return src.erp_status == 1 && src.endday >= todayStr;
   });
 
   renderNotifCards(items.map(i => i._source));
