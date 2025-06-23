@@ -1789,13 +1789,18 @@ indicatorBar.appendChild(dot);
 // Swipe gesture
 let touchStartX = 0;
 let touchEndX = 0;
+let swipeEnabled = false; 
+
 actionBarScroll.addEventListener('touchstart', function (e) {
-touchStartX = e.changedTouches[0].screenX;
+  if (!swipeEnabled) return;
+  touchStartX = e.changedTouches[0].screenX;
 });
 actionBarScroll.addEventListener('touchend', function (e) {
-touchEndX = e.changedTouches[0].screenX;
-handleGesture();
+  if (!swipeEnabled) return;
+  touchEndX = e.changedTouches[0].screenX;
+  handleGesture();
 });
+
 function handleGesture() {
 const threshold = 40;
 const totalPages = calculateTotalPages();
