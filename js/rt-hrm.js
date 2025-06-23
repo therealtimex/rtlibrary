@@ -1413,7 +1413,8 @@ if(currentMonth<0){
 currentMonth=11;
 currentYear--;
 }
-fetchData();
+updateMonthTitle();
+renderCalendar();
 }
 function goToNextMonth(){
 currentMonth++;
@@ -1421,7 +1422,8 @@ if(currentMonth>11){
 currentMonth=0;
 currentYear++;
 }
-fetchData();
+updateMonthTitle();
+renderCalendar();
 }
 function goToPrevWeek(){
 weekStartDate.setDate(weekStartDate.getDate()-7);
@@ -1789,18 +1791,13 @@ indicatorBar.appendChild(dot);
 // Swipe gesture
 let touchStartX = 0;
 let touchEndX = 0;
-let swipeEnabled = false; 
-
 actionBarScroll.addEventListener('touchstart', function (e) {
-  if (!swipeEnabled) return;
-  touchStartX = e.changedTouches[0].screenX;
+touchStartX = e.changedTouches[0].screenX;
 });
 actionBarScroll.addEventListener('touchend', function (e) {
-  if (!swipeEnabled) return;
-  touchEndX = e.changedTouches[0].screenX;
-  handleGesture();
+touchEndX = e.changedTouches[0].screenX;
+handleGesture();
 });
-
 function handleGesture() {
 const threshold = 40;
 const totalPages = calculateTotalPages();
@@ -1933,6 +1930,7 @@ function closeModal2() {
 function autoRefreshAll() { 
   fetchData();        
   fetchDataNotif();   
+  fetchAndPopulateProfile();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
