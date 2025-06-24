@@ -10,6 +10,35 @@ window.ProcessingStatusChecker = (function () {
   let config = null;
 
   /**
+   * Merges new items with existing pending items, avoiding duplicates based on instanceID
+   * @param {Array} existingItems - Current pending items
+   * @param {Array} newItems - New items to merge
+   * @param {string} key - Key field to use for duplicate detection (default: 'instanceID')
+   * @returns {Array} Merged array without duplicates
+   */
+  function mergePendingItems(existingItems, newItems, key = "instanceID") {
+    console.log("🔄 DEBUG: Merging pending items");
+    console.log("🔄 DEBUG: Existing items:", existingItems.length);
+    console.log("🔄 DEBUG: New items:", newItems.length);
+
+    const existingIds = new Set(existingItems.map((item) => item[key]));
+    const merged = [...existingItems];
+
+    for (const item of newItems) {
+      if (!existingIds.has(item[key])) {
+        merged.push(item);
+        existingIds.add(item[key]);
+        console.log("🔄 DEBUG: Added new item:", item[key]);
+      } else {
+        console.log("🔄 DEBUG: Skipped duplicate item:", item[key]);
+      }
+    }
+
+    console.log("🔄 DEBUG: Final merged items:", merged.length);
+    return merged;
+  }
+
+  /**
    * Renders the UI based on the current state of pendingItems.
    */
   function renderUI() {
@@ -32,6 +61,7 @@ window.ProcessingStatusChecker = (function () {
       mainWrapper.innerHTML = `
               <div class="bg-theme-accent text-white p-4 text-center rounded-lg shadow-lg">
                 ✅ Your ${itemName} has been received and is being processed 🚀
+                <div class="text-sm mt-2 opacity-80">Processing ${pendingItems.length} item(s)</div>
               </div>
             `;
     } else {
@@ -221,7 +251,7 @@ window.ProcessingStatusChecker = (function () {
   // Public API - these functions will be accessible from the HTML
   return {
     /**
-     * Start the processing status checker with initial data and configuration
+     * Start the processing status checker with initial data and configuration (replaces existing items)
      * @param {Array<Object>} initialData - Array of initial submissions
      * @param {Object} configuration - Configuration object with all parameters
      */
@@ -234,16 +264,43 @@ window.ProcessingStatusChecker = (function () {
       config = configuration;
 
       if (initialData && initialData.length > 0) {
-        console.log("🚀 DEBUG: Valid initial data found, starting process");
-        pendingItems = initialData;
+        console.log(
+          "🚀 DEBUG: Valid initial data found, replacing pending items"
+        );
+        pendingItems = [...initialData]; // Replace existing items
         renderUI();
         fetchAndFilterProcessedItems();
         startPolling();
       } else {
-        console.log(
-          "🚀 DEBUG: No valid initial data, just rendering empty state"
-        );
+        console.log("🚀 DEBUG: No valid initial data, clearing pending items");
         pendingItems = [];
+        renderUI();
+      }
+    },
+
+    /**
+     * Start the processing status checker with initial data and configuration (merges with existing items)
+     * @param {Array<Object>} initialData - Array of initial submissions
+     * @param {Object} configuration - Configuration object with all parameters
+     */
+    startWithMerge: function (initialData, configuration) {
+      console.log("🚀 DEBUG: ProcessingStatusChecker.startWithMerge() called");
+      console.log("🚀 DEBUG: Initial data:", initialData);
+      console.log("🚀 DEBUG: Configuration:", configuration);
+
+      // Store the configuration
+      config = configuration;
+
+      if (initialData && initialData.length > 0) {
+        console.log(
+          "🚀 DEBUG: Valid initial data found, merging with existing items"
+        );
+        pendingItems = mergePendingItems(pendingItems, initialData);
+        renderUI();
+        fetchAndFilterProcessedItems();
+        startPolling();
+      } else {
+        console.log("🚀 DEBUG: No valid initial data, keeping existing items");
         renderUI();
       }
     },
