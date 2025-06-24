@@ -5,10 +5,10 @@
  * It polls a specified endpoint and updates the UI accordingly.
  *
  * How to use:
- * 1. Include this script in your HTML file.
- * 2. Before including this script, define a global configuration object: `statusCheckerConfig`.
- * 3. The app framework should call `window.onUpdate(data)` to start the process
- *    and `window.onAppResume()` when the user returns to the screen.
+ * 1. Define a global configuration object `statusCheckerConfig` in your HTML.
+ * 2. Include this script in your HTML file after the config object.
+ * 3. The app framework should call the `onUpdate(data)` function (defined in the HTML)
+ *    to pass the initial data and start the process.
  */
 const ProcessingStatusChecker = {
     // --- State Properties ---
@@ -18,7 +18,7 @@ const ProcessingStatusChecker = {
 
     /**
      * Initializes the module with the provided configuration.
-     * @param {object} userConfig - The configuration object.
+     * @param {object} userConfig - The configuration object from the window.
      */
     init: function(userConfig) {
         if (!userConfig) {
@@ -26,7 +26,6 @@ const ProcessingStatusChecker = {
             return;
         }
 
-        // Set default values and merge with user config
         this.config = {
             checkUrl: userConfig.checkUrl,
             body: userConfig.body,
@@ -34,12 +33,21 @@ const ProcessingStatusChecker = {
             item_name: userConfig.item_name || 'submission'
         };
 
-        // Expose public methods to the global scope for the app framework
-        window.onUpdate = this.onUpdate.bind(this);
-        window.onAppResume = this.onAppResume.bind(this);
-
-        // Perform initial render on page load
         document.addEventListener('DOMContentLoaded', this.renderUI.bind(this));
+    },
+    
+    /**
+     * Public entry point to start the checking process.
+     * @param {Array<Object>} initialData - The list of items to track.
+     */
+    start: function(initialData) {
+        console.log('ProcessingStatusChecker.start called with initial data.');
+        if (initialData && initialData.length > 0) {
+            this.pendingItems = initialData;
+            this.renderUI();
+            this.fetchAndFilterProcessedItems();
+            this.startPolling();
+        }
     },
 
     /**
@@ -67,19 +75,16 @@ const ProcessingStatusChecker = {
      */
     removeProcessedItemPermanently: function() {
         const actionData = {
-            "actionID": 2,
-            "type": "act_jholder_remove",
-            "label": "Del",
-            "jholder_code": this.config.jholder_code,
-            "remove_mode": "all"
+            "actionID": 2, "type": "act_jholder_remove", "label": "Del",
+            "jholder_code": this.config.jholder_code, "remove_mode": "all"
         };
 
         if (window.App && typeof window.App.callActionButton === 'function') {
-            console.log(`Calling App.callActionButton to remove processed items from jholder: ${this.config.jholder_code}.`);
+            console.log(`Calling App.callActionButton for jholder: ${this.config.jholder_code}.`);
             // The following line is commented out as requested. Uncomment to activate.
             // App.callActionButton(JSON.stringify(actionData));
         } else {
-            console.error(`App.callActionButton is not available. Cannot permanently remove items.`);
+            console.error(`App.callActionButton is not available.`);
         }
     },
 
@@ -104,15 +109,10 @@ const ProcessingStatusChecker = {
                 body: JSON.stringify(this.config.body)
             });
 
-            if (!response.ok) {
-                console.error('Failed to fetch processed events:', response.statusText);
-                return;
-            }
+            if (!response.ok) throw new Error(`Fetch failed: ${response.statusText}`);
 
             const result = await response.json();
-            const processedEventIds = new Set(
-                result.hits?.hits.map(hit => hit._source?.instanceID).filter(id => id) || []
-            );
+            const processedEventIds = new Set(result.hits?.hits.map(hit => hit._source?.instanceID).filter(id => id) || []);
 
             if (processedEventIds.size > 0) {
                 const itemsToRemove = this.pendingItems.filter(item => processedEventIds.has(item.instanceID));
@@ -142,31 +142,6 @@ const ProcessingStatusChecker = {
         console.log('Starting polling: checking every 10 seconds.');
         this.pollingIntervalId = setInterval(this.fetchAndFilterProcessedItems.bind(this), 10000);
     },
-
-    /**
-     * Entry point: Initializes the screen with data.
-     * @param {Array<Object>} initialData - Array of initial submissions.
-     */
-    onUpdate: function(initialData) {
-        console.log('onUpdate called with initial data.');
-        if (initialData && initialData.length > 0) {
-            this.pendingItems = initialData;
-            this.renderUI();
-            this.fetchAndFilterProcessedItems();
-            this.startPolling();
-        }
-    },
-
-    /**
-     * Entry point: Called when the user returns to the screen.
-     */
-    onAppResume: function() {
-        console.log('onAppResume called. Re-checking status.');
-        this.fetchAndFilterProcessedItems();
-        if (this.pendingItems.length > 0) {
-            this.startPolling();
-        }
-    }
 };
 
 // Initialize the module with the configuration from the HTML.
