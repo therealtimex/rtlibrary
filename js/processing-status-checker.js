@@ -193,7 +193,7 @@ window.ProcessingStatusChecker = (function () {
             `🔍 SUCCESS: ${itemsToRemove.length} item(s) are processed`
           );
 
-          // removeProcessedItemPermanently();
+          removeProcessedItemPermanently();
 
           const beforeCount = pendingItems.length;
           pendingItems = pendingItems.filter(
