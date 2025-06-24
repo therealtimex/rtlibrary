@@ -24,7 +24,7 @@ window.ProcessingStatusChecker = (function () {
       return;
     }
 
-    const itemName = config ? config.itemName : "item";
+    const itemName = config ? config.itemName : "submission";
 
     if (pendingItems.length > 0) {
       console.log("🎨 DEBUG: Rendering processing message for:", itemName);
@@ -99,7 +99,7 @@ window.ProcessingStatusChecker = (function () {
 
     console.log("🔍 DEBUG: Starting API check for processed items");
     console.log("🔍 DEBUG: Using URL:", config.checkUrl);
-    console.log("🔍 DEBUG: Using request body:", config.requestBody);
+    console.log("🔍 DEBUG: Using response key field:", config.responseKeyField);
 
     try {
       const response = await fetch(config.checkUrl, {
@@ -126,9 +126,19 @@ window.ProcessingStatusChecker = (function () {
       const result = await response.json();
       console.log("🔍 DEBUG: API response received");
 
+      // Use the configurable key field to extract processed IDs
       const processedEventIds = new Set(
         result.hits?.hits
-          .map((hit) => hit._source?.instanceID)
+          .map((hit) => {
+            const value = hit._source?.[config.responseKeyField];
+            console.log(
+              "🔍 DEBUG: Extracted value from response:",
+              value,
+              "using key:",
+              config.responseKeyField
+            );
+            return value;
+          })
           .filter((id) => id) || []
       );
 
@@ -138,9 +148,14 @@ window.ProcessingStatusChecker = (function () {
       );
 
       if (processedEventIds.size > 0) {
-        const itemsToRemove = pendingItems.filter((item) =>
-          processedEventIds.has(item.instanceID)
-        );
+        const itemsToRemove = pendingItems.filter((item) => {
+          console.log(
+            "🔍 DEBUG: Checking item:",
+            item.instanceID,
+            "against processed IDs"
+          );
+          return processedEventIds.has(item.instanceID);
+        });
         console.log("🔍 DEBUG: Items to remove:", itemsToRemove.length);
 
         if (itemsToRemove.length > 0) {
