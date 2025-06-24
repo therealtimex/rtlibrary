@@ -5,7 +5,7 @@ const LANG = {
         // Banner texts
         trial_mode_title: "Chế độ trải nghiệm",
         trial_mode_desc: "Bạn đang sử dụng phiên bản dùng thử. Dữ liệu sẽ bị xóa sau 7 ngày.",
-        setup_btn: "Nâng cấp",
+        setup_btn: "Thiết lập",
         official_status: "Chính thức",
         settings_btn: "Cài đặt",
 
@@ -67,7 +67,7 @@ const LANG = {
         // Banner texts
         trial_mode_title: "Trial Mode",
         trial_mode_desc: "You are using the trial version. Data will be deleted after 7 days.",
-        setup_btn: "Upgrade",
+        setup_btn: "Setup",
         official_status: "Official",
         settings_btn: "Settings",
 
@@ -217,6 +217,45 @@ async function checkUserType() {
     }
 }
 
+
+async function checkOrgInfoData() {
+    const apiUrl = 'https://es.rta.vn/nerp_org/_search';
+    const query = {
+        "sort": [{ "__system_update_timestamp__": "desc" }],
+        "query": {
+            "bool": {
+                "must": [
+                    { "term": { "username.raw": { "value": config.username } } },
+                    { "term": { "project_code.raw": { "value": config.projectCode } } }
+                ],
+                "must_not": [
+                    { "term": { "org_id.raw": { "value": config.trialOrgId } } }
+                ]
+            }
+        },
+        "size": 1
+    };
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(query)
+        });
+
+        const data = await response.json();
+        // Kiểm tra xem có dữ liệu trả về hay không
+        return data.hits.total.value > 0; // Trả về true nếu có dữ liệu, false nếu không
+    } catch (error) {
+        console.error('Lỗi khi gọi API Elasticsearch:', error);
+        return false; // Trả về false nếu có lỗi xảy ra
+    }
+}                                
+
+
+
 function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval = 5000) {
   let attempts = 0;
 
@@ -337,12 +376,13 @@ function hideSetupDialog() {
 
 
 // Show appropriate banner based on user type
-function showBanner() {
+async function showBanner() {
     const trialBanner = document.getElementById('trial-banner');
     const officialBanner = document.getElementById('official-banner');
     const orgNameDisplay = document.getElementById('org-name-display');
     const orgIdDisplay = document.getElementById('org-id-display');
     const userDisplay = document.getElementById('org-user-display');
+    const orgInfoButton = document.getElementById('org-info-button'); // Lấy tham chiếu đến nú
     // const welcomeSubtitle = document.getElementById('welcome-subtitle');
 
     if (isTrialMode) {
@@ -360,6 +400,18 @@ function showBanner() {
         if (orgIdDisplay) orgIdDisplay.textContent = `ID: ${config.userOrgId}`;
         if (userDisplay) userDisplay.textContent = `${config.userFullName}`;
         // if (welcomeSubtitle) welcomeSubtitle.textContent = `${config.userOrgName || 'Your Organization'} - ${T.official_mode_subtitle}`;
+
+        // Kiểm tra dữ liệu từ Elasticsearch
+        const hasOrgInfoData = await checkOrgInfoData();
+                                                                                                                                                 
+        // Ẩn/hiện nút dựa trên kết quả
+        if (orgInfoButton) {
+            if (hasOrgInfoData) {
+                orgInfoButton.classList.remove('hidden');
+            } else {
+                orgInfoButton.classList.add('hidden');
+            }
+        }
     }
 }
 
@@ -673,6 +725,25 @@ if (orgCreateForm) {
         // if (resultScreen) resultScreen.classList.add('hidden');
       });
     }
+
+    // Setup org info button (from official banner)
+    const orgInfoButton = document.getElementById('org-info-button');
+    if (orgInfoButton) {
+        orgInfoButton.addEventListener('click', function() {
+            const actionData = {
+                actionID: 99,
+                orderNumber: 1,
+                type: "act_dm_view",
+                label: "no label",
+                screen: "realtimecs-realtimecs00-realtimecs00obj1-screen11",
+                alias: "realtimecs_realtimecs00obj1"
+               
+            };
+            App.callActionButton(JSON.stringify(actionData));
+        });
+    }
+
+
 }
 
 // Initialize the application
@@ -693,6 +764,7 @@ function initRealtimeCS(configObj) {
         }
     });
 }
+
 
 // Export for global access
 window.initRealtimeCS = initRealtimeCS;
