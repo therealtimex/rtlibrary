@@ -1,17 +1,17 @@
 const translations = {
-        en: {
+    en: {
         // Page content
         pageTitle: 'Changelog',
         pageSubtitle: 'Stay up to date with the latest app updates and improvements',
-
+        
         // Empty state
         emptyTitle: 'No Changelog Available',
         emptyDescription: 'Log does not exist. There are currently no updates to display.',
-
+        
         // Footer
         footerText: 'Want to suggest a feature or report a bug?',
         contactLink: 'Contact our support team',
-
+        
         // Modal
         modalTitle: 'Send Feedback',
         feedbackTypeLabel: 'Feedback Type',
@@ -23,38 +23,38 @@ const translations = {
         cancelBtn: 'Cancel',
         submitBtn: 'Submit Feedback',
         submittingBtn: 'Submitting...',
-
+        
         // Feedback options
         optionSuggestion: 'Feature Suggestion',
         optionBug: 'Bug Report',
         optionGeneral: 'General Feedback',
-
+        
         // Change types
         newFeatures: 'New Features',
         improvements: 'Improvements',
         bugFixes: 'Bug Fixes',
-
+        
         // Toast messages
         successMessage: 'Feedback submitted successfully!',
         errorMessage: 'Failed to submit feedback. Please try again.',
         validationError: 'Please enter a message before submitting.',
-
+        
         // Date format
         dateLocale: 'en-GB'
-        },
-        vi: {
+    },
+    vi: {
         // Page content
         pageTitle: 'Nhật ký thay đổi',
         pageSubtitle: 'Cập nhật những thay đổi và cải tiến mới nhất của ứng dụng',
-
+        
         // Empty state
         emptyTitle: 'Không có nhật ký thay đổi',
         emptyDescription: 'Nhật ký không tồn tại. Hiện tại không có cập nhật nào để hiển thị.',
-
+        
         // Footer
         footerText: 'Muốn đề xuất tính năng hoặc báo lỗi?',
         contactLink: 'Liên hệ đội hỗ trợ của chúng tôi',
-
+        
         // Modal
         modalTitle: 'Gửi phản hồi',
         feedbackTypeLabel: 'Loại phản hồi',
@@ -66,32 +66,100 @@ const translations = {
         cancelBtn: 'Hủy',
         submitBtn: 'Gửi phản hồi',
         submittingBtn: 'Đang gửi...',
-
+        
         // Feedback options
         optionSuggestion: 'Đề xuất tính năng',
         optionBug: 'Báo lỗi',
         optionGeneral: 'Phản hồi chung',
-
+        
         // Change types
         newFeatures: 'Tính năng mới',
         improvements: 'Cải tiến',
         bugFixes: 'Sửa lỗi',
-
+        
         // Toast messages
         successMessage: 'Phản hồi đã được gửi thành công!',
         errorMessage: 'Không thể gửi phản hồi. Vui lòng thử lại.',
         validationError: 'Vui lòng nhập tin nhắn trước khi gửi.',
-
+        
         // Date format
         dateLocale: 'vi-VN'
     }
 };
 
+// Function to get platform-specific version
+function getPlatformVersion(entry) {
+    if (!entry.version) return 'N/A';
+    
+    // Handle both old format (string) and new format (object)
+    if (typeof entry.version === 'string') {
+        return entry.version;
+    }
+    
+    if (typeof entry.version === 'object') {
+        // Check platform and return appropriate version
+        const platform = APP_PLATFORM.toLowerCase();
+        
+        if (platform.includes('ios') && entry.version.ios) {
+            return entry.version.ios;
+        } else if (platform.includes('android') && entry.version.android) {
+            return entry.version.android;
+        } else {
+            // Fallback: return the first available version
+            return entry.version.ios || entry.version.android || 'N/A';
+        }
+    }
+    
+    return 'N/A';
+}
 
-// Function to get localized content based on current language
-function getLocalizedContent(entry, fieldName) {
+// Function to get platform-specific content for change lists
+function getPlatformSpecificContent(entry, fieldName) {
     const localizedField = currentLanguage === 'vi' ? `${fieldName}_vi` : fieldName;
-    return entry[localizedField] || entry[fieldName] || [];
+    const field = entry[localizedField];
+    
+    if (!field) {
+        // Fallback to non-localized field if localized doesn't exist
+        const fallbackField = entry[fieldName];
+        if (!fallbackField) return [];
+        
+        // Handle both old array format and new object format
+        if (Array.isArray(fallbackField)) {
+            return fallbackField;
+        }
+        
+        if (typeof fallbackField === 'object') {
+            const platform = APP_PLATFORM.toLowerCase();
+            if (platform.includes('ios') && fallbackField.ios) {
+                return fallbackField.ios;
+            } else if (platform.includes('android') && fallbackField.android) {
+                return fallbackField.android;
+            }
+            // Fallback to first available platform
+            return fallbackField.ios || fallbackField.android || [];
+        }
+        
+        return [];
+    }
+    
+    // Handle both old array format and new object format
+    if (Array.isArray(field)) {
+        return field;
+    }
+    
+    if (typeof field === 'object') {
+        const platform = APP_PLATFORM.toLowerCase();
+        if (platform.includes('ios') && field.ios) {
+            return field.ios;
+        } else if (platform.includes('android') && field.android) {
+            return field.android;
+        } else {
+            // Fallback to first available platform
+            return field.ios || field.android || [];
+        }
+    }
+    
+    return [];
 }
 
 // Function to initialize translations
@@ -215,11 +283,12 @@ function createChangesList(changes, type) {
 // Function to create a changelog entry
 function createChangelogEntry(entry, isLatest = false) {
     const formattedDate = formatDate(entry.release_date);
+    const platformVersion = getPlatformVersion(entry);
     
-    // Get localized content based on current language
-    const newFeatures = getLocalizedContent(entry, 'new_features');
-    const improvements = getLocalizedContent(entry, 'improvements');
-    const bugFixes = getLocalizedContent(entry, 'bug_fixes');
+    // Get platform-specific content based on current platform
+    const newFeatures = getPlatformSpecificContent(entry, 'new_features');
+    const improvements = getPlatformSpecificContent(entry, 'improvements');
+    const bugFixes = getPlatformSpecificContent(entry, 'bug_fixes');
     
     // Create sections for each change type
     const sections = [
@@ -235,7 +304,7 @@ function createChangelogEntry(entry, isLatest = false) {
                 <div class="p-6">
                     <div class="flex items-center gap-3 mb-6">
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 font-mono">
-                            ${entry.version}
+                            ${platformVersion}
                         </span>
                         <div class="flex items-center gap-2 text-sm text-gray-600">
                             ${createIcon('calendar')}
@@ -256,7 +325,7 @@ function createChangelogEntry(entry, isLatest = false) {
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 font-mono">
-                                ${entry.version}
+                                ${platformVersion}
                             </span>
                             <div class="flex items-center gap-2 text-sm text-gray-600">
                                 ${createIcon('calendar')}
@@ -388,9 +457,6 @@ function resetSubmitButton() {
     setSubmitLoading(false);
 }
 
-
-
-
 // Form submission handler
 async function submitFeedback(formData) {
     const apiUrl = 'https://workflow.realtimex.co/api/v1/executions/webhook/flowai/feedback_app/input';
@@ -410,6 +476,7 @@ async function submitFeedback(formData) {
                 timestamp: new Date().toISOString(),
                 source: 'changelog_feedback',
                 language: currentLanguage,
+                platform: APP_PLATFORM,
                 md_code: currentModule
             })
         });
