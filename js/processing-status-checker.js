@@ -3,12 +3,6 @@
  *
  * This script provides a UI to show the processing status of submissions.
  * It polls a specified endpoint and updates the UI accordingly.
- *
- * How to use:
- * 1. Define a global configuration object `statusCheckerConfig` in your HTML.
- * 2. Include this script in your HTML file after the config object.
- * 3. The app framework should call the `onUpdate(data)` function (defined in the HTML)
- *    to pass the initial data and start the process.
  */
 const ProcessingStatusChecker = {
     // --- State Properties ---
@@ -32,8 +26,9 @@ const ProcessingStatusChecker = {
             jholder_code: userConfig.jholder_code,
             item_name: userConfig.item_name || 'submission'
         };
-
-        document.addEventListener('DOMContentLoaded', this.renderUI.bind(this));
+        
+        // Initial render in case the page loads before onUpdate is called
+        this.renderUI();
     },
     
     /**
@@ -144,5 +139,8 @@ const ProcessingStatusChecker = {
     },
 };
 
-// Initialize the module with the configuration from the HTML.
-ProcessingStatusChecker.init(window.statusCheckerConfig);
+// **CORRECTION:** Wait for the DOM to be fully loaded before initializing the script.
+// This ensures that `window.statusCheckerConfig` is available.
+document.addEventListener('DOMContentLoaded', () => {
+    ProcessingStatusChecker.init(window.statusCheckerConfig);
+});
