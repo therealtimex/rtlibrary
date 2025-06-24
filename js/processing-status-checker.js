@@ -1,120 +1,134 @@
-(function() {
-    'use strict';
+// Global state to hold items that are pending processing and the polling interval ID
+let pendingItems = [];
+let pollingIntervalId = null;
 
-    /**
-     * FUSESELL PROCESSING STATUS CHECKER
-     * This script provides a UI to show the processing status of submissions.
-     */
-    const ProcessingStatusChecker = {
-        config: {},
-        pendingItems: [],
-        pollingIntervalId: null,
+/**
+ * Renders the UI based on the current state of pendingItems.
+ */
+function renderUI() {
+    const mainWrapper = document.getElementById('main-content-wrapper');
+    if (!mainWrapper) return;
 
-        /**
-         * Initializes the module with the provided configuration.
-         * @param {object} userConfig - The configuration object from the window.
-         */
-        init: function(userConfig) {
-            if (!userConfig) {
-                console.error("Status Checker: Configuration object 'statusCheckerConfig' is missing.");
-                return;
-            }
-            this.config = {
-                checkUrl: userConfig.checkUrl,
-                body: userConfig.body,
-                jholder_code: userConfig.jholder_code,
-                item_name: userConfig.item_name || 'submission'
-            };
-            this.renderUI();
-        },
+    // Use the item_name from the config, with a fallback
+    const itemName = processingConfig.item_name || 'item';
 
-        start: function(initialData) {
-            console.log('ProcessingStatusChecker.start called with data.');
-            if (initialData && initialData.length > 0) {
-                this.pendingItems = initialData;
-                this.renderUI();
-                this.fetchAndFilterProcessedItems();
-                this.startPolling();
-            }
-        },
+    if (pendingItems.length > 0) {
+        mainWrapper.className = 'p-2 md:p-4';
+        mainWrapper.innerHTML = `
+          <div class="bg-theme-accent text-white p-4 text-center rounded-lg shadow-lg">
+            ✅ Your ${itemName} has been received and is being processed 🚀
+          </div>
+        `;
+    } else {
+        mainWrapper.className = '';
+        mainWrapper.innerHTML = '';
+    }
+}
 
-        renderUI: function() {
-            const mainWrapper = document.getElementById('main-content-wrapper');
-            if (!mainWrapper) return;
-            if (this.pendingItems.length > 0) {
-                mainWrapper.className = 'p-2 md:p-4';
-                mainWrapper.innerHTML = `
-                  <div class="bg-theme-accent text-white p-4 text-center rounded-lg shadow-lg">
-                    ✅ Your ${this.config.item_name} has been received and is being processed 🚀
-                  </div>
-                `;
-            } else {
-                mainWrapper.className = '';
-                mainWrapper.innerHTML = '';
-            }
-        },
-
-        removeProcessedItemPermanently: function() {
-            const actionData = {
-                "actionID": 2, "type": "act_jholder_remove", "label": "Del",
-                "jholder_code": this.config.jholder_code, "remove_mode": "all"
-            };
-            if (window.App && typeof window.App.callActionButton === 'function') {
-                console.log(`Calling App.callActionButton for jholder: ${this.config.jholder_code}.`);
-                // App.callActionButton(JSON.stringify(actionData));
-            } else {
-                console.error(`App.callActionButton is not available.`);
-            }
-        },
-
-        fetchAndFilterProcessedItems: async function() {
-            if (this.pendingItems.length === 0) {
-                if (this.pollingIntervalId) {
-                    clearInterval(this.pollingIntervalId);
-                    this.pollingIntervalId = null;
-                }
-                this.renderUI();
-                return;
-            }
-            console.log('Checking for processed items...');
-            try {
-                const response = await fetch(this.config.checkUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(this.config.body)
-                });
-                if (!response.ok) throw new Error(`Fetch failed: ${response.statusText}`);
-                const result = await response.json();
-                const processedEventIds = new Set(result.hits?.hits.map(hit => hit._source?.instanceID).filter(id => id) || []);
-                if (processedEventIds.size > 0) {
-                    const itemsToRemove = this.pendingItems.filter(item => processedEventIds.has(item.instanceID));
-                    if (itemsToRemove.length > 0) {
-                        console.log(`${itemsToRemove.length} item(s) are processed.`);
-                        this.removeProcessedItemPermanently();
-                        this.pendingItems = this.pendingItems.filter(item => !processedEventIds.has(item.instanceID));
-                    }
-                }
-            } catch (error) {
-                console.error('An error occurred while checking for processed items:', error);
-            } finally {
-                this.renderUI();
-                if (this.pendingItems.length === 0 && this.pollingIntervalId) {
-                    console.log('All items processed. Stopping polling.');
-                    clearInterval(this.pollingIntervalId);
-                    this.pollingIntervalId = null;
-                }
-            }
-        },
-
-        startPolling: function() {
-            if (this.pollingIntervalId) return;
-            console.log('Starting polling: checking every 10 seconds.');
-            this.pollingIntervalId = setInterval(this.fetchAndFilterProcessedItems.bind(this), 10000);
-        },
+/**
+ * Calls an external app function to permanently remove a processed item.
+ */
+function removeProcessedItemPermanently() {
+    const actionData = {
+        "actionID": 2,
+        "type": "act_jholder_remove",
+        "label": "Del",
+        "jholder_code": processingConfig.jholder_code, // Use jholder_code from config
+        "remove_mode": "all"
     };
 
-    // Initialize the module and attach it to the window object
-    ProcessingStatusChecker.init(window.statusCheckerConfig);
-    window.ProcessingStatusChecker = ProcessingStatusChecker;
+    if (window.App && typeof window.App.callActionButton === 'function') {
+        console.log(`Calling App.callActionButton to remove processed items.`);
+        // The following line is commented out as requested. Uncomment to activate.
+        // App.callActionButton(JSON.stringify(actionData));
+    } else {
+        console.error(`App.callActionButton is not available. Cannot permanently remove items.`);
+    }
+}
 
-})();
+/**
+ * Fetches the list of processed events and updates the pending items list.
+ */
+async function fetchAndFilterProcessedItems() {
+    if (pendingItems.length === 0) {
+        if (pollingIntervalId) {
+            console.log('No more pending items. Stopping polling.');
+            clearInterval(pollingIntervalId);
+            pollingIntervalId = null;
+        }
+        renderUI();
+        return;
+    }
+    console.log('Checking for processed items...');
+    
+    // Use the URL and body from the config object
+    const url = processingConfig.checkUrl;
+    const requestBody = processingConfig.body;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch processed events:', response.statusText);
+            return;
+        }
+
+        const result = await response.json();
+        const processedEventIds = new Set(
+            result.hits?.hits.map(hit => hit._source?.instanceID).filter(id => id) || []
+        );
+
+        if (processedEventIds.size > 0) {
+            const itemsToRemove = pendingItems.filter(item => processedEventIds.has(item.instanceID));
+
+            if (itemsToRemove.length > 0) {
+                console.log(`${itemsToRemove.length} item(s) are processed.`);
+
+                // The permanent removal action is called once for the batch of processed items.
+                // This part is commented out as requested.
+                // removeProcessedItemPermanently();
+
+                // Update the local pending list to reflect the removal
+                pendingItems = pendingItems.filter(item => !processedEventIds.has(item.instanceID));
+            }
+        }
+    } catch (error) {
+        console.error('An error occurred while checking for processed items:', error);
+    } finally {
+        renderUI();
+        if (pendingItems.length === 0 && pollingIntervalId) {
+            console.log('All items processed. Stopping polling.');
+            clearInterval(pollingIntervalId);
+            pollingIntervalId = null;
+        }
+    }
+}
+
+/**
+ * Starts the polling process if it's not already running.
+ */
+function startPolling() {
+    if (pollingIntervalId) return;
+    console.log('Starting polling: checking every 10 seconds.');
+    pollingIntervalId = setInterval(fetchAndFilterProcessedItems, 10000);
+}
+
+/**
+ * Re-triggers the check for processed items when the user returns to the screen.
+ */
+function onAppResume() {
+    console.log('onAppResume called. Re-checking status.');
+    fetchAndFilterProcessedItems();
+    if (pendingItems.length > 0) {
+        startPolling();
+    }
+}
+
+// Perform an initial render to show an empty state before onUpdate is called
+document.addEventListener('DOMContentLoaded', renderUI);
