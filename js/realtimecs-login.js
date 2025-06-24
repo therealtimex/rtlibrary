@@ -714,10 +714,7 @@ if (orgCreateForm) {
             actionID: 99,
             orderNumber: 1,
             type: "act_exit",
-            label: "no label",
-            screen: "realtimecs-realtimecs00-realtimecs00obj1-screen1",
-            alias: "realtimecs_realtimecs00obj1",
-            args: { user_type: userType }
+            label: "no label"
         };
         App.callActionButton(JSON.stringify(actionData));
 
