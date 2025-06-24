@@ -10,40 +10,6 @@ window.ProcessingStatusChecker = (function () {
   let config = null;
 
   /**
-   * Load configuration from the script tag's data attributes
-   */
-  function loadConfig() {
-    console.log("⚙️ DEBUG: Loading configuration from script tag");
-
-    const scriptTag = document.getElementById("processing-status-checker");
-    if (!scriptTag) {
-      console.error(
-        '⚙️ ERROR: Could not find script tag with id "processing-status-checker"'
-      );
-      return null;
-    }
-
-    const dataset = scriptTag.dataset;
-    console.log("⚙️ DEBUG: Dataset found:", dataset);
-
-    try {
-      const loadedConfig = {
-        checkUrl: dataset.checkUrl,
-        jholderCode: dataset.jholderCode,
-        itemName: dataset.itemName || "item",
-        requestBody: JSON.parse(dataset.requestBody),
-        pollingInterval: parseInt(dataset.pollingInterval) || 10000,
-      };
-
-      console.log("⚙️ DEBUG: Configuration loaded successfully:", loadedConfig);
-      return loadedConfig;
-    } catch (error) {
-      console.error("⚙️ ERROR: Failed to parse configuration:", error);
-      return null;
-    }
-  }
-
-  /**
    * Renders the UI based on the current state of pendingItems.
    */
   function renderUI() {
@@ -240,43 +206,30 @@ window.ProcessingStatusChecker = (function () {
   // Public API - these functions will be accessible from the HTML
   return {
     /**
-     * Initialize the module
+     * Start the processing status checker with initial data and configuration
+     * @param {Array<Object>} initialData - Array of initial submissions
+     * @param {Object} configuration - Configuration object with all parameters
      */
-    initialize: function () {
-      console.log("🚀 DEBUG: ProcessingStatusChecker.initialize() called");
+    start: function (initialData, configuration) {
+      console.log("🚀 DEBUG: ProcessingStatusChecker.start() called");
+      console.log("🚀 DEBUG: Initial data:", initialData);
+      console.log("🚀 DEBUG: Configuration:", configuration);
 
-      config = loadConfig();
-      if (!config) {
-        console.error("🚀 ERROR: Failed to load configuration");
-        return;
-      }
-
-      console.log("🚀 DEBUG: Configuration loaded, initializing UI");
-      renderUI();
-    },
-
-    /**
-     * Handle initial data from onUpdate
-     */
-    onUpdate: function (initialData) {
-      console.log(
-        "📥 DEBUG: ProcessingStatusChecker.onUpdate() called with:",
-        initialData
-      );
-
-      if (!config) {
-        console.error("📥 ERROR: Configuration not loaded");
-        return;
-      }
+      // Store the configuration
+      config = configuration;
 
       if (initialData && initialData.length > 0) {
-        console.log("📥 DEBUG: Valid initial data found, starting process");
+        console.log("🚀 DEBUG: Valid initial data found, starting process");
         pendingItems = initialData;
         renderUI();
         fetchAndFilterProcessedItems();
         startPolling();
       } else {
-        console.log("📥 DEBUG: No valid initial data");
+        console.log(
+          "🚀 DEBUG: No valid initial data, just rendering empty state"
+        );
+        pendingItems = [];
+        renderUI();
       }
     },
 
