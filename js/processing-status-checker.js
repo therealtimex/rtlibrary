@@ -69,12 +69,14 @@ window.ProcessingStatusChecker = (function () {
       console.log("🎨 DEBUG: Rendering processing message:", message);
       mainWrapper.className = "p-2 md:p-4";
       mainWrapper.innerHTML = `
-              <div class="bg-theme-accent text-white p-3 text-sm rounded-lg shadow-lg flex justify-between items-center">
+              <div class="bg-theme-accent text-white p-3 text-xs rounded-lg shadow-lg flex flex-col">
                 <div class="text-left">
                   <div>Your submission has been recorded and is being processed.</div>
                   <div class="mt-1 opacity-80">${message}</div>
                 </div>
-                <button id="processing-status-close-btn" class="ml-4 text-white hover:text-gray-200">Dismiss</button>
+                <div class="flex justify-end mt-2">
+                    <button id="processing-status-close-btn" class="px-3 py-1 bg-white/10 border border-white/30 rounded hover:bg-white/20 text-xs">Dismiss</button>
+                </div>
               </div>
             `;
       document
