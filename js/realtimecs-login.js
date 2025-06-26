@@ -19,7 +19,7 @@ const LANG = {
         create_org_title: "Tạo tổ chức mới",
         create_org_desc: "Tạo workspace mới cho cửa hàng của bạn",
         join_org_title: "Gia nhập tổ chức",
-        join_org_desc: "Tham gia workspace đã có sẵn",
+_org_desc: "Tham gia workspace đã có sẵn",
         continue_trial: "Tiếp tục trải nghiệm",
 
         // Form labels
@@ -127,12 +127,37 @@ const LANG = {
     }
 };
 
-// Global variables
+// --- Global variables ---
+// Note: Using global variables can make state management complex.
+// Consider encapsulating state and logic in a class or module for larger applications.
 let userType = 'trial';
 let foundOrg = null;
 let isTrialMode = false;
 let currentLang, T, config;
 
+// --- Helper Functions ---
+
+/**
+ * Safely sets the HTML content of an element, creating <b> tags for bold text.
+ * This prevents XSS by not using innerHTML with arbitrary strings.
+ * @param {HTMLElement} element The element to update.
+ * @param {string} text The text content, which may contain <b> tags.
+ */
+function safeSetHTML(element, text) {
+    if (!element) return;
+    element.innerHTML = ''; // Clear existing content
+    // Simple parser for "text <b>bold text</b> more text"
+    const parts = text.split(/<b>(.*?)<\/b>/g);
+    parts.forEach((part, index) => {
+        if (index % 2 === 1) { // This is the bold part
+            const b = document.createElement('b');
+            b.textContent = part;
+            element.appendChild(b);
+        } else {
+            element.appendChild(document.createTextNode(part));
+        }
+    });
+}
 
 function setText(id, value) {
   const el = document.getElementById(id);
@@ -144,19 +169,46 @@ function setPlaceholder(id, value) {
   if (el) el.placeholder = value;
 }
 
+/**
+ * Manages which main view is visible.
+ * @param {'setup-selection' | 'create-org-form' | 'join-org-form'} viewId The ID of the view to show.
+ */
+function showView(viewId) {
+    const views = ['setup-selection', 'create-org-form', 'join-org-form'];
+    const setupOrgDesc = document.getElementById('setup-org-desc');
+
+    views.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+
+    const viewToShow = document.getElementById(viewId);
+    if (viewToShow) {
+        viewToShow.classList.remove('hidden');
+    }
+
+    // Show/hide the main description based on the view
+    if (setupOrgDesc) {
+        if (viewId === 'setup-selection') {
+            setupOrgDesc.classList.remove('hidden');
+        } else {
+            setupOrgDesc.classList.add('hidden');
+        }
+    }
+}
+
+
+// --- Core Application Logic ---
+
 // Apply language to all elements
 function applyLanguage() {
   document.documentElement.lang = currentLang;
 
   // Banner texts
   setText('trial-mode-title', T.trial_mode_title);
-  var trialModeDescElem = document.getElementById('trial-mode-desc');
-  if (trialModeDescElem) {
-    trialModeDescElem.textContent = T.trial_mode_desc;
-  }
+  setText('trial-mode-desc', T.trial_mode_desc);
   setText('btn-setup-trial', T.setup_btn);
   setText('official-status', T.official_status);
-  // setText('btn-org-settings', T.settings_btn);
 
   // Setup dialog
   setText('setup-org-title', T.setup_org_title);
@@ -246,11 +298,10 @@ async function checkOrgInfoData() {
         });
 
         const data = await response.json();
-        // Kiểm tra xem có dữ liệu trả về hay không
-        return data.hits.total.value > 0; // Trả về true nếu có dữ liệu, false nếu không
+        return data.hits.total.value > 0;
     } catch (error) {
         console.error('Lỗi khi gọi API Elasticsearch:', error);
-        return false; // Trả về false nếu có lỗi xảy ra
+        return false;
     }
 }                                
 
@@ -274,22 +325,19 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
 
     if (btnRetryPopup) {
       btnRetryPopup.onclick = function() {
-        // Ẩn popup retry
         retryPopup.classList.add('hidden');
-        // Hiển thị lại spinner
         const spinner = document.getElementById('loading-spinner');
         const spinnerLabel = document.getElementById('spinner-label');
         if (spinner) {
             spinner.classList.remove('hidden');
             if (spinnerLabel) spinnerLabel.textContent = T.processing;
         }
-        attempts = 0; // Reset số lượt thử lại
+        attempts = 0; // Reset attempts
         checkUpdate();
       };
     }
   }
 
-  // Hiển thị Spinner trước khi bắt đầu polling
   const spinner = document.getElementById('loading-spinner');
   const spinnerLabel = document.getElementById('spinner-label');
   if (spinner) {
@@ -298,11 +346,25 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
   }
 
   const checkUpdate = () => {
-    fetch(`${config.projectURL}/api/dm/getData?token=your_token_here&dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${config.username}"`)
-      .then(res => res.json())
+    // SECURITY NOTE: The hardcoded 'token' query parameter has been removed.
+    // The API token should be passed securely in the config object and used in an Authorization header.
+    const url = `${config.projectURL}/api/dm/getData?dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${config.username}"`;
+    
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            // Assumes a Bearer token is provided in the config object.
+            'Authorization': `Bearer ${config.apiToken}`
+        }
+    })
+      .then(res => {
+          if (!res.ok) {
+              throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+      })
       .then(data => {
         if (Array.isArray(data) && data.length > 0 && data[0].organization_id !== originalOrgId) {
-          // Nếu organization_id đã thay đổi, tiến hành 2 hành động:
           App.callActionButton(JSON.stringify({
             actionID: 24703,
             orderNumber: 1,
@@ -316,9 +378,7 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
               type: "act_reload_app",
               label: "Reload App"
             }));
-            // Ẩn Spinner sau khi hoàn tất
             if (spinner) spinner.classList.add('hidden');
-            // Hiển thị popup kết quả
             showResult(resultMessage);
           }, 3000);
         } else {
@@ -332,7 +392,7 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
         }
       })
       .catch(err => {
-        console.error("Lỗi polling:", err);
+        console.error("Polling error:", err);
         attempts++;
         if (attempts < maxAttempts) {
           setTimeout(checkUpdate, interval);
@@ -344,7 +404,6 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
   };
 
   setTimeout(checkUpdate, 5000);
-  // checkUpdate();
 }
 
 
@@ -357,21 +416,24 @@ function showResult(msg, color = '#333') {
 
     const msgElem = document.getElementById('result-message');
     if (msgElem) {
-        msgElem.innerHTML = msg;
+        // Use safeSetHTML to prevent XSS vulnerabilities
+        safeSetHTML(msgElem, msg);
         msgElem.style.color = color;
     }
 }
 
 // Show setup dialog
 function showSetupDialog() {
-    // Nếu giao diện đang được hiển thị dạng phẳng, không cần xử lý gì thêm
-    // Bạn có thể xóa nội dung hoặc comment code ẩn/hiện
+    // In a flat UI design, this might not be needed to show a dialog,
+    // but it can trigger the view change.
+    showView('setup-selection');
 }
 
 
 // Hide setup dialog
 function hideSetupDialog() {
-    // Không ẩn giao diện, hoặc xử lý theo logic giao diện phẳng
+    // This could hide all setup views and return to the main screen.
+    // For now, it does nothing as per the original logic.
 }
 
 
@@ -382,29 +444,21 @@ async function showBanner() {
     const orgNameDisplay = document.getElementById('org-name-display');
     const orgIdDisplay = document.getElementById('org-id-display');
     const userDisplay = document.getElementById('org-user-display');
-    const orgInfoButton = document.getElementById('org-info-button'); // Lấy tham chiếu đến nú
-    // const welcomeSubtitle = document.getElementById('welcome-subtitle');
+    const orgInfoButton = document.getElementById('org-info-button');
 
     if (isTrialMode) {
-        // Show trial banner
         if (trialBanner) trialBanner.classList.remove('hidden');
         if (officialBanner) officialBanner.classList.add('hidden');
-        // if (welcomeSubtitle) welcomeSubtitle.textContent = T.trial_mode_subtitle;
     } else {
-        // Show official banner
         if (officialBanner) officialBanner.classList.remove('hidden');
         if (trialBanner) trialBanner.classList.add('hidden');
 
-        // Update organization info
         if (orgNameDisplay) orgNameDisplay.textContent = config.userOrgName || 'Your Organization';
         if (orgIdDisplay) orgIdDisplay.textContent = `ID: ${config.userOrgId}`;
         if (userDisplay) userDisplay.textContent = `${config.userFullName}`;
-        // if (welcomeSubtitle) welcomeSubtitle.textContent = `${config.userOrgName || 'Your Organization'} - ${T.official_mode_subtitle}`;
 
-        // Kiểm tra dữ liệu từ Elasticsearch
         const hasOrgInfoData = await checkOrgInfoData();
                                                                                                                                                  
-        // Ẩn/hiện nút dựa trên kết quả
         if (orgInfoButton) {
             if (hasOrgInfoData) {
                 orgInfoButton.classList.remove('hidden');
@@ -419,12 +473,8 @@ async function showBanner() {
 // Setup event handlers
 function setupEventHandlers() {
     // Setup trial button (from trial banner)
-    var btnSetupTrial = document.getElementById('btn-setup-trial');
+    const btnSetupTrial = document.getElementById('btn-setup-trial');
     if (btnSetupTrial) {
-      btnSetupTrial.onclick = function() {
-        showSetupDialog();
-      };
-
       btnSetupTrial.addEventListener('click', function() {
         const actionData = {
             actionID: 99,
@@ -439,61 +489,35 @@ function setupEventHandlers() {
       });
     }
 
-    // Organization settings button (from official banner)
-    // document.getElementById('btn-org-settings').onclick = function() {
-    //     alert(T.settings_alert);
-    // };
-
-    // Close setup dialog
-    var btnCloseSetup = document.getElementById('btn-close-setup');
+    const btnCloseSetup = document.getElementById('btn-close-setup');
     if (btnCloseSetup) {
       btnCloseSetup.addEventListener('click', function() {
         hideSetupDialog();
       });
     }
 
-    var btnCreateOrg = document.getElementById('btn-create-org');
+    const btnCreateOrg = document.getElementById('btn-create-org');
     if (btnCreateOrg) {
       btnCreateOrg.addEventListener('click', function() {
-        // Ẩn mô tả setup-org-desc
-        var setupOrgDesc = document.getElementById('setup-org-desc');
-        if (setupOrgDesc) setupOrgDesc.classList.add('hidden');
-        // Ẩn phần lựa chọn setup
-        var setupSelection = document.getElementById('setup-selection');
-        if (setupSelection) setupSelection.classList.add('hidden');
-        // Hiện form tạo tổ chức
-        var createOrgForm = document.getElementById('create-org-form');
-        if (createOrgForm) createOrgForm.classList.remove('hidden');
-        // Thiết lập giá trị mặc định cho form
-        var contactName = document.getElementById('contact-name');
+        showView('create-org-form');
+        // Pre-fill form with user data
+        const contactName = document.getElementById('contact-name');
         if (contactName) contactName.value = config.userFullName;
-        var contactEmail = document.getElementById('contact-email');
+        const contactEmail = document.getElementById('contact-email');
         if (contactEmail) contactEmail.value = config.userEmail;
-        var contactPhone = document.getElementById('contact-phone');
+        const contactPhone = document.getElementById('contact-phone');
         if (contactPhone) contactPhone.value = config.userPhone;
       });
     }
 
-    var btnJoinOrg = document.getElementById('btn-join-org');
+    const btnJoinOrg = document.getElementById('btn-join-org');
     if (btnJoinOrg) {
       btnJoinOrg.addEventListener('click', function() {
-        // Ẩn mô tả setup-org-desc
-        var setupOrgDesc = document.getElementById('setup-org-desc');
-        if (setupOrgDesc) setupOrgDesc.classList.add('hidden');
-        // Ẩn phần lựa chọn setup
-        var setupSelection = document.getElementById('setup-selection');
-        if (setupSelection) setupSelection.classList.add('hidden');
-        // Hiện form gia nhập tổ chức
-        var joinOrgForm = document.getElementById('join-org-form');
-        if (joinOrgForm) joinOrgForm.classList.remove('hidden');
+        showView('join-org-form');
       });
     }
 
-    // Continue trial button
-    // document.getElementById('btn-continue-trial').onclick = function() {
-    //     hideSetupDialog();
-    // };
-    var btnContinueTrial = document.getElementById('btn-continue-trial');
+    const btnContinueTrial = document.getElementById('btn-continue-trial');
     if (btnContinueTrial) {
       btnContinueTrial.addEventListener('click', function() {
         const actionData = {
@@ -506,111 +530,96 @@ function setupEventHandlers() {
       });
     }
 
-    var btnBackCreate = document.getElementById('btn-back-create');
+    const btnBackCreate = document.getElementById('btn-back-create');
     if (btnBackCreate) {
       btnBackCreate.addEventListener('click', function() {
-        var createOrgForm = document.getElementById('create-org-form');
-        if (createOrgForm) createOrgForm.classList.add('hidden');
-        var setupSelection = document.getElementById('setup-selection');
-        if (setupSelection) setupSelection.classList.remove('hidden');
-        // Hiện lại phần mô tả setup-org-desc
-        var setupOrgDesc = document.getElementById('setup-org-desc');
-        if (setupOrgDesc) setupOrgDesc.classList.remove('hidden');
+        showView('setup-selection');
       });
     }
 
-    var btnBackJoin = document.getElementById('btn-back-join');
+    const btnBackJoin = document.getElementById('btn-back-join');
     if (btnBackJoin) {
       btnBackJoin.addEventListener('click', function() {
-        var joinOrgForm = document.getElementById('join-org-form');
-        if (joinOrgForm) joinOrgForm.classList.add('hidden');
-        var setupSelection = document.getElementById('setup-selection');
-        if (setupSelection) setupSelection.classList.remove('hidden');
-        // Hiện lại phần mô tả setup-org-desc
-        var setupOrgDesc = document.getElementById('setup-org-desc');
-        if (setupOrgDesc) setupOrgDesc.classList.remove('hidden');
+        showView('setup-selection');
       });
     }
 
     // Create org form submit
-var orgCreateForm = document.getElementById('org-create-form');
-if (orgCreateForm) {
-  orgCreateForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const orgName = document.getElementById('org-name-input').value.trim();
-    let shortName = document.getElementById('org-shortname').value.trim();
-    if (!shortName) shortName = orgName;
-    const contactName = document.getElementById('contact-name').value.trim();
-    const contactEmail = document.getElementById('contact-email').value.trim();
-    const contactPhone = document.getElementById('contact-phone').value.trim();
+    const orgCreateForm = document.getElementById('org-create-form');
+    if (orgCreateForm) {
+      orgCreateForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const orgName = document.getElementById('org-name-input').value.trim();
+        let shortName = document.getElementById('org-shortname').value.trim();
+        if (!shortName) shortName = orgName;
+        const contactName = document.getElementById('contact-name').value.trim();
+        const contactEmail = document.getElementById('contact-email').value.trim();
+        const contactPhone = document.getElementById('contact-phone').value.trim();
 
-    let orgId;
-    if (userType === 'trial') {
-      orgId = 's' + generateRandomId();
-    } else if (userType === 'official') {
-      orgId = config.userOrgId;
+        let orgId;
+        if (userType === 'trial') {
+          orgId = 's' + generateRandomId();
+        } else if (userType === 'official') {
+          orgId = config.userOrgId;
+        }
+
+        const payload = {
+          event_id: `rt${config.appShortName.toLowerCase()}.neworg`,
+          new_org: '1',
+          project_code: config.projectCode,
+          data: [{
+            username: config.username,
+            fullname: config.userFullName,
+            user_role: config.userRoledefault,
+            email: config.userEmail,
+            cellphone: config.userPhone && config.userPhone.trim() ? config.userPhone : '0',
+            user_status: '1',
+            org_id: orgId,
+            org_name: shortName,
+            contact_name: contactName,
+            contact_email: contactEmail,
+            contact_phone: contactPhone || '0',
+            context_title: `${shortName}-${config.appShortName}`
+          }]
+        };
+
+        fetch(config.apiEndpoints.webhook, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json(); 
+        })
+        .then(() => {
+          const createOrgFormElem = document.getElementById('create-org-form');
+          if (createOrgFormElem) {
+            createOrgFormElem.style.display = 'none';
+          }
+          const setupSelectionElem = document.getElementById('setup-selection');
+          if (setupSelectionElem) {
+            setupSelectionElem.style.display = 'none';
+          }
+          
+          const originalOrgId = config.userOrgId;
+          pollOrgUpdate(originalOrgId, T.notify(orgName, contactEmail));
+          orgCreateForm.reset();
+        })
+        .catch(err => {
+          console.error('Submit error:', err);
+          showResult(T.error, '#e74c3c');
+        });
+      });
     }
 
-    const payload = {
-      event_id: `rt${config.appShortName.toLowerCase()}.neworg`,
-      new_org: '1',
-      project_code: config.projectCode,
-      data: [{
-        username: config.username,
-        fullname: config.userFullName,
-        user_role: config.userRoledefault,
-        email: config.userEmail,
-        cellphone: config.userPhone && config.userPhone.trim() ? config.userPhone : '0',
-        user_status: '1',
-        org_id: orgId,
-        org_name: shortName,
-        contact_name: contactName,
-        contact_email: contactEmail,
-        contact_phone: contactPhone || '0',
-        context_title: `${shortName}-${config.appShortName}`
-      }]
-    };
-
-    fetch(config.apiEndpoints.webhook, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      return res.json(); 
-    })
-    .then(() => {
-      // Ẩn giao diện nhập liệu hoàn toàn bằng cách set style display = 'none'
-      const createOrgFormElem = document.getElementById('create-org-form');
-      if (createOrgFormElem) {
-        createOrgFormElem.style.display = 'none';
-      }
-      const setupSelectionElem = document.getElementById('setup-selection');
-      if (setupSelectionElem) {
-        setupSelectionElem.style.display = 'none';
-      }
-      
-      const originalOrgId = config.userOrgId;
-      pollOrgUpdate(originalOrgId, T.notify(orgName, contactEmail));
-      // Hiển thị màn hình kết quả
-      // showResult(T.notify(orgName, contactEmail));
-      orgCreateForm.reset();
-    })
-    .catch(err => {
-      console.error('Submit error:', err);
-      showResult(T.error, '#e74c3c');
-    });
-  });
-}
-
     // Join org confirm button
-    var btnConfirmJoin = document.getElementById('btn-confirm-join');
+    const btnConfirmJoin = document.getElementById('btn-confirm-join');
     if (btnConfirmJoin) {
       btnConfirmJoin.addEventListener('click', async function() {
-        var orgCodeInput = document.getElementById('org-code-input');
+        const orgCodeInput = document.getElementById('org-code-input');
         const code = orgCodeInput ? orgCodeInput.value.trim() : '';
         const errorElem = document.getElementById('org-error');
         if (errorElem) errorElem.style.display = 'none';
@@ -640,7 +649,12 @@ if (orgCreateForm) {
                 if (data.hits && data.hits.hits && data.hits.hits.length > 0) {
                     foundOrg = data.hits.hits[0]._source;
                     if (errorElem) {
-                        errorElem.innerHTML = `<b class="org-name-found">${foundOrg.org_lb || foundOrg.org_name || code}</b>`;
+                        // Safely create the element to prevent XSS
+                        errorElem.textContent = '';
+                        const b = document.createElement('b');
+                        b.className = 'org-name-found';
+                        b.textContent = foundOrg.org_lb || foundOrg.org_name || code;
+                        errorElem.appendChild(b);
                         errorElem.style.display = 'block';
                         errorElem.style.color = '#16a75c';
                     }
@@ -660,12 +674,10 @@ if (orgCreateForm) {
                 }
             }
         } else {
-            // Ẩn giao diện nhập liệu của join-org-form
-            var joinOrgFormElem = document.getElementById('join-org-form');
+            const joinOrgFormElem = document.getElementById('join-org-form');
             if (joinOrgFormElem) {
               joinOrgFormElem.style.display = 'none';
             }
-            // Vô hiệu hóa nút gửi và cập nhật label
             this.disabled = true;
             this.textContent = T.sending;
             try {
@@ -690,7 +702,6 @@ if (orgCreateForm) {
                 });
                 const originalOrgId = config.userOrgId;
                 pollOrgUpdate(originalOrgId, T.join_success.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code));
-                // showResult(T.join_success.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code));
             } catch (err) {
                 if (errorElem) {
                     errorElem.textContent = T.error;
@@ -704,7 +715,7 @@ if (orgCreateForm) {
     }
 
     // Close result button
-    var btnCloseResult = document.getElementById('btn-close-result');
+    const btnCloseResult = document.getElementById('btn-close-result');
     if (btnCloseResult) {
       btnCloseResult.addEventListener('click', function() {
         const actionData = {
@@ -714,9 +725,6 @@ if (orgCreateForm) {
             label: "no label"
         };
         App.callActionButton(JSON.stringify(actionData));
-
-        // var resultScreen = document.getElementById('result-screen');
-        // if (resultScreen) resultScreen.classList.add('hidden');
       });
     }
 
@@ -736,8 +744,6 @@ if (orgCreateForm) {
             App.callActionButton(JSON.stringify(actionData));
         });
     }
-
-
 }
 
 // Initialize the application
@@ -746,9 +752,7 @@ function initRealtimeCS(configObj) {
     currentLang = config.appLanguage || 'en';
     T = LANG[currentLang] || LANG.en;
 
-    // Apply language first
     applyLanguage();
-
     setupEventHandlers();
     checkUserType().then(() => {
         showBanner();
