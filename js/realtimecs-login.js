@@ -300,7 +300,7 @@ async function checkOrgInfoData() {
         const data = await response.json();
         return data.hits.total.value > 0;
     } catch (error) {
-        console.error('Lỗi khi gọi API Elasticsearch:', error);
+        console.error('Error calling Elasticsearch API:', error);
         return false;
     }
 }                                
