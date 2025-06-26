@@ -409,7 +409,7 @@
     <script>
         
         // Configuration
-        let ORDER_ID = '6F1D79AF45'; // 9E6D66CD
+        let ORDER_ID = new URLSearchParams(window.location.search).get('ticket_id') || ''; // 9E6D66CD
         // Get language from URL parameter, local storage, or default to 'en'
         let currentLanguage = new URLSearchParams(window.location.search).get('lang') || localStorage.getItem('preferredLanguage') || 'en';
 
