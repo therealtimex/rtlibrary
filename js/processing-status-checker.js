@@ -84,7 +84,7 @@ window.ProcessingStatusChecker = (function () {
         .addEventListener("click", dismissMessage);
     } else {
       console.log("🎨 DEBUG: Clearing UI (no pending items)");
-      mainWrapper.className = "";
+      mainWrapper.className = "hidden";
       mainWrapper.innerHTML = "";
     }
   }
@@ -93,8 +93,13 @@ window.ProcessingStatusChecker = (function () {
    */
   function dismissMessage() {
     console.log("🎨 DEBUG: User dismissed the message");
+
+    // Remove each pending item individually
+    pendingItems.forEach((item) => {
+      removeProcessedItemPermanently(item.instanceID);
+    });
+
     pendingItems = [];
-    removeProcessedItemPermanently();
     if (pollingIntervalId) {
       clearInterval(pollingIntervalId);
       pollingIntervalId = null;
@@ -118,8 +123,15 @@ window.ProcessingStatusChecker = (function () {
   /**
    * Calls an external app function to permanently remove a processed item.
    */
-  function removeProcessedItemPermanently() {
-    console.log("🗑️ DEBUG: removeProcessedItemPermanently() called");
+  /**
+   * Calls an external app function to permanently remove a processed item.
+   * @param {string} instanceID - The instanceID of the item to remove
+   */
+  function removeProcessedItemPermanently(instanceID) {
+    console.log(
+      "🗑️ DEBUG: removeProcessedItemPermanently() called with instanceID:",
+      instanceID
+    );
 
     if (!config) {
       console.error("🗑️ ERROR: Configuration not loaded");
@@ -131,7 +143,8 @@ window.ProcessingStatusChecker = (function () {
       type: "act_jholder_remove",
       label: "Del",
       jholder_code: config.jholderCode,
-      remove_mode: "all",
+      remove_mode: "remove",
+      id: instanceID,
     };
 
     console.log("🗑️ DEBUG: actionData prepared:", actionData);
@@ -139,9 +152,7 @@ window.ProcessingStatusChecker = (function () {
     if (window.App && typeof window.App.callActionButton === "function") {
       console.log("🗑️ DEBUG: Calling App.callActionButton");
       App.callActionButton(JSON.stringify(actionData));
-      console.log(
-        "🗑️ DEBUG: App.callActionButton call completed (commented out)"
-      );
+      console.log("🗑️ DEBUG: App.callActionButton call completed");
     } else {
       console.error("🗑️ ERROR: App.callActionButton is not available");
     }
@@ -252,7 +263,10 @@ window.ProcessingStatusChecker = (function () {
             `🔍 SUCCESS: ${itemsToRemove.length} item(s) are processed`
           );
 
-          removeProcessedItemPermanently();
+          // Remove each processed item individually
+          itemsToRemove.forEach((item) => {
+            removeProcessedItemPermanently(item.instanceID);
+          });
 
           const beforeCount = pendingItems.length;
           pendingItems = pendingItems.filter(
