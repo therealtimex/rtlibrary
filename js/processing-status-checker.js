@@ -8,6 +8,7 @@ window.ProcessingStatusChecker = (function () {
   let pendingItems = [];
   let pollingIntervalId = null;
   let config = null;
+  let pollingAttempts = 0;
 
   /**
    * Merges new items with existing pending items, avoiding duplicates based on instanceID
@@ -53,22 +54,63 @@ window.ProcessingStatusChecker = (function () {
       return;
     }
 
-    const itemName = config ? config.itemName : "submission";
-
     if (pendingItems.length > 0) {
-      console.log("🎨 DEBUG: Rendering processing message for:", itemName);
+      const itemGroups = pendingItems.reduce((acc, item) => {
+        const itemType = item.item_type || "item";
+        acc[itemType] = (acc[itemType] || 0) + 1;
+        return acc;
+      }, {});
+
+      const groupStrings = Object.entries(itemGroups).map(
+        ([type, count]) => `${count} ${type}${count > 1 ? "s" : ""}`
+      );
+      const message = `Processing: ${groupStrings.join(", ")} 🚀`;
+
+      console.log("🎨 DEBUG: Rendering processing message:", message);
       mainWrapper.className = "p-2 md:p-4";
       mainWrapper.innerHTML = `
-              <div class="bg-theme-accent text-white p-4 text-center rounded-lg shadow-lg">
-                ✅ Your ${itemName} has been received and is being processed 🚀
-                <div class="text-sm mt-2 opacity-80">Processing ${pendingItems.length} item(s)</div>
+              <div class="bg-theme-accent text-white p-3 text-sm rounded-lg shadow-lg flex justify-between items-center">
+                <div class="text-left">
+                  <div>Your submission has been recorded and is being processed.</div>
+                  <div class="mt-1 opacity-80">${message}</div>
+                </div>
+                <button id="processing-status-close-btn" class="ml-4 text-white hover:text-gray-200">Dismiss</button>
               </div>
             `;
+      document
+        .getElementById("processing-status-close-btn")
+        .addEventListener("click", dismissMessage);
     } else {
       console.log("🎨 DEBUG: Clearing UI (no pending items)");
       mainWrapper.className = "";
       mainWrapper.innerHTML = "";
     }
+  }
+  /**
+   * Dismisses the processing message and stops polling.
+   */
+  function dismissMessage() {
+    console.log("🎨 DEBUG: User dismissed the message");
+    pendingItems = [];
+    removeProcessedItemPermanently();
+    if (pollingIntervalId) {
+      clearInterval(pollingIntervalId);
+      pollingIntervalId = null;
+    }
+    renderUI();
+  }
+
+  /**
+   * Dismisses the processing message and stops polling.
+   */
+  function dismissMessage() {
+    console.log("🎨 DEBUG: User dismissed the message");
+    pendingItems = [];
+    if (pollingIntervalId) {
+      clearInterval(pollingIntervalId);
+      pollingIntervalId = null;
+    }
+    renderUI();
   }
 
   /**
@@ -124,6 +166,21 @@ window.ProcessingStatusChecker = (function () {
         pollingIntervalId = null;
       }
       renderUI();
+      return;
+    }
+
+    pollingAttempts++;
+    if (
+      config.maxPollingAttempts &&
+      pollingAttempts > config.maxPollingAttempts
+    ) {
+      console.warn(
+        `🔍 WARNING: Max polling attempts (${config.maxPollingAttempts}) reached. Stopping polling.`
+      );
+      if (pollingIntervalId) {
+        clearInterval(pollingIntervalId);
+        pollingIntervalId = null;
+      }
       return;
     }
 
@@ -262,6 +319,7 @@ window.ProcessingStatusChecker = (function () {
 
       // Store the configuration
       config = configuration;
+      pollingAttempts = 0;
 
       if (initialData && initialData.length > 0) {
         console.log(
@@ -285,12 +343,12 @@ window.ProcessingStatusChecker = (function () {
      */
     startWithMerge: function (initialData, configuration) {
       console.log("🚀 DEBUG: ProcessingStatusChecker.startWithMerge() called");
-      console.log("🚀 DEBUG: Initial data:", initialData);
+      console.log("🚀 DEBUG: Initial ", initialData);
       console.log("🚀 DEBUG: Configuration:", configuration);
 
       // Store the configuration
       config = configuration;
-
+      pollingAttempts = 0;
       if (initialData && initialData.length > 0) {
         console.log(
           "🚀 DEBUG: Valid initial data found, merging with existing items"
@@ -304,7 +362,18 @@ window.ProcessingStatusChecker = (function () {
         renderUI();
       }
     },
-
+    resume: function () {
+      console.log("🔄 DEBUG: ProcessingStatusChecker.resume() called");
+      if (pendingItems.length > 0) {
+        console.log(
+          "🔄 DEBUG: Resuming polling and fetching for pending items."
+        );
+        fetchAndFilterProcessedItems();
+        startPolling();
+      } else {
+        console.log("🔄 DEBUG: No pending items, resume is not needed.");
+      }
+    },
     // Expose internal state for debugging
     getState: function () {
       return {
