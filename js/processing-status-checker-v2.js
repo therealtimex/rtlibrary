@@ -15,7 +15,7 @@ window.ProcessingStatusChecker = (function () {
     jholderCode: 'process_status',
     pollingInterval: 10000,
     responseKeyField: 'instanceID',
-    maxPollingAttempts: 2
+    maxPollingAttempts: 12
   };
 
   /**
