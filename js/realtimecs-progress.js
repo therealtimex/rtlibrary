@@ -355,17 +355,22 @@ const API_URL = 'https://es.rta.vn/llm_all_log/_search';
             // Initialize language switcher
             initializeLanguageSwitcher();
 
-            // Get order ID from URL parameter if available
+            // Get order ID from URL parameter FIRST
             const urlParams = new URLSearchParams(window.location.search);
             const orderIdFromUrl = urlParams.get('ticket_id');
+            
             if (orderIdFromUrl) {
                 ORDER_ID = orderIdFromUrl;
+                console.log("=== ORDER_ID set from URL ===", ORDER_ID);
+                loadRepairData(); // Chỉ load khi có ORDER_ID
+            } else {
+                console.log("=== No ticket_id in URL ===");
+                showError(); // Hiển thị lỗi nếu không có ticket_id
             }
-
-            loadRepairData();
         });
 
         async function loadRepairData() {
+            console.log("=== order id ===",ORDER_ID)
             try {
                 const queryBody = {
                     "size": 1000,
@@ -724,6 +729,7 @@ const API_URL = 'https://es.rta.vn/llm_all_log/_search';
         function hideLoading() {
             document.getElementById('loading-overlay').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
+            document.getElementById('error-state').style.display = 'none';
         }
 
         function showError() {
