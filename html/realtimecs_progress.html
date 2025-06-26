@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Repair Status - RealTime CS</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://therealtimex.github.io/rtlibrary/js/realtimecs-progress.js"></script> 
+    <!-- <script src="/RealtimeCS/realtimecs-progress.js"></script> -->
     <style>
         /* Media Slider Styles */
         .media-slider {
@@ -101,6 +103,47 @@
         .media-thumbnail.active {
             border-color: #2563eb;
         }
+
+        /* Language Switcher Styles */
+        .language-switcher {
+            position: relative;
+            display: inline-block;
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            min-width: 120px;
+            display: none;
+        }
+
+        .language-dropdown.show {
+            display: block;
+        }
+
+        .language-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .language-option:hover {
+            background-color: #f3f4f6;
+        }
+
+        .language-option.active {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
     </style>
 </head>
 
@@ -109,24 +152,56 @@
     <div id="loading-overlay" class="fixed inset-0 bg-gray-50 bg-opacity-75 flex items-center justify-center z-50">
         <div class="text-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p class="text-gray-600">Loading repair status...</p>
+            <p class="text-gray-600" data-translate="loading">Loading repair status...</p>
         </div>
     </div>
 
     <!-- Header -->
     <header class="bg-white mx-auto max-w-xl border-b">
-        <div class="max-w-4xl mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
+    <div class="max-w-4xl mx-auto px-4 py-4">
+        <div class="flex justify-between items-start">
 
-                    <span class="font-mono font-semibold bg-green-600 text-white px-2 py-1 rounded" id="ticket-id-top">Ticket ID</span></span>
-                </div>
-                <div class="text-sm text-gray-500">
-                    Last updated: <span class="font-medium" id="last-updated">Loading...</span>
-                </div>
+        <!-- LEFT: Ticket ID + Last Updated (stacked vertically) -->
+        <div class="flex flex-col">
+            <!-- Ticket ID -->
+            <div>
+            <span class="font-mono font-semibold bg-green-600 text-white px-2 py-1 rounded inline-block" id="ticket-id-top">
+                Ticket ID
+            </span>
+            </div>
+
+            <!-- Last Updated (not constrained by Ticket ID width) -->
+            <div class="text-xs text-gray-500 mt-1">
+            <span data-translate="lastUpdated">Last updated:</span>
+            <span class="font-medium" id="last-updated">Loading...</span>
             </div>
         </div>
+
+        <!-- RIGHT: Language Switcher -->
+        <div class="language-switcher ml-auto">
+            <button id="language-toggle" class="flex items-center space-x-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+            <span id="current-flag">🇺🇸</span>
+            <span id="current-lang">EN</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            </button>
+            <div id="language-dropdown" class="language-dropdown hidden">
+            <div class="language-option" data-lang="en">
+                <span>🇺🇸</span> <span>English</span>
+            </div>
+            <div class="language-option" data-lang="vi">
+                <span>🇻🇳</span> <span>Tiếng Việt</span>
+            </div>
+            </div>
+        </div>
+
+        </div>
+    </div>
     </header>
+
+
+
 
     <main class="max-w-xl mx-auto px-1 py-4 space-y-4" id="main-content" style="display: none;">
         <!-- Enhanced Repair Status Block -->
@@ -135,7 +210,7 @@
             <div class="bg-white/80 backdrop-blur-sm p-2 border-b border-blue-200">
                 <div class="flex items-start justify-between mb-4">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Ticket Info</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2" data-translate="ticketInfo">Ticket Info</h2>
                         <div class="flex items-center space-x-4 text-sm text-gray-600">
                             <span>#<span class="font-mono font-semibold bg-gray-100 px-2 py-1 rounded" id="ticket-id">Loading...</span></span>
                             <span>•</span>
@@ -156,7 +231,7 @@
                         <span class="text-orange-600 text-xl">⚠️</span>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-orange-900 mb-1">Ticket Issue</h3>
+                        <h3 class="text-lg font-bold text-orange-900 mb-1" data-translate="ticketIssue">Ticket Issue</h3>
                         <p class="text-xl font-semibold text-orange-800" id="repair-issue">Loading...</p>
                         <p class="text-sm text-orange-700 mt-1" id="device-info">Loading...</p>
                     </div>
@@ -171,19 +246,19 @@
                             <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                                 <span class="text-blue-600 text-sm">👤</span>
                             </div>
-                            <h3 class="font-semibold text-gray-900">Customer Information</h3>
+                            <h3 class="font-semibold text-gray-900" data-translate="customerInfo">Customer Information</h3>
                         </div>
                         <div class="space-y-2 text-sm">
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Name:</span>
+                                <span class="text-gray-600" data-translate="name">Name:</span>
                                 <span class="font-medium text-gray-900" id="customer-name">Loading...</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Phone:</span>
+                                <span class="text-gray-600" data-translate="phone">Phone:</span>
                                 <span class="font-medium text-gray-900" id="customer-phone">Loading...</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Email:</span>
+                                <span class="text-gray-600" data-translate="email">Email:</span>
                                 <span class="font-medium text-gray-900" id="customer-email">Loading...</span>
                             </div>
                         </div>
@@ -194,19 +269,19 @@
                             <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                                 <span class="text-green-600 text-sm">📱</span>
                             </div>
-                            <h3 class="font-semibold text-gray-900">Device Information</h3>
+                            <h3 class="font-semibold text-gray-900" data-translate="deviceInfo">Device Information</h3>
                         </div>
                         <div class="space-y-2 text-sm">
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Brand:</span>
+                                <span class="text-gray-600" data-translate="brand">Brand:</span>
                                 <span class="font-medium text-gray-900" id="device-brand">Loading...</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Model:</span>
+                                <span class="text-gray-600" data-translate="model">Model:</span>
                                 <span class="font-medium text-gray-900" id="device-model">Loading...</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Type:</span>
+                                <span class="text-gray-600" data-translate="type">Type:</span>
                                 <span class="font-medium text-gray-900" id="device-type">Loading...</span>
                             </div>
                         </div>
@@ -222,7 +297,7 @@
                     <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                         <span class="text-blue-600 text-sm">📋</span>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900">Ticket Progress</h3>
+                    <h3 class="text-xl font-semibold text-gray-900" data-translate="ticketProgress">Ticket Progress</h3>
                 </div>
             </div>
 
@@ -230,7 +305,7 @@
                 <!-- Progress Bar -->
                 <div class="mb-8">
                     <div class="flex justify-between text-sm text-gray-600 mb-3">
-                        <span class="font-medium">Overall Progress</span>
+                        <span class="font-medium" data-translate="overallProgress">Overall Progress</span>
                         <span class="font-semibold text-blue-600" id="progress-percentage">0% Complete</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-4 shadow-inner">
@@ -242,35 +317,28 @@
                 <div class="space-y-4" id="status-timeline">
                     <!-- Timeline will be populated dynamically -->
                 </div>
-
             </div>
         </div>
 
         <!-- Technician Information -->
-
         <div class="bg-white rounded-lg shadow-sm border p-6">
             <div class="flex items-center space-x-3 mb-4">
                 <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                     <span class="text-blue-600 text-sm">🧑‍🔧</span>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-900">Assigned Technician</h3>
+                <h3 class="text-xl font-semibold text-gray-900" data-translate="assignedTechnician">Assigned Technician</h3>
             </div>
             <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                    <span class="text-gray-600">Name:</span>
+                    <span class="text-gray-600" data-translate="name">Name:</span>
                     <span class="font-medium text-gray-900" id="technician-name">Loading...</span>
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-600">ID:</span>
                     <span class="font-medium text-gray-900" id="technician-id">Loading...</span>
                 </div>
-
             </div>
-
-
         </div>
-
-
 
         <!-- Attached Images -->
         <div class="bg-white rounded-lg shadow-sm border p-6 mb-12">
@@ -278,14 +346,13 @@
                 <div class="w-10 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                     <span class="text-blue-600 text-sm">🛠️📋</span>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-900">Ticket Documentation</h3>
+                <h3 class="text-xl font-semibold text-gray-900" data-translate="ticketDocumentation">Ticket Documentation</h3>
             </div>
            
             <div class="" id="repair-images">
                 <!-- Images will be populated dynamically -->
             </div>
         </div>
-
 
         <!-- Latest Update -->
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8" id="latest-update-section">
@@ -296,7 +363,7 @@
                     </div>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-yellow-900 mb-1">Latest Update</h3>
+                    <h3 class="text-lg font-semibold text-yellow-900 mb-1" data-translate="latestUpdate">Latest Update</h3>
                     <p class="text-yellow-800 mb-2" id="latest-update-time">Loading...</p>
                     <p class="text-sm text-yellow-700" id="latest-update-notes">Loading...</p>
                 </div>
@@ -305,22 +372,20 @@
 
         <!-- Message Form -->
         <div class="bg-white rounded-lg shadow-sm border p-6">
-            <!-- <h3 class="text-lg font-semibold text-gray-900 mb-4">Send Message to Technician</h3> -->
-
             <!-- Success/Error Messages -->
             <div id="message-status" class="hidden mb-4"></div>
 
             <div>
-                <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Have a question or need to provide additional information?</label>
-                <textarea id="message" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ask a question or provide additional information about your device..."></textarea>
+                <label for="message" class="block text-sm font-medium text-gray-700 mb-2" data-translate="messageLabel">Have a question or need to provide additional information?</label>
+                <textarea id="message" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" data-translate-placeholder="messagePlaceholder"></textarea>
                 <button id="send-message-btn" onclick="sendMessage()" class="mt-3 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm font-medium transition-all duration-200">
-                    <span id="btn-text">Send Message</span>
+                    <span id="btn-text" data-translate="sendMessage">Send Message</span>
                     <span id="btn-loading" class="hidden">
                         <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Sending...
+                        <span data-translate="sending">Sending...</span>
                     </span>
                 </button>
             </div>
@@ -333,648 +398,22 @@
             <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-red-600 text-2xl">⚠️</span>
             </div>
-            <h3 class="text-lg font-semibold text-red-900 mb-2">Unable to Load Repair Status</h3>
-            <p class="text-red-700 mb-4">We're having trouble loading your repair information. Please try again or contact support.</p>
-            <button onclick="loadRepairData()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+            <h3 class="text-lg font-semibold text-red-900 mb-2" data-translate="errorTitle">Unable to Load Repair Status</h3>
+            <p class="text-red-700 mb-4" data-translate="errorMessage">We're having trouble loading your repair information. Please try again or contact support.</p>
+            <button onclick="loadRepairData()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700" data-translate="tryAgain">
                 Try Again
             </button>
         </div>
     </div>
 
     <script>
+        
         // Configuration
-        const API_URL = 'https://es.rta.vn/llm_all_log/_search';
-        let ORDER_ID = '6F1D79AF'; // This should be dynamic based on URL parameter or other source 9E6D66CD
+        let ORDER_ID = '6F1D79AF45'; // 9E6D66CD
+        // Get language from URL parameter, local storage, or default to 'en'
+        let currentLanguage = new URLSearchParams(window.location.search).get('lang') || localStorage.getItem('preferredLanguage') || 'en';
 
-        // Simplified 5-stage status mapping
-        const STATUS_GROUPS = [{
-                name: 'Device Received',
-                description: 'Device received and initial processing',
-                statuses: ['Received', 'Quote Pending', 'Quote Approved']
-            },
-            {
-                name: 'Diagnosis & Parts',
-                description: 'Assessment and parts procurement',
-                statuses: ['Diagnosed', 'Waiting for Parts', 'Parts Ordered', 'Parts Received']
-            },
-            {
-                name: 'Repair in Progress',
-                description: 'Active repair and testing',
-                statuses: ['In Progress', 'Testing', 'Quality Check']
-            },
-            {
-                name: 'Completed',
-                description: 'Repair completed successfully',
-                statuses: ['Completed']
-            },
-            {
-                name: 'Ready for Pickup',
-                description: 'Device ready for collection',
-                statuses: ['Ready for Pickup', 'Delivered']
-            }
-        ];
 
-        function getStatusGroup(currentStatus) {
-            for (let i = 0; i < STATUS_GROUPS.length; i++) {
-                if (STATUS_GROUPS[i].statuses.includes(currentStatus)) {
-                    return {
-                        group: STATUS_GROUPS[i],
-                        index: i
-                    };
-                }
-            }
-            // Default to first group if status not found
-            return {
-                group: STATUS_GROUPS[0],
-                index: 0
-            };
-        }
-
-        // Status color mapping for groups
-        const STATUS_COLORS = {
-            'Device Received': {
-                bg: 'bg-green-50',
-                border: 'border-green-200',
-                text: 'text-green-800',
-                badge: 'bg-green-100 text-green-800'
-            },
-            'Diagnosis & Parts': {
-                bg: 'bg-blue-50',
-                border: 'border-blue-200',
-                text: 'text-blue-800',
-                badge: 'bg-blue-100 text-blue-800'
-            },
-            'Repair in Progress': {
-                bg: 'bg-blue-50',
-                border: 'border-blue-200',
-                text: 'text-blue-800',
-                badge: 'bg-blue-100 text-blue-800'
-            },
-            'Completed': {
-                bg: 'bg-green-50',
-                border: 'border-green-200',
-                text: 'text-green-800',
-                badge: 'bg-green-100 text-green-800'
-            },
-            'Ready for Pickup': {
-                bg: 'bg-emerald-50',
-                border: 'border-emerald-200',
-                text: 'text-emerald-800',
-                badge: 'bg-emerald-100 text-emerald-800'
-            },
-            // Keep individual status colors for badge display
-            'Received': {
-                badge: 'bg-green-100 text-green-800'
-            },
-            'Quote Pending': {
-                badge: 'bg-yellow-100 text-yellow-800'
-            },
-            'Quote Approved': {
-                badge: 'bg-green-100 text-green-800'
-            },
-            'Diagnosed': {
-                badge: 'bg-blue-100 text-blue-800'
-            },
-            'Waiting for Parts': {
-                badge: 'bg-yellow-100 text-yellow-800'
-            },
-            'Parts Ordered': {
-                badge: 'bg-blue-100 text-blue-800'
-            },
-            'Parts Received': {
-                badge: 'bg-green-100 text-green-800'
-            },
-            'In Progress': {
-                badge: 'bg-blue-100 text-blue-800'
-            },
-            'Testing': {
-                badge: 'bg-purple-100 text-purple-800'
-            },
-            'Quality Check': {
-                badge: 'bg-indigo-100 text-indigo-800'
-            },
-            'Completed': {
-                badge: 'bg-green-100 text-green-800'
-            },
-            'Ready for Pickup': {
-                badge: 'bg-emerald-100 text-emerald-800'
-            },
-            'Delivered': {
-                badge: 'bg-green-100 text-green-800'
-            }
-        };
-
-        // Load repair data on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get order ID from URL parameter if available
-            const urlParams = new URLSearchParams(window.location.search);
-            const orderIdFromUrl = urlParams.get('ticket_id');
-            if (orderIdFromUrl) {
-                ORDER_ID = orderIdFromUrl;
-            }
-
-            loadRepairData();
-        });
-
-        async function loadRepairData() {
-            try {
-                const queryBody = {
-                    "size": 1000,
-                    "collapse": {
-                        "field": "session_id.keyword"
-                    },
-                    "sort": [{
-                        "timestamp.keyword": "desc"
-                    }],
-                    "_source": {
-                        "excludes": ["__system_update_timestamp__"]
-                    },
-                    "query": {
-                        "bool": {
-                            "must": [{
-                                    "term": {
-                                        "event_type.keyword": {
-                                            "value": "CS-UPDATE"
-                                        }
-                                    }
-                                },
-                                {
-                                    "term": {
-                                        "output.data_formatted.order_id.keyword": {
-                                            "value": ORDER_ID
-                                        }
-                                    }
-                                }
-                            ],
-                            "must_not": [{
-                                    "terms": {
-                                        "output.data_formatted.current_status.keyword": ["Closed", "Close", "close", "closed", "Đóng", "đóng", "Customer Replied"]
-                                    }
-                                },
-                                {
-                                    "terms": {
-                                        "session_name.keyword": ["Processing-Done"]
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                };
-
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(queryBody)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log("=== data ===", data);
-
-                if (data.hits && data.hits.hits && data.hits.hits.length > 0) {
-                    console.log("=== data orig ===", data.hits.hits);
-                    populateRepairData(data.hits.hits);
-                    hideLoading();
-                } else {
-                    throw new Error('No repair data found');
-                }
-
-            } catch (error) {
-                console.error('Error loading repair data:', error);
-                showError();
-            }
-        }
-
-        function populateRepairData(hits) {
-            console.log("=== hits===", hits);
-            // Sort ASC: oldest → newest
-            const sortedByAsc = [...hits].sort((a, b) =>
-                new Date(a._source.timestamp.replace(" ", "T")) - new Date(b._source.timestamp.replace(" ", "T"))
-            );
-
-            // Sort DESC: newest → oldest
-            const sortedByDesc = [...hits].sort((a, b) =>
-                new Date(b._source.timestamp.replace(" ", "T")) - new Date(a._source.timestamp.replace(" ", "T"))
-            );
-
-            const initialData = sortedByAsc[0]._source;
-            const latestUpdate = sortedByDesc[0]._source;
-
-            console.log("=== Initial Data (First Record) ===", initialData);
-            console.log("=== Latest Update (Most Recent) ===", latestUpdate);
-
-            // Populate basic information
-            const orderData = latestUpdate.output.data_formatted;
-            const initialOrderData = initialData.output.data_formatted;
-
-            // Update header information
-            document.getElementById('ticket-id-top').textContent = '#' + (orderData.order_id || ORDER_ID);
-            document.getElementById('ticket-id').textContent = orderData.order_id || ORDER_ID;
-            document.getElementById('last-updated').textContent = formatDateTime(latestUpdate.timestamp);
-            document.getElementById('created-date').textContent = `${formatDate(initialData.timestamp)}`;
-
-            // Update status badge
-            updateStatusBadge(orderData.current_status);
-
-            // Update issue information
-            document.getElementById('repair-issue').textContent = initialOrderData.customer_reported_issue || 'Repair needed';
-            document.getElementById('device-info').textContent = `${initialOrderData.device_brand || ''} ${initialOrderData.device_model || ''}`.trim();
-
-            // Update customer information
-            document.getElementById('customer-name').textContent = initialOrderData.customer_name || 'N/A';
-            document.getElementById('customer-phone').textContent = initialOrderData.customer_phone || 'N/A';
-            document.getElementById('customer-email').textContent = initialOrderData.customer_email || 'N/A';
-
-            // Update device information
-            document.getElementById('device-brand').textContent = initialOrderData.device_brand || 'N/A';
-            document.getElementById('device-model').textContent = initialOrderData.device_model || 'N/A';
-            document.getElementById('device-type').textContent = capitalizeFirst(initialOrderData.device_type) || 'N/A';
-
-            // Update technician information
-            updateTechnicianInfo(initialOrderData);
-
-            // Update latest update section
-            document.getElementById('latest-update-time').textContent = `Updated ${formatDateTime(latestUpdate.timestamp)}`;
-            document.getElementById('latest-update-notes').textContent = orderData.notes || orderData.content_update || 'No additional notes';
-
-            // Generate timeline
-            generateTimeline(sortedByAsc, orderData.current_status);
-
-            // Handle images
-            handleRepairImages(hits);
-        }
-
-        function updateStatusBadge(currentStatus) {
-            const statusBadge = document.getElementById('status-badge');
-            const statusIndicator = document.getElementById('status-indicator');
-            const statusText = document.getElementById('current-status');
-
-            const colors = STATUS_COLORS[currentStatus] || STATUS_COLORS['In Progress'];
-
-            statusBadge.className = `flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-semibold shadow-sm ${colors.badge}`;
-            statusIndicator.className = `w-2 h-2 rounded-full animate-pulse ${currentStatus === 'In Progress' ? 'bg-blue-500' : 'bg-green-500'}`;
-            statusText.textContent = currentStatus;
-        }
-
-        function updateTechnicianInfo(orderData) {
-            const technicianName = orderData.technician_name || 'Unassigned';
-            const technicianId = orderData.technician_id || 'N/A';
-
-            document.getElementById('technician-name').textContent = technicianName;
-            document.getElementById('technician-id').textContent = `ID: ${technicianId}`;
-
-            // Generate initials
-            // const initials = technicianName.split(' ').map(name => name.charAt(0)).join('').substring(0, 2).toUpperCase();
-            // document.getElementById('technician-initials').textContent = initials || 'UN';
-        }
-
-        function generateTimeline(hits, currentStatus) {
-            const timeline = document.getElementById('status-timeline');
-            const {
-                group: currentGroup,
-                index: currentGroupIndex
-            } = getStatusGroup(currentStatus);
-            const progress = Math.round(((currentGroupIndex + 1) / STATUS_GROUPS.length) * 100);
-
-            // Update progress bar
-            document.getElementById('progress-percentage').textContent = `${progress}% Complete`;
-            document.getElementById('progress-bar').style.width = `${progress}%`;
-
-            // Create status map from hits
-            const statusMap = {};
-            const groupStatusMap = {};
-
-            hits.forEach(hit => {
-                const status = hit._source.output.data_formatted.current_status;
-                const timestamp = hit._source.timestamp;
-                const notes = hit._source.output.data_formatted.content_update || '';
-
-                statusMap[status] = {
-                    timestamp,
-                    notes
-                };
-
-                // Map to groups
-                const {
-                    group,
-                    index
-                } = getStatusGroup(status);
-                if (!groupStatusMap[group.name] || new Date(timestamp) > new Date(groupStatusMap[group.name].timestamp)) {
-                    groupStatusMap[group.name] = {
-                        timestamp,
-                        notes,
-                        actualStatus: status
-                    };
-                }
-            });
-
-            // Generate timeline HTML
-            timeline.innerHTML = '';
-
-            STATUS_GROUPS.forEach((statusGroup, index) => {
-                const isCompleted = index < currentGroupIndex;
-                const isCurrent = index === currentGroupIndex;
-                const isPending = index > currentGroupIndex;
-
-                let statusClass, iconContent, timeContent, detailsContent;
-
-                if (isCompleted) {
-                    statusClass = 'bg-green-50 border-green-200 shadow-sm';
-                    iconContent = '<span class="text-white text-sm font-bold">✓</span>';
-                    const groupData = groupStatusMap[statusGroup.name];
-                    timeContent = groupData ? formatDateTime(groupData.timestamp) : 'Completed';
-                    detailsContent = groupData ? `${groupData.actualStatus}: ${groupData.notes}` : statusGroup.description;
-                } else if (isCurrent) {
-                    statusClass = 'bg-blue-50 border-blue-200 shadow-sm ring-2 ring-blue-200';
-                    iconContent = '<div class="w-4 h-4 bg-white rounded-full animate-pulse"></div>';
-                    const groupData = groupStatusMap[statusGroup.name];
-                    timeContent = groupData ? formatDateTime(groupData.timestamp) : 'In Progress';
-                    detailsContent = groupData ? `${groupData.actualStatus}: ${groupData.notes}` : `Currently: ${currentStatus}`;
-                } else {
-                    statusClass = 'bg-gray-50 border-gray-200 shadow-sm';
-                    iconContent = `<span class="text-gray-500 text-sm font-semibold">${index + 1}</span>`;
-                    timeContent = 'Pending';
-                    detailsContent = statusGroup.description;
-                }
-
-                const iconBgClass = isCompleted ? 'bg-green-500' : isCurrent ? 'bg-blue-500' : 'bg-gray-300';
-                const textColorClass = isCompleted ? 'text-green-800' : isCurrent ? 'text-blue-800' : 'text-gray-600';
-                const noteColorClass = isCompleted ? 'text-green-600' : isCurrent ? 'text-blue-600' : 'text-gray-500';
-                const timeColorClass = isCompleted ? 'text-green-500' : isCurrent ? 'text-blue-500' : 'text-gray-400';
-
-                timeline.innerHTML += `
-                    <div class="flex items-center space-x-4 p-3 ${statusClass} rounded-xl border">
-                        <div class="w-10 h-10 ${iconBgClass} rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
-                            ${iconContent}
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="font-semibold ${textColorClass} text-lg">${statusGroup.name}</p>
-                                    <p class="text-sm ${noteColorClass} mt-1">${detailsContent}</p>
-                                </div>
-                                <span class="text-xs ${timeColorClass} font-semibold bg-white bg-opacity-50 px-2 py-1 rounded">${timeContent}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function getDefaultStatusDescription(status) {
-            const descriptions = {
-                'Received': 'Device received and logged into our system',
-                'Quote Pending': 'Preparing repair quote for customer approval',
-                'Quote Approved': 'Repair quote approved by customer',
-                'Diagnosed': 'Initial diagnosis and assessment completed',
-                'Waiting for Parts': 'Waiting for replacement parts to arrive',
-                'Parts Ordered': 'Replacement parts have been ordered',
-                'Parts Received': 'Parts received and quality verified',
-                'In Progress': 'Repair work is currently underway',
-                'Testing': 'Device functionality testing in progress',
-                'Quality Check': 'Final quality assurance and inspection',
-                'Completed': 'Repair completed successfully',
-                'Ready for Pickup': 'Device ready for customer collection',
-                'Delivered': 'Device delivered to customer'
-            };
-            return descriptions[status] || 'Status update';
-        }
-        
-
-        
-
-        // Các hàm điều khiển slider
-        function moveSlide(direction) {
-            currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
-            updateSlider();
-        }
-
-        function goToSlide(index) {
-            currentSlide = index;
-            updateSlider();
-        }
-
-        function updateSlider() {
-            const container = document.getElementById('media-slider-container');
-            if (container) {
-                container.style.transform = `translateX(-${currentSlide * 100}%)`;
-
-                // Cập nhật dots
-                const dots = document.querySelectorAll('.media-slider-dot');
-                dots.forEach((dot, index) => {
-                    dot.classList.toggle('active', index === currentSlide);
-                });
-
-                // Cập nhật thumbnails
-                const thumbnails = document.querySelectorAll('.media-thumbnail');
-                thumbnails.forEach((thumb, index) => {
-                    thumb.classList.toggle('active', index === currentSlide);
-                });
-            }
-        }
-
-        let currentSlide = 0;
-        let totalSlides = 0;
-        function handleRepairImages(hits) {
-            const imagesContainer = document.getElementById('repair-images');
-            const images = [];
-
-            // Collect all image URLs from hits
-            hits.forEach(hit => {
-                if (hit._source.output.files) {
-                    const files = hit._source.output.files.split(',').map(url => url.trim()).filter(url => url);
-                    images.push(...files);
-                }
-                if (hit._source.input.attachments) {
-                    const attachments = hit._source.input.attachments.split(',').map(url => url.trim()).filter(url => url);
-                    images.push(...attachments);
-                }
-            });
-
-            // Remove duplicates
-            const uniqueImages = [...new Set(images)];
-
-            // Biến toàn cục cho slider
-            totalSlides = uniqueImages.length;
-
-            if (uniqueImages.length > 0) {
-                const sliderContent = `
-                    <div class="media-slider">
-                        <div class="media-slider-container" id="media-slider-container">
-                            ${uniqueImages.map((url, index) => `<div class="media-slide"><img src="${url}" alt="Hình ảnh thiết bị ${index + 1}" onerror="this.onerror=null;this.src='https://via.placeholder.com/500x300?text=Image+Unavailable';" /></div>`).join("")}
-                        </div>
-                        ${uniqueImages.length > 1 ? `
-                            <div class="media-slider-arrow prev" onclick="moveSlide(-1)">&#10094;</div>
-                            <div class="media-slider-arrow next" onclick="moveSlide(1)">&#10095;</div>
-                        ` : ''}
-                    </div>
-                    ${uniqueImages.length > 1 ? `
-                        <div class="media-slider-nav" id="media-slider-nav">
-                            ${uniqueImages.map((_, index) => `<div class="media-slider-dot ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})"></div>`).join("")}
-                        </div>
-                        <div class="media-thumbnail-container" id="media-thumbnails">
-                            ${uniqueImages.map((url, index) => `<img class="media-thumbnail ${index === 0 ? 'active' : ''}" src="${url}" onclick="goToSlide(${index})" alt="Thumbnail ${index + 1}">`).join("")}
-                        </div>
-                    ` : ''}
-                `;
-
-                imagesContainer.innerHTML = sliderContent;
-
-                // Cập nhật slider ban đầu
-                updateSlider();
-            } else {
-                imagesContainer.innerHTML = `
-                    <div class="col-span-full text-center py-8 text-gray-500">
-                        <p>No repair documentation images available yet.</p>
-                    </div>
-                `;
-            }
-        }
-
-        // function openImage(imageUrl) {
-        //     window.open(imageUrl, '_blank');
-        // }
-
-        function hideLoading() {
-            document.getElementById('loading-overlay').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-        }
-
-        function showError() {
-            document.getElementById('loading-overlay').style.display = 'none';
-            document.getElementById('error-state').style.display = 'block';
-        }
-
-        function formatDateTime(timestamp) {
-            const date = new Date(timestamp);
-            return date.toLocaleString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        function formatDate(timestamp) {
-            const date = new Date(timestamp);
-            return date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-        }
-
-        function capitalizeFirst(str) {
-            if (!str) return '';
-            return str.charAt(0).toUpperCase() + str.slice(1);
-        }
-
-        // Message sending functionality
-        async function sendMessage() {
-            const messageTextarea = document.getElementById('message');
-            const sendBtn = document.getElementById('send-message-btn');
-            const btnText = document.getElementById('btn-text');
-            const btnLoading = document.getElementById('btn-loading');
-            const messageStatus = document.getElementById('message-status');
-            const ticketId = document.getElementById('ticket-id').textContent;
-
-            const message = messageTextarea.value.trim();
-
-            if (!message) {
-                showMessage('Please enter a message before sending.', 'error');
-                return;
-            }
-
-            sendBtn.disabled = true;
-            btnText.classList.add('hidden');
-            btnLoading.classList.remove('hidden');
-            sendBtn.classList.add('opacity-75', 'cursor-not-allowed');
-
-            try {
-                const response = await fetch('https://workflow.realtimex.co/api/v1/executions/webhook/flowai/feedback_app/input', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: message,
-                        ticket_id: ticketId
-                    })
-                });
-
-                if (response.ok) {
-                    showMessage('Message sent successfully! Your technician will receive your message shortly.', 'success');
-                    messageTextarea.value = '';
-                } else {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-            } catch (error) {
-                console.error('Error sending message:', error);
-                showMessage('Failed to send message. Please try again or contact support.', 'error');
-            } finally {
-                sendBtn.disabled = false;
-                btnText.classList.remove('hidden');
-                btnLoading.classList.add('hidden');
-                sendBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-            }
-        }
-
-        function showMessage(text, type) {
-            const messageStatus = document.getElementById('message-status');
-            messageStatus.classList.remove('hidden');
-
-            if (type === 'success') {
-                messageStatus.className = 'mb-4 p-4 bg-green-50 border border-green-200 rounded-md';
-                messageStatus.innerHTML = `
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-green-800">${text}</p>
-                        </div>
-                    </div>
-                `;
-            } else {
-                messageStatus.className = 'mb-4 p-4 bg-red-50 border border-red-200 rounded-md';
-                messageStatus.innerHTML = `
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-red-800">${text}</p>
-                        </div>
-                    </div>
-                `;
-            }
-
-            if (type === 'success') {
-                setTimeout(() => {
-                    messageStatus.classList.add('hidden');
-                }, 5000);
-            }
-        }
-
-        // Keyboard shortcut for sending message
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('message').addEventListener('keydown', function(e) {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            });
-        });
     </script>
 </body>
 
