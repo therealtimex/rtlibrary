@@ -753,7 +753,7 @@ if (orgCreateForm) {
 }
 
 // Initialize the application
-function initRealtimeCS(configObj) {
+function initFuseSellAI(configObj) {
     config = configObj;
     currentLang = config.appLanguage || 'en';
     T = LANG[currentLang] || LANG.en;
@@ -773,4 +773,4 @@ function initRealtimeCS(configObj) {
 
 
 // Export for global access
-window.initRealtimeCS = initRealtimeCS;
+window.initFuseSellAI = initFuseSellAI;
