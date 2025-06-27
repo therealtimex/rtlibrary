@@ -382,7 +382,12 @@ function openFeedbackModal() {
     const modal = document.getElementById('feedback-modal');
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden'; // Prevent background scrolling
-    
+
+    // Use values from the config object
+    document.getElementById('feedback-name').value = configUser.userFullName || '';
+    document.getElementById('feedback-phone').value = configUser.userPhone || '';
+    document.getElementById('feedback-email').value = configUser.userEmail || '';
+
     // Focus on the message textarea
     setTimeout(() => {
         document.getElementById('feedback-message').focus();
@@ -405,9 +410,9 @@ function closeFeedbackModal() {
         document.getElementById('feedback-form').reset();
         
         // Reset default values
-        document.getElementById('feedback-name').value = '##user.name##';
-        document.getElementById('feedback-phone').value = '##user.phone##';
-        document.getElementById('feedback-email').value = '##user.email##';
+        document.getElementById('feedback-name').value = configUser.userFullName || '';
+        document.getElementById('feedback-phone').value = configUser.userPhone || '';
+        document.getElementById('feedback-email').value = configUser.userEmail || '';
         
         modalContent.classList.remove('modal-exit');
         modalContent.classList.add('modal-enter');
@@ -477,7 +482,7 @@ async function submitFeedback(formData) {
                 source: 'changelog_feedback',
                 language: currentLanguage,
                 platform: APP_PLATFORM,
-                md_code: currentModule
+                project_code: currentProject
             })
         });
 
