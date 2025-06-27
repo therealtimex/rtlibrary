@@ -228,6 +228,10 @@ async function checkUserType() {
 
 async function checkOrgInfoData() {
     const apiUrl = 'https://es.rta.vn/nerp_org/_search';
+    
+    // Ensure trialOrgId is always an array
+    const trialOrgIds = Array.isArray(config.trialOrgId) ? config.trialOrgId : [config.trialOrgId];
+
     const query = {
         "sort": [{ "__system_update_timestamp__": "desc" }],
         "query": {
@@ -237,7 +241,7 @@ async function checkOrgInfoData() {
                     { "term": { "project_code.raw": { "value": config.projectCode } } }
                 ],
                 "must_not": [
-                    { "term": { "org_id.raw": { "value": config.trialOrgId } } }
+                    { "terms": { "org_id.raw": trialOrgIds } }
                 ]
             }
         },
