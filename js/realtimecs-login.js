@@ -254,11 +254,11 @@ async function checkOrgInfoData() {
         });
 
         const data = await response.json();
-        // Kiểm tra xem có dữ liệu trả về hay không
-        return data.hits.total.value > 0; // Trả về true nếu có dữ liệu, false nếu không
+        // Check if data is returned
+        return data.hits.total.value > 0; // Return true if data exists, false otherwise
     } catch (error) {
-        console.error('Lỗi khi gọi API Elasticsearch:', error);
-        return false; // Trả về false nếu có lỗi xảy ra
+        console.error('Error calling Elasticsearch API:', error);
+        return false; // Return false if an error occurs
     }
 }                                
 
@@ -282,22 +282,22 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
 
     if (btnRetryPopup) {
       btnRetryPopup.onclick = function() {
-        // Ẩn popup retry
+        // hide popup retry
         retryPopup.classList.add('hidden');
-        // Hiển thị lại spinner
+        // ReShow spinner
         const spinner = document.getElementById('loading-spinner');
         const spinnerLabel = document.getElementById('spinner-label');
         if (spinner) {
             spinner.classList.remove('hidden');
             if (spinnerLabel) spinnerLabel.textContent = T.processing;
         }
-        attempts = 0; // Reset số lượt thử lại
+        attempts = 0; // Reset the number of tests again
         checkUpdate();
       };
     }
   }
 
-  // Hiển thị Spinner trước khi bắt đầu polling
+  // Show Spinner before starting Polling
   const spinner = document.getElementById('loading-spinner');
   const spinnerLabel = document.getElementById('spinner-label');
   if (spinner) {
@@ -310,7 +310,7 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0 && data[0].organization_id !== originalOrgId) {
-          // Nếu organization_id đã thay đổi, tiến hành 2 hành động:
+          // If organization_id has changed, conducted 2 actions:
           App.callActionButton(JSON.stringify({
             actionID: 24703,
             orderNumber: 1,
@@ -324,9 +324,9 @@ function pollOrgUpdate(originalOrgId, resultMessage, maxAttempts = 3, interval =
               type: "act_reload_app",
               label: "Reload App"
             }));
-            // Ẩn Spinner sau khi hoàn tất
+            // Hide spinner after completion
             if (spinner) spinner.classList.add('hidden');
-            // Hiển thị popup kết quả
+            // Show Popup results
             showResult(resultMessage);
           }, 3000);
         } else {
@@ -372,14 +372,14 @@ function showResult(msg, color = '#333') {
 
 // Show setup dialog
 function showSetupDialog() {
-    // Nếu giao diện đang được hiển thị dạng phẳng, không cần xử lý gì thêm
-    // Bạn có thể xóa nội dung hoặc comment code ẩn/hiện
+    // If the interface is being displayed flat, no more processing 
+    // You can delete the content or comment hidden/show
 }
 
 
 // Hide setup dialog
 function hideSetupDialog() {
-    // Không ẩn giao diện, hoặc xử lý theo logic giao diện phẳng
+    // Do not hide the interface, or process the flat interface logic
 }
 
 
@@ -409,10 +409,10 @@ async function showBanner() {
         if (userDisplay) userDisplay.textContent = `${config.userFullName}`;
         // if (welcomeSubtitle) welcomeSubtitle.textContent = `${config.userOrgName || 'Your Organization'} - ${T.official_mode_subtitle}`;
 
-        // Kiểm tra dữ liệu từ Elasticsearch
+        // Check data from elasticsearch
         const hasOrgInfoData = await checkOrgInfoData();
                                                                                                                                                  
-        // Ẩn/hiện nút dựa trên kết quả
+        // Hide/Show button based on the results
         if (orgInfoButton) {
             if (hasOrgInfoData) {
                 orgInfoButton.classList.remove('hidden');
@@ -463,16 +463,16 @@ function setupEventHandlers() {
     var btnCreateOrg = document.getElementById('btn-create-org');
     if (btnCreateOrg) {
       btnCreateOrg.addEventListener('click', function() {
-        // Ẩn mô tả setup-org-desc
+        // Hide setup-org-desc
         var setupOrgDesc = document.getElementById('setup-org-desc');
         if (setupOrgDesc) setupOrgDesc.classList.add('hidden');
-        // Ẩn phần lựa chọn setup
+        // Hide selection setup
         var setupSelection = document.getElementById('setup-selection');
         if (setupSelection) setupSelection.classList.add('hidden');
-        // Hiện form tạo tổ chức
+        // Show form create org
         var createOrgForm = document.getElementById('create-org-form');
         if (createOrgForm) createOrgForm.classList.remove('hidden');
-        // Thiết lập giá trị mặc định cho form
+        // Setup default value for form
         var contactName = document.getElementById('contact-name');
         if (contactName) contactName.value = config.userFullName;
         var contactEmail = document.getElementById('contact-email');
@@ -485,13 +485,13 @@ function setupEventHandlers() {
     var btnJoinOrg = document.getElementById('btn-join-org');
     if (btnJoinOrg) {
       btnJoinOrg.addEventListener('click', function() {
-        // Ẩn mô tả setup-org-desc
+        // Hide setup-org-desc
         var setupOrgDesc = document.getElementById('setup-org-desc');
         if (setupOrgDesc) setupOrgDesc.classList.add('hidden');
-        // Ẩn phần lựa chọn setup
+        // Hide selection setup
         var setupSelection = document.getElementById('setup-selection');
         if (setupSelection) setupSelection.classList.add('hidden');
-        // Hiện form gia nhập tổ chức
+        // Show form join Org
         var joinOrgForm = document.getElementById('join-org-form');
         if (joinOrgForm) joinOrgForm.classList.remove('hidden');
       });
@@ -521,7 +521,7 @@ function setupEventHandlers() {
         if (createOrgForm) createOrgForm.classList.add('hidden');
         var setupSelection = document.getElementById('setup-selection');
         if (setupSelection) setupSelection.classList.remove('hidden');
-        // Hiện lại phần mô tả setup-org-desc
+        // Show the description of setup-org-desc
         var setupOrgDesc = document.getElementById('setup-org-desc');
         if (setupOrgDesc) setupOrgDesc.classList.remove('hidden');
       });
@@ -534,7 +534,7 @@ function setupEventHandlers() {
         if (joinOrgForm) joinOrgForm.classList.add('hidden');
         var setupSelection = document.getElementById('setup-selection');
         if (setupSelection) setupSelection.classList.remove('hidden');
-        // Hiện lại phần mô tả setup-org-desc
+        // Show the description of setup-org-desc
         var setupOrgDesc = document.getElementById('setup-org-desc');
         if (setupOrgDesc) setupOrgDesc.classList.remove('hidden');
       });
@@ -591,7 +591,7 @@ if (orgCreateForm) {
       return res.json(); 
     })
     .then(() => {
-      // Ẩn giao diện nhập liệu hoàn toàn bằng cách set style display = 'none'
+      // Hide the entry interface completely by setting the style display = 'none'
       const createOrgFormElem = document.getElementById('create-org-form');
       if (createOrgFormElem) {
         createOrgFormElem.style.display = 'none';
@@ -603,7 +603,7 @@ if (orgCreateForm) {
       
       const originalOrgId = config.userOrgId;
       pollOrgUpdate(originalOrgId, T.notify(orgName, contactEmail));
-      // Hiển thị màn hình kết quả
+      // Display results screen
       // showResult(T.notify(orgName, contactEmail));
       orgCreateForm.reset();
     })
@@ -668,12 +668,12 @@ if (orgCreateForm) {
                 }
             }
         } else {
-            // Ẩn giao diện nhập liệu của join-org-form
+            // Hide the input interface of join-org-form
             var joinOrgFormElem = document.getElementById('join-org-form');
             if (joinOrgFormElem) {
               joinOrgFormElem.style.display = 'none';
             }
-            // Vô hiệu hóa nút gửi và cập nhật label
+            // Disable the send button and update label
             this.disabled = true;
             this.textContent = T.sending;
             try {
