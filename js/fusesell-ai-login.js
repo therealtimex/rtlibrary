@@ -443,7 +443,7 @@ function setupEventHandlers() {
             orderNumber: 1,
             type: "act_dm_view",
             label: "no label",
-            screen: "fusesellai-fusesellaisub-fusesellai01obj1000-screen_1001",
+            screen: "fusesellai-fusesellaisub-fusesellai01obj1000-screen1001",
             alias: "fusesellai_fusesellai01obj1000",
             args: { user_type: userType }
         };
@@ -741,7 +741,7 @@ if (orgCreateForm) {
                 orderNumber: 1,
                 type: "act_dm_view",
                 label: "no label",
-                screen: "fusesellai-fusesellaisub-fusesellai01obj1000-screen_1002",
+                screen: "fusesellai-fusesellaisub-fusesellai01obj1000-screen1002",
                 alias: "fusesellai_fusesellai01obj1000"
                
             };
