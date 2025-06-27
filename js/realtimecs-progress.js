@@ -362,10 +362,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (orderIdFromUrl) {
         ORDER_ID = orderIdFromUrl;
         console.log("=== ORDER_ID set from URL ===", ORDER_ID);
-        loadRepairData(); // Chỉ load khi có ORDER_ID
+        loadRepairData(); 
     } else {
         console.log("=== No ticket_id in URL ===");
-        showError(); // Hiển thị lỗi nếu không có ticket_id
+        showError(); 
     }
 });
 
