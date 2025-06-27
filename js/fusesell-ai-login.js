@@ -72,12 +72,12 @@ const LANG = {
         settings_btn: "Settings",
 
         // Welcome texts
-        welcome_app: "Welcome to RealTime CS",
-        app_description: "Real-time Human Resource Management System",
+        welcome_app: "Welcome to FuseSell AI",
+        app_description: "AI Powered Sales Management System",
 
         // Setup dialog
         setup_org_title: "Organization Setup",
-        setup_org_desc: "Choose how you want to use RealTime CS",
+        setup_org_desc: "Choose how you want to use FuseSell AI",
         create_org_title: "Create New Organization",
         create_org_desc: "Create a new workspace for your business",
         join_org_title: "Join Organization",
