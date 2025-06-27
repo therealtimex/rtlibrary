@@ -443,8 +443,8 @@ function setupEventHandlers() {
             orderNumber: 1,
             type: "act_dm_view",
             label: "no label",
-            screen: "fusesellai-fusesellaisub-fusesellai01-screen_1001",
-            alias: "fusesellai-fusesellai01",
+            screen: "fusesellai-fusesellaisub-fusesellai01obj1000-screen_1001",
+            alias: "fusesellai_fusesellai01obj1000",
             args: { user_type: userType }
         };
         App.callActionButton(JSON.stringify(actionData));
@@ -741,8 +741,8 @@ if (orgCreateForm) {
                 orderNumber: 1,
                 type: "act_dm_view",
                 label: "no label",
-                screen: "fusesellai-fusesellaisub-fusesellai01-screen_1002",
-                alias: "fusesellai-fusesellai01"
+                screen: "fusesellai-fusesellaisub-fusesellai01obj1000-screen_1002",
+                alias: "fusesellai_fusesellai01obj1000"
                
             };
             App.callActionButton(JSON.stringify(actionData));
