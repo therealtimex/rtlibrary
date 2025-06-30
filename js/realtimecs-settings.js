@@ -1,0 +1,351 @@
+// Language translations
+const translations = {
+    en: {
+        pageTitle: 'Customer Notification Settings',
+        pageDescription: 'Configure email and SMS notifications for customer repair status updates',
+        emailTab: 'Email',
+        smsTab: 'SMS',
+        active: 'Active',
+        emailConfigTitle: 'Email Notification Settings',
+        emailConfigDesc: 'Configure the sender name, email, and signature for repair status updates',
+        emailEnabledText: 'Email notifications are enabled and configured.',
+        emailNotConfiguredText: 'Email notifications are not yet configured. Please fill out the form below.',
+        senderNameLabel: 'Repair Facility Name',
+        senderEmailLabel: 'Sender Email Address',
+        defaultSubjectLabel: 'Default Email Subject',
+        emailSignatureLabel: 'Email Signature',
+        saveEmailText: 'Save Email Settings',
+        smsConfigTitle: 'SMS Notification Settings',
+        smsConfigDesc: 'Configure SMS notifications for repair status updates, ensuring TCPA compliance',
+        smsEnabledText: 'SMS notifications are enabled and configured.',
+        smsNotConfiguredText: 'SMS notifications are not yet configured. Please fill out the form below.',
+        phoneNumberLabel: 'Business Phone Number',
+        defaultMessageLabel: 'Default Repair Status Message',
+        smsOptTitle: 'TCPA Compliant SMS Opt-in/Opt-out',
+        qrTitle: 'Customer SMS Opt-in QR Code',
+        qrDescription: 'Customers can scan this QR code to opt-in to receive SMS repair status updates',
+        generateQrBtn: 'Generate New QR Code',
+        optInstructionsTitle: 'SMS Opt-in/Opt-out Instructions',
+        subscribeText: 'To Subscribe to Updates:',
+        unsubscribeText: 'To Unsubscribe from Updates:',
+        keywordConfigTitle: 'SMS Keyword Configuration',
+        optInLabel: 'Opt-in Keyword (e.g., START, YES)',
+        optOutLabel: 'Opt-out Keyword (e.g., STOP, UNSUBSCRIBE)',
+        autoResponseTitle: 'Automated SMS Responses',
+        welcomeLabel: 'Welcome Message (after opt-in)',
+        goodbyeLabel: 'Goodbye Message (after opt-out)',
+        smsStatusTitle: 'SMS Integration Status',
+        providerStatus: 'Connected to SMS provider',
+        phoneStatus: 'Phone number verified',
+        saveSmsText: 'Save SMS Settings',
+        saving: 'Saving...',
+        emailSaveSuccess: 'Email settings saved successfully!',
+        smsSaveSuccess: 'SMS settings saved successfully!',
+        saveError: 'Failed to save settings. Please try again.'
+    },
+    vi: {
+        pageTitle: 'Cài Đặt Thông Báo Khách Hàng',
+        pageDescription: 'Cấu hình thông báo qua email và SMS về tình trạng sửa chữa cho khách hàng',
+        emailTab: 'Email',
+        smsTab: 'SMS',
+        active: 'Hoạt động',
+        emailConfigTitle: 'Cài Đặt Thông Báo Email',
+        emailConfigDesc: 'Cấu hình tên người gửi, email và chữ ký cho các cập nhật tình trạng sửa chữa',
+        emailEnabledText: 'Thông báo qua email đã được kích hoạt và cấu hình.',
+        emailNotConfiguredText: 'Thông báo qua email chưa được cấu hình. Vui lòng điền vào biểu mẫu dưới đây.',
+        senderNameLabel: 'Tên Cơ Sở Sửa Chữa',
+        senderEmailLabel: 'Địa Chỉ Email Gửi',
+        defaultSubjectLabel: 'Tiêu Đề Email Mặc Định',
+        emailSignatureLabel: 'Chữ Ký Email',
+        saveEmailText: 'Lưu Cài Đặt Email',
+        smsConfigTitle: 'Cài Đặt Thông Báo SMS',
+        smsConfigDesc: 'Cấu hình thông báo SMS về tình trạng sửa chữa, đảm bảo tuân thủ TCPA',
+        smsEnabledText: 'Thông báo qua SMS đã được kích hoạt và cấu hình.',
+        smsNotConfiguredText: 'Thông báo qua SMS chưa được cấu hình. Vui lòng điền vào biểu mẫu dưới đây.',
+        phoneNumberLabel: 'Số Điện Thoại Doanh Nghiệp',
+        defaultMessageLabel: 'Nội Dung Tin Nhắn Mặc Định',
+        smsOptTitle: 'Tuân Thủ TCPA SMS Opt-in/Opt-out',
+        qrTitle: 'Mã QR Đăng Ký Nhận Tin Nhắn SMS',
+        qrDescription: 'Khách hàng có thể quét mã QR này để đăng ký nhận thông báo tình trạng sửa chữa qua SMS',
+        generateQrBtn: 'Tạo Mã QR Mới',
+        optInstructionsTitle: 'Hướng Dẫn Đăng Ký/Hủy Đăng Ký SMS',
+        subscribeText: 'Để Đăng Ký Nhận Cập Nhật:',
+        unsubscribeText: 'Để Hủy Đăng Ký Nhận Cập Nhật:',
+        keywordConfigTitle: 'Cấu Hình Từ Khóa SMS',
+        optInLabel: 'Từ Khóa Đăng Ký (ví dụ: BATDAU, CO)',
+        optOutLabel: 'Từ Khóa Hủy Đăng Ký (ví dụ: DUNG, HUY)',
+        autoResponseTitle: 'Tin Nhắn SMS Tự Động',
+        welcomeLabel: 'Tin Nhắn Chào Mừng (sau khi đăng ký)',
+        goodbyeLabel: 'Tin Nhắn Tạm Biệt (sau khi hủy đăng ký)',
+        smsStatusTitle: 'Trạng Thái Tích Hợp SMS',
+        providerStatus: 'Đã kết nối với nhà cung cấp SMS',
+        phoneStatus: 'Số điện thoại đã được xác minh',
+        saveSmsText: 'Lưu Cài Đặt SMS',
+        saving: 'Đang lưu...',
+        emailSaveSuccess: 'Cài đặt email đã được lưu thành công!',
+        smsSaveSuccess: 'Cài đặt SMS đã được lưu thành công!',
+        saveError: 'Không thể lưu cài đặt. Vui lòng thử lại.'
+    }
+};
+
+// Initialize language on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateCharacterCount();
+    // Automatically set language based on configUser.appLanguage
+    setLanguage(configUser.appLanguage);
+
+    // Set default values for readonly fields
+    document.getElementById('sender-email').value = `realtimecs+${configUser.userOrgId}@realtimex.ai`;
+    document.getElementById('phone-number').value = '+1-650-417-3562'; // Default phone number
+});
+
+function setLanguage(lang) {
+    // Update all text elements based on the language
+    const t = translations[lang];
+    
+    document.getElementById('page-title').textContent = t.pageTitle;
+    document.getElementById('page-description').textContent = t.pageDescription;
+    document.getElementById('email-tab-text').textContent = t.emailTab;
+    document.getElementById('sms-tab-text').textContent = t.smsTab;
+    
+    
+    // Email section
+    document.getElementById('email-config-title').textContent = t.emailConfigTitle;
+    document.getElementById('email-config-desc').textContent = t.emailConfigDesc;
+    document.getElementById('email-enabled-text').textContent = t.emailEnabledText;
+    document.getElementById('sender-name-label').textContent = t.senderNameLabel;
+    document.getElementById('sender-email-label').textContent = t.senderEmailLabel;
+    document.getElementById('default-subject-label').textContent = t.defaultSubjectLabel;
+    document.getElementById('email-signature-label').textContent = t.emailSignatureLabel;
+    document.getElementById('save-email-text').textContent = t.saveEmailText;
+    
+    // SMS section
+    document.getElementById('sms-config-title').textContent = t.smsConfigTitle;
+    document.getElementById('sms-config-desc').textContent = t.smsConfigDesc;
+    document.getElementById('sms-enabled-text').textContent = t.smsEnabledText;
+    document.getElementById('sms-sender-name-label').textContent = t.senderNameLabel;
+    document.getElementById('phone-number-label').textContent = t.phoneNumberLabel;
+    document.getElementById('default-message-label').textContent = t.defaultMessageLabel;
+    document.getElementById('sms-opt-title').textContent = t.smsOptTitle;
+    document.getElementById('qr-title').textContent = t.qrTitle;
+    document.getElementById('qr-description').textContent = t.qrDescription;
+    // document.getElementById('generate-qr-btn').textContent = t.generateQrBtn;
+    document.getElementById('opt-instructions-title').textContent = t.optInstructionsTitle;
+    document.getElementById('subscribe-text').textContent = t.subscribeText;
+    document.getElementById('unsubscribe-text').textContent = t.unsubscribeText;
+    document.getElementById('keyword-config-title').textContent = t.keywordConfigTitle;
+    document.getElementById('opt-in-label').textContent = t.optInLabel;
+    document.getElementById('opt-out-label').textContent = t.optOutLabel;
+    document.getElementById('auto-response-title').textContent = t.autoResponseTitle;
+    document.getElementById('welcome-label').textContent = t.welcomeLabel;
+    document.getElementById('goodbye-label').textContent = t.goodbyeLabel;
+    // document.getElementById('sms-status-title').textContent = t.smsStatusTitle;
+    // document.getElementById('provider-status').textContent = t.providerStatus;
+    // document.getElementById('phone-status').textContent = t.phoneStatus;
+    document.getElementById('save-sms-text').textContent = t.saveSmsText;
+}
+
+function switchTab(tabName) {
+    // Hide all tab contents
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => {
+        content.classList.remove('active');
+    });
+
+    // Remove active class from all tab buttons
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => {
+        button.classList.remove('active');
+    });
+
+    // Show selected tab content
+    document.getElementById(tabName + '-content').classList.add('active');
+    
+    // Add active class to selected tab button
+    document.getElementById(tabName + '-tab').classList.add('active');
+}
+
+function updateCharacterCount() {
+    const textarea = document.getElementById('default-message');
+    const charCount = document.getElementById('char-count');
+    const length = textarea.value.length;
+    charCount.textContent = `Character count: ${length}/160`;
+}
+
+function showLoading(buttonId) {
+    const button = document.getElementById(buttonId);
+    const t = translations[configUser.appLanguage];
+    button.disabled = true;
+    const textSpan = button.querySelector('span');
+    textSpan.textContent = t.saving;
+}
+
+function hideLoading(buttonId, originalTextKey) {
+    const button = document.getElementById(buttonId);
+    const t = translations[configUser.appLanguage];
+    button.disabled = false;
+    const textSpan = button.querySelector('span');
+    textSpan.textContent = t[originalTextKey];
+}
+
+
+
+
+function showNotification(messageKey, type = 'success') {
+    const t = translations[configUser.appLanguage];
+    const message = t[messageKey];
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 6px;
+        color: white;
+        font-weight: 500;
+        z-index: 1000;
+        animation: slideIn 0.3s ease-out;
+        ${type === 'success' ? 'background-color: #10b981;' : 'background-color: #ef4444;'}
+    `;
+    notification.textContent = message;
+
+    // Add animation keyframes if not already added
+    if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(notification);
+
+    // Remove notification after 4 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 4000);
+}
+
+async function saveEmailSettings() {
+    const button = document.getElementById('email-save-btn');
+    
+    try {
+        showLoading('email-save-btn');
+
+        const emailData = {
+            type: 'email',
+            user: {
+                username: configUser.username,
+                userFullName: configUser.userFullName,
+                userEmail: configUser.userEmail,
+                userOrgId: configUser.userOrgId,
+                userOrgName: configUser.userOrgName,
+                projectCode: configUser.projectCode
+            },
+            settings: {
+                senderName: document.getElementById('sender-name').value,
+                senderEmail: document.getElementById('sender-email').value,
+                defaultSubject: document.getElementById('default-subject').value,
+                emailSignature: document.getElementById('email-signature').value
+            },
+            language: configUser.appLanguage,
+            timestamp: new Date().toISOString(),
+            source: 'communication_settings_ui'
+        };
+
+        const response = await fetch('https://workflow.realtimex.co/api/v1/executions/webhook/flowai/realtimecs_settings/input', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(emailData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            showNotification('emailSaveSuccess', 'success');
+            console.log('Email Settings Response:', result);
+        } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+    } catch (error) {
+        console.error('Error saving email settings:', error);
+        showNotification('saveError', 'error');
+    } finally {
+        hideLoading('email-save-btn', 'saveEmailText');
+    }
+}
+
+async function saveSmsSettings() {
+    const button = document.getElementById('sms-save-btn');
+    
+    try {
+        showLoading('sms-save-btn');
+
+        const smsData = {
+            type: 'sms',
+            user: {
+                username: configUser.username,
+                userFullName: configUser.userFullName,
+                userEmail: configUser.userEmail,
+                userOrgId: configUser.userOrgId,
+                userOrgName: configUser.userOrgName,
+                projectCode: configUser.projectCode
+            },
+            settings: {
+                senderName: document.getElementById('sms-sender-name').value,
+                phoneNumber: document.getElementById('phone-number').value,
+                defaultMessage: document.getElementById('default-message').value,
+                keywords: {
+                    optIn: document.getElementById('opt-in-keyword').value,
+                    optOut: document.getElementById('opt-out-keyword').value
+                },
+                autoResponses: {
+                    welcome: document.getElementById('welcome-response').value,
+                    goodbye: document.getElementById('goodbye-response').value
+                }
+            },
+            language: configUser.appLanguage,
+            timestamp: new Date().toISOString(),
+            source: 'communication_settings_ui'
+        };
+
+        const response = await fetch('https://workflow.realtimex.co/api/v1/executions/webhook/flowai/realtimecs_settings/input', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(smsData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            showNotification('smsSaveSuccess', 'success');
+            console.log('SMS Settings Response:', result);
+        } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+    } catch (error) {
+        console.error('Error saving SMS settings:', error);
+        showNotification('saveError', 'error');
+    } finally {
+        hideLoading('sms-save-btn', 'saveSmsText');
+    }
+}
