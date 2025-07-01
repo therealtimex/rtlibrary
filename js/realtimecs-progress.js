@@ -356,9 +356,12 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeLanguageSwitcher();
 
     // Get order ID from URL parameter FIRST
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderIdFromUrl = urlParams.get('ticket_id');
-    
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const orderIdFromUrl = urlParams.get('ticket_id');
+    const parentUrlParams = new URLSearchParams(window.parent.location.search);
+    const orderIdFromUrl = parentUrlParams.get('ticket_id');
+
+
     if (orderIdFromUrl) {
         ORDER_ID = orderIdFromUrl;
         console.log("=== ORDER_ID set from URL ===", ORDER_ID);
