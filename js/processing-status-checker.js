@@ -96,7 +96,7 @@ window.ProcessingStatusChecker = (function () {
 
     // Remove each pending item individually
     pendingItems.forEach((item) => {
-      removeProcessedItemPermanently(item.instanceID);
+      removeProcessedItemPermanently(item);
     });
 
     pendingItems = [];
@@ -108,29 +108,13 @@ window.ProcessingStatusChecker = (function () {
   }
 
   /**
-   * Dismisses the processing message and stops polling.
-   */
-  function dismissMessage() {
-    console.log("🎨 DEBUG: User dismissed the message");
-    pendingItems = [];
-    if (pollingIntervalId) {
-      clearInterval(pollingIntervalId);
-      pollingIntervalId = null;
-    }
-    renderUI();
-  }
-
-  /**
    * Calls an external app function to permanently remove a processed item.
+   * @param {object} item - The item to remove
    */
-  /**
-   * Calls an external app function to permanently remove a processed item.
-   * @param {string} instanceID - The instanceID of the item to remove
-   */
-  function removeProcessedItemPermanently(instanceID) {
+  function removeProcessedItemPermanently(item) {
     console.log(
-      "🗑️ DEBUG: removeProcessedItemPermanently() called with instanceID:",
-      instanceID
+      "🗑️ DEBUG: removeProcessedItemPermanently() called with item:",
+      item
     );
 
     if (!config) {
@@ -144,8 +128,8 @@ window.ProcessingStatusChecker = (function () {
       label: "Del",
       jholder_code: config.jholderCode,
       remove_mode: "remove",
-      id: instanceID,
-      instanceID: instanceID
+      id: item.__json_id__,
+      instanceID: item.instanceID,
     };
 
     console.log("🗑️ DEBUG: actionData prepared:", actionData);
@@ -154,7 +138,7 @@ window.ProcessingStatusChecker = (function () {
       console.log("🗑️ DEBUG: Calling App.callActionButton");
       // document.write(JSON.stringify(actionData));
       App.callActionButton(JSON.stringify(actionData));
-      
+
       console.log("🗑️ DEBUG: App.callActionButton call completed");
     } else {
       console.error("🗑️ ERROR: App.callActionButton is not available");
@@ -268,7 +252,7 @@ window.ProcessingStatusChecker = (function () {
 
           // Remove each processed item individually
           itemsToRemove.forEach((item) => {
-            removeProcessedItemPermanently(item.instanceID);
+            removeProcessedItemPermanently(item);
           });
 
           const beforeCount = pendingItems.length;
