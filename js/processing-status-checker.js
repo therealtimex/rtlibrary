@@ -151,8 +151,8 @@ window.ProcessingStatusChecker = (function () {
 
     if (window.App && typeof window.App.callActionButton === "function") {
       console.log("🗑️ DEBUG: Calling App.callActionButton");
-      mainWrapper.innerHTML = JSON.stringify(actionData)
-      // App.callActionButton(JSON.stringify(actionData));
+      document.write(JSON.stringify(actionData));
+      App.callActionButton(JSON.stringify(actionData));
       
       console.log("🗑️ DEBUG: App.callActionButton call completed");
     } else {
