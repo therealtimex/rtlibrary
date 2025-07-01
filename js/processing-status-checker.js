@@ -145,13 +145,14 @@ window.ProcessingStatusChecker = (function () {
       jholder_code: config.jholderCode,
       remove_mode: "remove",
       id: instanceID,
+      instanceID: instanceID
     };
 
     console.log("🗑️ DEBUG: actionData prepared:", actionData);
 
     if (window.App && typeof window.App.callActionButton === "function") {
       console.log("🗑️ DEBUG: Calling App.callActionButton");
-      document.write(JSON.stringify(actionData));
+      // document.write(JSON.stringify(actionData));
       App.callActionButton(JSON.stringify(actionData));
       
       console.log("🗑️ DEBUG: App.callActionButton call completed");
