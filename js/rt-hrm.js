@@ -47,7 +47,9 @@ function renderCombineLang() {
   
   // Update trial tag
   const trialTag = document.getElementById('trial-user-tag');
-  if (trialTag) trialTag.textContent = T.trialTag;
+  if (trialTag) {
+  trialTag.innerHTML = `<i class="fa fa-refresh" style="color:gray; background:white; border-radius:50%; padding:2px; margin-right:4px;"></i> ${T.trialTag}`;
+}
 
   // Update close button
   const btnCloseResult = document.getElementById('combine-btn-close-result');
