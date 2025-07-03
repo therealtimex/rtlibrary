@@ -433,6 +433,7 @@ if (!shortName) shortName = orgName;
         event_id: 'rthrm.neworg',
         new_org: '1',
         project_code: PROJECT_CODE,
+        user_language: APP_LANGUAGE, 
         data: [{
           username: USERNAME,
           fullname: USER_FULLNAME,
