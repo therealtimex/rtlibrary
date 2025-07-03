@@ -408,7 +408,7 @@ async function loadRepairData() {
                     ],
                     "must_not": [{
                             "terms": {
-                                "output.data_formatted.current_status.keyword": ["Closed", "Close", "close", "closed", "Đóng", "đóng", "Customer Replied"]
+                                "output.data_formatted.current_status.keyword": ["Closed", "Close", "close", "closed", "Đóng", "đóng", "Customer Replied","Sent SMS"]
                             }
                         },
                         {
