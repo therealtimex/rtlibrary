@@ -446,7 +446,14 @@ if (!shortName) shortName = orgName;
           contact_name: contactName,
           contact_email: contactEmail,
           contact_phone: contactPhone || '0',
-          context_title: `${shortName}-HRM`
+          context_title: `${shortName}-HRM`,
+          number_codes: '1',
+          expiry_datetime: '2050-12-31',
+          approval_mode: 'none',
+          allowed_times_use: '500',
+          rolegen: 'rta_Trial',
+          user_power: '10',
+          typegen: 'registration'
         }]
       };
 
