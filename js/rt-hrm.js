@@ -452,7 +452,7 @@ if (!shortName) shortName = orgName;
           expiry_datetime: '2050-12-31',
           approval_mode: 'none',
           allowed_times_use: '500',
-          rolegen: 'rta_Trial',
+          rolegen: 'ea8018e243_HRM Staff',
           user_power: '10',
           typegen: 'registration'
         }]
