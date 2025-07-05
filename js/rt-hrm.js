@@ -470,6 +470,19 @@ if (!shortName) shortName = orgName;
   return res.json(); 
 })
 .then(() => {
+      setTimeout(() => {
+        updateApiRequest(); 
+      }, 10000);
+
+      setTimeout(() => {
+        updateApiRequest(); 
+      }, 20000);
+
+      setTimeout(() => {
+        updateApiRequest(); 
+      }, 30000);
+    })
+.then(() => {
   document.getElementById('modal-create-org').style.display = 'none';
   showCombineResult(T.notify(orgName, contactEmail), "#222");
   form.reset();
