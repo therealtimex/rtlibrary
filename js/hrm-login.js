@@ -1,3 +1,4 @@
+
 let appLanguage = APP_LANGUAGE === "en" ? "en" : "vi";
 const T = LANG[appLanguage];
 let userType = checkUserType();
@@ -129,7 +130,7 @@ function renderCombineLang() {
       <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
         <div style="flex: 1; text-align: left;">${T.trialTag}</div>
         <button onclick="combineScreenMode = 'default'; renderByUserType()" style="background: #fff; color: #444; border: 1px solid #FFCC80; border-radius: 8px;">
-          ${T.exitTrial}
+          <span style="font-weight: bold;">${T.exitTrial}</span>
         </button>
       </div>
     `;
@@ -865,10 +866,7 @@ function goToNextWeek() {
   renderWeekView();
 }
 
-prevMonthBtn.addEventListener('click', goToPrevMonth);
-nextMonthBtn.addEventListener('click', goToNextMonth);
-prevWeekBtn.addEventListener('click', goToPrevWeek);
-nextWeekBtn.addEventListener('click', goToNextWeek);
+
 viewHistoryBtn.addEventListener('click', viewCheckinHistory);
 closeModal.addEventListener('click', () => {
   modalOverlay.style.display = 'none';
@@ -1285,30 +1283,29 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('expand-toggle').addEventListener('click', toggleView);
 });
 
+// Hàm kiểm tra rỗng, undefined, null, hoặc placeholder
+function isEmptyOrPlaceholder(str, placeholder = '') {
+  return (
+    str == null ||
+    (typeof str === 'string' && (str.trim().length === 0 || str === placeholder))
+  );
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+  // Xử lý avatar
   var profileImageDiv = document.querySelector('.profile-image');
-  var photoPath = '##pr_photo_path##'.trim();
   if (!photoPath || photoPath === '##pr_photo_path##') {
     profileImageDiv.innerHTML = '<img src="https://eventlog.rta.vn/assets/d23217dc-67cd-4f7a-9824-7dbf2b9934b3" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
   } else {
     profileImageDiv.innerHTML = '<img src="' + photoPath + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
   }
+
+  // Xử lý vị trí chức danh
+  const profilePositionElem = document.querySelector('.profile-position');
+  // userType phải được xác định trước đó trong script
+  if (isEmptyOrPlaceholder(title, '##title##') && userType === 'trial') {
+    profilePositionElem.textContent = 'Nhân viên - Phòng Kinh doanh';
+  } else {
+    profilePositionElem.textContent = `${title} - ${department}`;
+  }
 });
-const title = "##title##";
-const department = "##department##";
-
-const profilePositionElem = document.querySelector('.profile-position');
-
-// Hàm kiểm tra rỗng, undefined, null, hoặc placeholder
-function isEmptyOrPlaceholder(str) {
-  return (
-    str == null ||
-    (typeof str === "string" && (str.trim().length === 0 || str === "##title##"))
-  );
-}
-
-if (isEmptyOrPlaceholder(title) && userType === 'trial') {
-  profilePositionElem.textContent = 'Nhân viên - Phòng Kinh doanh';
-} else {
-  profilePositionElem.textContent = `${title} - ${department}`;
-}
