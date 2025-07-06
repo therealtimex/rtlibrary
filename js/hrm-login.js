@@ -66,12 +66,21 @@ function startPollingCheckOrg() {
     onSuccess: function () {
       USER_ORG_ID = foundOrg.org_id;
       if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+
+        var msgDiv = document.getElementById('combine-result-message');
+        if (msgDiv) {
+          msgDiv.innerHTML += `<div style="color:green; margin-top:8px;">Đã gửi act_fetch_rcm</div>`;
+        }
+
         App.callActionButton(JSON.stringify({
           actionID: 24703,
           type: "act_fetch_rcm",
           label: "Fetch RCM"
         }));
         setTimeout(() => {
+          if (msgDiv) {
+            msgDiv.innerHTML += `<div style="color:green; margin-top:8px;">Đã gửi act_reload_app</div>`;
+          }
           App.callActionButton(JSON.stringify({
             actionID: 24704,
             type: "act_reload_app",
@@ -1299,4 +1308,3 @@ document.addEventListener('DOMContentLoaded', function () {
   
   
 });
-
