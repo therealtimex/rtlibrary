@@ -56,14 +56,15 @@ function startPollingCheckOrg() {
   document.getElementById('combine-result-spinner').style.display = 'block';
   if (isJoiningOrg) {
     document.getElementById('combine-result-message').innerHTML =
-      `<div style="color: #222; font-weight: 500; text-align: center;">${LANG[appLanguage].trialSuccess.replace('{org}', orgName)}</div>`;
+      `<div style="color: #222; font-weight: 500; text-align: left;">${LANG[appLanguage].trialSuccess.replace('{org}', orgName)}</div>`;
   } else {
     document.getElementById('combine-result-message').innerHTML =
-      `<div style="color: #222; font-weight: 500; text-align: center;">${LANG[appLanguage].notify(orgName, contactEmail)}</div>`;
+      `<div style="color: #222; font-weight: 500; text-align: left;">${LANG[appLanguage].notify(orgName, contactEmail)}</div>`;
   }
   startPollingLoop({
     orgId: isJoiningOrg ? foundOrg?.org_id : pendingOrgId,
     onSuccess: function () {
+      USER_ORG_ID = foundOrg.org_id;
       if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
         App.callActionButton(JSON.stringify({
           actionID: 24703,
@@ -270,7 +271,7 @@ btnConfirm.onclick = async function () {
         document.getElementById('combine-user-screen').style.display = 'none';
         document.getElementById('combine-result-screen').style.display = 'flex';
         document.getElementById('combine-result-message').innerHTML =
-          `<div style="color: #222; font-weight: 500; text-align: center;">${LANG[appLanguage].joinSuccess.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code)}</div>`;
+          `<div style="color: #222; font-weight: 500; text-align: left;">${LANG[appLanguage].joinSuccess.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code)}</div>`;
         document.getElementById('combine-btn-close-result').style.display = 'block';
         document.getElementById('combine-btn-retry-result').style.display = 'none';
         document.getElementById('combine-result-spinner').style.display = 'none';
@@ -897,30 +898,35 @@ function checkLastCheckinChange() {
   }
 }
 function renderAttendanceActions(view_mark) {
-  const container = $('attendance-action-container');
+  const container = document.getElementById('attendance-action-container');
   container.innerHTML = '';
-  let title = '';
   let buttons = [];
   const BTN = {
     checkin_remote: {
       label: T.checkinRemote,
       icon: `<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M24 6C16.268 6 10 12.268 10 20c0 7.732 10.5 18 14 21.5C27.5 38 38 27.732 38 20c0-7.732-6.268-14-14-14Z" stroke="currentColor" stroke-width="7" fill="none"/><circle cx="24" cy="20" r="5" stroke="currentColor" stroke-width="3" fill="none"/><path d="M34 41a10 4 0 1 1-20 0" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`,
       onClick: function () {
-        if (!latestCheckin) return;
+        // Nếu latestCheckin null thì time_txt = "2024-01-01 00:00:00"
+        const timeValue = latestCheckin && latestCheckin.rta_time_fm
+          ? latestCheckin.rta_time_fm
+          : "2024-01-01 00:00:00";
         const json = {
           actionID: 3,
           orderNumber: 1,
           type: "act_fill_form",
           familyID: "HR_CHECKIN",
           preload: [
-            { key: "time_txt", value: latestCheckin.rta_time_fm || "2024-01-01 00:00:00" },
+            { key: "time_txt", value: timeValue },
             { key: "rta_type", value: "2" }
           ]
         };
-        App.callActionButton(JSON.stringify(json));
+        if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+          App.callActionButton(JSON.stringify(json));
+        } else {
+          showFlashMessage(T.noAppCallActionButton || 'App.callActionButton not found');
+        }
       }
     },
-    
     checkout_remote: {
       label: T.checkoutRemote,
       icon: `<svg class="attendance-btn-icon" width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M24 6C16.268 6 10 12.268 10 20c0 7.732 10.5 18 14 21.5C27.5 38 38 27.732 38 20c0-7.732-6.268-14-14-14Z" stroke="currentColor" stroke-width="7" fill="none"/><circle cx="24" cy="20" r="5" stroke="currentColor" stroke-width="3" fill="none"/><path d="M34 41a10 4 0 1 1-20 0" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`,
@@ -943,18 +949,21 @@ function renderAttendanceActions(view_mark) {
             { key: "time_txt", value: latestCheckin.rta_time_fm || "" }
           ]
         };
-        App.callActionButton(JSON.stringify(json));
+        if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+          App.callActionButton(JSON.stringify(json));
+        } else {
+          showFlashMessage(T.noAppCallActionButton || 'App.callActionButton not found');
+        }
       }
     }
   };
+
   if (view_mark == 3) {
-  buttons = [BTN.checkout_remote];
-} else {
-  buttons = [BTN.checkin_remote];
-}
-  if (title) {
-    container.innerHTML += `<div class="attendance-action-title" style="color:#222;font-weight:bold;font-size:16px;padding-left:14px">${title}</div>`;
+    buttons = [BTN.checkout_remote];
+  } else {
+    buttons = [BTN.checkin_remote];
   }
+
   if (buttons.length) {
     let html = `<div class="attendance-action-buttons">`;
     buttons.forEach((btn, idx) => {
@@ -970,6 +979,7 @@ function renderAttendanceActions(view_mark) {
     });
     html += `</div>`;
     container.innerHTML += html;
+
     window.attendanceButtonHandlers = buttons.map(btn => function () {
       btn.onClick();
       if (latestCheckin) lastCheckinTimeValue = latestCheckin.rta_time_fm;
@@ -980,6 +990,7 @@ function renderAttendanceActions(view_mark) {
     });
   }
 }
+
 function updateAttendanceActions() {
   const view_mark = latestCheckin ? Number(latestCheckin.view_mark) : 0;
   renderAttendanceActions(view_mark);
@@ -1283,12 +1294,20 @@ document.addEventListener('DOMContentLoaded', function () {
     profileImageDiv.innerHTML = '<img src="' + photoPath + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
   }
 });
-// Giả sử biến title, department, userType đã có giá trị
 const title = "##title##";
 const department = "##department##";
 
 const profilePositionElem = document.querySelector('.profile-position');
-if (title.length === 0 && userType === 'trial') {
+
+// Hàm kiểm tra rỗng, undefined, null, hoặc placeholder
+function isEmptyOrPlaceholder(str) {
+  return (
+    str == null ||
+    (typeof str === "string" && (str.trim().length === 0 || str === "##title##"))
+  );
+}
+
+if (isEmptyOrPlaceholder(title) && userType === 'trial') {
   profilePositionElem.textContent = 'Nhân viên - Phòng Kinh doanh';
 } else {
   profilePositionElem.textContent = `${title} - ${department}`;
