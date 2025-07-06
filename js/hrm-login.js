@@ -1296,17 +1296,7 @@ document.addEventListener('DOMContentLoaded', function () {
   } else {
     profilePositionElem.textContent = `${title} - ${department}`;
   }
-
-
-// Ngăn scroll/drag ngang trên action bar
-  const actionBar = document.querySelector('.action-bar-scroll');
-  if (actionBar) {
-    actionBar.addEventListener('touchmove', function(e) {
-      e.preventDefault();
-    }, { passive: false });
-    // Nếu muốn chắc chắn, thêm cả CSS:
-    actionBar.style.overflowX = 'hidden';
-    actionBar.style.touchAction = 'pan-y';
-  }
+  
+  
 });
 
