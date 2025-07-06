@@ -1,4 +1,3 @@
-
 let appLanguage = APP_LANGUAGE === "en" ? "en" : "vi";
 const T = LANG[appLanguage];
 let userType = checkUserType();
@@ -956,7 +955,7 @@ function renderAttendanceActions(view_mark) {
     }
   };
 
-  if (view_mark == 3) {
+  if (view_mark == 1) {
     buttons = [BTN.checkout_remote];
   } else {
     buttons = [BTN.checkin_remote];
@@ -1281,20 +1280,10 @@ document.addEventListener('DOMContentLoaded', function () {
   renderCalendar();
   document.getElementById('auth-loading').style.display = 'none';
   document.getElementById('expand-toggle').addEventListener('click', toggleView);
-});
 
-// Hàm kiểm tra rỗng, undefined, null, hoặc placeholder
-function isEmptyOrPlaceholder(str, placeholder = '') {
-  return (
-    str == null ||
-    (typeof str === 'string' && (str.trim().length === 0 || str === placeholder))
-  );
-}
-
-document.addEventListener('DOMContentLoaded', function () {
   // Xử lý avatar
-  var profileImageDiv = document.querySelector('.profile-image');
-  if (!photoPath || photoPath === '##pr_photo_path##') {
+  const profileImageDiv = document.querySelector('.profile-image');
+  if (!photoPath) {
     profileImageDiv.innerHTML = '<img src="https://eventlog.rta.vn/assets/d23217dc-67cd-4f7a-9824-7dbf2b9934b3" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
   } else {
     profileImageDiv.innerHTML = '<img src="' + photoPath + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
@@ -1302,8 +1291,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Xử lý vị trí chức danh
   const profilePositionElem = document.querySelector('.profile-position');
-  // userType phải được xác định trước đó trong script
-  if (isEmptyOrPlaceholder(title, '##title##') && userType === 'trial') {
+  if ((!title || title.trim() === '') && userType === 'trial') {
     profilePositionElem.textContent = 'Nhân viên - Phòng Kinh doanh';
   } else {
     profilePositionElem.textContent = `${title} - ${department}`;
