@@ -947,17 +947,11 @@ function renderAttendanceActions(view_mark) {
       }
     }
   };
-  if (view_mark == 1) {
-   
-    buttons = [BTN.checkout_remote];
-  } else if (view_mark == 3) {
-   
-    buttons = [BTN.checkin_remote];
-  } 
-   else if (view_mark == 0) {
-   
-    buttons = [BTN.checkin_remote];
-  } 
+  if (view_mark == 3) {
+  buttons = [BTN.checkout_remote];
+} else {
+  buttons = [BTN.checkin_remote];
+}
   if (title) {
     container.innerHTML += `<div class="attendance-action-title" style="color:#222;font-weight:bold;font-size:16px;padding-left:14px">${title}</div>`;
   }
@@ -1015,20 +1009,6 @@ const actionBarJson = {
     destinationType: "module"
   }
 };
-document.querySelectorAll('.action-bar-item').forEach(item => {
-  item.addEventListener('click', function () {
-    const action = this.getAttribute('data-action');
-    if (actionBarJson[action]) {
-      if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
-        App.callActionButton(JSON.stringify(actionBarJson[action]));
-      } else {
-        showFlashMessage(T.noAppCallActionButton || 'App.callActionButton not found');
-      }
-    } else {
-      showFlashMessage(T.featureNotSupported || 'Feature not supported');
-    }
-  });
-});
 
 // ====== Lịch sử chấm công & mũi tên profile ======
 function callAction(alias, size, collapseField, queryMust, sortField, sortOrder) {
@@ -1293,3 +1273,23 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('auth-loading').style.display = 'none';
   document.getElementById('expand-toggle').addEventListener('click', toggleView);
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  var profileImageDiv = document.querySelector('.profile-image');
+  var photoPath = '##pr_photo_path##'.trim();
+  if (!photoPath || photoPath === '##pr_photo_path##') {
+    profileImageDiv.innerHTML = '<img src="https://eventlog.rta.vn/assets/d23217dc-67cd-4f7a-9824-7dbf2b9934b3" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+  } else {
+    profileImageDiv.innerHTML = '<img src="' + photoPath + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+  }
+});
+// Giả sử biến title, department, userType đã có giá trị
+const title = "##title##";
+const department = "##department##";
+
+const profilePositionElem = document.querySelector('.profile-position');
+if (title.length === 0 && userType === 'trial') {
+  profilePositionElem.textContent = 'Nhân viên - Phòng Kinh doanh';
+} else {
+  profilePositionElem.textContent = `${title} - ${department}`;
+}
