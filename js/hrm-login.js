@@ -17,91 +17,98 @@ function showPollingError() {
   document.getElementById('combine-btn-retry-result').style.display = 'block';
   document.getElementById('combine-result-spinner').style.display = 'none';
 }
-let pollingIntervalId = null;
-let pollingCount = 0;
-const MAX_POLLING = 24;
-function startPollingLoop({ orgId, onSuccess, onError }) {
-  if (pollingIntervalId) clearInterval(pollingIntervalId);
-  pollingCount = 0;
-  document.getElementById('combine-result-spinner').style.display = 'block';
-  document.getElementById('combine-btn-close-result').style.display = 'none';
-  document.getElementById('combine-btn-retry-result').style.display = 'none';
-  pollingIntervalId = setInterval(async () => {
-    pollingCount++;
+
+
+function handleOrgJoinOrCreatePolling({ isJoiningOrg, orgName, contactEmail, originalOrgId }) {
+  const maxAttempts = 24;
+  const interval = 5000; // 5 giây
+  let attempts = 0;
+  let pollingInterval = null;
+
+  const spinner = document.getElementById('combine-result-spinner');
+  const messageDiv = document.getElementById('combine-result-message');
+  const btnClose = document.getElementById('combine-btn-close-result');
+  const btnRetry = document.getElementById('combine-btn-retry-result');
+
+  // Hiển thị thông báo phù hợp
+  if (isJoiningOrg) {
+    messageDiv.innerHTML = `<div style="color: #222; font-weight: 500; text-align: left;">${LANG[appLanguage].trialSuccess.replace('{org}', orgName)}</div>`;
+  } else {
+    messageDiv.innerHTML = `<div style="color: #222; font-weight: 500; text-align: left;">${LANG[appLanguage].notify(orgName, contactEmail)}</div>`;
+  }
+
+  spinner.style.display = 'block';
+  btnClose.style.display = 'none';
+  btnRetry.style.display = 'none';
+
+  async function checkOrgIdChanged() {
+    attempts++;
     try {
       const res = await fetch(`${PROJECT_URL}/api/dm/getData?token=your_token_here&dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${USERNAME}"`);
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0 && data[0].organization_id === orgId) {
-        clearInterval(pollingIntervalId);
-        pollingIntervalId = null;
-        document.getElementById('combine-result-spinner').style.display = 'none';
-        if (typeof onSuccess === 'function') onSuccess();
-      } else if (pollingCount >= MAX_POLLING) {
-        clearInterval(pollingIntervalId);
-        pollingIntervalId = null;
-        if (typeof onError === 'function') onError();
+      if (Array.isArray(data) && data.length > 0 && data[0].organization_id !== originalOrgId) {
+        clearInterval(pollingInterval);
+        spinner.style.display = 'none';
+        if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+          App.callActionButton(JSON.stringify({
+            actionID: 24703,
+            type: "act_fetch_rcm",
+            label: "Fetch RCM"
+          }));
+          setTimeout(() => {
+            App.callActionButton(JSON.stringify({
+              actionID: 24704,
+              type: "act_reload_app",
+              label: "Reload App"
+            }));
+            renderByUserType();
+            document.getElementById('combine-result-screen').style.display = 'none';
+            document.getElementById('hrm-main').style.display = 'block';
+          }, 3000);
+        }
+      } else if (attempts >= maxAttempts) {
+        clearInterval(pollingInterval);
+        spinner.style.display = 'none';
+        messageDiv.innerHTML = `<div style="color: #dc3545; font-weight: 500; text-align: center;">${LANG[appLanguage].error}</div>`;
+        btnClose.style.display = 'inline-block';
+        btnRetry.style.display = 'inline-block';
       }
-    } catch (err) {
-      if (pollingCount >= MAX_POLLING) {
-        clearInterval(pollingIntervalId);
-        pollingIntervalId = null;
-        if (typeof onError === 'function') onError();
+    } catch (error) {
+      if (attempts >= maxAttempts) {
+        clearInterval(pollingInterval);
+        spinner.style.display = 'none';
+        messageDiv.innerHTML = `<div style="color: #dc3545; font-weight: 500; text-align: center;">${LANG[appLanguage].error}</div>`;
+        btnClose.style.display = 'inline-block';
+        btnRetry.style.display = 'inline-block';
       }
     }
-  }, 5000);
-}
-function startPollingCheckOrg() {
-  document.getElementById('combine-btn-close-result').style.display = 'none';
-  document.getElementById('combine-btn-retry-result').style.display = 'none';
-  document.getElementById('combine-result-spinner').style.display = 'block';
-  if (isJoiningOrg) {
-    document.getElementById('combine-result-message').innerHTML =
-      `<div style="color: #222; font-weight: 500; text-align: left;">${LANG[appLanguage].trialSuccess.replace('{org}', orgName)}</div>`;
-  } else {
-    document.getElementById('combine-result-message').innerHTML =
-      `<div style="color: #222; font-weight: 500; text-align: left;">${LANG[appLanguage].notify(orgName, contactEmail)}</div>`;
   }
-  startPollingLoop({
-    orgId: isJoiningOrg ? foundOrg?.org_id : pendingOrgId,
-    onSuccess: function () {
-      USER_ORG_ID = foundOrg.org_id;
-      if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
 
-        var msgDiv = document.getElementById('combine-result-message');
-        if (msgDiv) {
-          msgDiv.innerHTML += `<div style="color:green; margin-top:8px;">Đã gửi act_fetch_rcm</div>`;
-        }
+  pollingInterval = setInterval(checkOrgIdChanged, interval);
 
-        App.callActionButton(JSON.stringify({
-          actionID: 24703,
-          type: "act_fetch_rcm",
-          label: "Fetch RCM"
-        }));
-        setTimeout(() => {
-          if (msgDiv) {
-            msgDiv.innerHTML += `<div style="color:green; margin-top:8px;">Đã gửi act_reload_app</div>`;
-          }
-          App.callActionButton(JSON.stringify({
-            actionID: 24704,
-            type: "act_reload_app",
-            label: "Reload App"
-          }));
-          renderByUserType();
-          document.getElementById('combine-result-screen').style.display = 'none';
-          document.getElementById('hrm-main').style.display = 'block';
-          document.getElementById('combine-result-spinner').style.display = 'none';
-        }, 3000);
-      }
-    },
-    onError: showPollingError
-  });
+  btnClose.onclick = () => {
+    clearInterval(pollingInterval);
+    document.getElementById('combine-result-screen').style.display = 'none';
+    resetCombineForm();
+    document.getElementById('combine-user-screen').style.display = 'flex';
+  };
+
+  btnRetry.onclick = () => {
+    btnClose.style.display = 'none';
+    btnRetry.style.display = 'none';
+    spinner.style.display = 'block';
+    attempts = 0;
+    pollingInterval = setInterval(checkOrgIdChanged, interval);
+  };
 }
+
 document.getElementById('combine-btn-retry-result').onclick = function () {
-  startPollingCheckOrg();
+  if (lastPollingParams) {
+    handleOrgJoinOrCreatePolling(lastPollingParams);
+  }
 };
 document.getElementById('combine-btn-close-result').onclick = function () {
-  if (pollingIntervalId) clearInterval(pollingIntervalId);
-  pollingIntervalId = null;
+  
   document.getElementById('combine-result-screen').style.display = 'none';
   resetCombineForm();
   document.getElementById('combine-user-screen').style.display = 'flex';
@@ -290,11 +297,20 @@ btnConfirm.onclick = async function () {
           document.getElementById('combine-user-screen').style.display = 'flex';
         };
       } else {
-        isJoiningOrg = true;
-        orgName = foundOrg.org_lb || foundOrg.org_name || code;
-        startPollingCheckOrg();
-        document.getElementById('combine-user-screen').style.display = 'none';
-        document.getElementById('combine-result-screen').style.display = 'flex';
+      
+      isJoiningOrg = true;
+      orgName = foundOrg.org_lb || foundOrg.org_name || code;
+      contactEmail = USER_EMAIL; 
+      lastPollingParams = {
+        isJoiningOrg: isJoiningOrg,
+        orgName: orgName,
+        contactEmail: contactEmail,
+        originalOrgId: USER_ORG_ID
+      };
+      handleOrgJoinOrCreatePolling(lastPollingParams);
+      document.getElementById('combine-user-screen').style.display = 'none';
+      document.getElementById('combine-result-screen').style.display = 'flex';
+
       }
     } catch (err) {
       errorElem.style.color = '#e74c3c';
@@ -390,8 +406,18 @@ if (form) {
         })
       });
       document.getElementById('modal-create-org').style.display = 'none';
-      startPollingCheckOrg();
+      isJoiningOrg = false;
+      orgName = document.getElementById('org-name-input').value.trim();
+      contactEmail = document.getElementById('contact-email').value.trim();
+      lastPollingParams = {
+        isJoiningOrg: isJoiningOrg,
+        orgName: orgName,
+        contactEmail: contactEmail,
+        originalOrgId: USER_ORG_ID
+      };
+      handleOrgJoinOrCreatePolling(lastPollingParams);
       document.getElementById('combine-result-screen').style.display = 'flex';
+
     } catch (err) {
       document.getElementById('modal-create-org').style.display = 'none';
       document.getElementById('notification-popup').style.display = 'flex';
@@ -1305,6 +1331,4 @@ document.addEventListener('DOMContentLoaded', function () {
   } else {
     profilePositionElem.textContent = `${title} - ${department}`;
   }
-  
-  
 });
