@@ -1084,12 +1084,13 @@ body {
     width: 100vw;
     text-align: center;
     min-height: 100vh;
-    height: 100dvh;
+    
     height: 100vh;
+    height: -webkit-fill-available;
 }
 @supports (-webkit-touch-callout: none) {
   .combine-card {
-    height: -webkit-fill-available;
+    height: -webkit-fill-available !important;
   }
 }
 .combine-card input[type="text"] {
