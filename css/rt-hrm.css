@@ -307,3 +307,9 @@
   cursor: pointer;
   color: #888;
 }
+#combine-btn-retry-result {
+      color: #fff !important;
+    }
+#combine-btn-retry-result:hover, #combine-btn-retry-result:focus {
+      color: #fff !important;
+    }
