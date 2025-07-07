@@ -355,17 +355,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize language switcher
     initializeLanguageSwitcher();
 
-    // Get order ID from URL parameter FIRST
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderIdFromUrl = urlParams.get('ticket_id');
-    
-    if (orderIdFromUrl) {
+    // Get order ID from URL parameter as a fallback.
+    const parentUrlParams = new URLSearchParams(window.parent.location.search);
+    const orderIdFromUrl = parentUrlParams.get('ticket_id');
+
+    // Prioritize ORDER_ID from the HTML file.
+    // If ORDER_ID is not defined or is empty, use the one from the URL.
+    if ((typeof ORDER_ID === 'undefined' || !ORDER_ID) && orderIdFromUrl) {
         ORDER_ID = orderIdFromUrl;
         console.log("=== ORDER_ID set from URL ===", ORDER_ID);
-        loadRepairData(); 
+    }
+
+    if (ORDER_ID) {
+        console.log("=== ORDER_ID to be used ===", ORDER_ID);
+        loadRepairData();
     } else {
-        console.log("=== No ticket_id in URL ===");
-        showError(); 
+        console.log("=== No ticket_id in HTML or URL ===");
+        showError();
     }
 });
 
@@ -402,7 +408,7 @@ async function loadRepairData() {
                     ],
                     "must_not": [{
                             "terms": {
-                                "output.data_formatted.current_status.keyword": ["Closed", "Close", "close", "closed", "Đóng", "đóng", "Customer Replied"]
+                                "output.data_formatted.current_status.keyword": ["Closed", "Close", "close", "closed", "Đóng", "đóng", "Customer Replied","Sent SMS"]
                             }
                         },
                         {

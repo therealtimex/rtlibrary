@@ -24,6 +24,7 @@ window.ProcessingStatusChecker = (function () {
 
     const existingIds = new Set(existingItems.map((item) => item[key]));
     const merged = [...existingItems];
+    console.log("🔄 DEBUG: Merged items:", merged);
 
     for (const item of newItems) {
       if (!existingIds.has(item[key])) {
@@ -96,6 +97,7 @@ window.ProcessingStatusChecker = (function () {
 
     // Remove each pending item individually
     pendingItems.forEach((item) => {
+      console.log("🎨 DEBUG: Removing processed item:", item);
       removeProcessedItemPermanently(item);
     });
 

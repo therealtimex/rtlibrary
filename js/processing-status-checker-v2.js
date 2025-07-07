@@ -7,37 +7,15 @@ window.ProcessingStatusChecker = (function () {
   // Private variables
   let pendingItems = [];
   let pollingIntervalId = null;
+  let config = null;
   let pollingAttempts = 0;
-
-  // Configuration - moved from HTML
-  const config = {
-    checkUrl: 'https://es.rta.vn/process_status/_search',
-    jholderCode: 'process_status',
-    pollingInterval: 10000,
-    responseKeyField: 'instanceID',
-    maxPollingAttempts: 12
-  };
-
-  /**
-   * Gets the current request body based on pending items
-   */
-  function getRequestBody() {
-    const instanceIds = pendingItems.map(item => item.instanceID);
-    return {
-      "size": instanceIds.length,
-      "query": {
-        "bool": {
-          "must": [
-            { "terms": { "instanceID": instanceIds } }
-          ]
-        }
-      },
-      "_source": ["instanceID"]
-    };
-  }
 
   /**
    * Merges new items with existing pending items, avoiding duplicates based on instanceID
+   * @param {Array} existingItems - Current pending items
+   * @param {Array} newItems - New items to merge
+   * @param {string} key - Key field to use for duplicate detection (default: 'instanceID')
+   * @returns {Array} Merged array without duplicates
    */
   function mergePendingItems(existingItems, newItems, key = "instanceID") {
     console.log("🔄 DEBUG: Merging pending items");
@@ -46,6 +24,7 @@ window.ProcessingStatusChecker = (function () {
 
     const existingIds = new Set(existingItems.map((item) => item[key]));
     const merged = [...existingItems];
+    console.log("🔄 DEBUG: Merged items:", merged);
 
     for (const item of newItems) {
       if (!existingIds.has(item[key])) {
@@ -83,24 +62,30 @@ window.ProcessingStatusChecker = (function () {
         return acc;
       }, {});
 
+      const t = config.translations || { // Default to English if not provided
+        submissionRecorded: "Your submission has been recorded and is being processed.",
+        processing: "Processing",
+        dismiss: "Dismiss",
+      };
+
       const groupStrings = Object.entries(itemGroups).map(
         ([type, count]) => `${count} ${type}${count > 1 ? "s" : ""}`
       );
-      const message = `Processing: ${groupStrings.join(", ")} 🚀`;
+      const message = `${t.processing}: ${groupStrings.join(", ")} 🚀`;
 
       console.log("🎨 DEBUG: Rendering processing message:", message);
       mainWrapper.className = "p-2 md:p-4";
       mainWrapper.innerHTML = `
-        <div class="bg-theme-accent text-white p-3 text-xs rounded-lg shadow-lg flex flex-col">
-          <div class="text-left">
-            <div>Your submission has been recorded and is being processed.</div>
-            <div class="mt-1 opacity-80">${message}</div>
-          </div>
-          <div class="flex justify-end mt-2">
-            <button id="processing-status-close-btn" class="px-3 py-1 bg-white/10 border border-white/30 rounded hover:bg-white/20 text-xs">Dismiss</button>
-          </div>
-        </div>
-      `;
+              <div class="bg-theme-accent text-white p-3 text-xs rounded-lg shadow-lg flex flex-col">
+                <div class="text-left">
+                  <div>${t.submissionRecorded}</div>
+                  <div class="mt-1 opacity-80">${message}</div>
+                </div>
+                <div class="flex justify-end mt-2">
+                    <button id="processing-status-close-btn" class="px-3 py-1 bg-white/10 border border-white/30 rounded hover:bg-white/20 text-xs">${t.dismiss}</button>
+                </div>
+              </div>
+            `;
       document
         .getElementById("processing-status-close-btn")
         .addEventListener("click", dismissMessage);
@@ -110,14 +95,19 @@ window.ProcessingStatusChecker = (function () {
       mainWrapper.innerHTML = "";
     }
   }
-
   /**
    * Dismisses the processing message and stops polling.
    */
   function dismissMessage() {
     console.log("🎨 DEBUG: User dismissed the message");
+
+    // Remove each pending item individually
+    pendingItems.forEach((item) => {
+      console.log("🎨 DEBUG: Removing processed item:", item);
+      removeProcessedItemPermanently(item);
+    });
+
     pendingItems = [];
-    removeProcessedItemPermanently();
     if (pollingIntervalId) {
       clearInterval(pollingIntervalId);
       pollingIntervalId = null;
@@ -127,26 +117,72 @@ window.ProcessingStatusChecker = (function () {
 
   /**
    * Calls an external app function to permanently remove a processed item.
+   * @param {object} item - The item to remove
    */
-  function removeProcessedItemPermanently() {
-    console.log("🗑️ DEBUG: removeProcessedItemPermanently() called");
+  function removeProcessedItemPermanently(item) {
+    console.log(
+      "🗑️ DEBUG: removeProcessedItemPermanently() called with item:",
+      item
+    );
+
+    if (!config) {
+      console.error("🗑️ ERROR: Configuration not loaded");
+      return;
+    }
 
     const actionData = {
       actionID: 2,
       type: "act_jholder_remove",
       label: "Del",
       jholder_code: config.jholderCode,
-      remove_mode: "all",
+      remove_mode: "remove",
+      id: item.__json_id__,
+      instanceID: item.instanceID,
     };
 
     console.log("🗑️ DEBUG: actionData prepared:", actionData);
 
     if (window.App && typeof window.App.callActionButton === "function") {
       console.log("🗑️ DEBUG: Calling App.callActionButton");
+      // document.write(JSON.stringify(actionData));
       App.callActionButton(JSON.stringify(actionData));
+
       console.log("🗑️ DEBUG: App.callActionButton call completed");
     } else {
       console.error("🗑️ ERROR: App.callActionButton is not available");
+    }
+  }
+
+  /**
+   * Sends a webhook for items that have timed out.
+   * @param {Array<Object>} items - The items that timed out.
+   */
+  async function sendWebhookForTimeout(items) {
+    console.log("🎣 DEBUG: sendWebhookForTimeout called with items:", items);
+    const webhookUrl = "https://workflow.realtimex.co/api/v1/executions/webhook/flowai/event_processing_jsholder/input";
+
+    for (const item of items) {
+      console.log(`🎣 DEBUG: Sending webhook for item: ${item.instanceID}`);
+      try {
+        const response = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(item),
+        });
+
+        if (response.ok) {
+          console.log(`🎣 SUCCESS: Webhook sent for item: ${item.instanceID}`);
+        } else {
+          console.error(
+            `🎣 ERROR: Failed to send webhook for item: ${item.instanceID}, status: ${response.status}`
+          );
+        }
+      } catch (error) {
+        console.error(
+          `🎣 ERROR: Exception occurred while sending webhook for item: ${item.instanceID}`,
+          error
+        );
+      }
     }
   }
 
@@ -159,6 +195,11 @@ window.ProcessingStatusChecker = (function () {
       pendingItems.length
     );
 
+    if (!config) {
+      console.error("🔍 ERROR: Configuration not loaded");
+      return;
+    }
+
     if (pendingItems.length === 0) {
       console.log("🔍 DEBUG: No pending items, stopping polling");
       if (pollingIntervalId) {
@@ -170,7 +211,10 @@ window.ProcessingStatusChecker = (function () {
     }
 
     pollingAttempts++;
-    if (config.maxPollingAttempts && pollingAttempts > config.maxPollingAttempts) {
+    if (
+      config.maxPollingAttempts &&
+      pollingAttempts > config.maxPollingAttempts
+    ) {
       console.warn(
         `🔍 WARNING: Max polling attempts (${config.maxPollingAttempts}) reached. Stopping polling.`
       );
@@ -178,17 +222,20 @@ window.ProcessingStatusChecker = (function () {
         clearInterval(pollingIntervalId);
         pollingIntervalId = null;
       }
+      // Call the webhook for timeout
+      sendWebhookForTimeout(pendingItems);
       return;
     }
 
     console.log("🔍 DEBUG: Starting API check for processed items");
     console.log("🔍 DEBUG: Using URL:", config.checkUrl);
+    console.log("🔍 DEBUG: Using response key field:", config.responseKeyField);
 
     try {
       const response = await fetch(config.checkUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(getRequestBody()),
+        body: JSON.stringify(config.requestBody),
       });
 
       console.log(
@@ -209,6 +256,7 @@ window.ProcessingStatusChecker = (function () {
       const result = await response.json();
       console.log("🔍 DEBUG: API response received");
 
+      // Use the configurable key field to extract processed IDs
       const processedEventIds = new Set(
         result.hits?.hits
           .map((hit) => {
@@ -245,7 +293,10 @@ window.ProcessingStatusChecker = (function () {
             `🔍 SUCCESS: ${itemsToRemove.length} item(s) are processed`
           );
 
-          removeProcessedItemPermanently();
+          // Remove each processed item individually
+          itemsToRemove.forEach((item) => {
+            removeProcessedItemPermanently(item);
+          });
 
           const beforeCount = pendingItems.length;
           pendingItems = pendingItems.filter(
@@ -278,6 +329,11 @@ window.ProcessingStatusChecker = (function () {
       pollingIntervalId
     );
 
+    if (!config) {
+      console.error("⏰ ERROR: Configuration not loaded");
+      return;
+    }
+
     if (pollingIntervalId) {
       console.log("⏰ DEBUG: Polling already active");
       return;
@@ -295,85 +351,90 @@ window.ProcessingStatusChecker = (function () {
     console.log("⏰ DEBUG: Polling started with ID:", pollingIntervalId);
   }
 
-  /**
-   * Parses jholder data from the page
-   */
-  function parseJholderData() {
-    console.log("📋 DEBUG: parseJholderData() called");
-
-    const jholderElement = document.getElementById('jholder-data');
-    if (!jholderElement) {
-      console.log("📋 DEBUG: No jholder element found");
-      return [];
-    }
-
-    const rawData = jholderElement.textContent || jholderElement.innerText;
-    console.log("📋 DEBUG: Raw jholder data:", rawData);
-
-    // Check if data is empty or still contains placeholder
-    if (!rawData || rawData.trim() === '' || rawData.includes('##jholder.process_status##')) {
-      console.log("📋 DEBUG: No actual jholder data (empty or placeholder)");
-      return [];
-    }
-
-    try {
-      // Parse the JSON array directly
-      const parsedData = JSON.parse(rawData);
-
-      if (Array.isArray(parsedData)) {
-        console.log("📋 DEBUG: Successfully parsed jholder array:", parsedData.length, "items");
-        return parsedData; // Data is already in the correct format
-      } else {
-        console.log("📋 DEBUG: Parsed data is not an array:", typeof parsedData);
-        return [];
-      }
-
-    } catch (error) {
-      console.error("📋 ERROR: Failed to parse jholder data as JSON:", error);
-      console.error("📋 ERROR: Raw data was:", rawData);
-      return [];
-    }
-  }
-
-  // Public API
+  // Public API - these functions will be accessible from the HTML
   return {
     /**
-     * Initialize and start the status checker
+     * Start the processing status checker with initial data and configuration (replaces existing items)
+     * @param {Array<Object>} initialData - Array of initial submissions
+     * @param {Object} configuration - Configuration object with all parameters
      */
-    init: function () {
-      console.log("🚀 DEBUG: ProcessingStatusChecker.init() called");
+    start: function (initialData, configuration) {
+      console.log("🚀 DEBUG: ProcessingStatusChecker.start() called");
+      console.log("🚀 DEBUG: Initial data:", initialData);
+      console.log("🚀 DEBUG: Configuration:", configuration);
+
+      // Store the configuration
+      config = configuration;
       pollingAttempts = 0;
 
-      // Parse data from jholder
-      const jholderData = parseJholderData();
-
-      if (jholderData && jholderData.length > 0) {
-        console.log("🚀 DEBUG: Found jholder data, starting status check");
-        pendingItems = mergePendingItems(pendingItems, jholderData);
+      if (initialData && initialData.length > 0) {
+        console.log(
+          "🚀 DEBUG: Valid initial data found, filtering invisible items and replacing pending list"
+        );
+        // Filter out invisible items before processing
+        pendingItems = initialData.filter(item => item.item_show !== "invisible");
+        
+        console.log("🚀 DEBUG: Pending items after filtering:", pendingItems.length);
         renderUI();
-        fetchAndFilterProcessedItems();
-        startPolling();
+
+        if (pendingItems.length > 0) {
+            fetchAndFilterProcessedItems();
+            startPolling();
+        }
       } else {
-        console.log("🚀 DEBUG: No jholder data found");
+        console.log("🚀 DEBUG: No valid initial data, clearing pending items");
+        pendingItems = [];
         renderUI();
       }
     },
 
     /**
-     * Resume the status checker (for app resume events)
+     * Start the processing status checker with initial data and configuration (merges with existing items)
+     * @param {Array<Object>} initialData - Array of initial submissions
+     * @param {Object} configuration - Configuration object with all parameters
      */
+    startWithMerge: function (initialData, configuration) {
+      console.log("🚀 DEBUG: ProcessingStatusChecker.startWithMerge() called");
+      console.log("🚀 DEBUG: Initial ", initialData);
+      console.log("🚀 DEBUG: Configuration:", configuration);
+
+      // Store the configuration
+      config = configuration;
+      pollingAttempts = 0;
+      if (initialData && initialData.length > 0) {
+        console.log(
+          "🚀 DEBUG: Valid initial data found, filtering invisible items and merging with existing list"
+        );
+        // Filter out invisible items before merging
+        const visibleItemsToAdd = initialData.filter(item => item.item_show !== "invisible");
+        
+        console.log("🚀 DEBUG: Visible items to add:", visibleItemsToAdd.length);
+        pendingItems = mergePendingItems(pendingItems, visibleItemsToAdd);
+        
+        console.log("🚀 DEBUG: Pending items after merge:", pendingItems.length);
+        renderUI();
+
+        if (pendingItems.length > 0) {
+            fetchAndFilterProcessedItems();
+            startPolling();
+        }
+      } else {
+        console.log("🚀 DEBUG: No valid initial data, keeping existing items");
+        renderUI();
+      }
+    },
     resume: function () {
       console.log("🔄 DEBUG: ProcessingStatusChecker.resume() called");
       if (pendingItems.length > 0) {
-        console.log("🔄 DEBUG: Resuming polling and fetching for pending items.");
+        console.log(
+          "🔄 DEBUG: Resuming polling and fetching for pending items."
+        );
         fetchAndFilterProcessedItems();
         startPolling();
       } else {
-        console.log("🔄 DEBUG: No pending items, checking for new jholder data");
-        this.init(); // Re-check jholder data
+        console.log("🔄 DEBUG: No pending items, resume is not needed.");
       }
     },
-
     // Expose internal state for debugging
     getState: function () {
       return {
