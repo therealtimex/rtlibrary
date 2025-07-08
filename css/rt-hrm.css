@@ -727,7 +727,7 @@ body {
     transform: none;
     max-width: 370px;
     min-width: 320px;
-    border-radius: 16px;
+    border-radius: 36px;
     background: #fff;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
     transform: scale(1);
@@ -755,6 +755,7 @@ body {
     position: relative;
     min-height: 32px;
     box-sizing: border-box;
+    border-radius: 36px;
 }
 .modal-header h2 {
     color: #fff;
@@ -1066,12 +1067,12 @@ body {
     font-weight: 600;
 }
 #hrm-main,
-#trial-user-tag,
-#combine-user-screen {
+#trial-user-tag {
     display: none;
 }
-#combine-user-screen {
-    min-height: 100vh;
+combine-user-screen {
+    height: 100dvh;
+    height: -webkit-fill-available;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1081,11 +1082,11 @@ body {
     background: blue;
     border-radius: 12px;
     box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
-    width: 100vw;
+    width: 100%;
     text-align: center;
     min-height: 100vh;
     
-    height: 100vh;
+    height: 100%;
     height: -webkit-fill-available;
 }
 @supports (-webkit-touch-callout: none) {
