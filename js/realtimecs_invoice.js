@@ -59,7 +59,8 @@ const translations = {
         address: "Address",
         thankYou: "Thank You for Choosing {companyName}!",
         thankYouDesc: "We appreciate your business and trust in our repair services. Your device has been carefully repaired and tested to ensure optimal performance.",
-        nextSteps: "Next Steps"
+        nextSteps: "Next Steps",
+        noInvoiceInfo: "No invoice information available"
         
         
     },
@@ -125,6 +126,7 @@ const translations = {
         thankYou: "Cảm Ơn Bạn Đã Chọn {companyName}!",
         thankYouDesc: "Chúng tôi đánh giá cao việc kinh doanh và sự tin tưởng của bạn vào dịch vụ sửa chữa của chúng tôi. Thiết bị của bạn đã được sửa chữa và kiểm tra cẩn thận để đảm bảo hiệu suất tối ưu.",
         nextSteps: "Các Bước Tiếp Theo",
+        noInvoiceInfo: "Chưa có thông tin hóa đơn",
         
     }
 };
@@ -261,6 +263,7 @@ function translateStatus(status) {
 
 // API data loading
 async function loadRepairData(ticketId) {
+    let noInvoiceDataFound = false; // Flag to track if no invoice data is found
     try {
         document.getElementById('loading-overlay').style.display = 'flex';
         document.getElementById('invoice-container').style.display = 'none';
@@ -301,32 +304,28 @@ async function loadRepairData(ticketId) {
             body: JSON.stringify(repairDetailsQuery)
         });
 
+        console.log('Repair Details Query Response Status:', repairResponse.status);
+
         if (repairResponse.ok) {
             const repairDetailsData = await repairResponse.json();
+            console.log('Repair Details Data:', repairDetailsData);
             if (repairDetailsData.hits && repairDetailsData.hits.hits.length > 0) {
                 const formattedData = repairDetailsData.hits.hits[0]._source.output.data_formatted;
                 repairData.items = formattedData.items || [];
                 populateRepairItems(repairData.items);
                 updateTotalsAndDates(formattedData, ticketId);
             } else {
-                // Fallback to static data if no repair details are found
-                repairData.items = repairItems;
-                populateRepairItems(repairData.items);
-                const subtotal = repairItems.reduce((acc, item) => acc + item.total, 0);
-                const discount = 0; // Assume no discount in fallback
-                const tax = (subtotal - discount) * 0.08; // Example tax calculation
-                const totalAmount = subtotal - discount + tax;
-                updateTotalsAndDates({ subtotal, discount, tax, total_amount: totalAmount }, ticketId);
+                console.log('No repair details found for ticket ID:', ticketId);
+                noInvoiceDataFound = true; // Set the flag
+                showNoInvoiceInfo();
+                return; // Stop further processing if no invoice data
             }
         } else {
             // Fallback on API error
-            repairData.items = repairItems;
-            populateRepairItems(repairData.items);
-            const subtotal = repairItems.reduce((acc, item) => acc + item.total, 0);
-            const discount = 0; // Assume no discount in fallback
-            const tax = (subtotal - discount) * 0.08; // Example tax calculation
-            const totalAmount = subtotal - discount + tax;
-            updateTotalsAndDates({ subtotal, discount, tax, total_amount: totalAmount }, ticketId);
+            console.error('API error when loading repair details. Falling back.');
+            noInvoiceDataFound = true; // Set the flag even on API error
+            showNoInvoiceInfo();
+            return;
         }
 
 
@@ -395,7 +394,9 @@ async function loadRepairData(ticketId) {
         console.error('Error loading repair data:', error);
         showErrorStatus();
     } finally {
-        hideLoading();
+        if (!noInvoiceDataFound) { // Only hide loading and show invoice if data was found
+            hideLoading();
+        }
     }
 }
 
@@ -531,6 +532,7 @@ function updateCompanyDisplayName() {
 }
 
 function populateInvoiceData() {
+    console.log('Calling populateInvoiceData()');
     if (!repairData) return;
 
     // Update customer information
@@ -570,6 +572,19 @@ function showErrorStatus() {
 function hideLoading() {
     document.getElementById('loading-overlay').style.display = 'none';
     document.getElementById('invoice-container').style.display = 'block';
+}
+
+function showNoInvoiceInfo() {
+    console.log('Calling showNoInvoiceInfo()');
+    document.getElementById('loading-overlay').style.display = 'flex';
+    document.getElementById('loading-overlay').innerHTML = `
+        <div class="text-center px-4">
+            <i class="fas fa-exclamation-circle text-yellow-500 text-4xl mb-4"></i>
+            <p class="text-gray-600 font-medium text-lg" data-translate="noInvoiceInfo"></p>
+            <p class="text-gray-500 text-sm">Please check the ticket ID or try again later.</p>
+        </div>
+    `;
+    translatePage(); // Translate the new content
 }
 
 // Utility functions
@@ -626,6 +641,7 @@ function updateTotalsAndDates(data, ticketId) {
 }
 
 function populateRepairItems(itemsToPopulate) {
+    console.log('Calling populateRepairItems()');
     const tbody = document.getElementById('repair-items');
     const mobileContainer = document.getElementById('repair-items-mobile');
     
