@@ -475,7 +475,7 @@ function populatePaymentData(paymentData) {
     // Populate Payment Method
     const paymentMethodEl = document.getElementById('payment-method');
     if (paymentMethodEl && paymentData.payment_method) {
-        paymentMethodEl.textContent = paymentData.payment_method_html || paymentData.payment_method;
+        paymentMethodEl.innerHTML = paymentData.payment_method_html || paymentData.payment_method;
     }
 
     // Populate QR Code if payment_url exists
