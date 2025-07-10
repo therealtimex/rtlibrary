@@ -29,12 +29,12 @@ const translations = {
         tax: "Tax",
         totalAmountDue: "Total Amount Due",
         payViaBankTransfer: "Pay via Bank Transfer",
-        paymentInstructions: "Payment Instructions",
-        bankDetails: "Bank Account Details",
-        step1: "Use the bank details above for your transfer.",
-        step2: "Enter the exact amount",
-        step3: "Use this as the transfer reference",
-        step4: "After transferring, confirm your payment in the section below.",
+        paymentInstructions: "Hướng Dẫn Thanh Toán",
+        paymentDetails: "Chi Tiết Thanh Toán",
+        step1: "Sử dụng thông tin thanh toán trên để chuyển khoản.",
+        step2: "Nhập chính xác số tiền",
+        step3: "Sử dụng nội dung này làm tham chiếu chuyển khoản",
+        step4: "Sau khi chuyển khoản, hãy xác nhận thanh toán của bạn ở phần bên dưới.",
         bank: "Bank",
         account: "Account",
         accountName: "Account Name",
@@ -60,8 +60,8 @@ const translations = {
         thankYou: "Thank You for Choosing {companyName}!",
         thankYouDesc: "We appreciate your business and trust in our repair services. Your device has been carefully repaired and tested to ensure optimal performance.",
         nextSteps: "Next Steps",
-        noInvoiceInfo: "No invoice information available"
-        
+        noInvoiceInfo: "No invoice information available",
+        qrCode: "Scan QR Code"
         
     },
     vi: {
@@ -77,6 +77,7 @@ const translations = {
         repairIssue: "Vấn đề",
         trackProgress: "Theo Dõi Tiến Độ Sửa Chữa",
         serviceTicketId: "Mã Phiếu Dịch Vụ",
+        qrCode: "Quét Mã QR",
 
         trackProgressBtn: "Theo Dõi Tiến Độ",
         loading: "Đang tải...",
@@ -96,14 +97,14 @@ const translations = {
         totalAmountDue: "Tổng Số Tiền Phải Trả",
         payViaBankTransfer: "Thanh Toán Qua Chuyển Khoản",
         paymentInstructions: "Hướng Dẫn Thanh Toán",
-        bankDetails: "Chi Tiết Tài Khoản Ngân Hàng",
-        step1: "Sử dụng thông tin ngân hàng trên để chuyển khoản.",
+        paymentDetails: "Chi Tiết Thanh Toán",
+        step1: "Sử dụng thông tin thanh toán trên để chuyển khoản.",
         step2: "Nhập chính xác số tiền",
-        step3: "Sử dụng đây làm mã tham chiếu chuyển khoản",
-        step4: "Sau khi chuyển khoản, xác nhận thanh toán của bạn trong phần bên dưới.",
-        bank: "Ngân Hàng",
-        account: "Tài Khoản",
-        accountName: "Tên Tài Khoản",
+        step3: "Sử dụng nội dung này làm tham chiếu chuyển khoản",
+        step4: "Sau khi chuyển khoản, hãy xác nhận thanh toán của bạn ở phần bên dưới.",
+        bank: "Bank",
+        account: "Account",
+        accountName: "Account Name",
         confirmPayment: "Xác Nhận Thanh Toán",
         amountTransferred: "Số Tiền Đã Chuyển",
         transferDateTime: "Ngày & Giờ Chuyển Khoản",
@@ -357,6 +358,7 @@ async function loadRepairData(ticketId) {
                 const hit = orderData.hits.hits[0];
                 const data = hit._source.output.data_formatted;
                 const orgId = hit._source.metadata.org_id;
+                console.log('org id: ', orgId)
 
                 repairData = {
                     ticketId: ticketId,
@@ -377,6 +379,7 @@ async function loadRepairData(ticketId) {
                 };
 
                 if (orgId) {
+                    
                     await loadPaymentData(orgId);
                 }
                 updateCompanyDisplayName(); // Call after payment data is loaded
@@ -401,8 +404,9 @@ async function loadRepairData(ticketId) {
 }
 
 async function loadPaymentData(orgId) {
+    console.log('loadPaymentData with orgId:', orgId);
     const paymentQueryBody = {
-        "size": 3,
+        "size": 1,
         "collapse": {
             "field": "session_id.keyword"
         },
@@ -413,7 +417,7 @@ async function loadPaymentData(orgId) {
             "bool": {
                 "must": [{
                     "terms": {
-                        "session_id.keyword": ["CS-EMAIL", "CS-SMS", "CS-PAYMENT"]
+                        "session_id.keyword": ["CS-PAYMENT"]
                     }
                 }, {
                     "term": {
@@ -448,9 +452,13 @@ async function loadPaymentData(orgId) {
         }
 
         const data = await response.json();
+        console.log('Payment data response:', data);
         if (data.hits && data.hits.hits && data.hits.hits.length > 0) {
             const paymentData = data.hits.hits[0]._source.output.data;
+            console.log('Payment data found:', paymentData);
             populatePaymentData(paymentData);
+        } else {
+            console.log('No payment data found for orgId:', orgId);
         }
 
 
@@ -459,22 +467,25 @@ async function loadPaymentData(orgId) {
     }
 }
 
+
+
 function populatePaymentData(paymentData) {
     if (!paymentData) return;
 
-    // Populate Bank Transfer Info
-    const bankNameEl = document.querySelector('[data-translate="bank"]').nextElementSibling;
-    const accountNumberEl = document.getElementById('account-number');
-    const accountNameEl = document.getElementById('account-name');
+    // Populate Payment Method
+    const paymentMethodEl = document.getElementById('payment-method');
+    if (paymentMethodEl && paymentData.payment_method) {
+        paymentMethodEl.textContent = paymentData.payment_method_html || paymentData.payment_method;
+    }
 
-    if (bankNameEl) {
-        bankNameEl.textContent = paymentData.bank_name;
-    }
-    if (accountNumberEl) {
-        accountNumberEl.textContent = paymentData.account_number;
-    }
-    if (accountNameEl) {
-        accountNameEl.textContent = paymentData.account_name;
+    // Populate QR Code if payment_url exists
+    const paymentQrContainer = document.getElementById('payment-qr-container');
+    const paymentQrCode = document.getElementById('payment-qr-code');
+    if (paymentData.payment_url) {
+        paymentQrCode.src = paymentData.payment_url;
+        paymentQrContainer.style.display = 'block';
+    } else {
+        paymentQrContainer.style.display = 'none';
     }
 
     // Populate Contact & Support Info
@@ -745,27 +756,7 @@ setTimeout(() => {
     // The loading is now hidden inside the loadRepairData function
 }, 2000); // Fallback timeout
 
-function copyAccountNumber() {
-    const accountNumber = document.getElementById('account-number').textContent;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(accountNumber)
-            .then(() => {
-                const copyIcon = document.querySelector('.fa-copy');
-                copyIcon.classList.remove('text-gray-500');
-                copyIcon.classList.add('text-green-500');
-                setTimeout(() => {
-                    copyIcon.classList.remove('text-green-500');
-                    copyIcon.classList.add('text-gray-500');
-                }, 2000);
-            })
-            .catch(err => {
-                console.error('Failed to copy account number: ', err);
-                alert('Failed to copy account number. Please try again.');
-            });
-    } else {
-        alert('Copy to clipboard is not supported in this browser or context (e.g., not served over HTTPS). Please copy manually.');
-    }
-}
+
 
 // --- AppFile Integration for Native File Upload ---
 
@@ -775,7 +766,7 @@ function initiateFileUpload() {
     if (typeof AppFile !== 'undefined' && AppFile.pickFile) {
         updateUploadStatus("Opening file picker...", "info");
         // Launch the native file picker. Allow images and PDFs.
-        AppFile.pickFile('image/*,application/pdf', "filePickerCallback");
+        AppFile.pickFile('image/*', "filePickerCallback");
     } else {
         const msg = "Error: The 'AppFile' interface is not available. This page must be loaded within the app's WebView.";
         console.error(msg);
@@ -794,25 +785,33 @@ function filePickerCallback(result) {
         console.log("File selected:", result);
         updateUploadStatus(`File selected: ${result.name}. Preparing to upload...`, "info");
 
-        // --- Prepare parameters for the upload ---
         const fileUri = result.uri;
         const apiEndpoint = 'https://storage.rta.vn/s3/upload';
+        const project_code = configUser.projectCode;
+        const filename = result.name;
 
-        // Use the ticketId from the repairData as the project_code or a relevant identifier.
-        const project_code = repairData ? repairData.ticketId : "UNKNOWN_TICKET";
+        fetch(fileUri)
+            .then(res => res.blob())
+            .then(blob => {
+                const formdata = new FormData();
+                formdata.append(filename + "_FileMeta", JSON.stringify({ "project_code": project_code, "resource_type": "payment.receipt" }));
+                formdata.append(filename + "_ExtraArgs", JSON.stringify({ "ACL": "public-read-write" }));
+                formdata.append(filename, blob, filename);
 
-        const params = {
-            "ExtraArgs": JSON.stringify({"ACL": "public-read-write"}),
-            "FileMeta": JSON.stringify({
-                "project_code": project_code,
-                "resource_type": "payment.receipt" // More specific resource type
-            })
-        };
-        const paramsJson = JSON.stringify(params);
-        const headersJson = '{}'; // No specific headers needed
+                const requestOptions = {
+                    method: "POST",
+                    body: formdata,
+                    redirect: "follow"
+                };
 
-        // Call the native uploadFile function.
-        AppFile.uploadFile(fileUri, apiEndpoint, paramsJson, headersJson, "uploadCallback");
+                fetch(apiEndpoint, requestOptions)
+                    .then(response => response.text())
+                    .then(result => uploadCallback(result))
+                    .catch(error => {
+                        console.error("Error uploading file:", error);
+                        updateUploadStatus(`Error uploading file: ${error.message}`, "error");
+                    });
+            });
     }
 }
 
@@ -877,6 +876,22 @@ function updateUploadStatus(message, type) {
 
 async function confirmPayment() {
     const confirmBtn = document.getElementById('confirm-payment-btn');
+    const transferAmount = document.getElementById('transfer-amount').value;
+    const transferDate = document.getElementById('transfer-date').value;
+    const errorMessageDiv = document.getElementById('payment-error-message');
+
+    // Clear previous error messages
+    errorMessageDiv.textContent = '';
+    errorMessageDiv.style.display = 'none';
+
+    if (!transferAmount || !transferDate) {
+        errorMessageDiv.textContent = 'Please fill in both "Amount Transferred" and "Transfer Date & Time" fields.';
+        errorMessageDiv.style.display = 'block';
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span data-translate="confirmPaymentBtn">Confirm Payment Completed</span>';
+        return;
+    }
+
     confirmBtn.disabled = true;
     confirmBtn.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div> <span data-translate="confirmingPayment">Confirming...</span>';
 
@@ -891,7 +906,8 @@ async function confirmPayment() {
         customer_phone: repairData.customerPhone,
         customer_email: repairData.customerEmail,
         company_name: repairData.companyDisplayName,
-        total_amount_due: document.getElementById('total-amount').textContent
+        total_amount_due: document.getElementById('total-amount').textContent,
+        configUser: configUser // Add configUser to the data object
     };
 
     try {
