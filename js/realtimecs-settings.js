@@ -498,8 +498,8 @@ function uploadCallback(result) {
             const publicUrl = response.files[0].public_url;
             console.log("Public URL:", publicUrl);
             document.getElementById('payment-instructions-file-url').value = publicUrl;
-            statusDiv.innerHTML = "Upload successful!<br>Public URL: <a id='url-link' href='" + publicUrl + "' target='_blank'>" + publicUrl + "</a>";
-            document.getElementById('public-url-display').innerText = "Raw Public URL: " + publicUrl;
+            statusDiv.innerHTML = "Upload successful!<br>File URL: <a id='url-link' href='" + publicUrl + "' target='_blank'>" + publicUrl + "</a>";
+            document.getElementById('public-url-display').innerText = "File URL: <a href=" + publicUrl + " target='_blank'>" + publicUrl +"</a>";
             statusDiv.innerText = "Upload successful!";
         } catch (e) {
             console.error("Could not parse server response:", e);
