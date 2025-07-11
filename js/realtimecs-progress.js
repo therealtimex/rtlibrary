@@ -704,7 +704,7 @@ function handleRepairImages(hits) {
             const files = hit._source.output.files.split(';').map(url => url.trim()).filter(url => url);
             images.push(...files);
         }
-        if (hit._source.input.attachments) {
+        if (hit._source.input && hit._source.input.attachments) {
             const attachments = hit._source.input.attachments.split(';').map(url => url.trim()).filter(url => url);
             images.push(...attachments);
         }
