@@ -403,6 +403,7 @@ if (form) {
             contact_phone: contactPhone,
             context_title: `${orgNameVal}-HRM`,
             number_codes: '1',
+            user_status: '1',
             expiry_datetime: '2050-12-31',
             approval_mode: 'none',
             allowed_times_use: '500',
