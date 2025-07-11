@@ -338,7 +338,7 @@ function closeModalCreateOrg() {
 }
 function renderOrgFormLang() {
   const T = LANG[appLanguage];
-  document.getElementById('org-form-title').textContent = appLanguage === 'vi' ? "Thông tin Tổ chức" : "Organization Information";
+  
   document.getElementById('org-form-desc').textContent = appLanguage === 'vi'
     ? "Vui lòng cung cấp Thông tin để Hệ thống khởi tạo Tổ chức mới:"
     : "Please provide the information so the system can create a New organization:";
