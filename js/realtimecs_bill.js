@@ -219,7 +219,7 @@ async function loadAndPopulateData(ticketId) {
         const storeInfo = paymentData.hits?.hits[0]?._source.output.data_formatted || {};
         const GenerateReceiptnInfo = GenerateReceiptnData.hits?.hits[0]?._source.output.data_formatted || {};
 
-        if (Object.keys(repairInfo).length === 0) {
+        if (Object.keys(GenerateReceiptnInfo).length === 0) {
             console.error(lang.noInvoiceFound, ticketId);
             document.body.innerHTML = `<h1>${lang.noInvoiceFound} ${ticketId}</h1>`;
             return;
