@@ -84,7 +84,7 @@ const translations = {
         thankYou: "Thank you!",
         errorLoadingData: "An error occurred while loading receipt data.",
         noTicketId: "Error: No repair ticket ID provided.",
-        noInvoiceFound: "No invoice details found for ticket ID:",
+        noInvoiceFound: "No Receipt details found for ticket ID:",
         currencyUnit: "USD", 
         loadingDataError: "Error fetching data from API.",
         pleaseWait: "Receipt data not loaded yet. Please wait.",
