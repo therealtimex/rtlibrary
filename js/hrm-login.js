@@ -336,6 +336,11 @@ function closeModalCreateOrg() {
   combineScreenMode = 'default';
   renderByUserType();
 }
+function isValidPhone(phone) {
+  if (!phone || typeof phone !== 'string') return false;
+  phone = phone.trim();
+  return /^\d{7,15}$/.test(phone);
+}
 function renderOrgFormLang() {
   const T = LANG[appLanguage];
   
@@ -349,7 +354,8 @@ function renderOrgFormLang() {
   document.getElementById('label-contact-phone').textContent = T.contactPhone;
   document.getElementById('btn-submit-org').textContent = T.submitBtn;
   document.getElementById('contact-name').value = USER_FULLNAME;
-  document.getElementById('contact-phone').value = USER_PHONE;
+  const phoneValue = isValidPhone(USER_PHONE) ? USER_PHONE : '0';
+  document.getElementById('contact-phone').value = phoneValue;
   document.getElementById('contact-email').value = USER_EMAIL;
 }
 function generateRandomId(length) {
