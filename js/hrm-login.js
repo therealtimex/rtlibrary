@@ -394,7 +394,7 @@ if (form) {
             fullname: USER_FULLNAME,
             user_role: 'ea8018e243_HRM Manager',
             email: USER_EMAIL,
-            cellphone: USER_PHONE && USER_PHONE.trim() ? USER_PHONE : '0',
+            cellphone: isValidPhone(USER_PHONE) ? USER_PHONE : '0',
             org_id: orgId,
             org_name_full: orgNameVal,
             org_name: shortName,
