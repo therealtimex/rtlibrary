@@ -56,11 +56,11 @@ const LANG = {
         error: "Đã xảy ra lỗi. Vui lòng thử lại sau!",
         trial_success: "Hệ thống đang xử lý yêu cầu sử dụng {appName} - Người dùng trải nghiệm cho <b>{user}</b>, vui lòng chờ hệ thống xác nhận thông tin và khởi tạo dữ liệu!",
         join_success: "Yêu cầu tham gia <b>{org}</b> của bạn đã được xử lý thành công",
-        notify: (org, email) => `Hệ thống đang xử lý yêu cầu Khởi tạo Tổ chức mới cho <b>${org}</b>, vui lòng chờ hệ thống xác nhận thông tin và khởi tạo dữ liệu!`,
+        notify: (org, email) => `Hệ thống đã hoàn tất khởi tạo <b>${org}</b>.Bạn có thể bắt đầu ngay bây giờ!`,
         trial_mode_subtitle: "Bạn đang sử dụng chế độ trải nghiệm",
         official_mode_subtitle: "Phiên bản chính thức",
         settings_alert: "Chức năng cài đặt tổ chức sẽ được phát triển",
-        org_update_timeout: "Không xác định được cập nhật tổ chức.",
+        org_update_timeout: "Hệ thống chưa xác nhận được thông tin Tổ chức. Bạn vui lòng thử lại",
         org_update_error: "Lỗi khi kiểm tra cập nhật tổ chức."
     },
     en: {
@@ -118,11 +118,11 @@ const LANG = {
         error: "An error occurred. Please try again later!",
         trial_success: "The system is processing the request to use {appName} - Trial User for <b>{user}</b>. Please wait for the system to confirm the information and initialize the data!",
         join_success: "Your request to join <b>{org}</b> has been successfully processed",
-        notify: (org, email) => `We are processing your request to create the new organization <b>${org}</b>. Please wait for the system to confirm the information and initialize the data.`,
+        notify: (org, email) => `The system has successfully created the organization <b>${org}</b>. You can get started now!`,
         trial_mode_subtitle: "You are using trial mode",
         official_mode_subtitle: "Official Version",
         settings_alert: "Organization settings feature will be developed",
-        org_update_timeout: "Organization update not recognized.",
+        org_update_timeout: "The system couldn't verify the organization information. Please try again",
         org_update_error: "Error checking organization update."
     }
 };
