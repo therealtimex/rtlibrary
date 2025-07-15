@@ -474,8 +474,8 @@ function populatePaymentData(paymentData) {
 
     // Populate Payment Method
     const paymentMethodEl = document.getElementById('payment-method');
-    if (paymentMethodEl && paymentData.payment_method) {
-        paymentMethodEl.innerHTML = paymentData.payment_method_html || paymentData.payment_method;
+    if (paymentMethodEl) {
+        paymentMethodEl.innerHTML = paymentData.payment_method_html || paymentData.payment_method || '';
     }
 
     // Populate QR Code if payment_url exists
@@ -489,19 +489,9 @@ function populatePaymentData(paymentData) {
     }
 
     // Populate Contact & Support Info
-    const phoneEl = document.querySelector('[data-translate="phone"]').nextElementSibling;
-    const emailEl = document.querySelector('[data-translate="email"]').nextElementSibling;
-    const addressEl = document.querySelector('[data-translate="address"]').nextElementSibling;
-
-    if (phoneEl && paymentData.store_phone_number) {
-        phoneEl.textContent = paymentData.store_phone_number;
-    }
-    if (emailEl && paymentData.store_email) {
-        emailEl.textContent = paymentData.store_email;
-    }
-    if (addressEl && paymentData.store_address) {
-        addressEl.textContent = paymentData.store_address;
-    }
+    document.getElementById('contact-phone').textContent = paymentData.store_phone_number || '';
+    document.getElementById('contact-email').textContent = paymentData.store_email || '';
+    document.getElementById('contact-address').textContent = paymentData.store_address || '';
 
     if (paymentData.store_name) {
         repairData.companyDisplayName = paymentData.store_name;
