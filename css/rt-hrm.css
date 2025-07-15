@@ -453,59 +453,6 @@ body {
     margin-top: 1px;
     text-align: center;
 }
-.action-bar-outer {
-    background: #f0f0f0;
-    padding: 20px 0 0 0;
-    overflow: hidden;
-    max-width: 100vw;
-}
-.action-bar-scroll {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(70px, 1fr);
-    gap: 18px;
-    width: 100%;
-    max-width: 95vw;
-    margin: 0 auto;
-    transition: transform 0.4s cubic-bezier(0.4, 2.2, 0.2, 1);
-    will-change: transform;
-    overflow: hidden;
-}
-.action-bar-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: transparent;
-    padding: 8px 4px 6px 4px;
-    border-radius: 15px;
-}
-.action-bar-item:active {
-    background-color: var(--primary-color);
-    transform: scale(0.95);
-}
-.icon-circle {
-    background: #fff;
-    border: none;
-    border-radius: 16px;
-    width: 54px;
-    height: 54px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 8px;
-}
-.action-bar-item i {
-    color: var(--primary-color);
-    font-size: 26px;
-}
-.action-bar-label {
-    font-size: 13px;
-    color: #222;
-    text-align: center;
-    margin-top: 0;
-    line-height: 1.2;
-    white-space: normal;
-}
 .indicator-bar {
     display: flex;
     flex-direction: row;
@@ -579,121 +526,7 @@ body {
         opacity: 0.3;
     }
 }
-.notif-card-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px 24px;
-    padding: 8px 8px;
-    justify-content: flex-start;
-    box-sizing: border-box;
-}
-.notif-item {
-    background: #fff;
-    border: 0;
-    border-radius: 18px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-    transition: box-shadow 0.2s;
-    min-width: 180px;
-    max-width: 500px;
-    width: calc(50% - 12px);
-    cursor: pointer;
-    justify-content: space-between;
-    min-height: 160px;
-}
-@media (max-width: 900px) {
-    .notif-item {
-        width: calc(50% - 4px);
-        min-width: 140px;
-    }
-    .notif-card-container {
-        gap: 16px 8px;
-    }
-}
-@media (max-width: 400px) {
-    .notif-item {
-        width: 100%;
-        min-width: 120px;
-    }
-    .notif-card-container {
-        padding: 10px 8px;
-    }
-}
-.notif-img {
-    width: 100%;
-    aspect-ratio: 6/5;
-    background-size: cover;
-    background-position: center;
-    min-height: 60px;
-    flex-shrink: 0;
-}
-.notif-info {
-    background: #fff;
-    padding: 10px 14px 0 14px;
-    display: flex;
-    align-items: flex-start;
-    gap: 0;
-    position: relative;
-}
-.notif-title {
-    font-size: 13px;
-    max-height: 2.8em;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.4em;
-    flex: 1 1 0;
-    padding-right: 10px;
-}
-.notif-arrow {
-    font-size: 16px;
-    width: 26px;
-    height: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary-color, #008489);
-    background: #e6f7fa;
-    border-radius: 50%;
-    position: absolute;
-    right: 1px;
-    top: 0;
-    bottom: 0;
-    margin: auto 0;
-    cursor: pointer;
-    animation: arrowBlink 1.2s infinite;
-    flex-shrink: 0;
-    border: none;
-    outline: none;
-}
-.notif-time {
-    margin-top: auto;
-    padding: 8px 0 10px 0;
-    font-size: 12px;
-    color: #888;
-    margin: 0 0 0 18px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.notif-time svg {
-    width: 15px;
-    height: 15px;
-    margin-right: 3px;
-    vertical-align: middle;
-    color: #888;
-    flex-shrink: 0;
-}
+
 .modal-bg {
     display: none;
     position: fixed;
@@ -800,9 +633,7 @@ body {
     position: relative;
 }
 @media (max-width: 600px) {
-    .notif-img {
-        min-height: 80px;
-    }
+    
     .modal-header2 {
         padding: 18px 44px 14px 16px;
     }
@@ -1179,54 +1010,8 @@ body {
     margin-bottom: 4px;
 }
 
-.notif-full-modal {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    min-width: 0 !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    padding: 0 !important;
-    position: relative;
-    background: #fff;
-    overflow-y: auto;
-}
 #modal-bg {
     align-items: flex-start !important;
-}
-#modal-body2 {
-    flex: 1 1 0%;
-    padding: 24px 14px 0 14px !important;
-    font-size: 1.08rem;
-    overflow-y: auto;
-    max-height: none !important;
-}
-.notif-close-btn {
-    display: inline-block;
-    background: var(--primary-color, #009688);
-    color: #fff;
-    font-weight: bold;
-    font-size: 1.08rem;
-    border: none;
-    border-radius: 16px;
-    padding: 12px 48px;
-    margin: 0 auto;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
-    cursor: pointer;
-    transition: background 0.18s;
-}
-.notif-close-btn:hover,
-.notif-close-btn:focus {
-    background: var(--primary-color, #009688);
-}
-
-.indicator-bar,
-.indicator-dot {
-    display: none !important;
 }
 
 .attendance-btn.checkout-end {
@@ -1241,26 +1026,6 @@ body {
     background: #ffe6ef !important;
 }
 
-/* Ẩn các nút action bar theo label hoặc data-action */
-.action-bar-item [id^="label-salary"],
-.action-bar-item [id^="label-business"],
-.action-bar-item [id^="label-rule"],
-.action-bar-item [id^="label-benefit"],
-.action-bar-item [id^="label-task"],
-.action-bar-item [id^="label-asset"],
-.action-bar-item [id^="label-expense"] {
-    display: none !important;
-}
-/* Ẩn action-bar-item chứa các label trên */
-.action-bar-item:has([id^="label-salary"]),
-.action-bar-item:has([id^="label-business"]),
-.action-bar-item:has([id^="label-rule"]),
-.action-bar-item:has([id^="label-benefit"]),
-.action-bar-item:has([id^="label-task"]),
-.action-bar-item:has([id^="label-asset"]),
-.action-bar-item:has([id^="label-expense"]) {
-    display: none !important;
-}
 
 .input-x-container {
     position: relative;
