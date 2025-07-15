@@ -408,7 +408,7 @@ async function loadRepairData() {
                     ],
                     "must_not": [{
                             "terms": {
-                                "output.data_formatted.current_status.keyword": ["Closed", "Close", "close", "closed", "Đóng", "đóng", "Customer Replied", "Sent SMS", "Sent Email", "Sent Invoice", "Send Invoice to Customer","Sent Receipt"]
+                                "output.data_formatted.current_status.keyword": ["Closed", "Close", "close", "closed", "Đóng", "đóng", "Customer Replied", "Sent SMS", "Sent Email", "Sent Invoice", "Send Invoice to Customer","Sent Receipt","Generate Invoice","Generate Receipt"]
                             }
                         },
                         {
