@@ -433,9 +433,9 @@ function setupEventHandlers() {
     // Setup trial button (from trial banner)
     var btnSetupTrial = document.getElementById('btn-setup-trial');
     if (btnSetupTrial) {
-      btnSetupTrial.onclick = function() {
-        showSetupDialog();
-      };
+      // btnSetupTrial.onclick = function() {
+      //   showSetupDialog();
+      // };
 
       btnSetupTrial.addEventListener('click', function() {
         const actionData = {
