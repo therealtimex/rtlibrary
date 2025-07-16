@@ -246,7 +246,7 @@ btnConfirm.onclick = async function () {
       const jointype = typeof foundOrg.jointype !== 'undefined' ? foundOrg.jointype : null;
       let payload;
       let isNeedApproval = false;
-      if (jointype === "0") {
+      if (jointype === "1") {
         isNeedApproval = true;
         payload = {
           event_id: 'rthrm.user',
