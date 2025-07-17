@@ -10,7 +10,7 @@ const translations = {
         emailConfigDesc: 'Configure the sender name, email, and signature for repair status updates',
         emailEnabledText: 'Email notifications are enabled and configured.',
         emailNotConfiguredText: 'Email notifications are not yet configured. Please fill out the form below.',
-        senderNameLabel: 'Repair Facility Name',
+        senderNameLabel: 'Store Name',
         senderEmailLabel: 'Sender Email Address',
         senderEmailNote: 'This is the system\'s default sender email and cannot be changed to ensure security and reliable delivery.',
         defaultSubjectLabel: 'Default Email Subject',
@@ -35,7 +35,7 @@ const translations = {
         autoResponseTitle: 'Automated SMS Responses',
         welcomeLabel: 'Welcome Message',
         welcomeMessage: "Welcome RealTime CS! You've successfully subscribed to our SMS notifications. Reply STOP to unsubscribe.",
-        goodbyeLabel: 'Goodbye Message (after opt-out)',
+        goodbyeLabel: 'Goodbye Message',
         goodbyeMessage: "You've been unsubscribed from RealTime CS SMS notifications. Reply START to resubscribe.",
         smsStatusTitle: 'SMS Integration Status',
         providerStatus: 'Connected to SMS provider',
@@ -61,12 +61,17 @@ const translations = {
         accountNameLabel: 'Account Name',
         accountNumberLabel: 'Account Number',
         swiftCodeLabel: 'Bank Code/SWIFT Code',
+        paymentInstructionsTitle: 'Payment Instructions',
+        paymentInstructionsTextLabel: 'Payment Details/Instructions',
+        paymentInstructionsFileLabel: 'Upload Payment QR/Image',
         contactInfoTitle: 'Store Contact Information',
         storeNameLabel: 'Store Name',
         storePhoneNumberLabel: 'Phone Number',
         storeEmailLabel: 'Email Address',
         storeAddressLabel: 'Physical Address',
         savePaymentText: 'Save Payment Settings',
+        paymentInstructionsLabel: 'Payment Instructions',
+        paymentFilesLabel: 'Upload Payment Files'
     },
     vi: {
         pageTitle: 'Cài Đặt Thông Báo Khách Hàng',
@@ -78,7 +83,7 @@ const translations = {
         emailConfigDesc: 'Cấu hình tên người gửi, email và chữ ký cho các cập nhật tình trạng sửa chữa',
         emailEnabledText: 'Thông báo qua email đã được kích hoạt và cấu hình.',
         emailNotConfiguredText: 'Thông báo qua email chưa được cấu hình. Vui lòng điền vào biểu mẫu dưới đây.',
-        senderNameLabel: 'Tên Cơ Sở Sửa Chữa',
+        senderNameLabel: 'Tên Cửa hàng',
         senderEmailLabel: 'Địa Chỉ Email Gửi',
         senderEmailNote: 'Đây là địa chỉ email gửi đi mặc định của hệ thống và không thể thay đổi để đảm bảo bảo mật và gửi email thành công.',
         defaultSubjectLabel: 'Tiêu Đề Email Mặc Định',
@@ -129,6 +134,9 @@ const translations = {
         accountNameLabel: 'Tên tài khoản',
         accountNumberLabel: 'Số tài khoản',
         swiftCodeLabel: 'Mã ngân hàng/Mã SWIFT',
+        paymentInstructionsTitle: 'Hướng dẫn thanh toán',
+        paymentInstructionsTextLabel: 'Chi tiết/Hướng dẫn thanh toán',
+        paymentInstructionsFileLabel: 'Tải lên QR/Hình ảnh thanh toán',
         contactInfoTitle: 'Thông tin liên hệ của cửa hàng',
         storeNameLabel: 'Tên cửa hàng',
         storePhoneNumberLabel: 'Số điện thoại',
@@ -211,12 +219,9 @@ function setLanguage(lang) {
     // Payment section
     document.getElementById('payment-config-title').textContent = t.paymentConfigTitle;
     document.getElementById('payment-config-desc').textContent = t.paymentConfigDesc;
-    document.getElementById('bank-details-title').textContent = t.bankDetailsTitle;
-    document.getElementById('bank-name-label').textContent = t.bankNameLabel;
-    document.getElementById('bank-branch-label').textContent = t.bankBranchLabel;
-    document.getElementById('account-name-label').textContent = t.accountNameLabel;
-    document.getElementById('account-number-label').textContent = t.accountNumberLabel;
-    document.getElementById('swift-code-label').textContent = t.swiftCodeLabel;
+    // document.getElementById('payment-instructions-title').textContent = t.paymentInstructionsTitle;
+    document.getElementById('payment-instructions-text-label').textContent = t.paymentInstructionsTextLabel;
+    document.getElementById('payment-instructions-file-label').textContent = t.paymentInstructionsFileLabel;
     document.getElementById('contact-info-title').textContent = t.contactInfoTitle;
     document.getElementById('store-name-label').textContent = t.storeNameLabel;
     document.getElementById('store-phone-number-label').textContent = t.storePhoneNumberLabel;
@@ -424,14 +429,7 @@ async function saveSmsSettings() {
 
 async function savePaymentSettings() {
     const button = document.getElementById('payment-save-btn');
-    const bankName = document.getElementById('bank-name').value.trim();
-    const accountName = document.getElementById('account-name').value.trim();
-    const accountNumber = document.getElementById('account-number').value.trim();
-
-    if (!bankName || !accountName || !accountNumber) {
-        showNotification('fillRequiredFields', 'error');
-        return;
-    }
+    
     
     try {
         showLoading('payment-save-btn');
@@ -447,11 +445,8 @@ async function savePaymentSettings() {
                 projectCode: configUser.projectCode
             },
             settings: {
-                bankName: document.getElementById('bank-name').value,
-                bankBranch: document.getElementById('bank-branch').value,
-                accountName: document.getElementById('account-name').value,
-                accountNumber: document.getElementById('account-number').value,
-                swiftCode: document.getElementById('swift-code').value,
+                paymentInstructionsText: document.getElementById('payment-instructions-text').value,
+                paymentInstructionsFile: document.getElementById('payment-instructions-file-url').value,
                 storeName: document.getElementById('store-name').value,
                 storePhoneNumber: document.getElementById('store-phone-number').value,
                 storeEmail: document.getElementById('store-email').value,
@@ -483,5 +478,83 @@ async function savePaymentSettings() {
         showNotification('saveError', 'error');
     } finally {
         hideLoading('payment-save-btn', 'savePaymentText');
+    }
+}
+
+function uploadCallback(result) {
+    const statusDiv = document.getElementById('upload-status');
+    if (result.error) {
+        console.error("Upload error:", result.error);
+        statusDiv.innerText = "Upload failed: " + result.error;
+        document.getElementById('public-url-display').innerText = "";
+    } else if (result.progress !== undefined) {
+        console.log("Upload progress:", result.progress + "%");
+        statusDiv.innerText = "Upload progress: " + result.progress + "%";
+        document.getElementById('public-url-display').innerText = "";
+    } else {
+        console.log("Upload success, server response:", result);
+        try {
+            const response = JSON.parse(result);
+            const publicUrl = response.files[0].public_url;
+            console.log("Public URL:", publicUrl);
+            document.getElementById('payment-instructions-file-url').value = publicUrl;
+            statusDiv.innerHTML = "Upload successful!<br>File URL: <a id='url-link' href='" + publicUrl + "' target='_blank'>" + publicUrl + "</a>";
+            document.getElementById('public-url-display').innerText = "File URL: <a href=" + publicUrl + " target='_blank'>" + publicUrl +"</a>";
+            statusDiv.innerText = "Upload successful!";
+        } catch (e) {
+            console.error("Could not parse server response:", e);
+            statusDiv.innerText = "Upload successful, but the server response could not be parsed. See console for details.";
+            console.log("Raw response:", result);
+            document.getElementById('public-url-display').innerText = "Raw response: " + result;
+        }
+    }
+}
+
+function filePickerCallback(result) {
+    if (result.error) {
+        console.error("File picker error:", result.error);
+        document.getElementById('upload-status').innerText = "File selection failed: " + result.error;
+    } else {
+        console.log("File selected:", result);
+        document.getElementById('upload-status').innerText = "File selected: " + result.name + ". Preparing to upload...";
+
+        const fileUri = result.uri;
+        const apiEndpoint = 'https://storage.rta.vn/s3/upload';
+        const project_code = configUser.projectCode;
+        const filename = result.name;
+
+        fetch(fileUri)
+            .then(res => res.blob())
+            .then(blob => {
+                const formdata = new FormData();
+                formdata.append(filename + "_FileMeta", JSON.stringify({ "project_code": project_code, "resource_type": "local.test.screenshot" }));
+                formdata.append(filename + "_ExtraArgs", JSON.stringify({ "ACL": "public-read-write" }));
+                formdata.append(filename, blob, filename);
+
+                const requestOptions = {
+                    method: "POST",
+                    body: formdata,
+                    redirect: "follow"
+                };
+
+                fetch(apiEndpoint, requestOptions)
+                    .then(response => response.text())
+                    .then(result => uploadCallback(result))
+                    .catch(error => {
+                        console.error("Error uploading file:", error);
+                        document.getElementById('upload-status').innerText = "Error uploading file: " + error.message;
+                    });
+            });
+    }
+}
+
+function initiateFileUpload() {
+    if (typeof AppFile !== 'undefined' && AppFile.pickFile) {
+        document.getElementById('upload-status').innerText = "Opening file picker...";
+        AppFile.pickFile('image/*', "filePickerCallback");
+    } else {
+        const msg = "Error: The 'AppFile' interface is not available. This page must be loaded within the app's WebView.";
+        console.error(msg);
+        document.getElementById('upload-status').innerText = msg;
     }
 }

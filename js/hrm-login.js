@@ -17,91 +17,98 @@ function showPollingError() {
   document.getElementById('combine-btn-retry-result').style.display = 'block';
   document.getElementById('combine-result-spinner').style.display = 'none';
 }
-let pollingIntervalId = null;
-let pollingCount = 0;
-const MAX_POLLING = 24;
-function startPollingLoop({ orgId, onSuccess, onError }) {
-  if (pollingIntervalId) clearInterval(pollingIntervalId);
-  pollingCount = 0;
-  document.getElementById('combine-result-spinner').style.display = 'block';
-  document.getElementById('combine-btn-close-result').style.display = 'none';
-  document.getElementById('combine-btn-retry-result').style.display = 'none';
-  pollingIntervalId = setInterval(async () => {
-    pollingCount++;
+
+
+function handleOrgJoinOrCreatePolling({ isJoiningOrg, orgName, contactEmail, originalOrgId }) {
+  const maxAttempts = 24;
+  const interval = 5000; // 5 giây
+  let attempts = 0;
+  let pollingInterval = null;
+
+  const spinner = document.getElementById('combine-result-spinner');
+  const messageDiv = document.getElementById('combine-result-message');
+  const btnClose = document.getElementById('combine-btn-close-result');
+  const btnRetry = document.getElementById('combine-btn-retry-result');
+
+  // Hiển thị thông báo phù hợp
+  if (isJoiningOrg) {
+    messageDiv.innerHTML = `<div style="color: #222; font-weight: 500; text-align: left;">${LANG[appLanguage].trialSuccess.replace('{org}', orgName)}</div>`;
+  } else {
+    messageDiv.innerHTML = `<div style="color: #222; font-weight: 500; text-align: left;">${LANG[appLanguage].notify(orgName, contactEmail)}</div>`;
+  }
+
+  spinner.style.display = 'block';
+  btnClose.style.display = 'none';
+  btnRetry.style.display = 'none';
+
+  async function checkOrgIdChanged() {
+    attempts++;
     try {
       const res = await fetch(`${PROJECT_URL}/api/dm/getData?token=your_token_here&dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${USERNAME}"`);
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0 && data[0].organization_id === orgId) {
-        clearInterval(pollingIntervalId);
-        pollingIntervalId = null;
-        document.getElementById('combine-result-spinner').style.display = 'none';
-        if (typeof onSuccess === 'function') onSuccess();
-      } else if (pollingCount >= MAX_POLLING) {
-        clearInterval(pollingIntervalId);
-        pollingIntervalId = null;
-        if (typeof onError === 'function') onError();
+      if (Array.isArray(data) && data.length > 0 && data[0].organization_id !== originalOrgId) {
+        clearInterval(pollingInterval);
+        spinner.style.display = 'none';
+        if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+          App.callActionButton(JSON.stringify({
+            actionID: 24703,
+            type: "act_fetch_rcm",
+            label: "Fetch RCM"
+          }));
+          setTimeout(() => {
+            App.callActionButton(JSON.stringify({
+              actionID: 24704,
+              type: "act_reload_app",
+              label: "Reload App"
+            }));
+            renderByUserType();
+            document.getElementById('combine-result-screen').style.display = 'none';
+            document.getElementById('hrm-main').style.display = 'block';
+          }, 3000);
+        }
+      } else if (attempts >= maxAttempts) {
+        clearInterval(pollingInterval);
+        spinner.style.display = 'none';
+        messageDiv.innerHTML = `<div style="color: #dc3545; font-weight: 500; text-align: center;">${LANG[appLanguage].error}</div>`;
+        btnClose.style.display = 'inline-block';
+        btnRetry.style.display = 'inline-block';
       }
-    } catch (err) {
-      if (pollingCount >= MAX_POLLING) {
-        clearInterval(pollingIntervalId);
-        pollingIntervalId = null;
-        if (typeof onError === 'function') onError();
+    } catch (error) {
+      if (attempts >= maxAttempts) {
+        clearInterval(pollingInterval);
+        spinner.style.display = 'none';
+        messageDiv.innerHTML = `<div style="color: #dc3545; font-weight: 500; text-align: center;">${LANG[appLanguage].error}</div>`;
+        btnClose.style.display = 'inline-block';
+        btnRetry.style.display = 'inline-block';
       }
     }
-  }, 5000);
-}
-function startPollingCheckOrg() {
-  document.getElementById('combine-btn-close-result').style.display = 'none';
-  document.getElementById('combine-btn-retry-result').style.display = 'none';
-  document.getElementById('combine-result-spinner').style.display = 'block';
-  if (isJoiningOrg) {
-    document.getElementById('combine-result-message').innerHTML =
-      `<div style="color: #222; font-weight: 500; text-align: left;">${LANG[appLanguage].trialSuccess.replace('{org}', orgName)}</div>`;
-  } else {
-    document.getElementById('combine-result-message').innerHTML =
-      `<div style="color: #222; font-weight: 500; text-align: left;">${LANG[appLanguage].notify(orgName, contactEmail)}</div>`;
   }
-  startPollingLoop({
-    orgId: isJoiningOrg ? foundOrg?.org_id : pendingOrgId,
-    onSuccess: function () {
-      USER_ORG_ID = foundOrg.org_id;
-      if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
 
-        var msgDiv = document.getElementById('combine-result-message');
-        if (msgDiv) {
-          msgDiv.innerHTML += `<div style="color:green; margin-top:8px;">Đã gửi act_fetch_rcm</div>`;
-        }
+  pollingInterval = setInterval(checkOrgIdChanged, interval);
 
-        App.callActionButton(JSON.stringify({
-          actionID: 24703,
-          type: "act_fetch_rcm",
-          label: "Fetch RCM"
-        }));
-        setTimeout(() => {
-          if (msgDiv) {
-            msgDiv.innerHTML += `<div style="color:green; margin-top:8px;">Đã gửi act_reload_app</div>`;
-          }
-          App.callActionButton(JSON.stringify({
-            actionID: 24704,
-            type: "act_reload_app",
-            label: "Reload App"
-          }));
-          renderByUserType();
-          document.getElementById('combine-result-screen').style.display = 'none';
-          document.getElementById('hrm-main').style.display = 'block';
-          document.getElementById('combine-result-spinner').style.display = 'none';
-        }, 3000);
-      }
-    },
-    onError: showPollingError
-  });
+  btnClose.onclick = () => {
+    clearInterval(pollingInterval);
+    document.getElementById('combine-result-screen').style.display = 'none';
+    resetCombineForm();
+    document.getElementById('combine-user-screen').style.display = 'flex';
+  };
+
+  btnRetry.onclick = () => {
+    btnClose.style.display = 'none';
+    btnRetry.style.display = 'none';
+    spinner.style.display = 'block';
+    attempts = 0;
+    pollingInterval = setInterval(checkOrgIdChanged, interval);
+  };
 }
+
 document.getElementById('combine-btn-retry-result').onclick = function () {
-  startPollingCheckOrg();
+  if (lastPollingParams) {
+    handleOrgJoinOrCreatePolling(lastPollingParams);
+  }
 };
 document.getElementById('combine-btn-close-result').onclick = function () {
-  if (pollingIntervalId) clearInterval(pollingIntervalId);
-  pollingIntervalId = null;
+  
   document.getElementById('combine-result-screen').style.display = 'none';
   resetCombineForm();
   document.getElementById('combine-user-screen').style.display = 'flex';
@@ -239,7 +246,7 @@ btnConfirm.onclick = async function () {
       const jointype = typeof foundOrg.jointype !== 'undefined' ? foundOrg.jointype : null;
       let payload;
       let isNeedApproval = false;
-      if (jointype === "0") {
+      if (jointype === "1") {
         isNeedApproval = true;
         payload = {
           event_id: 'rthrm.user',
@@ -290,11 +297,20 @@ btnConfirm.onclick = async function () {
           document.getElementById('combine-user-screen').style.display = 'flex';
         };
       } else {
-        isJoiningOrg = true;
-        orgName = foundOrg.org_lb || foundOrg.org_name || code;
-        startPollingCheckOrg();
-        document.getElementById('combine-user-screen').style.display = 'none';
-        document.getElementById('combine-result-screen').style.display = 'flex';
+      
+      isJoiningOrg = true;
+      orgName = foundOrg.org_lb || foundOrg.org_name || code;
+      contactEmail = USER_EMAIL; 
+      lastPollingParams = {
+        isJoiningOrg: isJoiningOrg,
+        orgName: orgName,
+        contactEmail: contactEmail,
+        originalOrgId: USER_ORG_ID
+      };
+      handleOrgJoinOrCreatePolling(lastPollingParams);
+      document.getElementById('combine-user-screen').style.display = 'none';
+      document.getElementById('combine-result-screen').style.display = 'flex';
+
       }
     } catch (err) {
       errorElem.style.color = '#e74c3c';
@@ -320,9 +336,14 @@ function closeModalCreateOrg() {
   combineScreenMode = 'default';
   renderByUserType();
 }
+function isValidPhone(phone) {
+  if (!phone || typeof phone !== 'string') return false;
+  phone = phone.trim();
+  return /^\d{7,15}$/.test(phone);
+}
 function renderOrgFormLang() {
   const T = LANG[appLanguage];
-  document.getElementById('org-form-title').textContent = appLanguage === 'vi' ? "Thông tin Tổ chức" : "Organization Information";
+  
   document.getElementById('org-form-desc').textContent = appLanguage === 'vi'
     ? "Vui lòng cung cấp Thông tin để Hệ thống khởi tạo Tổ chức mới:"
     : "Please provide the information so the system can create a New organization:";
@@ -333,7 +354,8 @@ function renderOrgFormLang() {
   document.getElementById('label-contact-phone').textContent = T.contactPhone;
   document.getElementById('btn-submit-org').textContent = T.submitBtn;
   document.getElementById('contact-name').value = USER_FULLNAME;
-  document.getElementById('contact-phone').value = USER_PHONE;
+  const phoneValue = isValidPhone(USER_PHONE) ? USER_PHONE : '0';
+  document.getElementById('contact-phone').value = phoneValue;
   document.getElementById('contact-email').value = USER_EMAIL;
 }
 function generateRandomId(length) {
@@ -372,7 +394,7 @@ if (form) {
             fullname: USER_FULLNAME,
             user_role: 'ea8018e243_HRM Manager',
             email: USER_EMAIL,
-            cellphone: USER_PHONE && USER_PHONE.trim() ? USER_PHONE : '0',
+            cellphone: isValidPhone(USER_PHONE) ? USER_PHONE : '0',
             org_id: orgId,
             org_name_full: orgNameVal,
             org_name: shortName,
@@ -380,6 +402,8 @@ if (form) {
             contact_email: contactEmailVal,
             contact_phone: contactPhone,
             context_title: `${orgNameVal}-HRM`,
+            number_codes: '1',
+            user_status: '1',
             expiry_datetime: '2050-12-31',
             approval_mode: 'none',
             allowed_times_use: '500',
@@ -390,8 +414,18 @@ if (form) {
         })
       });
       document.getElementById('modal-create-org').style.display = 'none';
-      startPollingCheckOrg();
+      isJoiningOrg = false;
+      orgName = document.getElementById('org-name-input').value.trim();
+      contactEmail = document.getElementById('contact-email').value.trim();
+      lastPollingParams = {
+        isJoiningOrg: isJoiningOrg,
+        orgName: orgName,
+        contactEmail: contactEmail,
+        originalOrgId: USER_ORG_ID
+      };
+      handleOrgJoinOrCreatePolling(lastPollingParams);
       document.getElementById('combine-result-screen').style.display = 'flex';
+
     } catch (err) {
       document.getElementById('modal-create-org').style.display = 'none';
       document.getElementById('notification-popup').style.display = 'flex';
@@ -436,7 +470,7 @@ const statusIndicator = $('status-indicator');
 const viewHistoryBtn = $('view-history');
 const monthHeader = document.querySelector('.month-header');
 const weekHeader = document.querySelector('.week-header');
-const notifCard = $('notif-card');
+
 const dashboardBtn = $('dashboard-btn');
 
 const monthNames = T.monthNames;
@@ -767,7 +801,7 @@ function showEventDetails(date, attendanceEvents, leaveEvents, holidayEvents) {
       "type": "act_fill_form",
       "formID": "",
       "familyID": "HR_OVERTIME_2",
-      "preload": [{ "key": "rta_shift_txt", "value": shiftId }]
+      "preload": [{"key": "processing_config","value": "{\"item_show\": \"visible\",\"item_type\":{\"en\":\"Update Overtime\",\"vi\":\"Cập nhật Tăng ca\"}}"},{ "key": "rta_shift_txt", "value": shiftId }]
     };
     if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
       App.callActionButton(JSON.stringify(reportJson));
@@ -921,7 +955,7 @@ function renderAttendanceActions(view_mark) {
           orderNumber: 1,
           type: "act_fill_form",
           familyID: "HR_CHECKIN",
-          preload: [
+          preload: [{"key": "processing_config","value": "{\"item_show\": \"visible\",\"item_type\":{\"en\":\"New Check-In\",\"vi\":\"Chấm công vào ca\"}}"},
             { key: "time_txt", value: timeValue },
             { key: "rta_type", value: "2" }
           ]
@@ -948,7 +982,7 @@ function renderAttendanceActions(view_mark) {
             rta_shift_id: latestCheckin.rta_shift_id || "",
             rta_datetime_in: latestCheckin.chkin_time_fm || ""
           },
-          preload: [
+          preload: [{"key": "processing_config","value": "{\"item_show\": \"visible\",\"item_type\":{\"en\":\"New Check-Out\",\"vi\":\"Chấm công Hết ca\"}}"},
             { key: "rta_type", value: "2" },
             { key: "shift_lb_en", value: latestCheckin.shift_lb_en || "" },
             { key: "shift_lb_vi", value: latestCheckin.shift_lb_vi || "" },
@@ -1002,30 +1036,6 @@ function updateAttendanceActions() {
   renderAttendanceActions(view_mark);
 }
 
-// ====== Action Bar ======
-const actionBarJson = {
-  leave: {
-    actionID: 1,
-    orderNumber: 1,
-    type: "act_dm_view",
-    alias: "t72ep_t72ep01a11",
-    post: "{\"size\":1}"
-  },
-  ot: {
-    actionID: 2,
-    orderNumber: 2,
-    type: "act_dm_view",
-    alias: "t72ep_t72ep01a16",
-    post: "{\"size\":1}"
-  },
-  salary: {
-    actionID: 3,
-    orderNumber: 3,
-    type: "act_open_module",
-    destinationCode: "my360",
-    destinationType: "module"
-  }
-};
 
 // ====== Lịch sử chấm công & mũi tên profile ======
 function callAction(alias, size, collapseField, queryMust, sortField, sortOrder) {
@@ -1043,101 +1053,30 @@ function callAction(alias, size, collapseField, queryMust, sortField, sortOrder)
   App.callActionButton(JSON.stringify(jsonObj));
 }
 function viewCheckinHistory() {
-  callAction(
-    "t72ep_t72ep01a1",
-    300,
-    "key_ins.raw",
-    [
-      { term: { "org_id.raw": { value: USER_ORG_ID } } },
-      { term: { "username.raw": { value: USERNAME } } },
-      { range: { "rta_date": { gt: "2024-12-31" } } }
-    ],
-    "endtime",
-    "desc"
-  );
-}
-function callActionArrow() {
-  callAction(
-    "t72ep_t72ep01a2",
-    1,
-    "username.raw",
-    [
-      { term: { "organization_id.raw": { value: USER_ORG_ID } } },
-      { term: { "username.raw": { value: USERNAME } } }
-    ],
-    "added_date",
-    "desc"
-  );
+    if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+        App.callActionButton(JSON.stringify({
+            actionID: 2,
+            orderNumber: 1,
+            type: "act_open_module",
+            destinationCode: "t72ep1-t72ep1c",
+            destinationType: "component"
+        }));
+    }
 }
 
-// ====== Notification ======
-async function fetchDataNotif() {
-  const res = await fetch('https://es.rta.vn/hrm_notif/_search', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      "size": 10000,
-      "collapse": { "field": "keyid.raw" },
-      "query": {
-        "bool": {
-          "must": [
-            { "term": { "org_id.raw": { "value": USER_ORG_ID } } }
-          ]
-        }
-      },
-      "sort": [{ "endtime": { "order": "desc" } }]
-    })
-  });
-  const data = await res.json();
-  const todayStr = new Date().toISOString().split('T')[0];
-  const items = data.hits.hits.filter(i => {
-    const src = i._source;
-    return src.erp_status == 1 && src.endday >= todayStr;
-  });
-  renderNotifCards(items.map(i => i._source));
+function callActionArrow() {
+    if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+        App.callActionButton(JSON.stringify({
+            actionID: 2,
+            orderNumber: 1,
+            type: "act_open_module",
+            destinationCode: "t72ep1-t72ep1b",
+            destinationType: "component"
+        }));
+    }
 }
-function renderNotifCards(arr) {
-  notifCard.innerHTML = arr.map((src, idx) => {
-    const title = appLanguage === 'en' ? (src.title_en || src.title_vi || '') : (src.title_vi || src.title_en || '');
-    const html = appLanguage === 'en' ? (src.hrm_html_en || src.hrm_html_vi || '') : (src.hrm_html_vi || src.hrm_html_en || '');
-    return `
-      <div class="notif-item" tabindex="0"
-        onclick="showNotifModal('${escapeQuotes(title)}', \`${escapeBackticks(html)}\`)"
-        onkeypress="if(event.key==='Enter'){showNotifModal('${escapeQuotes(title)}', \`${escapeBackticks(html)}\`)}"
-      >
-        <div class="notif-img" style="background-image: url('${src.hrm_img || ''}');"></div>
-        <div class="notif-info">
-          <div class="notif-title" title="${title}">${title}</div>
-          <button class="notif-arrow" tabindex="-1" aria-hidden="true">&#10095;</button>
-        </div>
-        <div class="notif-time">
-          ${calendarIconSVG()}
-          <span>${src.endtime || ''}</span>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-function calendarIconSVG() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg>`;
-}
-function escapeQuotes(str) {
-  return String(str || '').replace(/'/g, "\\'");
-}
-function escapeBackticks(str) {
-  return String(str || '').replace(/`/g, '\\`');
-}
-window.showNotifModal = function(title, html) {
-  const modalBg = $('modal-bg');
-  $('modal-body2').innerHTML = html || '';
-  modalBg.classList.add('show');
-};
-window.closeNotifModal = function() {
-  $('modal-bg').classList.remove('show');
-};
-$('modal-bg').onclick = function(e) {
-  if (e.target === this) closeNotifModal();
-};
+
+
 function showFlashMessage(msg, duration = 1800) {
   let flash = document.getElementById('flash-message');
   if (!flash) {
@@ -1189,7 +1128,7 @@ if (dashboardBtn) {
 // ====== Auto refresh (60 phút) ======
 function autoRefreshAll() {
   fetchData();
-  fetchDataNotif();
+
 }
 setInterval(autoRefreshAll, 60 * 60 * 1000);
 
@@ -1216,15 +1155,7 @@ function renderHRMMain() {
   $('loading-text').textContent = T.loading;
   $('error').textContent = T.error;
   $('view-history-label').textContent = T.checkinHistory;
-  $('label-leave').textContent = T.leave;
-  $('label-ot').textContent = T.ot;
-  $('label-salary').textContent = T.salary;
-  $('label-business').textContent = T.business;
-  $('label-rule').textContent = T.rule;
-  $('label-benefit').textContent = T.benefit;
-  $('label-task').textContent = T.task;
-  $('label-asset').textContent = T.asset;
-  $('label-expense').textContent = T.expense;
+  
   $('dashboard-btn').title = T.dashboard;
   $('modal-title').textContent = T.dayDetail("dd/mm/yyyy");
 
@@ -1259,28 +1190,50 @@ function renderHRMMain() {
       }
     };
   }
-  // Action bar
-  document.querySelectorAll('.action-bar-item').forEach(item => {
-    item.onclick = function () {
-      const action = this.getAttribute('data-action');
-      if (actionBarJson[action]) {
-        if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
-          App.callActionButton(JSON.stringify(actionBarJson[action]));
-        } else {
-          showFlashMessage(T.noAppCallActionButton || 'App.callActionButton not found');
-        }
-      } else {
-        showFlashMessage(T.featureNotSupported || 'Feature not supported');
-      }
-    };
-  });
+
 
   // Fetch dữ liệu
   fetchData();
-  fetchDataNotif();
-  // KHÔNG gọi fetchAndPopulateProfile()
 }
 
+// 1. Hàm cập nhật nhãn đa ngôn ngữ từ LANG
+function updateQuickActionLang() {
+  document.getElementById('label-leave').textContent = LANG[appLanguage].leave;
+  document.getElementById('label-ot').textContent = LANG[appLanguage].ot;
+}
+// Gọi sau khi render HRM main hoặc đổi ngôn ngữ:
+if (document.getElementById('label-leave') && document.getElementById('label-ot')) updateQuickActionLang();
+
+// 2. Xử lý click cho 2 nút
+document.getElementById('btn-leave').onclick = function () {
+  const json = {
+    actionID: 1,
+    orderNumber: 1,
+    type: "act_open_module",
+    destinationCode: "t72ep1-t72ep1d",
+    destinationType: "component"
+  };
+  if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+    App.callActionButton(JSON.stringify(json));
+  } else {
+    showFlashMessage(LANG[appLanguage].noAppCallActionButton || 'App.callActionButton not found');
+  }
+};
+
+document.getElementById('btn-ot').onclick = function () {
+  const json = {
+    actionID: 2,
+    orderNumber: 2,
+    type: "act_open_module",
+    destinationCode: "t72ep1-t72ep1f",
+    destinationType: "component"
+  };
+  if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+    App.callActionButton(JSON.stringify(json));
+  } else {
+    showFlashMessage(LANG[appLanguage].noAppCallActionButton || 'App.callActionButton not found');
+  }
+};
 
 document.addEventListener('DOMContentLoaded', function () {
   userType = checkUserType();
@@ -1305,6 +1258,4 @@ document.addEventListener('DOMContentLoaded', function () {
   } else {
     profilePositionElem.textContent = `${title} - ${department}`;
   }
-  
-  
 });

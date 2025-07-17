@@ -408,7 +408,7 @@ async function loadRepairData() {
                     ],
                     "must_not": [{
                             "terms": {
-                                "output.data_formatted.current_status.keyword": ["Closed", "Close", "close", "closed", "Đóng", "đóng", "Customer Replied","Sent SMS"]
+                                "output.data_formatted.current_status.keyword": ["Closed", "Close", "close", "closed", "Đóng", "đóng", "Customer Replied", "Sent SMS", "Sent Email", "Sent Invoice", "Send Invoice to Customer","Sent Receipt","Generate Invoice","Generate Receipt"]
                             }
                         },
                         {
@@ -704,7 +704,7 @@ function handleRepairImages(hits) {
             const files = hit._source.output.files.split(';').map(url => url.trim()).filter(url => url);
             images.push(...files);
         }
-        if (hit._source.input.attachments) {
+        if (hit._source.input && hit._source.input.attachments) {
             const attachments = hit._source.input.attachments.split(';').map(url => url.trim()).filter(url => url);
             images.push(...attachments);
         }

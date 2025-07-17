@@ -395,3 +395,24 @@
         .text-blue {
             color: #2563eb;
         }
+
+        #receipt-upload-zone {
+            border: 2px dashed #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: border-color 0.2s;
+            cursor: pointer;
+        }
+
+        #receipt-upload-zone:hover {
+            border-color: #9ca3af;
+        }
+
+        #upload-status-message .font-bold {
+            color: #3b82f6;
+        }
+
+        #upload-status-message .font-bold:hover {
+            color: #2563eb;
+        }
