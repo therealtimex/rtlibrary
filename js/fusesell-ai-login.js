@@ -1073,19 +1073,10 @@ function setupEventHandlers() {
                 <div class="font-medium text-red-700">[ERROR: JOIN ORG - SUBMIT]</div>
                 <div>${T.error}</div>
                 <div class="text-xs text-gray-600 mt-1">
-                  ${
+                  Error joining organization. Details: ${
                     err.message || "Unknown error"
                   } (${new Date().toLocaleTimeString()})
                 </div>
-              </div>
-            `;
-            errorElem.innerHTML = errorMsg;
-            const errorMsg = `
-              <div class="text-red-600">${T.error}</div>
-              <div class="text-sm text-gray-700 mt-1">
-                Error joining organization. Details: ${
-                  err.message || "Unknown error"
-                }
               </div>
             `;
             errorElem.innerHTML = errorMsg;
