@@ -1196,6 +1196,44 @@ function renderHRMMain() {
   fetchData();
 }
 
+// 1. Hàm cập nhật nhãn đa ngôn ngữ từ LANG
+function updateQuickActionLang() {
+  document.getElementById('label-leave').textContent = LANG[appLanguage].leave;
+  document.getElementById('label-ot').textContent = LANG[appLanguage].ot;
+}
+// Gọi sau khi render HRM main hoặc đổi ngôn ngữ:
+if (document.getElementById('label-leave') && document.getElementById('label-ot')) updateQuickActionLang();
+
+// 2. Xử lý click cho 2 nút
+document.getElementById('btn-leave').onclick = function () {
+  const json = {
+    actionID: 1,
+    orderNumber: 1,
+    type: "act_open_module",
+    destinationCode: "t72ep1-t72ep1d",
+    destinationType: "component"
+  };
+  if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+    App.callActionButton(JSON.stringify(json));
+  } else {
+    showFlashMessage(LANG[appLanguage].noAppCallActionButton || 'App.callActionButton not found');
+  }
+};
+
+document.getElementById('btn-ot').onclick = function () {
+  const json = {
+    actionID: 2,
+    orderNumber: 2,
+    type: "act_open_module",
+    destinationCode: "t72ep1-t72ep1f",
+    destinationType: "component"
+  };
+  if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
+    App.callActionButton(JSON.stringify(json));
+  } else {
+    showFlashMessage(LANG[appLanguage].noAppCallActionButton || 'App.callActionButton not found');
+  }
+};
 
 document.addEventListener('DOMContentLoaded', function () {
   userType = checkUserType();
