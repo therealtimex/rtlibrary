@@ -587,7 +587,9 @@ function pollOrgUpdate(
           setTimeout(checkUpdate, interval);
         } else {
           hideProcessingUI();
-          displayRetryUI(T.org_update_error);
+          // Enhanced error message with more details
+          const errorMsg = `${T.org_update_error}<br><small class="text-gray-600">(Error: ${err.message || 'Unknown'}, Time: ${new Date().toLocaleTimeString()})</small>`;
+          displayRetryUI(errorMsg);
         }
       });
   };
@@ -856,7 +858,57 @@ function setupEventHandlers() {
         })
         .catch((err) => {
           console.error("Submit error:", err);
-          showResult(T.error, "#e74c3c");
+          
+          // Create a more visible and informative error message
+          const errorTitle = currentLang === "vi" ? 
+            "Không thể tạo tổ chức" : 
+            "Unable to create organization";
+            
+          const errorDesc = currentLang === "vi" ? 
+            "Đã xảy ra lỗi khi tạo tổ chức. Vui lòng kiểm tra kết nối mạng và thử lại." : 
+            "An error occurred while creating your organization. Please check your network connection and try again.";
+            
+          const networkStatus = navigator.onLine ? 
+            (currentLang === "vi" ? "Đã kết nối" : "Connected") : 
+            (currentLang === "vi" ? "Mất kết nối" : "Disconnected");
+            
+          const errorDetails = `
+            <div class="error-container p-4 border border-red-200 rounded-lg bg-red-50">
+              <div class="flex items-center mb-3">
+                <svg class="w-6 h-6 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="text-red-700 font-medium text-lg">${errorTitle}</div>
+              </div>
+              
+              <div class="text-gray-700 mb-4">${errorDesc}</div>
+              
+              <div class="bg-white p-3 rounded border border-gray-200 mb-3">
+                <div class="font-medium mb-1">${currentLang === "vi" ? "Thông tin lỗi:" : "Error information:"}</div>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                  <div class="text-gray-600">${currentLang === "vi" ? "Thời gian:" : "Time:"}</div>
+                  <div>${new Date().toLocaleTimeString()}</div>
+                  
+                  <div class="text-gray-600">${currentLang === "vi" ? "Trạng thái mạng:" : "Network status:"}</div>
+                  <div>${networkStatus}</div>
+                  
+                  <div class="text-gray-600">${currentLang === "vi" ? "Mã lỗi:" : "Error code:"}</div>
+                  <div>${err.status || 'N/A'}</div>
+                  
+                  <div class="text-gray-600">${currentLang === "vi" ? "Thông báo lỗi:" : "Error message:"}</div>
+                  <div class="text-red-600">${err.message || (currentLang === "vi" ? "Không xác định" : "Unknown")}</div>
+                </div>
+              </div>
+              
+              <div class="text-sm text-gray-600">
+                ${currentLang === "vi" ? 
+                  "Vui lòng chụp màn hình lỗi này và gửi cho bộ phận hỗ trợ nếu vấn đề vẫn tiếp diễn." : 
+                  "Please take a screenshot of this error and send it to support if the problem persists."}
+              </div>
+            </div>
+          `;
+          
+          showResult(errorDetails, "#333");
         });
     });
   }
@@ -964,8 +1016,17 @@ function setupEventHandlers() {
           );
           // showResult(T.join_success.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code));
         } catch (err) {
+          console.error("Join organization error:", err);
+          
           if (errorElem) {
-            errorElem.textContent = T.error;
+            // Create a more informative error message
+            const errorMsg = `
+              <div class="text-red-600">${T.error}</div>
+              <div class="text-sm text-gray-700 mt-1">
+                Error joining organization. Details: ${err.message || 'Unknown error'}
+              </div>
+            `;
+            errorElem.innerHTML = errorMsg;
             errorElem.style.display = "block";
           }
         }
