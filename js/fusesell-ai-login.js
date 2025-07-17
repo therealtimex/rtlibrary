@@ -340,110 +340,156 @@ function pollOrgUpdate(
     // Clear any existing interval
     if (tipInterval) clearInterval(tipInterval);
 
-    const spinner = document.getElementById("loading-spinner");
-    const spinnerLabel = document.getElementById("spinner-label");
-    const processingContainer = document.getElementById("processing-container");
-
-    if (spinner) spinner.classList.remove("hidden");
-    if (spinnerLabel) {
-      spinnerLabel.innerHTML = `<span class="font-medium text-indigo-600">${T.processing}</span>`;
+    // Remove any existing overlay
+    const existingOverlay = document.getElementById("processing-overlay");
+    if (existingOverlay) {
+      existingOverlay.remove();
     }
 
-    // Create a friendly message about processing time
-    if (!document.getElementById("processing-message")) {
-      const processingMsg = document.createElement("div");
-      processingMsg.id = "processing-message";
-      processingMsg.className = "text-center text-gray-600 text-sm mt-2 mb-3";
-      processingMsg.innerHTML =
-        currentLang === "vi"
-          ? "Quá trình này có thể mất khoảng 10-20 giây. Hãy khám phá một số mẹo hữu ích trong khi chờ đợi! 😊"
-          : "This process may take about 10-20 seconds. Explore some helpful tips while you wait! 😊";
+    // Create a completely new processing overlay
+    const overlay = document.createElement("div");
+    overlay.id = "processing-overlay";
 
-      // Safely append the processing message to the appropriate container
-      try {
-        if (processingContainer) {
-          // If we have a dedicated container, simply append to it
-          processingContainer.appendChild(processingMsg);
-        } else if (spinner && spinner.parentNode) {
-          // If we have a spinner, append after it
-          spinner.parentNode.appendChild(processingMsg);
-        } else {
-          // Fallback: append to body if nothing else works
-          document.body.appendChild(processingMsg);
+    // Style the overlay with inline styles to ensure it works regardless of CSS
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+    overlay.style.zIndex = "9999";
+    overlay.style.display = "flex";
+    overlay.style.flexDirection = "column";
+    overlay.style.justifyContent = "center";
+    overlay.style.alignItems = "center";
+    overlay.style.padding = "20px";
+
+    // Add the overlay to the document body
+    document.body.appendChild(overlay);
+
+    // Create the content container
+    const processingContainer = document.createElement("div");
+    processingContainer.id = "processing-container";
+    processingContainer.style.maxWidth = "500px";
+    processingContainer.style.width = "100%";
+    processingContainer.style.textAlign = "center";
+    overlay.appendChild(processingContainer);
+
+    // Create spinner with CSS animation
+    const spinnerDiv = document.createElement("div");
+    spinnerDiv.innerHTML = `
+      <div style="margin: 0 auto; width: 50px; height: 50px; border: 5px solid rgba(0, 0, 0, 0.1); border-radius: 50%; border-top-color: #4f46e5; animation: spin 1s ease-in-out infinite;"></div>
+      <style>
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
-      } catch (err) {
-        console.error("Error adding processing message:", err);
-        // Fallback: try to add to body as a last resort
-        try {
-          document.body.appendChild(processingMsg);
-        } catch (e) {
-          console.error("Failed to add processing message to body:", e);
-        }
-      }
-    }
+      </style>
+    `;
+    processingContainer.appendChild(spinnerDiv);
 
-    // Create or update the tip display area if it doesn't exist
-    if (!document.getElementById("fusesell-tip")) {
-      const tipElement = document.createElement("div");
-      tipElement.id = "fusesell-tip";
-      tipElement.className = "mt-4 p-4 rounded-lg text-sm max-w-md mx-auto";
-      tipElement.style.transition = "all 0.5s ease";
-      tipElement.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+    // Create processing label
+    const spinnerLabel = document.createElement("div");
+    spinnerLabel.innerHTML = `<div style="margin-top: 15px; font-size: 18px; font-weight: 600; color: #4f46e5;">${T.processing}</div>`;
+    processingContainer.appendChild(spinnerLabel);
 
-      // Randomly select a color theme for the tip box
-      const colorThemes = [
-        {
-          bg: "bg-gradient-to-br from-blue-50 to-indigo-50",
-          text: "text-blue-800",
-          icon: "text-blue-500",
-          border: "border-blue-200",
-        },
-        {
-          bg: "bg-gradient-to-br from-green-50 to-teal-50",
-          text: "text-green-800",
-          icon: "text-green-500",
-          border: "border-green-200",
-        },
-        {
-          bg: "bg-gradient-to-br from-purple-50 to-indigo-50",
-          text: "text-purple-800",
-          icon: "text-purple-500",
-          border: "border-purple-200",
-        },
-        {
-          bg: "bg-gradient-to-br from-amber-50 to-yellow-50",
-          text: "text-amber-800",
-          icon: "text-amber-500",
-          border: "border-amber-200",
-        },
-      ];
+    // Create wait message
+    const waitMessage = document.createElement("div");
+    waitMessage.style.margin = "15px 0";
+    waitMessage.style.color = "#666";
+    waitMessage.style.fontSize = "14px";
+    waitMessage.innerHTML =
+      currentLang === "vi"
+        ? "Quá trình này có thể mất một chút thời gian. Hãy khám phá một số mẹo hữu ích trong khi chờ đợi! 😊"
+        : "This process may take a moment. Explore some helpful tips while you wait! 😊";
+    processingContainer.appendChild(waitMessage);
 
-      const theme = colorThemes[Math.floor(Math.random() * colorThemes.length)];
-      tipElement.className += ` ${theme.bg} ${theme.text} border ${theme.border}`;
+    // Create the tip element with a colorful design - using ONLY inline styles for reliability
+    const tipElement = document.createElement("div");
+    tipElement.id = "fusesell-tip";
 
-      tipElement.innerHTML = `
-        <div class="flex items-start">
-          <svg class="w-6 h-6 ${
+    // Apply all styles inline to ensure they work regardless of CSS
+    tipElement.style.margin = "20px auto";
+    tipElement.style.padding = "16px";
+    tipElement.style.borderRadius = "8px";
+    tipElement.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+    tipElement.style.maxWidth = "450px";
+    tipElement.style.transition = "all 0.5s ease";
+
+    // Define color themes
+    const colorThemes = [
+      {
+        bg: "linear-gradient(135deg, #EFF6FF, #EEF2FF)",
+        text: "#1E40AF",
+        icon: "#3B82F6",
+        border: "#BFDBFE",
+      },
+      {
+        bg: "linear-gradient(135deg, #ECFDF5, #F0FDF4)",
+        text: "#065F46",
+        icon: "#10B981",
+        border: "#A7F3D0",
+      },
+      {
+        bg: "linear-gradient(135deg, #F5F3FF, #EEF2FF)",
+        text: "#5B21B6",
+        icon: "#8B5CF6",
+        border: "#C7D2FE",
+      },
+      {
+        bg: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
+        text: "#92400E",
+        icon: "#F59E0B",
+        border: "#FDE68A",
+      },
+    ];
+
+    const theme = colorThemes[Math.floor(Math.random() * colorThemes.length)];
+
+    // Apply the selected theme using inline styles
+    tipElement.style.background = theme.bg;
+    tipElement.style.color = theme.text;
+    tipElement.style.border = `1px solid ${theme.border}`;
+
+    // Create the tip content with pure inline styles (no CSS classes)
+    tipElement.innerHTML = `
+        <div style="display: flex; align-items: flex-start;">
+          <svg style="width: 24px; height: 24px; margin-right: 12px; flex-shrink: 0; color: ${
             theme.icon
-          } mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          };" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <div>
-            <p class="font-medium mb-2 text-base">${
+            <p style="font-weight: 500; margin-bottom: 8px; font-size: 16px;">${
               currentLang === "vi" ? "💡 Mẹo FuseSell AI" : "💡 FuseSell AI Tip"
             }</p>
-            <p id="tip-content" class="leading-relaxed">${
+            <p id="tip-content" style="line-height: 1.5;">${
               fuseSellTips[currentLang][0]
             }</p>
           </div>
         </div>
       `;
 
+    // Safely append the tip element to the appropriate container
+    try {
       if (processingContainer) {
+        // If we have a dedicated container, simply append to it
         processingContainer.appendChild(tipElement);
       } else if (spinner && spinner.parentNode) {
-        // If no dedicated container, append after the spinner
+        // If we have a spinner, append after it
         spinner.parentNode.appendChild(tipElement);
+      } else {
+        // Fallback: append to body if nothing else works
+        document.body.appendChild(tipElement);
+      }
+      console.log("Tip element added successfully:", tipElement.id);
+    } catch (err) {
+      console.error("Error adding tip element:", err);
+      // Fallback: try to add to body as a last resort
+      try {
+        document.body.appendChild(tipElement);
+        console.log("Tip element added to body as fallback");
+      } catch (e) {
+        console.error("Failed to add tip element to body:", e);
       }
     }
 
@@ -459,37 +505,31 @@ function pollOrgUpdate(
         tipContent.style.opacity = "0";
         tipElement.style.transform = "translateY(5px)";
 
-        // Randomly select a new color theme for visual interest
+        // Define color themes with inline style values
         const colorThemes = [
           {
-            bg: "bg-gradient-to-br from-blue-50 to-indigo-50",
-            text: "text-blue-800",
-            icon: "text-blue-500",
-            border: "border-blue-200",
+            bg: "linear-gradient(135deg, #EFF6FF, #EEF2FF)",
+            text: "#1E40AF",
+            icon: "#3B82F6",
+            border: "#BFDBFE",
           },
           {
-            bg: "bg-gradient-to-br from-green-50 to-teal-50",
-            text: "text-green-800",
-            icon: "text-green-500",
-            border: "border-green-200",
+            bg: "linear-gradient(135deg, #ECFDF5, #F0FDF4)",
+            text: "#065F46",
+            icon: "#10B981",
+            border: "#A7F3D0",
           },
           {
-            bg: "bg-gradient-to-br from-purple-50 to-indigo-50",
-            text: "text-purple-800",
-            icon: "text-purple-500",
-            border: "border-purple-200",
+            bg: "linear-gradient(135deg, #F5F3FF, #EEF2FF)",
+            text: "#5B21B6",
+            icon: "#8B5CF6",
+            border: "#C7D2FE",
           },
           {
-            bg: "bg-gradient-to-br from-amber-50 to-yellow-50",
-            text: "text-amber-800",
-            icon: "text-amber-500",
-            border: "border-amber-200",
-          },
-          {
-            bg: "bg-gradient-to-br from-rose-50 to-pink-50",
-            text: "text-rose-800",
-            icon: "text-rose-500",
-            border: "border-rose-200",
+            bg: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
+            text: "#92400E",
+            icon: "#F59E0B",
+            border: "#FDE68A",
           },
         ];
 
@@ -500,23 +540,15 @@ function pollOrgUpdate(
           // Update content
           tipContent.textContent = fuseSellTips[currentLang][tipIndex];
 
-          // Remove all color classes and add new ones
-          tipElement.className = tipElement.className.replace(
-            /bg-gradient-to-br from-\w+-50 to-\w+-50|text-\w+-800|border-\w+-200/g,
-            ""
-          );
-          tipElement.className =
-            `${tipElement.className} ${theme.bg} ${theme.text} border ${theme.border}`
-              .trim()
-              .replace(/\s+/g, " ");
+          // Update styles using inline style properties
+          tipElement.style.background = theme.bg;
+          tipElement.style.color = theme.text;
+          tipElement.style.borderColor = theme.border;
 
           // Update icon color
           const icon = tipElement.querySelector("svg");
           if (icon) {
-            icon.className = icon.className.replace(/text-\w+-500/g, "");
-            icon.className = `${icon.className} ${theme.icon}`
-              .trim()
-              .replace(/\s+/g, " ");
+            icon.style.color = theme.icon;
           }
 
           // Add fade-in and bounce-back effect
@@ -528,11 +560,20 @@ function pollOrgUpdate(
   }
 
   function hideProcessingUI() {
+    // Clear any existing interval
     if (tipInterval) clearInterval(tipInterval);
+
+    // Remove the overlay
+    const overlay = document.getElementById("processing-overlay");
+    if (overlay) {
+      overlay.remove();
+    }
+
+    // For backward compatibility, also hide the old spinner if it exists
     const spinner = document.getElementById("loading-spinner");
-    if (spinner) spinner.classList.add("hidden");
-    const tipElement = document.getElementById("fusesell-tip");
-    if (tipElement) tipElement.remove();
+    if (spinner) {
+      spinner.classList.add("hidden");
+    }
   }
 
   // Show the enhanced processing UI
