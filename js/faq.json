@@ -1,0 +1,268 @@
+[
+   {
+      "category":"getting-started",
+      "category_en":"Getting Started",
+      "category_vi":"Bắt đầu",
+      "content_en":"FuseSell AI is an advanced sales management system that leverages artificial intelligence to optimize your entire sales lifecycle. It features a comprehensive 60-stage sales process covering everything from pre-sales activities to post-sale customer engagement and retention.",
+      "content_vi":"FuseSell AI là một hệ thống quản lý bán hàng tiên tiến sử dụng trí tuệ nhân tạo để tối ưu hóa toàn bộ vòng đời bán hàng của bạn. Nó có quy trình bán hàng 60 giai đoạn toàn diện bao gồm mọi thứ từ hoạt động tiền bán hàng đến tương tác và giữ chân khách hàng sau bán hàng.",
+      "order":1,
+      "status":"published",
+      "title_en":"What is FuseSell AI?",
+      "title_vi":"FuseSell AI là gì?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"getting-started",
+      "category_en":"Getting Started",
+      "category_vi":"Bắt đầu",
+      "content_en":"You can start with our free trial mode. When you first open the app, you'll have the option to either create a new organization for your business or join an existing workspace. The trial gives you full access to explore all features.",
+      "content_vi":"Bạn có thể bắt đầu với chế độ dùng thử miễn phí. Khi mở ứng dụng lần đầu, bạn có thể tạo tổ chức mới cho doanh nghiệp của mình hoặc tham gia workspace hiện có. Bản dùng thử cho phép bạn truy cập đầy đủ để khám phá tất cả các tính năng.",
+      "order":2,
+      "status":"published",
+      "title_en":"How do I get started with FuseSell AI?",
+      "title_vi":"Làm thế nào để bắt đầu với FuseSell AI?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"getting-started",
+      "category_en":"Getting Started",
+      "category_vi":"Bắt đầu",
+      "content_en":"During the 7-day trial period, you have full access to all FuseSell AI features. Please note that trial data will be deleted after 7 days, so make sure to upgrade to a paid plan if you want to retain your data.",
+      "content_vi":"Trong thời gian dùng thử 7 ngày, bạn có quyền truy cập đầy đủ vào tất cả tính năng của FuseSell AI. Lưu ý rằng dữ liệu dùng thử sẽ bị xóa sau 7 ngày, vì vậy hãy đảm bảo nâng cấp lên gói trả phí nếu bạn muốn giữ lại dữ liệu của mình.",
+      "order":3,
+      "status":"published",
+      "title_en":"What happens during the trial period?",
+      "title_vi":"Điều gì xảy ra trong thời gian dùng thử?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"organization-teams",
+      "category_en":"Organization & Teams",
+      "category_vi":"Tổ chức & Nhóm",
+      "content_en":"You have two options: create a new organization for your business or join an existing workspace. This setup determines your workspace environment and team collaboration capabilities.",
+      "content_vi":"Bạn có hai tùy chọn: tạo tổ chức mới cho doanh nghiệp của mình hoặc tham gia workspace hiện có. Thiết lập này xác định môi trường workspace và khả năng cộng tác nhóm của bạn.",
+      "order":4,
+      "status":"published",
+      "title_en":"How do I set up my organization?",
+      "title_vi":"Làm thế nào để thiết lập tổ chức của tôi?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"organization-teams",
+      "category_en":"Organization & Teams",
+      "category_vi":"Tổ chức & Nhóm",
+      "content_en":"In the Settings tab, you can create and manage multiple sales teams. Each team can be configured with specific products to sell, target markets, and customized sales processes. You can start new sales processes or complete team setup as needed.",
+      "content_vi":"Trong tab Cài đặt, bạn có thể tạo và quản lý nhiều nhóm bán hàng. Mỗi nhóm có thể được cấu hình với các sản phẩm cụ thể để bán, thị trường mục tiêu và quy trình bán hàng tùy chỉnh. Bạn có thể bắt đầu quy trình bán hàng mới hoặc hoàn thành thiết lập nhóm khi cần thiết.",
+      "order":5,
+      "status":"published",
+      "title_en":"How do I manage sales teams?",
+      "title_vi":"Làm thế nào để quản lý nhóm bán hàng?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"organization-teams",
+      "category_en":"Organization & Teams",
+      "category_vi":"Tổ chức & Nhóm",
+      "content_en":"Yes! You can create specialized teams for different products or market segments. For example, you might have separate teams for software solutions, water management systems, or retail products, each with their own sales strategies.",
+      "content_vi":"Có! Bạn có thể tạo các nhóm chuyên biệt cho các sản phẩm hoặc phân khúc thị trường khác nhau. Ví dụ, bạn có thể có các nhóm riêng biệt cho giải pháp phần mềm, hệ thống quản lý nước hoặc sản phẩm bán lẻ, mỗi nhóm có chiến lược bán hàng riêng.",
+      "order":6,
+      "status":"published",
+      "title_en":"Can I have multiple teams selling different products?",
+      "title_vi":"Tôi có thể có nhiều nhóm bán các sản phẩm khác nhau không?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"sales-process",
+      "category_en":"Sales Process Management",
+      "category_vi":"Quản lý Quy trình Bán hàng",
+      "content_en":"<div class=\"text-gray-600 space-y-3\"><p>FuseSell AI is designed with a comprehensive 60-stage sales process framework that will eventually cover the entire customer lifecycle from initial prospecting to post-sale engagement and retention.</p><div class=\"bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg\"><div class=\"flex items-start\"><svg class=\"w-5 h-5 text-yellow-400 mt-0.5 mr-2 flex-shrink-0\" fill=\"currentColor\" viewBox=\"0 0 20 20\"><path fill-rule=\"evenodd\" d=\"M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z\" clip-rule=\"evenodd\"></path></svg><div><h4 class=\"font-semibold text-yellow-800 mb-1\">Current Version Limitations</h4><p class=\"text-yellow-700 text-sm\">The current version of FuseSell AI focuses specifically on the initial stages of the sales cycle and includes:</p><ul class=\"text-yellow-700 text-sm mt-2 space-y-1\"><li>• Initial outreach email generation and sending</li><li>• Automated follow-up email sequences</li><li>• Capturing and processing customer responses (when available)</li></ul><p class=\"text-yellow-700 text-sm mt-2\">Future updates will expand to cover the remaining stages of the complete 60-stage sales process.</p></div></div></div></div>",
+      "content_vi":"<div class=\"text-gray-600 space-y-3\"><p>FuseSell AI được thiết kế với khung quy trình bán hàng 60 giai đoạn toàn diện sẽ bao phủ toàn bộ vòng đời khách hàng từ tìm kiếm khách hàng tiềm năng ban đầu đến tương tác và giữ chân khách hàng sau bán hàng.</p><div class=\"bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg\"><div class=\"flex items-start\"><svg class=\"w-5 h-5 text-yellow-400 mt-0.5 mr-2 flex-shrink-0\" fill=\"currentColor\" viewBox=\"0 0 20 20\"><path fill-rule=\"evenodd\" d=\"M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z\" clip-rule=\"evenodd\"></path></svg><div><h4 class=\"font-semibold text-yellow-800 mb-1\">Giới hạn Phiên bản Hiện tại</h4><p class=\"text-yellow-700 text-sm\">Phiên bản hiện tại của FuseSell AI tập trung cụ thể vào các giai đoạn đầu của chu kỳ bán hàng và bao gồm:</p><ul class=\"text-yellow-700 text-sm mt-2 space-y-1\"><li>• Tạo và gửi email tiếp cận ban đầu</li><li>• Chuỗi email theo dõi tự động</li><li>• Thu thập và xử lý phản hồi của khách hàng (khi có)</li></ul><p class=\"text-yellow-700 text-sm mt-2\">Các bản cập nhật trong tương lai sẽ mở rộng để bao phủ các giai đoạn còn lại của quy trình bán hàng 60 giai đoạn hoàn chỉnh.</p></div></div></div></div>",
+      "order":7,
+      "status":"published",
+      "title_en":"What is the 60-stage sales process?",
+      "title_vi":"Quy trình bán hàng 60 giai đoạn là gì?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"sales-process",
+      "category_en":"Sales Process Management",
+      "category_vi":"Quản lý Quy trình Bán hàng",
+      "content_en":"From the Home tab, click \"Start New Sales Process.\" You'll be guided through setting up the process with your target customer information. The current version will help you create initial outreach emails, schedule follow-up sequences, and track customer responses when they reply to your messages.",
+      "content_vi":"Từ tab Trang chủ, nhấp vào \"Bắt đầu Quy trình Bán hàng Mới.\" Bạn sẽ được hướng dẫn thiết lập quy trình với thông tin khách hàng mục tiêu. Phiên bản hiện tại sẽ giúp bạn tạo email tiếp cận ban đầu, lên lịch chuỗi theo dõi và theo dõi phản hồi của khách hàng khi họ trả lời tin nhắn của bạn.",
+      "order":8,
+      "status":"published",
+      "title_en":"How do I start a new sales process?",
+      "title_vi":"Làm thế nào để bắt đầu quy trình bán hàng mới?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"sales-process",
+      "category_en":"Sales Process Management",
+      "category_vi":"Quản lý Quy trình Bán hàng",
+      "content_en":"The Home tab shows all your recent processes with current stages and progress indicators. You can see which processes need attention, have auto follow-ups scheduled, or have drafts ready to send.",
+      "content_vi":"Tab Trang chủ hiển thị tất cả các quy trình gần đây của bạn với các giai đoạn hiện tại và chỉ báo tiến độ. Bạn có thể thấy quy trình nào cần chú ý, có lịch theo dõi tự động hoặc có bản nháp sẵn sàng để gửi.",
+      "order":9,
+      "status":"published",
+      "title_en":"How can I track my sales processes?",
+      "title_vi":"Làm thế nào để theo dõi quy trình bán hàng của tôi?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"ai-features",
+      "category_en":"AI Features",
+      "category_vi":"Tính năng AI",
+      "content_en":"FuseSell AI automates various stages of your sales process, including email outreach, follow-up scheduling, content generation, and customer engagement. The AI learns from your preferences and optimizes communications for better results.",
+      "content_vi":"FuseSell AI tự động hóa các giai đoạn khác nhau trong quy trình bán hàng của bạn, bao gồm tiếp cận email, lên lịch theo dõi, tạo nội dung và tương tác khách hàng. AI học từ sở thích của bạn và tối ưu hóa giao tiếp để có kết quả tốt hơn.",
+      "order":10,
+      "status":"published",
+      "title_en":"How does the AI help with sales?",
+      "title_vi":"AI giúp bán hàng như thế nào?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"ai-features",
+      "category_en":"AI Features",
+      "category_vi":"Tính năng AI",
+      "content_en":"Yes! In the Settings tab, you can configure email writing instructions, draft guides, and other AI content parameters to match your brand voice and sales approach.",
+      "content_vi":"Có! Trong tab Cài đặt, bạn có thể cấu hình hướng dẫn viết email, hướng dẫn bản nháp và các tham số nội dung AI khác để phù hợp với giọng điệu thương hiệu và phương pháp bán hàng của bạn.",
+      "order":11,
+      "status":"published",
+      "title_en":"Can I customize AI-generated content?",
+      "title_vi":"Tôi có thể tùy chỉnh nội dung do AI tạo ra không?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"ai-features",
+      "category_en":"AI Features",
+      "category_vi":"Tính năng AI",
+      "content_en":"FuseSell AI provides detailed email tracking, showing delivery status, open rates, and engagement metrics. You can view the complete tracking history for each email sent through the platform.",
+      "content_vi":"FuseSell AI cung cấp theo dõi email chi tiết, hiển thị trạng thái gửi, tỷ lệ mở và số liệu tương tác. Bạn có thể xem lịch sử theo dõi hoàn chỉnh cho mỗi email được gửi qua nền tảng.",
+      "order":12,
+      "status":"published",
+      "title_en":"Does the AI track email performance?",
+      "title_vi":"AI có theo dõi hiệu suất email không?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"ai-features",
+      "category_en":"AI Features",
+      "category_vi":"Tính năng AI",
+      "content_en":"To use your own email address for sending outreach messages through FuseSell AI, you'll need to contact our support team first for proper email configuration. This ensures your email settings are correctly integrated with our platform for optimal deliverability and tracking.",
+      "content_vi":"Để sử dụng địa chỉ email của riêng bạn để gửi tin nhắn tiếp cận thông qua FuseSell AI, bạn cần liên hệ với đội ngũ hỗ trợ của chúng tôi trước để cấu hình email phù hợp. Điều này đảm bảo cài đặt email của bạn được tích hợp chính xác với nền tảng của chúng tôi để có khả năng gửi và theo dõi tối ưu.",
+      "order":13,
+      "status":"published",
+      "title_en":"How do I use my own email to send outreach messages?",
+      "title_vi":"Làm thế nào để sử dụng email của tôi để gửi tin nhắn tiếp cận?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"ai-features",
+      "category_en":"AI Features",
+      "category_vi":"Tính năng AI",
+      "content_en":"<div class=\"text-gray-600 space-y-3\"><p>FuseSell AI offers three distinct modes for creating initial outreach draft content:</p><p>Note: Examples should be uploaded as files in the file upload section, not added directly to the text input fields.</p><div class=\"bg-blue-50 p-4 rounded-lg\"><h4 class=\"font-semibold text-blue-900 mb-2\">Mode 1: No Examples</h4><p class=\"text-blue-800\">When you don't provide example files, you can either use a complete prompt directly or provide instructions that will be combined with our default prompt. The AI generates 4 enhanced draft variations based on your input.</p></div><div class=\"bg-green-50 p-4 rounded-lg\"><h4 class=\"font-semibold text-green-900 mb-2\">Mode 2: AI Enhancement Mode</h4><p class=\"text-green-800\">When you provide example files and declare AI Enhancement mode in the message (free-text placeholder), the system analyzes your examples, saves them with the default prompt, and creates customized drafts. The AI applies your guidance while making intelligent modifications, generating 4 AI-enhanced variations.</p></div><div class=\"bg-purple-50 p-4 rounded-lg\"><h4 class=\"font-semibold text-purple-900 mb-2\">Mode 3: Strict Template Mode</h4><p class=\"text-purple-800\">In Strict Template mode, your examples are treated as exact templates. The system identifies placeholder variables and replaces only those placeholders with prospect-specific data. No AI enhancement is applied, generating 1 exact template with recipient information only.</p></div></div>",
+      "content_vi":"<div class=\"text-gray-600 space-y-3\"><p>FuseSell AI cung cấp ba chế độ khác nhau để tạo nội dung email tiếp cận ban đầu:</p><p>Lưu ý: Các ví dụ nên được tải lên dưới dạng tệp trong phần tải lên tệp, không được thêm trực tiếp vào các trường nhập văn bản.</p><div class=\"bg-blue-50 p-4 rounded-lg\"><h4 class=\"font-semibold text-blue-900 mb-2\">Chế độ 1: Không có Ví dụ</h4><p class=\"text-blue-800\">Khi bạn không cung cấp tệp ví dụ, bạn có thể sử dụng trực tiếp một prompt hoàn chỉnh hoặc cung cấp hướng dẫn sẽ được kết hợp với prompt mặc định của chúng tôi. AI tạo ra 4 biến thể bản nháp được cải tiến dựa trên đầu vào của bạn.</p></div><div class=\"bg-green-50 p-4 rounded-lg\"><h4 class=\"font-semibold text-green-900 mb-2\">Chế độ 2: Chế độ Cải tiến AI</h4><p class=\"text-green-800\">Khi bạn cung cấp tệp ví dụ và khai báo chế độ Cải tiến AI trong tin nhắn (placeholder văn bản tự do), hệ thống phân tích các ví dụ của bạn, lưu chúng với prompt mặc định và tạo các bản nháp tùy chỉnh. AI áp dụng hướng dẫn của bạn trong khi thực hiện các sửa đổi thông minh, tạo ra 4 biến thể được cải tiến bởi AI.</p></div><div class=\"bg-purple-50 p-4 rounded-lg\"><h4 class=\"font-semibold text-purple-900 mb-2\">Chế độ 3: Chế độ Template Nghiêm ngặt</h4><p class=\"text-purple-800\">Trong chế độ Template Nghiêm ngặt, các ví dụ của bạn được coi như các template chính xác. Hệ thống xác định các biến placeholder và chỉ thay thế những placeholder đó bằng dữ liệu cụ thể của khách hàng tiềm năng. Không áp dụng cải tiến AI, tạo ra 1 template chính xác chỉ với thông tin người nhận.</p></div></div>",
+      "order":14,
+      "status":"published",
+      "title_en":"What are the different modes for creating initial outreach draft content?",
+      "title_vi":"Các chế độ khác nhau để tạo nội dung email tiếp cận là gì?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"app-navigation",
+      "category_en":"App Navigation",
+      "category_vi":"Điều hướng Ứng dụng",
+      "content_en":"FuseSell AI has three main tabs: <strong>Home</strong> (sales processes, customers, dashboard), <strong>Events</strong> (upcoming and overdue tasks), and <strong>Settings</strong> (teams, products, AI configurations, organization info).",
+      "content_vi":"FuseSell AI có ba tab chính: <strong>Trang chủ</strong> (quy trình bán hàng, khách hàng, bảng điều khiển), <strong>Sự kiện</strong> (nhiệm vụ sắp tới và quá hạn), và <strong>Cài đặt</strong> (nhóm, sản phẩm, cấu hình AI, thông tin tổ chức).",
+      "order":15,
+      "status":"published",
+      "title_en":"What are the main sections of the app?",
+      "title_vi":"Các phần chính của ứng dụng là gì?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"app-navigation",
+      "category_en":"App Navigation",
+      "category_vi":"Điều hướng Ứng dụng",
+      "content_en":"The Events tab shows all your upcoming activities like scheduled email sends, follow-up calls, and other sales activities. It also highlights any overdue tasks that need immediate attention.",
+      "content_vi":"Tab Sự kiện hiển thị tất cả các hoạt động sắp tới của bạn như gửi email đã lên lịch, cuộc gọi theo dõi và các hoạt động bán hàng khác. Nó cũng làm nổi bật bất kỳ nhiệm vụ quá hạn nào cần được chú ý ngay lập tức.",
+      "order":16,
+      "status":"published",
+      "title_en":"What can I find in the Events tab?",
+      "title_vi":"Tôi có thể tìm thấy gì trong tab Sự kiện?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"app-navigation",
+      "category_en":"App Navigation",
+      "category_vi":"Điều hướng Ứng dụng",
+      "content_en":"Customer contacts are automatically saved from your sales processes and can be accessed through the \"Customers\" section in the Home tab. This gives you a centralized view of all your prospects and clients.",
+      "content_vi":"Liên hệ khách hàng được tự động lưu từ quy trình bán hàng của bạn và có thể được truy cập thông qua phần \"Khách hàng\" trong tab Trang chủ. Điều này cung cấp cho bạn cái nhìn tập trung về tất cả khách hàng tiềm năng và khách hàng của bạn.",
+      "order":17,
+      "status":"published",
+      "title_en":"How do I access customer information?",
+      "title_vi":"Làm thế nào để truy cập thông tin khách hàng?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"support",
+      "category_en":"Support & Troubleshooting",
+      "category_vi":"Hỗ trợ & Khắc phục sự cố",
+      "content_en":"If you need assistance, you can contact our support team through the app or visit our help center. We provide comprehensive documentation and responsive customer support to help you succeed.",
+      "content_vi":"Nếu bạn cần hỗ trợ, bạn có thể liên hệ với đội ngũ hỗ trợ của chúng tôi thông qua ứng dụng hoặc truy cập trung tâm trợ giúp của chúng tôi. Chúng tôi cung cấp tài liệu toàn diện và hỗ trợ khách hàng nhanh chóng để giúp bạn thành công.",
+      "order":18,
+      "status":"published",
+      "title_en":"How do I get help if I'm stuck?",
+      "title_vi":"Làm thế nào để được giúp đỡ nếu tôi gặp khó khăn?",
+      "tags":[
+         "fusesellai"
+      ]
+   },
+   {
+      "category":"support",
+      "category_en":"Support & Troubleshooting",
+      "category_vi":"Hỗ trợ & Khắc phục sự cố",
+      "content_en":"Trial data is automatically deleted after 7 days. To prevent data loss, make sure to upgrade to a paid plan before your trial expires. We recommend upgrading as soon as you're ready to commit to using FuseSell AI.",
+      "content_vi":"Dữ liệu dùng thử được tự động xóa sau 7 ngày. Để tránh mất dữ liệu, hãy đảm bảo nâng cấp lên gói trả phí trước khi bản dùng thử hết hạn. Chúng tôi khuyên bạn nên nâng cấp ngay khi bạn sẵn sàng cam kết sử dụng FuseSell AI.",
+      "order":19,
+      "status":"published",
+      "title_en":"What if I lose my trial data?",
+      "title_vi":"Điều gì xảy ra nếu tôi mất dữ liệu dùng thử?",
+      "tags":[
+         "fusesellai"
+      ]
+   }
+]
