@@ -581,6 +581,13 @@ body {
 .modal-header2 h2 {
     color: #fff !important;
 }
+#modal-create-org .modal-content2 {
+    top: 32px !important;
+    left: 50%;
+    transform: translateX(-50%) !important;
+    margin-top: 0 !important;
+    position: absolute !important;
+}
 .modal-header2 {
     background: var(--primary-color, #008489);
     color: #fff;
