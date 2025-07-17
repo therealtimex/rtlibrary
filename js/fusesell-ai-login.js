@@ -641,7 +641,8 @@ async function showBanner() {
   const orgNameDisplay = document.getElementById("org-name-display");
   const orgIdDisplay = document.getElementById("org-id-display");
   const userDisplay = document.getElementById("org-user-display");
-  const orgInfoButton = document.getElementById("org-info-button"); // Lấy tham chiếu đến nú
+  const orgInfoButton = document.getElementById("org-info-button");
+
   // const welcomeSubtitle = document.getElementById('welcome-subtitle');
 
   if (isTrialMode) {
