@@ -359,23 +359,25 @@ function pollOrgUpdate(
           ? "Quá trình này có thể mất khoảng 10-20 giây. Hãy khám phá một số mẹo hữu ích trong khi chờ đợi! 😊"
           : "This process may take about 10-20 seconds. Explore some helpful tips while you wait! 😊";
 
-      if (processingContainer) {
-        if (spinnerLabel && spinnerLabel.parentNode) {
-          spinnerLabel.parentNode.insertBefore(
-            processingMsg,
-            spinnerLabel.nextSibling
-          );
-        } else {
+      // Safely append the processing message to the appropriate container
+      try {
+        if (processingContainer) {
+          // If we have a dedicated container, simply append to it
           processingContainer.appendChild(processingMsg);
-        }
-      } else if (spinner && spinner.parentNode) {
-        if (spinnerLabel) {
-          spinner.parentNode.insertBefore(
-            processingMsg,
-            spinnerLabel.nextSibling
-          );
-        } else {
+        } else if (spinner && spinner.parentNode) {
+          // If we have a spinner, append after it
           spinner.parentNode.appendChild(processingMsg);
+        } else {
+          // Fallback: append to body if nothing else works
+          document.body.appendChild(processingMsg);
+        }
+      } catch (err) {
+        console.error("Error adding processing message:", err);
+        // Fallback: try to add to body as a last resort
+        try {
+          document.body.appendChild(processingMsg);
+        } catch (e) {
+          console.error("Failed to add processing message to body:", e);
         }
       }
     }
