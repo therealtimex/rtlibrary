@@ -1165,7 +1165,7 @@ function renderHRMMain() {
   nextMonthBtn.onclick = goToNextMonth;
   prevWeekBtn.onclick = goToPrevWeek;
   nextWeekBtn.onclick = goToNextWeek;
-  viewHistoryBtn.onclick = viewCheckinHistory;
+ 
   closeModal.onclick = () => {
     modalOverlay.style.display = 'none';
     eventModal.style.display = 'none';
