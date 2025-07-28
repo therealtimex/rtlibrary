@@ -14,6 +14,19 @@ let showingDescription = false;
 let isDataLoaded = false;
 let progressCallback = null; // Callback function for progress updates
 
+// Base URL for assets
+const ASSETS_BASE_URL = 'https://app.realtimex.co/storage/v1/object/public/app_lang_assets_data';
+
+// Helper function to construct full asset URLs
+function getAssetUrl(path) {
+    if (!path) return '';
+    // If path already starts with http, return as is
+    if (path.startsWith('http')) return path;
+    // Remove leading slash if present and combine with base URL
+    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return `${ASSETS_BASE_URL}/${cleanPath}`;
+}
+
 // Activity type mapping for learning activities only
 const activityTypes = {
     'vocabulary': { name: 'Vocabulary', icon: 'book-open' },
@@ -166,7 +179,7 @@ function initVoices() {
 // Load lesson data from external source
 function loadLessonData(jsonData) {
     try {
-        lessonData = jsonData.sort((a, b) => a.order_id - b.order_id);
+        lessonData = jsonData.sort((a, b) => a.order - b.order);
 
         // Separate warmup from learning activities
         warmupData = lessonData.find(item => item.type === 'warmup');
@@ -208,10 +221,10 @@ function renderWarmup() {
 
     const warmupContainer = document.getElementById('warmup-container');
     warmupContainer.innerHTML = `
-        <img src="${warmupData.content.image}" alt="Learning Image" class="w-full h-full object-cover">
+        <img src="${getAssetUrl(warmupData.content.avatar)}" alt="Learning Image" class="w-full h-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent flex items-center justify-center cursor-pointer transition-all duration-500 hover:from-black/60">
             <div class="flex gap-3 md:gap-6 items-center transform hover:scale-105 transition-transform duration-300">
-                <button onclick="playWarmupAudio('${warmupData.content.audio}', this)" title="Listen to description" 
+                <button onclick="playWarmupAudio('${getAssetUrl(warmupData.content.audio)}', this)" title="Listen to description" 
                         class="group relative control-button w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-xl md:shadow-2xl hover:shadow-blue-500/30 hover:scale-110 hover:from-blue-400 hover:to-blue-500 border-2 border-white/20 backdrop-blur-sm">
                     <i class="fas fa-play text-white text-sm md:text-xl group-hover:scale-110 transition-transform duration-200 ml-0.5"></i>
                     <div class="absolute -bottom-6 md:-bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
@@ -264,7 +277,7 @@ function closeDescriptionModal() {
 function playModalAudio() {
     if (warmupData) {
         const button = document.getElementById('modal-audio-button');
-        playAudioFile(warmupData.content.audio, button);
+        playAudioFile(getAssetUrl(warmupData.content.audio), button);
     }
 }
 
@@ -416,16 +429,16 @@ function renderVocabularyActivity(container, content) {
                     </div>
                     <div class="p-6">
                         <div class="text-center mb-8">
-                            <img src="${word.image}" alt="${word.word}" class="w-full max-w-80 h-56 object-cover rounded-2xl shadow-lg mx-auto mb-6">
-                            <div class="text-5xl font-extrabold text-blue-500 mb-2">${word.word}</div>
+                            <img src="${getAssetUrl(word.image)}" alt="${word.word}" class="w-full max-w-80 h-56 object-cover rounded-2xl shadow-lg mx-auto mb-6">
+                            <div class="flex items-center justify-center gap-3 mb-2">
+                                <div class="text-5xl font-extrabold text-blue-500">${word.word}</div>
+                                <button onclick="playAudioFile('${getAssetUrl(word.audio)}', this)" 
+                                        class="btn-audio group w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:shadow-green-500/30 hover:scale-110 hover:from-green-400 hover:to-green-500 border-2 border-white/20 backdrop-blur-sm"
+                                        title="Listen to pronunciation">
+                                    <i class="fas fa-volume-up text-white text-lg group-hover:scale-110 transition-transform duration-200"></i>
+                                </button>
+                            </div>
                             <div class="text-lg text-gray-700 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 mb-6 max-w-md mx-auto">${word.meaning}</div>
-                        </div>
-
-                        <div class="text-center mb-8">
-                            <button onclick="playAudioFile('${word.audio}', this)" class="btn-audio inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                                <i class="fas fa-volume-up"></i>
-                                Listen to Pronunciation
-                            </button>
                         </div>
 
                         <div class="flex justify-center gap-2 mb-8">
@@ -436,15 +449,15 @@ function renderVocabularyActivity(container, content) {
                             `).join('')}
                         </div>
 
-                        <div class="flex justify-center gap-4">
+                        <div class="flex justify-center gap-2 sm:gap-4">
                             <button onclick="prevWord()" ${currentWordIndex === 0 ? 'disabled' : ''} 
-                                    class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold border border-gray-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-                                <i class="fas fa-arrow-left"></i>
-                                Previous
+                                    class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold border border-gray-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                                <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
+                                <span class="hidden sm:inline">Previous</span>
                             </button>
                             <button onclick="nextWord()" 
-                                    class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                                ${currentWordIndex === content.words.length - 1 ? '<i class="fas fa-check-circle"></i>Complete' : 'Next <i class="fas fa-arrow-right"></i>'}
+                                    class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                                ${currentWordIndex === content.words.length - 1 ? '<i class="fas fa-check-circle text-xs sm:text-sm"></i><span class="hidden sm:inline">Complete</span>' : '<span class="hidden sm:inline">Next</span> <i class="fas fa-arrow-right text-xs sm:text-sm"></i>'}
                             </button>
                         </div>
                     </div>
@@ -503,7 +516,7 @@ function renderPronunciationActivity(container, content) {
                         </div>
 
                         <div class="text-center mb-8">
-                            <button onclick="playAudioFile('${word.audio}', this)" class="btn-audio inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                            <button onclick="playAudioFile('${getAssetUrl(word.audio)}', this)" class="btn-audio inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                                 <i class="fas fa-volume-up"></i>
                                 Listen & Practice
                             </button>
@@ -517,15 +530,15 @@ function renderPronunciationActivity(container, content) {
                             `).join('')}
                         </div>
 
-                        <div class="flex justify-center gap-4">
+                        <div class="flex justify-center gap-2 sm:gap-4">
                             <button onclick="prevPronunciation()" ${currentWordIndex === 0 ? 'disabled' : ''} 
-                                    class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold border border-gray-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-                                <i class="fas fa-arrow-left"></i>
-                                Previous
+                                    class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold border border-gray-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                                <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
+                                <span class="hidden sm:inline">Previous</span>
                             </button>
                             <button onclick="nextPronunciation()" 
-                                    class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                                ${currentWordIndex === content.practice_words.length - 1 ? '<i class="fas fa-check-circle"></i>Complete' : 'Next <i class="fas fa-arrow-right"></i>'}
+                                    class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                                ${currentWordIndex === content.practice_words.length - 1 ? '<i class="fas fa-check-circle text-xs sm:text-sm"></i><span class="hidden sm:inline">Complete</span>' : '<span class="hidden sm:inline">Next</span> <i class="fas fa-arrow-right text-xs sm:text-sm"></i>'}
                             </button>
                         </div>
                     </div>
@@ -568,31 +581,95 @@ function renderDialogActivity(container, content) {
                     <p class="text-sm text-gray-600">Listen and practice the conversation</p>
                 </div>
                 <div class="p-6">
-                    <div class="max-w-2xl mx-auto space-y-4">
-                        ${content.dialog.map((item, index) => `
-                            <div class="p-4 border-2 border-gray-200 rounded-2xl cursor-pointer transition-all duration-300 hover:border-green-500 hover:bg-green-50 hover:-translate-y-1" onclick="playAudioFile('${item.audio}', this)">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${item.speaker === 'A' ? 'bg-gradient-to-br from-blue-500 to-blue-600' : 'bg-gradient-to-br from-green-500 to-green-600'
+                    <div class="max-w-2xl mx-auto">
+                        <div class="mb-6">
+                            <button onclick="playAllDialog()" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                                <i class="fas fa-play"></i>
+                                Play
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            ${content.dialog.map((item, index) => `
+                                <div class="p-4 border-2 border-gray-200 rounded-2xl transition-all duration-300 hover:border-green-500 hover:bg-green-50">
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${item.speaker === 'A' ? 'bg-gradient-to-br from-blue-500 to-blue-600' : 'bg-gradient-to-br from-green-500 to-green-600'
         }">
-                                        ${item.speaker}
+                                            ${item.speaker}
+                                        </div>
+                                        <div class="text-sm text-gray-500 flex-1">Speaker ${item.speaker}</div>
+                                        <button onclick="playAudioFile('${getAssetUrl(item.audio)}', this)" 
+                                                class="btn-audio group w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-md hover:shadow-green-500/30 hover:scale-110 hover:from-green-400 hover:to-green-500 border border-white/20"
+                                                title="Listen to this line">
+                                            <i class="fas fa-volume-up text-white text-xs group-hover:scale-110 transition-transform duration-200"></i>
+                                        </button>
                                     </div>
-                                    <div class="text-sm text-gray-500">Speaker ${item.speaker}</div>
+                                    <div class="text-gray-800 text-lg leading-relaxed ml-13">${item.text}</div>
                                 </div>
-                                <div class="text-gray-800 text-lg leading-relaxed ml-13">${item.text}</div>
-                            </div>
-                        `).join('')}
+                            `).join('')}
+                        </div>
                     </div>
                     
                     <div class="text-center mt-8">
-                        <button onclick="markActivityCompleted()" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                            <i class="fas fa-check-circle"></i>
-                            Complete Dialog
+                        <button onclick="markActivityCompleted()" class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                            <i class="fas fa-check-circle text-xs sm:text-sm"></i>
+                            <span class="hidden sm:inline">Complete Dialog</span>
+                            <span class="sm:hidden">Complete</span>
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     `;
+
+    // Play all dialog function
+    window.playAllDialog = () => {
+        let currentIndex = 0;
+        const playNext = () => {
+            if (currentIndex < content.dialog.length) {
+                const item = content.dialog[currentIndex];
+                const audio = new Audio(getAssetUrl(item.audio));
+
+                audio.onended = () => {
+                    currentIndex++;
+                    // Add a small delay between dialog lines
+                    setTimeout(playNext, 500);
+                };
+
+                audio.onerror = () => {
+                    // Fallback to text-to-speech
+                    const utterance = new SpeechSynthesisUtterance(item.text);
+                    utterance.rate = 0.8;
+                    utterance.pitch = 1;
+                    utterance.volume = 1;
+
+                    utterance.onend = () => {
+                        currentIndex++;
+                        setTimeout(playNext, 500);
+                    };
+
+                    speechSynthesis.speak(utterance);
+                };
+
+                audio.play().catch(() => {
+                    // Fallback to text-to-speech if audio fails
+                    const utterance = new SpeechSynthesisUtterance(item.text);
+                    utterance.rate = 0.8;
+                    utterance.pitch = 1;
+                    utterance.volume = 1;
+
+                    utterance.onend = () => {
+                        currentIndex++;
+                        setTimeout(playNext, 500);
+                    };
+
+                    speechSynthesis.speak(utterance);
+                });
+            }
+        };
+
+        playNext();
+    };
 }
 
 // Render Quiz Activity
@@ -614,14 +691,14 @@ function renderQuizActivity(container, content) {
                     <div class="p-6">
                         ${content.image ? `
                             <div class="text-center mb-6">
-                                <img src="${content.image}" alt="Quiz Image" class="w-full max-w-80 h-56 object-cover rounded-2xl shadow-lg mx-auto">
+                                <img src="${getAssetUrl(content.image)}" alt="Quiz Image" class="w-full max-w-80 h-56 object-cover rounded-2xl shadow-lg mx-auto">
                             </div>
                         ` : ''}
                         
                         <div class="text-center mb-8">
                             <h3 class="text-2xl font-bold text-gray-800 mb-4">${content.question}</h3>
                             ${content.audio ? `
-                                <button onclick="playAudioFile('${content.audio}', this)" class="btn-audio inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 mb-6">
+                                <button onclick="playAudioFile('${getAssetUrl(content.audio)}', this)" class="btn-audio inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 mb-6">
                                     <i class="fas fa-volume-up"></i>
                                     Listen to Question
                                 </button>
