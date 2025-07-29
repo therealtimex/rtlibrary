@@ -75,15 +75,38 @@ function setProgressCallback(callback) {
 function playAudioFile(audioPath, button = null) {
     // Stop any currently playing audio
     stopCurrentAudio();
+    // Reset UI of all audio buttons before starting new audio
+    resetAllAudioButtonsUI();
 
     if (audioPath && audioPath.trim() !== '') {
         currentAudio = new Audio(audioPath);
+
+        const resetButtonStyle = () => {
+            if (button) {
+                button.classList.remove('animate-pulse-ring');
+                const icon = button.querySelector('i');
+                if (icon) {
+                    // Restore original icon if stored, otherwise use default
+                    if (button.dataset.originalIcon) {
+                        icon.className = button.dataset.originalIcon;
+                    } else if (button.id === 'play-all-dialog-btn') {
+                        icon.className = 'fas fa-volume-up';
+                    } else {
+                        icon.className = 'fas fa-play';
+                    }
+                }
+            }
+        };
 
         currentAudio.onloadstart = () => {
             if (button) {
                 button.classList.add('animate-pulse-ring');
                 const icon = button.querySelector('i');
                 if (icon) {
+                    // Store original icon class if not already stored
+                    if (!button.dataset.originalIcon) {
+                        button.dataset.originalIcon = icon.className;
+                    }
                     icon.className = 'fas fa-stop';
                 }
             }
@@ -93,22 +116,17 @@ function playAudioFile(audioPath, button = null) {
         currentAudio.onended = () => {
             isPlaying = false;
             currentAudio = null;
-            if (button) {
-                button.classList.remove('animate-pulse-ring');
-                const icon = button.querySelector('i');
-                if (icon) {
-                    icon.className = 'fas fa-play';
-                }
-            }
+            resetButtonStyle();
         };
 
         currentAudio.onerror = () => {
             console.warn('Audio file not found, falling back to speech synthesis:', audioPath);
+            resetButtonStyle(); // Reset button style even on error
             playTextToSpeech(audioPath.split('/').pop().replace('.mp3', ''), button);
         };
 
         currentAudio.play().catch(error => {
-            console.warn('Audio playback failed, falling back to speech synthesis:', error);
+            resetButtonStyle(); // Reset button style if play fails
             playTextToSpeech(audioPath.split('/').pop().replace('.mp3', ''), button);
         });
     }
@@ -116,6 +134,9 @@ function playAudioFile(audioPath, button = null) {
 
 function playTextToSpeech(text, button = null) {
     if ('speechSynthesis' in window) {
+        // Reset UI of all audio buttons before starting new audio
+        resetAllAudioButtonsUI();
+
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 0.8;
         utterance.pitch = 1;
@@ -129,6 +150,20 @@ function playTextToSpeech(text, button = null) {
         if (englishVoice) {
             utterance.voice = englishVoice;
         }
+
+        const resetButtonStyle = () => {
+            if (button) {
+                button.classList.remove('animate-pulse-ring');
+                const icon = button.querySelector('i');
+                if (icon) {
+                    if (button.id === 'play-all-dialog-btn') {
+                        icon.className = 'fas fa-volume-up';
+                    } else {
+                        icon.className = 'fas fa-play';
+                    }
+                }
+            }
+        };
 
         utterance.onstart = () => {
             isPlaying = true;
@@ -144,26 +179,14 @@ function playTextToSpeech(text, button = null) {
         utterance.onend = () => {
             isPlaying = false;
             currentAudio = null;
-            if (button) {
-                button.classList.remove('animate-pulse-ring');
-                const icon = button.querySelector('i');
-                if (icon) {
-                    icon.className = 'fas fa-play';
-                }
-            }
+            resetButtonStyle();
         };
 
         // Add error handler for speech synthesis
         utterance.onerror = () => {
             isPlaying = false;
             currentAudio = null;
-            if (button) {
-                button.classList.remove('animate-pulse-ring');
-                const icon = button.querySelector('i');
-                if (icon) {
-                    icon.className = 'fas fa-play';
-                }
-            }
+            resetButtonStyle();
         };
 
         currentAudio = utterance;
@@ -261,8 +284,14 @@ function playWarmupAudio(audioPath, button) {
     // If audio is currently playing, stop it
     if (isPlaying && currentAudio) {
         stopCurrentAudio();
+        resetAllAudioButtonsUI();
         return;
     }
+
+    // Stop any currently playing audio
+    stopCurrentAudio();
+    // Reset UI of all audio buttons before starting new audio
+    resetAllAudioButtonsUI();
 
     // Otherwise, play the audio
     playAudioFile(audioPath, button);
@@ -279,19 +308,26 @@ function stopCurrentAudio() {
             // For Speech Synthesis
             speechSynthesis.cancel();
         }
-
         currentAudio = null;
         isPlaying = false;
-
-        // Remove playing animations from all audio buttons
-        document.querySelectorAll('.btn-audio, .control-button').forEach(btn => {
-            btn.classList.remove('animate-pulse-ring', 'animate-audio-playing');
-            const icon = btn.querySelector('i');
-            if (icon) {
-                icon.className = 'fas fa-play';
-            }
-        });
     }
+}
+
+// New function to reset UI of all audio buttons
+function resetAllAudioButtonsUI() {
+    document.querySelectorAll('.btn-audio, .control-button').forEach(btn => {
+        btn.classList.remove('animate-pulse-ring', 'animate-audio-playing');
+        const icon = btn.querySelector('i');
+        if (icon) {
+            // Store original icon class if not already stored
+            if (!btn.dataset.originalIcon) {
+                btn.dataset.originalIcon = icon.className;
+            }
+            
+            // Restore original icon
+            icon.className = btn.dataset.originalIcon;
+        }
+    });
 }
 
 function showDescriptionModal() {
@@ -324,6 +360,79 @@ function playModalAudio() {
 
         // Otherwise, play the audio
         playAudioFile(getAssetUrl(warmupData.content.audio), button);
+    }
+}
+
+// Confetti effect
+function triggerConfetti() {
+    const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f'];
+    const numConfetti = 50;
+
+    for (let i = 0; i < numConfetti; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti-piece');
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = `${Math.random() * 100}vw`;
+        confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+        confetti.style.animationDuration = `${2 + Math.random() * 1}s`;
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(confetti);
+
+        confetti.addEventListener('animationend', () => {
+            confetti.remove();
+        });
+    }
+}
+
+// Quiz functions
+window.selectAnswer = (answer) => {
+    selectedAnswer = answer;
+    renderQuizActivity(document.getElementById('lesson-content'), learningActivities.find(a => a.type === 'quiz').content);
+};
+
+window.checkAnswer = (correctAnswer) => {
+    showResult = true;
+    if (selectedAnswer === correctAnswer) {
+        // Trigger confetti for correct answer
+        triggerConfetti();
+    }
+    renderQuizActivity(document.getElementById('lesson-content'), learningActivities.find(a => a.type === 'quiz').content);
+};
+
+// Activity completion and navigation
+window.markActivityCompleted = () => {
+    completedActivities.add(currentActivityIndex);
+    nextActivity();
+};
+
+window.nextActivity = () => {
+    if (currentActivityIndex < learningActivities.length - 1) {
+        showActivity(currentActivityIndex + 1);
+    }
+    updateNavigationButtons();
+};
+
+window.prevActivity = () => {
+    if (currentActivityIndex > 0) {
+        showActivity(currentActivityIndex - 1);
+    }
+    updateNavigationButtons();
+};
+
+window.skipActivity = () => {
+    nextActivity();
+};
+
+function updateNavigationButtons() {
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    if (prevBtn) {
+        prevBtn.disabled = currentActivityIndex === 0;
+    }
+
+    if (nextBtn) {
+        nextBtn.disabled = currentActivityIndex === learningActivities.length - 1;
     }
 }
 
@@ -629,8 +738,8 @@ function renderDialogActivity(container, content) {
                 <div class="p-6">
                     <div class="max-w-2xl mx-auto">
                         <div class="mb-6">
-                            <button onclick="playAllDialog()" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                                <i class="fas fa-play"></i>
+                            <button id="play-all-dialog-btn" class="btn-audio group inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                                <i class="fas fa-volume-up"></i>
                                 Play
                             </button>
                         </div>
@@ -639,8 +748,7 @@ function renderDialogActivity(container, content) {
                             ${content.dialog.map((item, index) => `
                                 <div class="p-4 border-2 border-gray-200 rounded-2xl transition-all duration-300 hover:border-green-500 hover:bg-green-50">
                                     <div class="flex items-center gap-3 mb-3">
-                                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${item.speaker === 'A' ? 'bg-gradient-to-br from-blue-500 to-blue-600' : 'bg-gradient-to-br from-green-500 to-green-600'
-        }">
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold speaker-color-class">
                                             ${item.speaker}
                                         </div>
                                         <div class="text-sm text-gray-500 flex-1">Speaker ${item.speaker}</div>
@@ -668,49 +776,93 @@ function renderDialogActivity(container, content) {
         </div>
     `;
 
+    // Attach event listener after content is rendered
+    const playAllBtn = document.getElementById('play-all-dialog-btn');
+    if (playAllBtn) {
+        playAllBtn.onclick = () => playAllDialog(playAllBtn, content.dialog);
+    }
+
+    // Apply speaker colors dynamically
+    content.dialog.forEach((item, index) => {
+        const speakerDiv = container.querySelector(`.space-y-4 > div:nth-child(${index + 1}) .speaker-color-class`);
+        if (speakerDiv) {
+            if (item.speaker === 'A') {
+                speakerDiv.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-blue-600');
+            } else {
+                speakerDiv.classList.add('bg-gradient-to-br', 'from-green-500', 'to-green-600');
+            }
+        }
+    });
+    
+
     // Play all dialog function
-    window.playAllDialog = () => {
+    window.playAllDialog = (button, dialogContent) => {
+        // If the play-all button is currently playing and we want to stop it
+        if (button.id === 'play-all-dialog-btn' && isPlaying) {
+            stopCurrentAudio(); // Stop the audio
+            resetAllAudioButtonsUI(); // Reset all buttons to play state
+            isPlaying = false; // Ensure isPlaying is false after stopping
+            return; // Exit the function as we've stopped playback
+        }
+
+        // Ensure any other audio is stopped before starting this one.
+        stopCurrentAudio();
+        // Reset all audio buttons to play state before starting new audio
+        resetAllAudioButtonsUI();
+
+        // Now, proceed with playing the dialog sequence
         let currentIndex = 0;
         const playNext = () => {
-            if (currentIndex < content.dialog.length) {
-                const item = content.dialog[currentIndex];
+            if (currentIndex < dialogContent.length) {
+                const item = dialogContent[currentIndex];
                 const audio = new Audio(getAssetUrl(item.audio));
+
+                // Set the play-all button's UI to stop state
+                if (button) {
+                    button.classList.add('animate-pulse-ring');
+                    const icon = button.querySelector('i');
+                    if (icon) {
+                        icon.className = 'fas fa-stop';
+                    }
+                }
+                isPlaying = true;
+                currentAudio = audio;
 
                 audio.onended = () => {
                     currentIndex++;
-                    // Add a small delay between dialog lines
                     setTimeout(playNext, 500);
                 };
 
                 audio.onerror = () => {
-                    // Fallback to text-to-speech
                     const utterance = new SpeechSynthesisUtterance(item.text);
-                    utterance.rate = 0.8;
-                    utterance.pitch = 1;
-                    utterance.volume = 1;
-
                     utterance.onend = () => {
                         currentIndex++;
                         setTimeout(playNext, 500);
                     };
-
+                    currentAudio = utterance;
                     speechSynthesis.speak(utterance);
                 };
 
                 audio.play().catch(() => {
-                    // Fallback to text-to-speech if audio fails
                     const utterance = new SpeechSynthesisUtterance(item.text);
-                    utterance.rate = 0.8;
-                    utterance.pitch = 1;
-                    utterance.volume = 1;
-
                     utterance.onend = () => {
                         currentIndex++;
                         setTimeout(playNext, 500);
                     };
-
+                    currentAudio = utterance;
                     speechSynthesis.speak(utterance);
                 });
+            } else {
+                // All dialogs played, reset play-all button state
+                if (button) {
+                    button.classList.remove('animate-pulse-ring');
+                    const icon = button.querySelector('i');
+                    if (icon) {
+                        icon.className = 'fas fa-volume-up'; // Revert to play icon
+                    }
+                }
+                isPlaying = false;
+                currentAudio = null;
             }
         };
 
@@ -743,13 +895,14 @@ function renderQuizActivity(container, content) {
                         
                         <div class="text-center mb-8">
                             <div class="flex items-center justify-center gap-3 mb-4">
-                                <h3 class="text-2xl font-bold text-gray-800">${content.question}</h3>
+                                <h3 class="text-2xl font-bold text-gray-800 flex items-center justify-center flex-wrap gap-3">${content.question}
                                 ${content.audio ? `
                                     <button onclick="playAudioFile('${getAssetUrl(content.audio)}', this)" title="Listen to question" 
-                                            class="btn-audio group w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:shadow-orange-500/30 hover:scale-110 hover:from-orange-400 hover:to-red-500 border-2 border-white/20 backdrop-blur-sm">
-                                        <i class="fas fa-volume-up text-white text-sm group-hover:scale-110 transition-transform duration-200"></i>
+                                            class="btn-audio group w-9 h-9 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:shadow-orange-500/30 hover:scale-110 hover:from-orange-400 hover:to-red-500 border-2 border-white/20 backdrop-blur-sm">
+                                        <i class="fas fa-volume-up text-white text-xs group-hover:scale-110 transition-transform duration-200"></i>
                                     </button>
                                 ` : ''}
+                                </h3>
                             </div>
                         </div>
 
@@ -790,10 +943,10 @@ function renderQuizActivity(container, content) {
                         <div class="text-center mb-12">
                             ${!showResult ? `
                                 <button onclick="checkAnswer('${content.correct_answer}')" ${!selectedAnswer ? 'disabled' : ''} 
-                                        class="group relative inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/30 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none overflow-hidden">
+                                        class="group relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/30 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none overflow-hidden">
                                     <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     <div class="relative flex items-center gap-2">
-                                        <div class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300">
+                                        <div class="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300">
                                             <i class="fas fa-check text-white text-xs group-hover:scale-110 transition-transform duration-300"></i>
                                         </div>
                                         <span class="group-hover:scale-105 transition-transform duration-300">Check Answer</span>
@@ -802,7 +955,7 @@ function renderQuizActivity(container, content) {
                                 </button>
                             ` : `
                                 <button onclick="markActivityCompleted()" 
-                                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                                        class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                                     <i class="fas fa-arrow-right"></i>
                                     Continue
                                 </button>
@@ -826,29 +979,37 @@ function renderQuizActivity(container, content) {
 
     window.checkAnswer = (correctAnswer) => {
         showResult = true;
+        if (selectedAnswer === correctAnswer) {
+            playTextToSpeech('correct');
+            triggerConfetti();
+        } else {
+            playTextToSpeech('incorrect');
+        }
         renderQuiz();
     };
 }
 
 // Navigation functions
-function nextActivity() {
+window.nextActivity = () => {
+    console.log('nextActivity called');
     if (currentActivityIndex < learningActivities.length - 1) {
         showActivity(currentActivityIndex + 1);
     } else {
+        console.log('Reached last activity. Calling showCourseCompletion().');
         // Course completed
         showCourseCompletion();
     }
-}
+};
 
-function prevActivity() {
+window.prevActivity = () => {
     if (currentActivityIndex > 0) {
         showActivity(currentActivityIndex - 1);
     }
-}
+};
 
-function skipActivity() {
+window.skipActivity = () => {
     nextActivity();
-}
+};
 
 function updateNavigationButtons() {
     document.getElementById('prev-btn').disabled = currentActivityIndex === 0;
@@ -863,7 +1024,8 @@ function updateNavigationButtons() {
     }
 }
 
-function markActivityCompleted() {
+window.markActivityCompleted = () => {
+    console.log('markActivityCompleted called');
     const currentActivity = learningActivities[currentActivityIndex];
     completedActivities.add(currentActivity.id);
 
@@ -880,13 +1042,15 @@ function markActivityCompleted() {
 
     // Auto advance to next activity
     if (currentActivityIndex < learningActivities.length - 1) {
+        console.log('Advancing to next activity...');
         setTimeout(() => {
             nextActivity();
         }, 1000);
     } else {
+        console.log('All activities completed. Showing course completion...');
         showCourseCompletion();
     }
-}
+};
 
 function showCourseCompletion() {
     const contentDiv = document.getElementById('lesson-content');
