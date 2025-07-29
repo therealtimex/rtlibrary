@@ -74,15 +74,7 @@ function setProgressCallback(callback) {
 // Audio functionality
 function playAudioFile(audioPath, button = null) {
     // Stop any currently playing audio
-    if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-        isPlaying = false;
-        // Remove playing class from all audio buttons
-        document.querySelectorAll('.btn-audio, .control-button').forEach(btn => {
-            btn.classList.remove('animate-pulse-ring', 'animate-audio-playing');
-        });
-    }
+    stopCurrentAudio();
 
     if (audioPath && audioPath.trim() !== '') {
         currentAudio = new Audio(audioPath);
@@ -150,6 +142,19 @@ function playTextToSpeech(text, button = null) {
         };
 
         utterance.onend = () => {
+            isPlaying = false;
+            currentAudio = null;
+            if (button) {
+                button.classList.remove('animate-pulse-ring');
+                const icon = button.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-play';
+                }
+            }
+        };
+
+        // Add error handler for speech synthesis
+        utterance.onerror = () => {
             isPlaying = false;
             currentAudio = null;
             if (button) {
@@ -253,7 +258,40 @@ function renderWarmup() {
 
 // Warmup functions
 function playWarmupAudio(audioPath, button) {
+    // If audio is currently playing, stop it
+    if (isPlaying && currentAudio) {
+        stopCurrentAudio();
+        return;
+    }
+
+    // Otherwise, play the audio
     playAudioFile(audioPath, button);
+}
+
+// Function to stop current audio
+function stopCurrentAudio() {
+    if (currentAudio) {
+        if (currentAudio.pause) {
+            // For HTML5 Audio
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        } else if (currentAudio.cancel) {
+            // For Speech Synthesis
+            speechSynthesis.cancel();
+        }
+
+        currentAudio = null;
+        isPlaying = false;
+
+        // Remove playing animations from all audio buttons
+        document.querySelectorAll('.btn-audio, .control-button').forEach(btn => {
+            btn.classList.remove('animate-pulse-ring', 'animate-audio-playing');
+            const icon = btn.querySelector('i');
+            if (icon) {
+                icon.className = 'fas fa-play';
+            }
+        });
+    }
 }
 
 function showDescriptionModal() {
@@ -277,6 +315,14 @@ function closeDescriptionModal() {
 function playModalAudio() {
     if (warmupData) {
         const button = document.getElementById('modal-audio-button');
+
+        // If audio is currently playing, stop it
+        if (isPlaying && currentAudio) {
+            stopCurrentAudio();
+            return;
+        }
+
+        // Otherwise, play the audio
         playAudioFile(getAssetUrl(warmupData.content.audio), button);
     }
 }
@@ -449,7 +495,7 @@ function renderVocabularyActivity(container, content) {
                             `).join('')}
                         </div>
 
-                        <div class="flex justify-center gap-2 sm:gap-4">
+                        <div class="flex justify-center gap-2 sm:gap-4 mb-20">
                             <button onclick="prevWord()" ${currentWordIndex === 0 ? 'disabled' : ''} 
                                     class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold border border-gray-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
                                 <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
@@ -530,7 +576,7 @@ function renderPronunciationActivity(container, content) {
                             `).join('')}
                         </div>
 
-                        <div class="flex justify-center gap-2 sm:gap-4">
+                        <div class="flex justify-center gap-2 sm:gap-4 mb-20">
                             <button onclick="prevPronunciation()" ${currentWordIndex === 0 ? 'disabled' : ''} 
                                     class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold border border-gray-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
                                 <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
@@ -610,7 +656,7 @@ function renderDialogActivity(container, content) {
                         </div>
                     </div>
                     
-                    <div class="text-center mt-8">
+                    <div class="text-center mt-8 mb-20">
                         <button onclick="markActivityCompleted()" class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                             <i class="fas fa-check-circle text-xs sm:text-sm"></i>
                             <span class="hidden sm:inline">Complete Dialog</span>
@@ -696,13 +742,15 @@ function renderQuizActivity(container, content) {
                         ` : ''}
                         
                         <div class="text-center mb-8">
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4">${content.question}</h3>
-                            ${content.audio ? `
-                                <button onclick="playAudioFile('${getAssetUrl(content.audio)}', this)" class="btn-audio inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 mb-6">
-                                    <i class="fas fa-volume-up"></i>
-                                    Listen to Question
-                                </button>
-                            ` : ''}
+                            <div class="flex items-center justify-center gap-3 mb-4">
+                                <h3 class="text-2xl font-bold text-gray-800">${content.question}</h3>
+                                ${content.audio ? `
+                                    <button onclick="playAudioFile('${getAssetUrl(content.audio)}', this)" title="Listen to question" 
+                                            class="btn-audio group w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:shadow-orange-500/30 hover:scale-110 hover:from-orange-400 hover:to-red-500 border-2 border-white/20 backdrop-blur-sm">
+                                        <i class="fas fa-volume-up text-white text-sm group-hover:scale-110 transition-transform duration-200"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
                         </div>
 
                         <div class="max-w-lg mx-auto space-y-3 mb-8">
@@ -739,12 +787,18 @@ function renderQuizActivity(container, content) {
                             </div>
                         ` : ''}
 
-                        <div class="text-center">
+                        <div class="text-center mb-12">
                             ${!showResult ? `
                                 <button onclick="checkAnswer('${content.correct_answer}')" ${!selectedAnswer ? 'disabled' : ''} 
-                                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-                                    <i class="fas fa-check"></i>
-                                    Check Answer
+                                        class="group relative inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/30 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <div class="relative flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300">
+                                            <i class="fas fa-check text-white text-xs group-hover:scale-110 transition-transform duration-300"></i>
+                                        </div>
+                                        <span class="group-hover:scale-105 transition-transform duration-300">Check Answer</span>
+                                    </div>
+                                    <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-yellow-400 rounded-full animate-pulse opacity-75"></div>
                                 </button>
                             ` : `
                                 <button onclick="markActivityCompleted()" 
