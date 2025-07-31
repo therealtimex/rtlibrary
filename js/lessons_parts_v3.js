@@ -22,6 +22,21 @@ let recordedBlob = null;
 let recordingStream = null;
 let audioContext = null; // Declare audioContext globally
 
+// Voice Activity Detection variables
+let analyser = null;
+let dataArray = null;
+let initialSilenceTimer = null;
+let endingSilenceTimer = null;
+let hasDetectedVoice = false;
+let voiceCheckInterval = null;
+let voiceDetectionTimer = null;
+let silenceTimer = null;
+const VOICE_THRESHOLD = 51; // Adjustable threshold for voice detection
+const INITIAL_SILENCE_TIMEOUT = 3000; // 3s to wait for initial voice
+const ENDING_SILENCE_TIMEOUT = 3000; // 3s of silence after voice to stop
+
+
+
 // Pronunciation State Management - persist data for each word
 let pronunciationState = {};
 let currentLessonId = null;
@@ -699,8 +714,152 @@ function detectDevice() {
         (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const isAndroid = /Android/.test(userAgent);
     const isMobile = /Mobi|Android/i.test(userAgent) || isIOS;
-    
+
     return { isIOS, isAndroid, isMobile };
+}
+
+// Get current audio level for voice detection
+function getCurrentAudioLevel() {
+    if (!analyser || !dataArray) return 0;
+
+    analyser.getByteFrequencyData(dataArray);
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) {
+        sum += dataArray[i];
+    }
+    return sum / dataArray.length;
+}
+
+// Start voice activity detection
+function startVoiceActivityDetection() {
+    debugLog('Starting voice activity detection...');
+
+    // Reset state
+    hasDetectedVoice = false;
+    clearAllVoiceTimers();
+
+    try {
+        // Create audio context if not exists
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        // Create analyser
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+
+        // Connect audio stream to analyser
+        const source = audioContext.createMediaStreamSource(recordingStream);
+        source.connect(analyser);
+
+        // Start initial silence timer (3s to detect first voice)
+        initialSilenceTimer = setTimeout(() => {
+            if (!hasDetectedVoice) {
+                debugLog('No voice detected in initial 3 seconds. Stopping recording.');
+                stopRecordingWithReason('no_voice');
+            }
+        }, INITIAL_SILENCE_TIMEOUT);
+
+        // Start monitoring audio level
+        startVoiceMonitoring();
+
+    } catch (error) {
+        debugLog(`Voice detection setup failed: ${error.message}`);
+        // Fallback to simple timeout
+        setTimeout(() => {
+            if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
+                debugLog('Fallback: Auto-stopping recording after 3 seconds.');
+                mediaRecorder.stop();
+            }
+        }, 3000);
+    }
+}
+
+// Monitor voice activity
+function startVoiceMonitoring() {
+    voiceCheckInterval = setInterval(() => {
+        if (!isRecording) {
+            clearInterval(voiceCheckInterval);
+            return;
+        }
+
+        const audioLevel = getCurrentAudioLevel();
+
+        if (!hasDetectedVoice) {
+            // Still waiting for initial voice
+            if (audioLevel > VOICE_THRESHOLD) {
+                debugLog(`Voice detected! Audio level: ${audioLevel}`);
+                hasDetectedVoice = true;
+
+                // Clear initial silence timer
+                if (initialSilenceTimer) {
+                    clearTimeout(initialSilenceTimer);
+                    initialSilenceTimer = null;
+                }
+
+                // Start ending silence timer
+                startEndingSilenceTimer();
+            }
+        } else {
+            // Voice was detected, monitor for ending silence
+            if (audioLevel > VOICE_THRESHOLD) {
+                // Still talking, reset ending silence timer
+                startEndingSilenceTimer();
+            }
+        }
+
+    }, 100); // Check every 100ms
+}
+
+// Start/restart ending silence timer
+function startEndingSilenceTimer() {
+    if (endingSilenceTimer) {
+        clearTimeout(endingSilenceTimer);
+    }
+
+    endingSilenceTimer = setTimeout(() => {
+        if (hasDetectedVoice && isRecording) {
+            debugLog('3 seconds of silence after voice detected. Stopping recording.');
+            stopRecordingWithReason('silence_after_voice');
+        }
+    }, ENDING_SILENCE_TIMEOUT);
+}
+
+// Clear all voice detection timers
+function clearAllVoiceTimers() {
+    if (initialSilenceTimer) {
+        clearTimeout(initialSilenceTimer);
+        initialSilenceTimer = null;
+    }
+    if (endingSilenceTimer) {
+        clearTimeout(endingSilenceTimer);
+        endingSilenceTimer = null;
+    }
+    if (voiceCheckInterval) {
+        clearInterval(voiceCheckInterval);
+        voiceCheckInterval = null;
+    }
+}
+
+// Stop recording with specific reason
+function stopRecordingWithReason(reason) {
+    debugLog(`Stopping recording with reason: ${reason}`);
+
+    clearAllVoiceTimers();
+
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+    }
+
+    // Handle different stop reasons
+    if (reason === 'no_voice') {
+        // Will be handled in processRecordedAudio when audioChunks is empty
+        debugLog('Recording stopped due to no voice detected.');
+    } else if (reason === 'silence_after_voice') {
+        debugLog('Recording stopped due to silence after voice.');
+    }
 }
 
 // Get a compatible MIME type for MediaRecorder
@@ -718,7 +877,7 @@ function getCompatibleMimeType() {
         }
     }
     debugLog('No preferred MIME type supported, using browser default.');
-    return undefined; 
+    return undefined;
 }
 
 // Initialize microphone access
@@ -827,11 +986,30 @@ async function initMicrophone() {
     }
 }
 
+// Get a compatible MIME type for MediaRecorder
+function getCompatibleMimeType() {
+    const { isIOS } = detectDevice();
+    // iOS prefers mp4, other platforms work well with webm
+    const types = isIOS ?
+        ['audio/mp4', 'audio/wav'] :
+        ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/webm', 'audio/wav'];
+
+    for (const type of types) {
+        if (MediaRecorder.isTypeSupported(type)) {
+            debugLog(`Using compatible MIME type: ${type}`);
+            return type;
+        }
+    }
+    debugLog('No preferred MIME type supported, using browser default.');
+    return undefined;
+}
+
 // Toggle recording function (Universal)
 async function toggleRecording() {
     debugLog('toggleRecording called. Current state: ', isRecording ? 'recording' : 'not recording');
     if (isRecording) {
         // --- Stop Recording ---
+        clearAllVoiceTimers(); // Clean up voice detection timers
         if (mediaRecorder && mediaRecorder.state === 'recording') {
             mediaRecorder.stop();
             debugLog('Recording stopped by user.');
@@ -878,13 +1056,8 @@ async function toggleRecording() {
             updateRecordingUI(true);
             debugLog('MediaRecorder started.');
 
-            // Auto-stop after 3 seconds for compatibility
-            setTimeout(() => {
-                if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
-                    debugLog('Auto-stopping recording after 3 seconds.');
-                    mediaRecorder.stop();
-                }
-            }, 3000);
+            // Start voice activity detection
+            startVoiceActivityDetection();
 
         } catch (error) {
             debugLog(`Failed to start recording or MediaRecorder setup error: ${error.message}`);
@@ -897,14 +1070,18 @@ async function toggleRecording() {
 function processRecordedAudio() {
     isRecording = false;
     updateRecordingUI(false);
+    clearAllVoiceTimers(); // Clean up timers
     debugLog('processRecordedAudio called.');
 
-    if (audioChunks.length === 0) {
-        debugLog('No audio data was recorded.');
+    if (audioChunks.length === 0 || !hasDetectedVoice) {
+        debugLog('No audio data was recorded or no voice detected.');
         const recordStatus = document.getElementById('record-status');
         if (recordStatus) {
-            recordStatus.innerHTML = '<span class="text-orange-600 font-semibold">⚠️ No speech detected. Please try again.</span>';
+            recordStatus.innerHTML = '<span class="text-orange-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>No speech detected. Please try again.</span>';
         }
+
+        // Reset voice detection state
+        hasDetectedVoice = false;
         return;
     }
 
@@ -925,7 +1102,7 @@ function processRecordedAudio() {
         audioSection.classList.remove('hidden');
         debugLog('Audio section shown.');
     }
-    
+
     const resultsSection = document.getElementById('results-section');
     if (resultsSection) {
         resultsSection.classList.add('hidden');
@@ -936,7 +1113,7 @@ function processRecordedAudio() {
         recordedBlob: recordedBlob,
         audioURL: audioUrl,
         hasRecording: true,
-        analysisResult: null, 
+        analysisResult: null,
         hasAnalysis: false
     });
     debugLog('Pronunciation state saved.');
@@ -965,7 +1142,385 @@ function updateRecordingUI(isRec) {
         if (recordingDots) recordingDots.classList.remove('hidden');
         if (soundWaves) soundWaves.classList.remove('hidden');
         if (recordStatus) recordStatus.innerHTML = '<span class="text-red-600 font-semibold">🔴 Recording...</span>';
-        
+
+        if (audioSection) audioSection.classList.add('hidden');
+        if (resultsSection) resultsSection.classList.add('hidden');
+
+    } else {
+        if (micIcon) {
+            micIcon.className = 'fas fa-microphone';
+            micIcon.classList.add('animate-mic-bounce');
+        }
+        if (recordBtn) {
+            recordBtn.className = recordBtn.className.replace(/from-gray-500 to-gray-600/g, 'from-red-500 to-red-600');
+            recordBtn.classList.remove('animate-recording-pulse');
+            recordBtn.classList.add('animate-pulse-record');
+        }
+        if (glowRing) {
+            glowRing.classList.remove('hidden', 'pulse-glow');
+            // A little trick to restart animation
+            void glowRing.offsetWidth;
+            glowRing.classList.add('pulse-glow');
+        }
+
+        if (recordingDots) recordingDots.classList.add('hidden');
+        if (soundWaves) soundWaves.classList.add('hidden');
+        if (recordStatus) recordStatus.innerHTML = '<span class="inline-block animate-bounce">🎤</span> Click to start recording';
+    }
+}
+
+// Save pronunciation state for current word
+function savePronunciationState(data) {
+    if (!currentLessonId) return;
+
+    const currentActivity = learningActivities[currentActivityIndex];
+    if (!currentActivity || currentActivity.type !== 'pronunciation') return;
+
+    const wordId = `${currentLessonId}_${currentActivityIndex}_${currentWordIndex}`;
+
+    if (!pronunciationState[wordId]) {
+        pronunciationState[wordId] = {};
+    }
+
+    Object.assign(pronunciationState[wordId], data);
+    debugLog(`Pronunciation state saved for word: ${wordId}`);
+}
+
+// Voice Activity Detection
+function startVoiceActivityDetection() {
+    if (!recordingStream || !audioContext) {
+        debugLog('Cannot start voice detection: missing stream or context');
+        return;
+    }
+
+    try {
+        const source = audioContext.createMediaStreamSource(recordingStream);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.8;
+
+        source.connect(analyser);
+
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+
+        hasDetectedVoice = false;
+
+        // Start monitoring audio levels
+        monitorAudioLevel();
+
+        // Maximum recording time (30 seconds)
+        voiceDetectionTimer = setTimeout(() => {
+            if (isRecording) {
+                debugLog('Maximum recording time reached (30s)');
+                if (hasDetectedVoice) {
+                    mediaRecorder.stop();
+                } else {
+                    // No voice detected in 30 seconds, cancel recording
+                    cancelRecording();
+                }
+            }
+        }, 30000);
+
+    } catch (error) {
+        debugLog(`Voice detection setup error: ${error.message}`);
+        // Fallback to simple timeout
+        setTimeout(() => {
+            if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
+                debugLog('Fallback: Auto-stopping recording after 10 seconds.');
+                mediaRecorder.stop();
+            }
+        }, 10000);
+    }
+}
+
+function monitorAudioLevel() {
+    if (!isRecording || !analyser) return;
+
+    analyser.getByteFrequencyData(dataArray);
+
+    // Calculate average volume
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) {
+        sum += dataArray[i];
+    }
+    const average = sum / dataArray.length;
+
+    // Check if voice is detected
+    if (average > VOICE_THRESHOLD) {
+        if (!hasDetectedVoice) {
+            hasDetectedVoice = true;
+            debugLog('Voice detected! Starting silence detection...');
+            updateRecordStatus('🎤 Recording... (Voice detected)');
+        }
+
+        // Reset silence timer when voice is detected
+        if (silenceTimer) {
+            clearTimeout(silenceTimer);
+            silenceTimer = null;
+        }
+
+        // Start new silence timer
+        silenceTimer = setTimeout(() => {
+            if (isRecording && hasDetectedVoice) {
+                debugLog('Silence detected after voice, stopping recording');
+                mediaRecorder.stop();
+            }
+        }, 2000); // Stop after 2 seconds of silence
+
+    } else if (!hasDetectedVoice) {
+        // Still waiting for voice
+        updateRecordStatus('🎤 Recording... (Waiting for voice)');
+    }
+
+    // Continue monitoring
+    if (isRecording) {
+        requestAnimationFrame(monitorAudioLevel);
+    }
+}
+
+function cancelRecording() {
+    debugLog('Canceling recording - no voice detected');
+    isRecording = false;
+
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+    }
+
+    // Clear audio chunks to prevent processing empty recording
+    audioChunks = [];
+
+    updateRecordingUI(false);
+    updateRecordStatus('⚠️ No voice detected. Please try again.');
+
+    cleanupVoiceDetection();
+}
+
+function cleanupVoiceDetection() {
+    if (voiceDetectionTimer) {
+        clearTimeout(voiceDetectionTimer);
+        voiceDetectionTimer = null;
+    }
+
+    if (silenceTimer) {
+        clearTimeout(silenceTimer);
+        silenceTimer = null;
+    }
+
+    if (analyser) {
+        analyser.disconnect();
+        analyser = null;
+    }
+
+    dataArray = null;
+    hasDetectedVoice = false;
+}
+
+// Process the recorded audio after stopping
+function processRecordedAudio() {
+    isRecording = false;
+    updateRecordingUI(false);
+    clearAllVoiceTimers(); // Clean up timers
+    debugLog('processRecordedAudio called.');
+
+    if (audioChunks.length === 0) {
+        debugLog('No audio data was recorded.');
+        const recordStatus = document.getElementById('record-status');
+        if (recordStatus) {
+            recordStatus.innerHTML = '<span class="text-orange-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>No speech detected. Please try again.</span>';
+        }
+
+        // Reset voice detection state
+        hasDetectedVoice = false;
+        return;
+    }
+
+    // If we have audio data, proceed regardless of voice detection status
+    debugLog(`Processing audio data. Size: ${audioChunks.length} chunks, Voice detected: ${hasDetectedVoice}`);
+
+    const mimeType = mediaRecorder.mimeType || 'audio/webm';
+    recordedBlob = new Blob(audioChunks, { type: mimeType });
+    const audioUrl = URL.createObjectURL(recordedBlob);
+    debugLog(`Recorded audio blob created. Size: ${recordedBlob.size}, Type: ${recordedBlob.type}`);
+
+    const audioElement = document.getElementById('recorded-audio');
+    if (audioElement) {
+        audioElement.src = audioUrl;
+        audioElement.playsInline = true; // Crucial for iOS playback
+        debugLog('Audio element source set.');
+    }
+
+    const audioSection = document.getElementById('audio-section');
+    if (audioSection) {
+        audioSection.classList.remove('hidden');
+        debugLog('Audio section shown.');
+    }
+
+    const resultsSection = document.getElementById('results-section');
+    if (resultsSection) {
+        resultsSection.classList.add('hidden');
+        debugLog('Results section hidden.');
+    }
+
+    // Save pronunciation state if function exists
+    if (typeof savePronunciationState === 'function') {
+        savePronunciationState({
+            recordedBlob: recordedBlob,
+            audioURL: audioUrl,
+            hasRecording: true,
+            analysisResult: null,
+            hasAnalysis: false
+        });
+        debugLog('Pronunciation state saved.');
+    }
+}
+
+function updateRecordStatus(message) {
+    const recordStatus = document.getElementById('record-status');
+    if (recordStatus) {
+        recordStatus.innerHTML = `<span class="text-red-600 font-semibold">${message}</span>`;
+    }
+}
+
+// Toggle recording function (Universal)
+async function toggleRecording() {
+    debugLog('toggleRecording called. Current state: ', isRecording ? 'recording' : 'not recording');
+    if (isRecording) {
+        // --- Stop Recording ---
+        clearAllVoiceTimers(); // Clean up voice detection timers
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            debugLog('Recording stopped by user.');
+        }
+    } else {
+        // --- Start Recording ---
+        debugLog('Attempting to initialize microphone...');
+        const success = await initMicrophone();
+        if (!success) {
+            debugLog('Microphone initialization failed. Aborting recording start.');
+            return;
+        }
+        debugLog('Microphone initialized. Proceeding to MediaRecorder setup.');
+
+        try {
+            audioChunks = [];
+            const mimeType = getCompatibleMimeType();
+            const options = mimeType ? { mimeType } : {};
+            debugLog('MediaRecorder options:' + JSON.stringify(options));
+
+            mediaRecorder = new MediaRecorder(recordingStream, options);
+            debugLog('MediaRecorder instance created.');
+
+            mediaRecorder.ondataavailable = (event) => {
+                debugLog('MediaRecorder ondataavailable. Data size:' + event.data.size);
+                if (event.data.size > 0) {
+                    audioChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                debugLog('MediaRecorder onstop event triggered.');
+                processRecordedAudio();
+            };
+
+            mediaRecorder.onerror = (event) => {
+                debugLog(`MediaRecorder error: ${event.error.name} - ${event.error.message}`);
+                alert(`An error occurred during recording: ${event.error.name}`);
+                updateRecordingUI(false);
+            };
+
+            mediaRecorder.start();
+            isRecording = true;
+            updateRecordingUI(true);
+            debugLog('MediaRecorder started.');
+
+            // Start voice activity detection
+            startVoiceActivityDetection();
+
+        } catch (error) {
+            debugLog(`Failed to start recording or MediaRecorder setup error: ${error.message}`);
+            alert(`Could not start recording: ${error.message}`);
+        }
+    }
+}
+
+// Process the recorded audio after stopping
+function processRecordedAudio() {
+    isRecording = false;
+    updateRecordingUI(false);
+    clearAllVoiceTimers(); // Clean up timers
+    debugLog('processRecordedAudio called.');
+
+    if (audioChunks.length === 0 || !hasDetectedVoice) {
+        debugLog('No audio data was recorded or no voice detected.');
+        const recordStatus = document.getElementById('record-status');
+        if (recordStatus) {
+            recordStatus.innerHTML = '<span class="text-orange-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>No speech detected. Please try again.</span>';
+        }
+
+        // Reset voice detection state
+        hasDetectedVoice = false;
+        return;
+    }
+
+    const mimeType = mediaRecorder.mimeType || 'audio/webm';
+    recordedBlob = new Blob(audioChunks, { type: mimeType });
+    const audioUrl = URL.createObjectURL(recordedBlob);
+    debugLog(`Recorded audio blob created. Size: ${recordedBlob.size}, Type: ${recordedBlob.type}`);
+
+    const audioElement = document.getElementById('recorded-audio');
+    if (audioElement) {
+        audioElement.src = audioUrl;
+        audioElement.playsInline = true; // Crucial for iOS playback
+        debugLog('Audio element source set.');
+    }
+
+    const audioSection = document.getElementById('audio-section');
+    if (audioSection) {
+        audioSection.classList.remove('hidden');
+        debugLog('Audio section shown.');
+    }
+
+    const resultsSection = document.getElementById('results-section');
+    if (resultsSection) {
+        resultsSection.classList.add('hidden');
+        debugLog('Results section hidden.');
+    }
+
+    savePronunciationState({
+        recordedBlob: recordedBlob,
+        audioURL: audioUrl,
+        hasRecording: true,
+        analysisResult: null,
+        hasAnalysis: false
+    });
+    debugLog('Pronunciation state saved.');
+}
+
+// Update the UI based on recording state
+function updateRecordingUI(isRec) {
+    debugLog(`updateRecordingUI called with isRec: ${isRec}`);
+    const recordBtn = document.getElementById('record-btn');
+    const recordStatus = document.getElementById('record-status');
+    const micIcon = document.getElementById('mic-icon');
+    const glowRing = document.getElementById('glow-ring');
+    const recordingDots = document.getElementById('recording-dots');
+    const soundWaves = document.getElementById('sound-waves');
+    const audioSection = document.getElementById('audio-section');
+    const resultsSection = document.getElementById('results-section');
+
+    if (isRec) {
+        if (micIcon) micIcon.className = 'fas fa-stop';
+        if (recordBtn) {
+            recordBtn.className = recordBtn.className.replace(/from-red-500 to-red-600/g, 'from-gray-500 to-gray-600');
+            recordBtn.classList.remove('animate-pulse-record');
+            recordBtn.classList.add('animate-recording-pulse');
+        }
+        if (glowRing) glowRing.classList.add('hidden');
+        if (recordingDots) recordingDots.classList.remove('hidden');
+        if (soundWaves) soundWaves.classList.remove('hidden');
+        if (recordStatus) recordStatus.innerHTML = '<span class="text-red-600 font-semibold">🔴 Recording...</span>';
+
         if (audioSection) audioSection.classList.add('hidden');
         if (resultsSection) resultsSection.classList.add('hidden');
 
@@ -1023,7 +1578,7 @@ async function analyzeAudio() {
         const referenceText = document.getElementById('reference-text').textContent;
         debugLog('Reference text:' + referenceText);
 
-        const response = await fetch('https://hooks.realtimex.co/hooks/anki-speech-v2', {
+        const response = await fetch('https://automation.rta.vn/webhook/anki-speech', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
