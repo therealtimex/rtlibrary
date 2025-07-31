@@ -2410,7 +2410,7 @@ function renderQuizActivity(container, content) {
                         <div class="max-w-lg mx-auto space-y-3 mb-8">
                             ${currentQuestion.options.map((option, index) => `
                                 <button onclick="selectQuizAnswer('${option.replace(/'/g, "'")}', this)" 
-                                        class="quiz-option w-full p-4 border-2 border-gray-200 rounded-xl text-left transition-all duration-300 hover:border-orange-500 hover:bg-orange-50 hover:-translate-y-1 ${window.quizState.selectedAnswer === option ? 'border-orange-500 bg-orange-500 text-white' : ''
+                                        class="quiz-option w-full p-4 border-2 border-gray-200 rounded-xl text-left transition-all duration-300 hover:-translate-y-1 ${window.quizState.selectedAnswer === option ? 'border-orange-500 bg-orange-500 text-white' : ''
             } ${window.quizState.showResult ? (
                 option === currentQuestion.correct_answer ? 'border-green-500 bg-green-500 text-white' :
                     option === window.quizState.selectedAnswer && option !== currentQuestion.correct_answer ? 'border-red-500 bg-red-500 text-white' : ''
