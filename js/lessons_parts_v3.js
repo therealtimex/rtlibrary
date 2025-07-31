@@ -25,7 +25,9 @@ let audioContext = null; // Declare audioContext globally
 // Mobile Recording State
 let hasDetectedVoice = false;
 let recordingTimer = null;
-const MOBILE_RECORDING_TIMEOUT = 3000; // 8 seconds timeout for mobile
+let recordingStartTime = null;
+let isManualStop = false;
+const MOBILE_RECORDING_TIMEOUT = 5000; // 8 seconds timeout for mobile
 
 // Clear recording timer
 function clearRecordingTimer() {
@@ -33,6 +35,175 @@ function clearRecordingTimer() {
         clearTimeout(recordingTimer);
         recordingTimer = null;
     }
+}
+
+// Handle manual stop (when user clicks stop button)
+function handleManualStop() {
+    debugLog('Manual stop triggered by user');
+    isManualStop = true;
+    clearRecordingTimer();
+}
+
+// Start mobile recording with timeout
+function startMobileRecording() {
+    hasDetectedVoice = true; // Always assume voice detected on mobile
+
+    // Only set recordingStartTime if not already set
+    if (!recordingStartTime) {
+        recordingStartTime = Date.now(); // Track when recording started
+        debugLog(`startMobileRecording: Set recordingStartTime=${recordingStartTime}`);
+    } else {
+        debugLog(`startMobileRecording: recordingStartTime already set=${recordingStartTime}`);
+    }
+
+    // Don't override isManualStop if it's already set correctly
+
+    recordingTimer = setTimeout(() => {
+        if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
+            debugLog('Mobile: Auto-stopping recording after timeout.');
+            isManualStop = false; // This is auto-stop
+            debugLog(`Auto-stop: recordingStartTime=${recordingStartTime}, isManualStop=${isManualStop}`);
+            mediaRecorder.stop();
+        }
+    }, MOBILE_RECORDING_TIMEOUT);
+}
+
+// Check if recorded audio is valid using hybrid approach
+function isValidAudioRecording(blob, startTime, manualStop = false) {
+    // Calculate recording duration
+    const recordingDuration = (Date.now() - startTime) / 1000; // in seconds
+    debugLog(`Recording duration: ${recordingDuration.toFixed(2)}s, Size: ${blob.size} bytes, Manual stop: ${manualStop}`);
+
+    // If user manually stopped, always accept (they know they spoke)
+    if (manualStop) {
+        debugLog('Manual stop detected - accepting recording');
+        return true;
+    }
+
+    // For auto-timeout, check based on duration and size ratio
+    if (recordingDuration < 3) {
+        // Short recording: just need minimum size
+        const MIN_SHORT_SIZE = 30000; // 30KB for < 3s
+        if (blob.size < MIN_SHORT_SIZE) {
+            debugLog(`Short recording too small: ${blob.size} bytes (minimum: ${MIN_SHORT_SIZE} bytes)`);
+            return false;
+        }
+    } else {
+        // For longer recordings, calculate a minimum size based on duration.
+        // Use a conservative floor of 10KB/s.
+        const MIN_BYTES_PER_SECOND = 10000;
+        const calculatedMinSize = MIN_BYTES_PER_SECOND * recordingDuration;
+
+        // We can also set an absolute minimum floor to avoid accepting very short, noisy clips that pass the ratio.
+        const MIN_TOTAL_SIZE = Math.max(30000, calculatedMinSize);
+
+        debugLog(`Total size: ${blob.size} bytes (calculated minimum: ${MIN_TOTAL_SIZE.toFixed(0)} bytes for ${recordingDuration.toFixed(2)}s)`);
+
+        if (blob.size < MIN_TOTAL_SIZE) {
+            debugLog(`Recording too small for meaningful speech: ${blob.size} bytes < ${MIN_TOTAL_SIZE.toFixed(0)} bytes`);
+            return false;
+        }
+    }
+
+    debugLog('Recording validation passed');
+    return true;
+}
+
+// Enhanced processRecordedAudio with file size check
+function processRecordedAudioEnhanced() {
+    isRecording = false;
+    updateRecordingUI(false);
+    debugLog('processRecordedAudioEnhanced called.');
+
+    if (audioChunks.length === 0) {
+        debugLog('No audio data was recorded.');
+        const recordStatus = document.getElementById('record-status');
+        if (recordStatus) {
+            recordStatus.innerHTML = '<span class="text-orange-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>No audio recorded. Please try again.</span>';
+        }
+        return;
+    }
+
+    const mimeType = mediaRecorder.mimeType || 'audio/webm';
+    recordedBlob = new Blob(audioChunks, { type: mimeType });
+    debugLog(`Recorded audio blob created. Size: ${recordedBlob.size}, Type: ${recordedBlob.type}`);
+
+    // Check if audio file is valid using hybrid approach
+    if (!isValidAudioRecording(recordedBlob, recordingStartTime, isManualStop)) {
+        const recordStatus = document.getElementById('record-status');
+        if (recordStatus) {
+            if (isManualStop) {
+                recordStatus.innerHTML = '<span class="text-orange-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Recording too short. Please try again.</span>';
+            } else {
+                recordStatus.innerHTML = '<span class="text-orange-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Recording appears to be silent. Please speak clearly and try again.</span>';
+            }
+        }
+        return;
+    }
+
+    const audioUrl = URL.createObjectURL(recordedBlob);
+
+    const audioElement = document.getElementById('recorded-audio');
+    if (audioElement) {
+        audioElement.src = audioUrl;
+        audioElement.playsInline = true;
+        debugLog('Audio element source set.');
+    }
+
+    const audioSection = document.getElementById('audio-section');
+    if (audioSection) {
+        audioSection.classList.remove('hidden');
+        debugLog('Audio section shown.');
+    }
+
+    const resultsSection = document.getElementById('results-section');
+    if (resultsSection) {
+        resultsSection.classList.add('hidden');
+        debugLog('Results section hidden.');
+    }
+
+    if (typeof savePronunciationState === 'function') {
+        savePronunciationState({
+            recordedBlob: recordedBlob,
+            audioURL: audioUrl,
+            hasRecording: true,
+            analysisResult: null,
+            hasAnalysis: false
+        });
+        debugLog('Pronunciation state saved.');
+    }
+}
+
+// Enhanced toggleRecording with manual stop detection
+const originalToggleRecording = toggleRecording;
+toggleRecording = async function () {
+    debugLog('Enhanced toggleRecording called. Current state: ', isRecording ? 'recording' : 'not recording');
+    if (isRecording) {
+        // --- Stop Recording ---
+        handleManualStop(); // Mark as manual stop and clear timer
+
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            debugLog('Recording stopped by user (manual).');
+        }
+    } else {
+        // --- Start Recording ---
+        // Initialize recording state
+        recordingStartTime = Date.now();
+        isManualStop = false;
+        debugLog(`Starting recording: recordingStartTime=${recordingStartTime}, isManualStop=${isManualStop}`);
+
+        // Call original start recording logic
+        return originalToggleRecording.call(this);
+    }
+};
+
+// Override the original function
+processRecordedAudio = processRecordedAudioEnhanced;
+
+// Alias for backward compatibility
+function startVoiceActivityDetection() {
+    startMobileRecording();
 }
 
 
@@ -736,7 +907,7 @@ function startVoiceActivityDetection() {
 
     // Reset state
     hasDetectedVoice = false;
-  
+
 
     try {
         // Create audio context if not exists
@@ -978,7 +1149,7 @@ async function toggleRecording() {
     debugLog('toggleRecording called. Current state: ', isRecording ? 'recording' : 'not recording');
     if (isRecording) {
         // --- Stop Recording ---
-      
+
         if (mediaRecorder && mediaRecorder.state === 'recording') {
             mediaRecorder.stop();
             debugLog('Recording stopped by user.');
@@ -1164,10 +1335,10 @@ function startVoiceActivityDetection() {
         hasDetectedVoice = true; // Assume voice will be detected on mobile
         setTimeout(() => {
             if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
-                debugLog('Mobile: Auto-stopping recording after 10 seconds.');
+                debugLog('Mobile: Auto-stopping recording after 8 seconds.');
                 mediaRecorder.stop();
             }
-        }, 10000); // 10 seconds timeout for mobile
+        }, MOBILE_RECORDING_TIMEOUT); // 3 seconds timeout for mobile
         return;
     }
 
@@ -1210,10 +1381,10 @@ function startVoiceActivityDetection() {
         // Fallback to simple timeout
         setTimeout(() => {
             if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
-                debugLog('Fallback: Auto-stopping recording after 10 seconds.');
+                debugLog('Fallback: Auto-stopping recording after 3 seconds.');
                 mediaRecorder.stop();
             }
-        }, 10000);
+        }, MOBILE_RECORDING_TIMEOUT);
     }
 }
 
@@ -1370,7 +1541,7 @@ async function toggleRecording() {
     debugLog('toggleRecording called. Current state: ', isRecording ? 'recording' : 'not recording');
     if (isRecording) {
         // --- Stop Recording ---
-     
+
         if (mediaRecorder && mediaRecorder.state === 'recording') {
             mediaRecorder.stop();
             debugLog('Recording stopped by user.');
@@ -2187,12 +2358,12 @@ function renderQuizActivity(container, content) {
     }
 
     // Initialize or reset quiz state
-    if (!window.quizState || window.quizState.questions !== questions) {
+    if (!window.quizState) {
         window.quizState = {
             currentQuestionIndex: 0,
             selectedAnswer: null,
             showResult: false,
-            questions: questions,
+            questions: questions, // Set the questions for the first time
             correctAnswers: 0
         };
     }
@@ -2238,7 +2409,7 @@ function renderQuizActivity(container, content) {
 
                         <div class="max-w-lg mx-auto space-y-3 mb-8">
                             ${currentQuestion.options.map((option, index) => `
-                                <button onclick="selectQuizAnswer('${option.replace(/'/g, "\'")}', ${window.quizState.currentQuestionIndex})" 
+                                <button onclick="selectQuizAnswer('${option.replace(/'/g, "'")}', this)" 
                                         class="quiz-option w-full p-4 border-2 border-gray-200 rounded-xl text-left transition-all duration-300 hover:border-orange-500 hover:bg-orange-50 hover:-translate-y-1 ${window.quizState.selectedAnswer === option ? 'border-orange-500 bg-orange-500 text-white' : ''
             } ${window.quizState.showResult ? (
                 option === currentQuestion.correct_answer ? 'border-green-500 bg-green-500 text-white' :
@@ -2287,25 +2458,22 @@ function renderQuizActivity(container, content) {
                         ` : ''}
 
                         ${!window.quizState.showResult ? `
-                            ${window.quizState.selectedAnswer ? `
-                                <div class="text-center mb-12">
-                                    <button onclick="checkQuizAnswer('${currentQuestion.correct_answer.replace(/'/g, "\'")}', ${window.quizState.currentQuestionIndex})" 
-                                            class="group relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/30 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden animate-slide-in">
-                                        <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                        <div class="relative flex items-center gap-2">
-                                            <div class="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300">
-                                                <i class="fas fa-check text-white text-xs group-hover:scale-110 transition-transform duration-300"></i>
-                                            </div>
-                                            <span class="group-hover:scale-105 transition-transform duration-300">Check Answer</span>
+                            <div id="check-answer-container" class="text-center mb-12 ${!window.quizState.selectedAnswer ? 'hidden' : ''}">
+                                <button onclick="checkQuizAnswer('${currentQuestion.correct_answer.replace(/'/g, "\'")}', ${window.quizState.currentQuestionIndex})" 
+                                        class="group relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/30 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <div class="relative flex items-center gap-2">
+                                        <div class="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300">
+                                            <i class="fas fa-check text-white text-xs group-hover:scale-110 transition-transform duration-300"></i>
                                         </div>
-                                        <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-yellow-400 rounded-full animate-pulse opacity-75"></div>
-                                    </button>
-                                </div>
-                            ` : `
-                                <div class="text-center mb-12">
-                                    <p class="text-gray-500 text-sm">Please select an answer</p>
-                                </div>
-                            `}
+                                        <span class="group-hover:scale-105 transition-transform duration-300">Check Answer</span>
+                                    </div>
+                                    <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-yellow-400 rounded-full animate-pulse opacity-75"></div>
+                                </button>
+                            </div>
+                            <div id="please-select-container" class="text-center mb-12 ${window.quizState.selectedAnswer ? 'hidden' : ''}">
+                                <p class="text-gray-500 text-sm">Please select an answer</p>
+                            </div>
                         ` : `
                             <!-- Navigation after showing result -->
                             ${isMultipleQuestions ? `
@@ -2339,13 +2507,29 @@ function renderQuizActivity(container, content) {
     renderQuiz();
 }
 // Global Quiz functions
-window.selectQuizAnswer = (answer, questionIndex) => {
-    if (!window.quizState.showResult) {
-        window.quizState.selectedAnswer = answer;
-        const quizActivity = learningActivities.find(a => a.type === 'quiz');
-        if (quizActivity) {
-            renderQuizActivity(document.getElementById('lesson-content'), quizActivity.content);
-        }
+window.selectQuizAnswer = (answer, buttonElement) => {
+    if (window.quizState.showResult) return;
+
+    // Update state
+    window.quizState.selectedAnswer = answer;
+
+    // --- Efficient UI Update ---
+    // 1. Remove 'selected' style from all options
+    const allOptions = document.querySelectorAll('.quiz-option');
+    allOptions.forEach(btn => {
+        btn.classList.remove('border-orange-500', 'bg-orange-500', 'text-white');
+    });
+
+    // 2. Add 'selected' style to the clicked button
+    if (buttonElement) {
+        buttonElement.classList.add('border-orange-500', 'bg-orange-500', 'text-white');
+    }
+
+    // 3. Show the 'Check Answer' button container
+    const checkButtonContainer = document.getElementById('check-answer-container');
+    if (checkButtonContainer) {
+        checkButtonContainer.classList.remove('hidden');
+        checkButtonContainer.classList.add('animate-slide-in');
     }
 };
 
@@ -2394,8 +2578,9 @@ window.prevQuizQuestion = () => {
 };
 
 window.completeQuiz = () => {
-    // Reset quiz state for next time
-    window.quizState = null;
+    // Mark the activity as completed, but persist the state
+    // so the user can review their answers.
+    // The state will be cleared by restartCourse().
     markActivityCompleted();
 };
 
