@@ -451,6 +451,17 @@ function updateNavigationButtons() {
     }
 }
 
+// Debug logging function for UI
+function debugLog(message) {
+    const logDiv = document.getElementById('debug-log');
+    if (logDiv) {
+        const timestamp = new Date().toLocaleTimeString();
+        logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+        logDiv.scrollTop = logDiv.scrollHeight; // Auto-scroll to bottom
+    }
+    console.log(message); // Keep console.log for browser dev tools
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', function () {
     // iOS Audio Unlock: Must be triggered by a user gesture.
@@ -458,13 +469,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const context = new (window.AudioContext || window.webkitAudioContext)();
         if (context.state === 'suspended') {
             context.resume().then(() => {
-                console.log('AudioContext resumed successfully.');
+                debugLog('AudioContext resumed successfully.');
                 // Once unlocked, we don't need this listener anymore.
                 document.body.removeEventListener('click', unlockAudio);
                 document.body.removeEventListener('touchstart', unlockAudio);
-            }).catch(e => console.error('Failed to resume AudioContext:', e));
+            }).catch(e => debugLog(`Failed to resume AudioContext: ${e.message}`));
         } else {
-            console.log('AudioContext is not suspended.');
+            debugLog('AudioContext is not suspended.');
             document.body.removeEventListener('click', unlockAudio);
             document.body.removeEventListener('touchstart', unlockAudio);
         }
@@ -686,17 +697,19 @@ function getCompatibleMimeType() {
 
     for (const type of types) {
         if (MediaRecorder.isTypeSupported(type)) {
-            console.log(`Using compatible MIME type: ${type}`);
+            debugLog(`Using compatible MIME type: ${type}`);
             return type;
         }
     }
-    console.warn('No preferred MIME type supported, using browser default.');
+    debugLog('No preferred MIME type supported, using browser default.');
     return undefined; 
 }
 
 // Initialize microphone access
 async function initMicrophone() {
+    debugLog('initMicrophone called.');
     if (recordingStream && recordingStream.active) {
+        debugLog('Microphone already initialized and active.');
         return true; // Already initialized and active
     }
 
@@ -717,13 +730,14 @@ async function initMicrophone() {
                 autoGainControl: true
             }
         };
+        debugLog('Requesting microphone with constraints:' + JSON.stringify(constraints));
         
         recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
-        console.log('Microphone access granted.');
+        debugLog('Microphone access granted.');
         return true;
 
     } catch (error) {
-        console.error('Error accessing microphone:', error);
+        debugLog(`Microphone error: ${error.name} - ${error.message}`);
         let errorMessage = 'Unable to access microphone. ';
         if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
             errorMessage += 'Please allow microphone permissions in your browser settings.';
@@ -739,34 +753,46 @@ async function initMicrophone() {
 
 // Toggle recording function (Universal)
 async function toggleRecording() {
+    debugLog('toggleRecording called. Current state: ', isRecording ? 'recording' : 'not recording');
     if (isRecording) {
         // --- Stop Recording ---
         if (mediaRecorder && mediaRecorder.state === 'recording') {
             mediaRecorder.stop();
-            console.log('Recording stopped by user.');
+            debugLog('Recording stopped by user.');
         }
     } else {
         // --- Start Recording ---
+        debugLog('Attempting to initialize microphone...');
         const success = await initMicrophone();
-        if (!success) return;
+        if (!success) {
+            debugLog('Microphone initialization failed. Aborting recording start.');
+            return;
+        }
+        debugLog('Microphone initialized. Proceeding to MediaRecorder setup.');
 
         try {
             audioChunks = [];
             const mimeType = getCompatibleMimeType();
             const options = mimeType ? { mimeType } : {};
+            debugLog('MediaRecorder options:' + JSON.stringify(options));
 
             mediaRecorder = new MediaRecorder(recordingStream, options);
+            debugLog('MediaRecorder instance created.');
 
             mediaRecorder.ondataavailable = (event) => {
+                debugLog('MediaRecorder ondataavailable. Data size:' + event.data.size);
                 if (event.data.size > 0) {
                     audioChunks.push(event.data);
                 }
             };
 
-            mediaRecorder.onstop = processRecordedAudio;
+            mediaRecorder.onstop = () => {
+                debugLog('MediaRecorder onstop event triggered.');
+                processRecordedAudio();
+            };
 
             mediaRecorder.onerror = (event) => {
-                console.error('MediaRecorder error:', event.error);
+                debugLog(`MediaRecorder error: ${event.error.name} - ${event.error.message}`);
                 alert(`An error occurred during recording: ${event.error.name}`);
                 updateRecordingUI(false);
             };
@@ -774,17 +800,18 @@ async function toggleRecording() {
             mediaRecorder.start();
             isRecording = true;
             updateRecordingUI(true);
+            debugLog('MediaRecorder started.');
 
             // Auto-stop after 3 seconds for compatibility
             setTimeout(() => {
                 if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
-                    console.log('Auto-stopping recording after 3 seconds.');
+                    debugLog('Auto-stopping recording after 3 seconds.');
                     mediaRecorder.stop();
                 }
             }, 3000);
 
         } catch (error) {
-            console.error('Failed to start recording:', error);
+            debugLog(`Failed to start recording or MediaRecorder setup error: ${error.message}`);
             alert(`Could not start recording: ${error.message}`);
         }
     }
@@ -794,9 +821,10 @@ async function toggleRecording() {
 function processRecordedAudio() {
     isRecording = false;
     updateRecordingUI(false);
+    debugLog('processRecordedAudio called.');
 
     if (audioChunks.length === 0) {
-        console.warn('No audio data was recorded.');
+        debugLog('No audio data was recorded.');
         const recordStatus = document.getElementById('record-status');
         if (recordStatus) {
             recordStatus.innerHTML = '<span class="text-orange-600 font-semibold">⚠️ No speech detected. Please try again.</span>';
@@ -807,20 +835,24 @@ function processRecordedAudio() {
     const mimeType = mediaRecorder.mimeType || 'audio/webm';
     recordedBlob = new Blob(audioChunks, { type: mimeType });
     const audioUrl = URL.createObjectURL(recordedBlob);
+    debugLog(`Recorded audio blob created. Size: ${recordedBlob.size}, Type: ${recordedBlob.type}`);
 
     const audioElement = document.getElementById('recorded-audio');
     if (audioElement) {
         audioElement.src = audioUrl;
+        debugLog('Audio element source set.');
     }
 
     const audioSection = document.getElementById('audio-section');
     if (audioSection) {
         audioSection.classList.remove('hidden');
+        debugLog('Audio section shown.');
     }
     
     const resultsSection = document.getElementById('results-section');
     if (resultsSection) {
         resultsSection.classList.add('hidden');
+        debugLog('Results section hidden.');
     }
 
     savePronunciationState({
@@ -830,10 +862,12 @@ function processRecordedAudio() {
         analysisResult: null, 
         hasAnalysis: false
     });
+    debugLog('Pronunciation state saved.');
 }
 
 // Update the UI based on recording state
 function updateRecordingUI(isRec) {
+    debugLog(`updateRecordingUI called with isRec: ${isRec}`);
     const recordBtn = document.getElementById('record-btn');
     const recordStatus = document.getElementById('record-status');
     const micIcon = document.getElementById('mic-icon');
@@ -883,8 +917,10 @@ function updateRecordingUI(isRec) {
 
 // Analyze audio with backend
 async function analyzeAudio() {
+    debugLog('analyzeAudio called.');
     if (!recordedBlob) {
         alert('No audio recorded');
+        debugLog('No recordedBlob found.');
         return;
     }
 
@@ -893,6 +929,7 @@ async function analyzeAudio() {
 
     if (loading) loading.classList.remove('hidden');
     if (resultsSection) resultsSection.classList.add('hidden');
+    debugLog('Loading and results sections updated.');
 
     try {
         const base64Audio = await new Promise((resolve, reject) => {
@@ -904,8 +941,10 @@ async function analyzeAudio() {
             reader.onerror = reject;
             reader.readAsDataURL(recordedBlob);
         });
+        debugLog('Audio converted to base64.');
 
         const referenceText = document.getElementById('reference-text').textContent;
+        debugLog('Reference text:' + referenceText);
 
         const response = await fetch('https://hooks.realtimex.co/hooks/anki-speech-v2', {
             method: 'POST',
@@ -918,19 +957,24 @@ async function analyzeAudio() {
                 audio_format: recordedBlob.type.split('/')[1].split(';')[0] // e.g., 'wav', 'webm', 'mp4'
             })
         });
+        debugLog('API call initiated.');
 
         if (!response.ok) {
-            throw new Error('Analysis failed');
+            const errorText = await response.text();
+            debugLog(`API response not OK: ${response.status} - ${errorText}`);
+            throw new Error('Analysis failed: ' + errorText);
         }
 
         const result = await response.json();
+        debugLog('API call successful. Displaying results.');
         displayResults(result);
 
     } catch (error) {
-        console.error('Error analyzing audio:', error);
+        debugLog(`Error analyzing audio: ${error.message}`);
         alert('Error analyzing pronunciation. Please try again.');
     } finally {
         if (loading) loading.classList.add('hidden');
+        debugLog('Loading spinner hidden.');
     }
 }
 
@@ -1819,7 +1863,7 @@ function restartCourse() {
     if (audioSection) audioSection.classList.add('hidden');
     if (resultsSection) resultsSection.classList.add('hidden');
 
-    console.log('Course restarted - all states reset including pronunciation data');
+    debugLog('Course restarted - all states reset including pronunciation data');
     showActivity(0);
 }
 
