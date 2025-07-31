@@ -453,6 +453,26 @@ function updateNavigationButtons() {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function () {
+    // iOS Audio Unlock: Must be triggered by a user gesture.
+    const unlockAudio = () => {
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+        if (context.state === 'suspended') {
+            context.resume().then(() => {
+                console.log('AudioContext resumed successfully.');
+                // Once unlocked, we don't need this listener anymore.
+                document.body.removeEventListener('click', unlockAudio);
+                document.body.removeEventListener('touchstart', unlockAudio);
+            }).catch(e => console.error('Failed to resume AudioContext:', e));
+        } else {
+            console.log('AudioContext is not suspended.');
+            document.body.removeEventListener('click', unlockAudio);
+            document.body.removeEventListener('touchstart', unlockAudio);
+        }
+    };
+
+    document.body.addEventListener('click', unlockAudio);
+    document.body.addEventListener('touchstart', unlockAudio);
+
     document.getElementById('description-modal').addEventListener('click', function (e) {
         if (e.target === this) {
             closeDescriptionModal();
@@ -755,13 +775,13 @@ async function toggleRecording() {
             isRecording = true;
             updateRecordingUI(true);
 
-            // Auto-stop after 15 seconds for compatibility
+            // Auto-stop after 3 seconds for compatibility
             setTimeout(() => {
                 if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
-                    console.log('Auto-stopping recording after 15 seconds.');
+                    console.log('Auto-stopping recording after 3 seconds.');
                     mediaRecorder.stop();
                 }
-            }, 15000);
+            }, 3000);
 
         } catch (error) {
             console.error('Failed to start recording:', error);
