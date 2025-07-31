@@ -20,6 +20,7 @@ let audioChunks = [];
 let isRecording = false;
 let recordedBlob = null;
 let recordingStream = null;
+let audioContext = null; // Declare audioContext globally
 
 // Pronunciation State Management - persist data for each word
 let pronunciationState = {};
@@ -84,6 +85,7 @@ function playAudioFile(audioPath, button = null) {
 
     if (audioPath && audioPath.trim() !== '') {
         currentAudio = new Audio(audioPath);
+        currentAudio.playsInline = true; // Crucial for iOS
 
         const resetButtonStyle = () => {
             if (button) {
@@ -465,10 +467,15 @@ function debugLog(message) {
 // iOS Audio Unlock: Must be triggered by a user gesture.
 const unlockAudio = () => {
     debugLog('unlockAudio function called.'); // Log when the function itself is called
-    const context = new (window.AudioContext || window.webkitAudioContext)();
-    if (context.state === 'suspended') {
+    // Create AudioContext only if it doesn't exist
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        debugLog('AudioContext created.');
+    }
+
+    if (audioContext.state === 'suspended') {
         debugLog('AudioContext is suspended. Attempting to resume...');
-        context.resume().then(() => {
+        audioContext.resume().then(() => {
             debugLog('AudioContext resumed successfully.');
             // Once unlocked, we don't need this listener anymore.
             document.removeEventListener('click', unlockAudio);
@@ -847,6 +854,7 @@ function processRecordedAudio() {
     const audioElement = document.getElementById('recorded-audio');
     if (audioElement) {
         audioElement.src = audioUrl;
+        audioElement.playsInline = true; // Crucial for iOS playback
         debugLog('Audio element source set.');
     }
 
@@ -1065,7 +1073,8 @@ function getPhonemeImprovementTips(word) {
                     </div>
                 </div>
             </div>
-        `;
+        </div>
+    `;
 }
 
 // Display pronunciation results
@@ -1506,6 +1515,7 @@ window.playAllDialog = (button, dialogContent) => {
         if (currentIndex < dialogContent.length) {
             const item = dialogContent[currentIndex];
             const audio = new Audio(getAssetUrl(item.audio));
+            audio.playsInline = true; // Crucial for iOS
 
             if (button) {
                 button.classList.add('animate-pulse-ring');
