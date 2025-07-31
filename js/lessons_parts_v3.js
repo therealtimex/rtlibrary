@@ -804,15 +804,25 @@ async function initMicrophone() {
 
     } catch (error) {
         debugLog(`Microphone error: ${error.name} - ${error.message}`);
-        let errorMessage = 'Unable to access microphone. ';
+        const recordStatus = document.getElementById('record-status');
+        let userFriendlyMessage = 'Unable to access microphone. ';
+
         if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-            errorMessage += 'Please allow microphone permissions in your browser settings.';
+            userFriendlyMessage = 'Microphone access denied. Please enable microphone in your device/browser settings.';
         } else if (error.name === 'NotFoundError') {
-            errorMessage += 'No microphone found. Please connect a microphone and try again.';
+            userFriendlyMessage = 'No microphone found. Please connect a microphone and try again.';
         } else {
-            errorMessage += error.message || 'An unknown error occurred.';
+            userFriendlyMessage = 'Microphone access failed. Please ensure microphone permissions are enabled for this application in your device settings, then try again.';
         }
-        alert(errorMessage);
+
+        if (recordStatus) {
+            recordStatus.innerHTML = `
+                <span class="text-red-600 font-semibold">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    ${userFriendlyMessage}
+                </span>
+            `;
+        }
         return false;
     }
 }
