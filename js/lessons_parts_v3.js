@@ -697,8 +697,10 @@ function detectDevice() {
 
     const isIOS = /iPad|iPhone|iPod/.test(userAgent) ||
         (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isAndroid = /Android/.test(userAgent);
+    const isMobile = /Mobi|Android/i.test(userAgent) || isIOS;
     
-    return { isIOS };
+    return { isIOS, isAndroid, isMobile };
 }
 
 // Get a compatible MIME type for MediaRecorder
@@ -731,23 +733,73 @@ async function initMicrophone() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             throw new Error('getUserMedia is not supported in this browser.');
         }
-        if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-            throw new Error('Microphone access requires a secure connection (HTTPS or localhost).');
+        // Removed explicit secure connection check as WKWebView environment is confirmed to support getUserMedia
+        // if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        //     throw new Error('Microphone access requires a secure connection (HTTPS or localhost).');
+        // }
+
+        const deviceInfo = detectDevice();
+        let constraints;
+
+        if (deviceInfo.isIOS) {
+            // iOS-optimized constraints
+            constraints = {
+                audio: {
+                    sampleRate: { ideal: 44100, min: 22050 },
+                    channelCount: 1,
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true,
+                    latency: { ideal: 0.01 },
+                    volume: { ideal: 1.0 }
+                }
+            };
+            debugLog('Using iOS-optimized constraints.');
+        } else if (deviceInfo.isAndroid) {
+            // Android-optimized constraints
+            constraints = {
+                audio: {
+                    sampleRate: { ideal: 48000, min: 16000 },
+                    channelCount: 1,
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                }
+            };
+            debugLog('Using Android-optimized constraints.');
+        } else {
+            // Desktop constraints
+            constraints = {
+                audio: {
+                    sampleRate: { ideal: 48000, min: 16000 },
+                    channelCount: 1,
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true,
+                    latency: { ideal: 0.01 }
+                }
+            };
+            debugLog('Using Desktop-optimized constraints.');
         }
 
-        const constraints = {
-            audio: {
-                sampleRate: { ideal: 44100 },
-                channelCount: 1,
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true
-            }
-        };
-        debugLog('Requesting microphone with constraints:' + JSON.stringify(constraints));
-        
-        recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
-        debugLog('Microphone access granted.');
+        try {
+            debugLog('Requesting microphone with constraints:' + JSON.stringify(constraints));
+            recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
+            debugLog('Microphone access granted with optimized constraints.');
+        } catch (error) {
+            debugLog('Optimized constraints failed, trying basic constraints...');
+            // Fallback to basic constraints
+            constraints = {
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true
+                }
+            };
+            debugLog('Requesting microphone with basic constraints:' + JSON.stringify(constraints));
+            recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
+            debugLog('Microphone access granted with basic constraints.');
+        }
+
         return true;
 
     } catch (error) {
@@ -1073,8 +1125,7 @@ function getPhonemeImprovementTips(word) {
                     </div>
                 </div>
             </div>
-        </div>
-    `;
+        `;
 }
 
 // Display pronunciation results
