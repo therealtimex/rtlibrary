@@ -462,27 +462,34 @@ function debugLog(message) {
     console.log(message); // Keep console.log for browser dev tools
 }
 
+// iOS Audio Unlock: Must be triggered by a user gesture.
+const unlockAudio = () => {
+    debugLog('unlockAudio function called.'); // Log when the function itself is called
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    if (context.state === 'suspended') {
+        debugLog('AudioContext is suspended. Attempting to resume...');
+        context.resume().then(() => {
+            debugLog('AudioContext resumed successfully.');
+            // Once unlocked, we don't need this listener anymore.
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
+        }).catch(e => debugLog(`Failed to resume AudioContext: ${e.message}`));
+    } else {
+        debugLog('AudioContext is not suspended.');
+        document.removeEventListener('click', unlockAudio);
+        document.removeEventListener('touchstart', unlockAudio);
+    }
+};
+
+// Attach unlockAudio to document for initial user gesture
+// Use { once: true, passive: true } for better performance and single execution
+document.addEventListener('click', unlockAudio, { once: true, passive: true });
+document.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', function () {
-    // iOS Audio Unlock: Must be triggered by a user gesture.
-    const unlockAudio = () => {
-        const context = new (window.AudioContext || window.webkitAudioContext)();
-        if (context.state === 'suspended') {
-            context.resume().then(() => {
-                debugLog('AudioContext resumed successfully.');
-                // Once unlocked, we don't need this listener anymore.
-                document.body.removeEventListener('click', unlockAudio);
-                document.body.removeEventListener('touchstart', unlockAudio);
-            }).catch(e => debugLog(`Failed to resume AudioContext: ${e.message}`));
-        } else {
-            debugLog('AudioContext is not suspended.');
-            document.body.removeEventListener('click', unlockAudio);
-            document.body.removeEventListener('touchstart', unlockAudio);
-        }
-    };
-
-    document.body.addEventListener('click', unlockAudio);
-    document.body.addEventListener('touchstart', unlockAudio);
+    debugLog('DOMContentLoaded fired.'); // Log when DOMContentLoaded fires
 
     document.getElementById('description-modal').addEventListener('click', function (e) {
         if (e.target === this) {
@@ -1622,7 +1629,7 @@ function renderQuizActivity(container, content) {
 
                         <div class="max-w-lg mx-auto space-y-3 mb-8">
                             ${currentQuestion.options.map((option, index) => `
-                                <button onclick="selectQuizAnswer('${option.replace(/'/g, "\\'")}', ${window.quizState.currentQuestionIndex})" 
+                                <button onclick="selectQuizAnswer('${option.replace(/'/g, "\'")}', ${window.quizState.currentQuestionIndex})" 
                                         class="quiz-option w-full p-4 border-2 border-gray-200 rounded-xl text-left transition-all duration-300 hover:border-orange-500 hover:bg-orange-50 hover:-translate-y-1 ${window.quizState.selectedAnswer === option ? 'border-orange-500 bg-orange-500 text-white' : ''
             } ${window.quizState.showResult ? (
                 option === currentQuestion.correct_answer ? 'border-green-500 bg-green-500 text-white' :
@@ -1673,7 +1680,7 @@ function renderQuizActivity(container, content) {
                         ${!window.quizState.showResult ? `
                             ${window.quizState.selectedAnswer ? `
                                 <div class="text-center mb-12">
-                                    <button onclick="checkQuizAnswer('${currentQuestion.correct_answer.replace(/'/g, "\\'")}', ${window.quizState.currentQuestionIndex})" 
+                                    <button onclick="checkQuizAnswer('${currentQuestion.correct_answer.replace(/'/g, "\'")}', ${window.quizState.currentQuestionIndex})" 
                                             class="group relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/30 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden animate-slide-in">
                                         <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                         <div class="relative flex items-center gap-2">
