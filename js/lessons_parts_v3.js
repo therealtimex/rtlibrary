@@ -22,18 +22,18 @@ let recordedBlob = null;
 let recordingStream = null;
 let audioContext = null; // Declare audioContext globally
 
-// Voice Activity Detection variables
-let analyser = null;
-let dataArray = null;
-let initialSilenceTimer = null;
-let endingSilenceTimer = null;
+// Mobile Recording State
 let hasDetectedVoice = false;
-let voiceCheckInterval = null;
-let voiceDetectionTimer = null;
-let silenceTimer = null;
-const VOICE_THRESHOLD = 51; // Adjustable threshold for voice detection
-const INITIAL_SILENCE_TIMEOUT = 3000; // 3s to wait for initial voice
-const ENDING_SILENCE_TIMEOUT = 3000; // 3s of silence after voice to stop
+let recordingTimer = null;
+const MOBILE_RECORDING_TIMEOUT = 3000; // 8 seconds timeout for mobile
+
+// Clear recording timer
+function clearRecordingTimer() {
+    if (recordingTimer) {
+        clearTimeout(recordingTimer);
+        recordingTimer = null;
+    }
+}
 
 
 
@@ -736,7 +736,7 @@ function startVoiceActivityDetection() {
 
     // Reset state
     hasDetectedVoice = false;
-    clearAllVoiceTimers();
+  
 
     try {
         // Create audio context if not exists
@@ -827,40 +827,9 @@ function startEndingSilenceTimer() {
     }, ENDING_SILENCE_TIMEOUT);
 }
 
-// Clear all voice detection timers
-function clearAllVoiceTimers() {
-    if (initialSilenceTimer) {
-        clearTimeout(initialSilenceTimer);
-        initialSilenceTimer = null;
-    }
-    if (endingSilenceTimer) {
-        clearTimeout(endingSilenceTimer);
-        endingSilenceTimer = null;
-    }
-    if (voiceCheckInterval) {
-        clearInterval(voiceCheckInterval);
-        voiceCheckInterval = null;
-    }
-}
+// This function has been replaced by clearRecordingTimer for mobile-only usage
 
-// Stop recording with specific reason
-function stopRecordingWithReason(reason) {
-    debugLog(`Stopping recording with reason: ${reason}`);
-
-    clearAllVoiceTimers();
-
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
-    }
-
-    // Handle different stop reasons
-    if (reason === 'no_voice') {
-        // Will be handled in processRecordedAudio when audioChunks is empty
-        debugLog('Recording stopped due to no voice detected.');
-    } else if (reason === 'silence_after_voice') {
-        debugLog('Recording stopped due to silence after voice.');
-    }
-}
+// Function removed - not needed for mobile-only simple recording
 
 // Get a compatible MIME type for MediaRecorder
 function getCompatibleMimeType() {
@@ -1009,7 +978,7 @@ async function toggleRecording() {
     debugLog('toggleRecording called. Current state: ', isRecording ? 'recording' : 'not recording');
     if (isRecording) {
         // --- Stop Recording ---
-        clearAllVoiceTimers(); // Clean up voice detection timers
+      
         if (mediaRecorder && mediaRecorder.state === 'recording') {
             mediaRecorder.stop();
             debugLog('Recording stopped by user.');
@@ -1070,7 +1039,7 @@ async function toggleRecording() {
 function processRecordedAudio() {
     isRecording = false;
     updateRecordingUI(false);
-    clearAllVoiceTimers(); // Clean up timers
+
     debugLog('processRecordedAudio called.');
 
     if (audioChunks.length === 0 || !hasDetectedVoice) {
@@ -1188,6 +1157,20 @@ function savePronunciationState(data) {
 
 // Voice Activity Detection
 function startVoiceActivityDetection() {
+    // Mobile fallback: Skip voice detection on mobile devices
+    const deviceInfo = detectDevice();
+    if (deviceInfo.isMobile) {
+        debugLog('Mobile detected: Skipping voice detection, using simple timeout');
+        hasDetectedVoice = true; // Assume voice will be detected on mobile
+        setTimeout(() => {
+            if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
+                debugLog('Mobile: Auto-stopping recording after 10 seconds.');
+                mediaRecorder.stop();
+            }
+        }, 10000); // 10 seconds timeout for mobile
+        return;
+    }
+
     if (!recordingStream || !audioContext) {
         debugLog('Cannot start voice detection: missing stream or context');
         return;
@@ -1320,7 +1303,7 @@ function cleanupVoiceDetection() {
 function processRecordedAudio() {
     isRecording = false;
     updateRecordingUI(false);
-    clearAllVoiceTimers(); // Clean up timers
+
     debugLog('processRecordedAudio called.');
 
     if (audioChunks.length === 0) {
@@ -1387,7 +1370,7 @@ async function toggleRecording() {
     debugLog('toggleRecording called. Current state: ', isRecording ? 'recording' : 'not recording');
     if (isRecording) {
         // --- Stop Recording ---
-        clearAllVoiceTimers(); // Clean up voice detection timers
+     
         if (mediaRecorder && mediaRecorder.state === 'recording') {
             mediaRecorder.stop();
             debugLog('Recording stopped by user.');
@@ -1448,7 +1431,7 @@ async function toggleRecording() {
 function processRecordedAudio() {
     isRecording = false;
     updateRecordingUI(false);
-    clearAllVoiceTimers(); // Clean up timers
+
     debugLog('processRecordedAudio called.');
 
     if (audioChunks.length === 0 || !hasDetectedVoice) {
