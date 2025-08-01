@@ -959,7 +959,7 @@ function renderVocabularyActivity(container, content) {
                             `).join('')}
                         </div>
 
-                        <div class="flex justify-center gap-2 sm:gap-4 mb-16 sm:mb-20">
+                        <div class="flex justify-center gap-2 sm:gap-4 mb-4 sm:mb-6">
                             <button onclick="prevWord()" ${currentWordIndex === 0 ? 'disabled' : ''} 
                                     class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold border border-gray-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
                                 <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
@@ -1321,20 +1321,11 @@ function updateRecordingUI(isRec) {
 
 // Save pronunciation state for current word
 function savePronunciationState(data) {
-    if (!currentLessonId) return;
-
-    const currentActivity = learningActivities[currentActivityIndex];
-    if (!currentActivity || currentActivity.type !== 'pronunciation') return;
-
-    const wordId = `${currentLessonId}_${currentActivityIndex}_${currentWordIndex}`;
-
-    if (!pronunciationState[wordId]) {
-        pronunciationState[wordId] = {};
-    }
-
-    Object.assign(pronunciationState[wordId], data);
+    const wordId = `${currentActivityIndex}_${currentWordIndex}`;
+    pronunciationState[wordId] = data;
     debugLog(`Pronunciation state saved for word: ${wordId}`);
 }
+
 
 
 
@@ -1699,8 +1690,6 @@ function renderPronunciationActivity(container, content) {
     currentWordIndex = 0;
     studiedWords.clear();
 
-    // State persists across all navigation - only reset on manual restart
-
     const renderPronunciation = () => {
         const word = content.practice_words[currentWordIndex];
 
@@ -1829,20 +1818,14 @@ function renderPronunciationActivity(container, content) {
                 </div>
             </div>
         `;
+        restorePronunciationState();
     };
 
-    renderPronunciation();
-
-    // Restore state if exists for current word
-    restorePronunciationState();
-
-    // Navigation functions
     window.nextPronunciation = () => {
         studiedWords.add(currentWordIndex);
         if (currentWordIndex < content.practice_words.length - 1) {
             currentWordIndex++;
             renderPronunciation();
-            restorePronunciationState();
         } else {
             markActivityCompleted();
         }
@@ -1852,14 +1835,17 @@ function renderPronunciationActivity(container, content) {
         if (currentWordIndex > 0) {
             currentWordIndex--;
             renderPronunciation();
-            restorePronunciationState();
         }
     };
+
+    renderPronunciation();
 }
+
 
 // Restore pronunciation state for current word
 function restorePronunciationState() {
-    const wordState = pronunciationState[currentWordIndex];
+    const wordId = `${currentActivityIndex}_${currentWordIndex}`;
+    const wordState = pronunciationState[wordId];
     if (!wordState) return;
 
     // Restore recorded audio if exists
@@ -1931,7 +1917,7 @@ function renderDialogActivity(container, content) {
                         </div>
                     </div>
                     
-                    <div class="text-center mt-8 mb-20">
+                    <div class="text-center mt-8 mb-6">
                         <button onclick="markActivityCompleted()" class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                             <i class="fas fa-check-circle text-xs sm:text-sm"></i>
                             <span class="hidden sm:inline">Complete Dialog</span>
@@ -2171,7 +2157,7 @@ function renderQuizActivity(container, content) {
                         ` : `
                             <!-- Navigation after showing result -->
                             ${isMultipleQuestions ? `
-                                <div class="flex justify-center gap-2 sm:gap-4 mb-16 sm:mb-20">
+                                <div class="flex justify-center gap-2 sm:gap-4 mb-4 sm:mb-6">
                                     <button onclick="prevQuizQuestion()" ${window.quizState.currentQuestionIndex === 0 ? 'disabled' : ''} 
                                             class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold border border-gray-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
                                         <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
@@ -2297,7 +2283,7 @@ function showCourseCompletion() {
     const contentDiv = document.getElementById('lesson-content');
     contentDiv.innerHTML = `
         <div class="animate-slide-in">
-            <div class="bg-white rounded-3xl shadow-lg p-8 text-center mb-24">
+            <div class="bg-white rounded-3xl shadow-lg p-8 text-center mb-6">
                 <div class="text-6xl mb-4">🎉</div>
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">Congratulations!</h2>
                 <p class="text-lg text-gray-600 mb-6">You have successfully completed all learning activities!</p>
