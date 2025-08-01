@@ -1889,7 +1889,7 @@ function displayResults(result) {
                     <i class="fas fa-quote-left text-gray-400 mr-2"></i>
                     <strong class="text-gray-700">You said:</strong>
                 </div>
-                <p class="text-base sm:text-lg text-gray-800 italic">"${result.recognized_text}"</p>
+                <p class="text-base sm:text-lg text-gray-800 italic">"${result.actual_spoken_text}"</p>
             </div>
             
             <!-- Interactive Word Breakdown -->
