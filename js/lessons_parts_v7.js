@@ -2733,8 +2733,11 @@ function renderProgressBar() {
                 stepContainer.className += ' animate-pulse';
             }
         } else if (isVocab) {
-            // Vocabulary: no bar, but aligned with others
-            stepContainer.className = 'relative transition-all duration-300 cursor-pointer hover:bg-gray-300 px-4';
+            // Vocabulary: no bar, but aligned with others.
+            // Add h-1.5 to provide the same vertical layout context as other activities,
+            // but without flex-1 or a background color, so no visible bar is drawn.
+            // Use pr-4 to create space before the next item, but no pl-4 to avoid double-padding with Warmup.
+            stepContainer.className = 'relative h-1.5 transition-all duration-300 cursor-pointer pr-4';
             if (index === currentActivityIndex) {
                 stepContainer.className += ' animate-pulse';
             }
