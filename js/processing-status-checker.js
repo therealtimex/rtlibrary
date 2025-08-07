@@ -81,7 +81,7 @@ window.ProcessingStatusChecker = (function () {
       //         </div>
       //       `;
       mainWrapper.innerHTML = `
-              <div class="bg-theme-info text-white p-4 m-4 rounded-lg shadow-sm border border-white/10 relative overflow-hidden">
+              <div class="bg-theme-info text-white p-2 mb-4 mr-2 ml-2 rounded-lg shadow-sm border border-white/10 relative overflow-hidden">
                 <div class="flex items-center gap-3">
                     <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
                     <div class="flex-1 min-w-0">
