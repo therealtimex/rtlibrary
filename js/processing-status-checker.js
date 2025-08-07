@@ -69,16 +69,35 @@ window.ProcessingStatusChecker = (function () {
 
       console.log("🎨 DEBUG: Rendering processing message:", message);
       mainWrapper.className = "p-2 md:p-4";
+      // mainWrapper.innerHTML = `
+      //         <div class="bg-theme-accent text-white p-3 text-xs rounded-lg shadow-lg flex flex-col">
+      //           <div class="text-left">
+      //             <div>Your submission has been recorded and is being processed.</div>
+      //             <div class="mt-1 opacity-80">${message}</div>
+      //           </div>
+      //           <div class="flex justify-end mt-2">
+      //               <button id="processing-status-close-btn" class="px-3 py-1 bg-white/10 border border-white/30 rounded hover:bg-white/20 text-xs">Dismiss</button>
+      //           </div>
+      //         </div>
+      //       `;
       mainWrapper.innerHTML = `
-              <div class="bg-theme-accent text-white p-3 text-xs rounded-lg shadow-lg flex flex-col">
-                <div class="text-left">
-                  <div>Your submission has been recorded and is being processed.</div>
-                  <div class="mt-1 opacity-80">${message}</div>
+              <div class="bg-theme-info text-white p-4 m-4 rounded-lg shadow-sm border border-white/10 relative overflow-hidden">
+                <div class="flex items-center gap-3">
+                    <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-medium leading-tight">
+                            All set! We're on it
+                        </div>
+                        <div class="text-xs text-white/85 leading-tight mt-0.5 truncate">
+                            ${message}
+                        </div>
+                    </div>
+                    <button id="processing-status-close-btn" 
+                            class="w-6 h-6 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors duration-200 flex-shrink-0">
+                        <i class="fas fa-times text-xs text-white/90"></i>
+                    </button>
                 </div>
-                <div class="flex justify-end mt-2">
-                    <button id="processing-status-close-btn" class="px-3 py-1 bg-white/10 border border-white/30 rounded hover:bg-white/20 text-xs">Dismiss</button>
-                </div>
-              </div>
+            </div>
             `;
       document
         .getElementById("processing-status-close-btn")
