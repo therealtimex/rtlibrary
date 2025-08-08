@@ -291,6 +291,11 @@ function renderDialogActivity(container, content) {
         return;
     }
 
+    // Start tracking time for dialog activity
+    if (typeof dialogTimeTracker !== 'undefined') {
+        dialogTimeTracker.startTracking();
+    }
+
     container.innerHTML = `
         <div class="animate-slide-in">
             <div class="bg-white rounded-3xl shadow-lg mb-4 overflow-hidden">
@@ -312,7 +317,7 @@ function renderDialogActivity(container, content) {
                                     <div class="${line.speaker === 'A' ? 'bg-blue-50 border-blue-200' : 'bg-green-50 border-green-200'} rounded-2xl p-3 sm:p-4 border">
                                         <p class="text-sm sm:text-base text-gray-800 mb-2">${line.text}</p>
                                         <div class="flex items-center gap-2">
-                                            <button onclick="playAudioFile('${getAssetUrl(line.audio)}', this)" 
+                                            <button onclick="playAndTrackDialogLine('${getAssetUrl(line.audio)}', ${index}, this)" 
                                                     class="btn-audio group w-6 h-6 sm:w-8 sm:h-8 ${line.speaker === 'A' ? 'bg-blue-500 hover:bg-blue-600' : 'bg-green-500 hover:bg-green-600'} rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md hover:scale-110"
                                                     title="Play audio">
                                                 <i class="fas fa-play text-white text-xs group-hover:scale-110 transition-transform duration-200"></i>
@@ -349,8 +354,19 @@ function renderDialogActivity(container, content) {
         if (isDialogSequencePlaying) {
             stopDialogSequence();
         } else {
+            // Log 'play_all' event
+            if (typeof learningAnalytics !== 'undefined' && learningAnalytics.logDialogEvent) {
+                learningAnalytics.logDialogEvent(0, 'dialog_play_all', { lines_count: content.dialog.length });
+            }
             startDialogSequence(content.dialog);
         }
+    };
+
+    window.playAndTrackDialogLine = (audioUrl, lineIndex, buttonElement) => {
+        if (typeof learningAnalytics !== 'undefined' && learningAnalytics.logDialogEvent) {
+            learningAnalytics.logDialogEvent(lineIndex + 1, 'dialog_listen', {});
+        }
+        playAudioFile(audioUrl, buttonElement, false); // Pass false to prevent vocab tracking
     };
 
     function startDialogSequence(dialogLines) {
@@ -446,8 +462,15 @@ function renderQuizActivity(container, content) {
             checked: {}, // Store if question has been checked
             showResult: false, // This might still be useful for immediate feedback
             questions: questions, // Set the questions for the first time
-            correctAnswers: 0
+            correctAnswers: 0,
+            questionStartTimes: {}, // Track when each question was first viewed
+            questionViewLogged: {} // Track if question_viewed event was logged
         };
+    }
+
+    // Start tracking time for quiz activity
+    if (typeof quizTimeTracker !== 'undefined' && !quizTimeTracker.startTime) {
+        quizTimeTracker.startTracking();
     }
 
     const renderQuiz = () => {
@@ -457,6 +480,29 @@ function renderQuizActivity(container, content) {
         const isMultipleQuestions = window.quizState.questions.length > 1;
         const selectedAnswerForCurrentQuestion = window.quizState.answers[questionIndex];
         const isCheckedForCurrentQuestion = window.quizState.checked[questionIndex];
+
+        // 📊 LOG QUESTION VIEWED EVENT: Track when question is first viewed
+        if (!window.quizState.questionViewLogged[questionIndex]) {
+            window.quizState.questionStartTimes[questionIndex] = Date.now();
+            window.quizState.questionViewLogged[questionIndex] = true;
+            
+            // Log question_viewed event
+            if (typeof learningAnalytics !== 'undefined' && learningAnalytics.logQuizQuestionEvent) {
+                learningAnalytics.logQuizQuestionEvent({
+                    question_number: questionIndex + 1,
+                    question_text: currentQuestion.question,
+                    question_type: 'multiple_choice',
+                    user_answer: null,
+                    correct_answer: currentQuestion.correct_answer,
+                    is_correct: false,
+                    event_type: 'question_viewed',
+                    time_spent: 0
+                }).catch(error => {
+                    console.error('❌ Failed to log question_viewed event:', error);
+                });
+                console.log('📊 Logged question_viewed for question:', questionIndex + 1);
+            }
+        }
 
 
         container.innerHTML = `
@@ -599,8 +645,33 @@ window.selectQuizAnswer = (answer, buttonElement, questionIndex) => {
     // If the question has already been checked, do not allow changing the answer
     if (window.quizState.checked[questionIndex]) return;
 
+    // Check if this is an answer change
+    const previousAnswer = window.quizState.answers[questionIndex];
+    const isAnswerChange = previousAnswer && previousAnswer !== answer;
+
     // Update state for the specific question
     window.quizState.answers[questionIndex] = answer;
+
+    // 📊 LOG ANSWER CHANGE EVENT: Track when user changes their answer
+    if (isAnswerChange && typeof learningAnalytics !== 'undefined' && learningAnalytics.logQuizQuestionEvent) {
+        const currentQuestion = window.quizState.questions[questionIndex];
+        const timeSpent = window.quizState.questionStartTimes[questionIndex] ? 
+            Math.round((Date.now() - window.quizState.questionStartTimes[questionIndex]) / 1000) : 0;
+
+        learningAnalytics.logQuizQuestionEvent({
+            question_number: questionIndex + 1,
+            question_text: currentQuestion.question,
+            question_type: 'multiple_choice',
+            user_answer: answer,
+            correct_answer: currentQuestion.correct_answer,
+            is_correct: answer === currentQuestion.correct_answer,
+            event_type: 'answer_changed',
+            time_spent: timeSpent
+        }).catch(error => {
+            console.error('❌ Failed to log answer_changed event:', error);
+        });
+        console.log('📊 Logged answer_changed for question:', questionIndex + 1, 'from:', previousAnswer, 'to:', answer);
+    }
 
     // --- Efficient UI Update ---
     // 1. Remove 'selected' style from all options for the current question
@@ -631,8 +702,40 @@ window.selectQuizAnswer = (answer, buttonElement, questionIndex) => {
 window.checkQuizAnswer = (correctAnswer, questionIndex) => {
     window.quizState.checked[questionIndex] = true; // Mark this question as checked
     const selectedAnswer = window.quizState.answers[questionIndex]; // Get the selected answer for this question
+    const currentQuestion = window.quizState.questions[questionIndex];
+    const isCorrect = (selectedAnswer === correctAnswer);
 
-    if (selectedAnswer === correctAnswer) {
+    // Calculate time spent on this question
+    const timeSpent = window.quizState.questionStartTimes[questionIndex] ? 
+        Math.round((Date.now() - window.quizState.questionStartTimes[questionIndex]) / 1000) : 0;
+
+    // 📊 LOG QUESTION ANSWERED EVENT: Track final answer submission
+    if (typeof learningAnalytics !== 'undefined' && learningAnalytics.logQuizQuestionEvent) {
+        learningAnalytics.logQuizQuestionEvent({
+            question_number: questionIndex + 1,
+            question_text: currentQuestion.question,
+            question_type: 'multiple_choice',
+            user_answer: selectedAnswer,
+            correct_answer: correctAnswer,
+            is_correct: isCorrect,
+            event_type: 'question_answered',
+            time_spent: timeSpent
+        }).catch(error => {
+            console.error('❌ Failed to log question_answered event:', error);
+        });
+        console.log('📊 Logged question_answered for question:', questionIndex + 1, 'Answer:', selectedAnswer, 'Correct:', isCorrect, 'Time:', timeSpent + 's');
+    }
+
+    // Update state for the specific question with detailed answer
+    window.quizState.answers[questionIndex] = {
+        question_id: currentQuestion.id || questionIndex, // Use question.id if available, else index
+        question_text: currentQuestion.question,
+        selected_answer: selectedAnswer,
+        correct_answer: correctAnswer,
+        is_correct: isCorrect
+    };
+
+    if (isCorrect) {
         window.quizState.correctAnswers++;
         playTextToSpeech('correct');
         triggerConfetti();
@@ -672,7 +775,29 @@ window.prevQuizQuestion = () => {
     }
 };
 
-window.completeQuiz = () => {
+window.completeQuiz = async () => {
+    // End tracking time
+    const spentTime = await quizTimeTracker.endTracking();
+
+    // Calculate results
+    const totalQuestions = window.quizState.questions.length;
+    const correctCount = window.quizState.correctAnswers;
+    const wrongCount = totalQuestions - correctCount;
+    const score = (correctCount / totalQuestions) * 100; // Percentage score
+
+    // Format answers for Supabase
+    const formattedAnswers = Object.values(window.quizState.answers);
+
+    // 📊 NOTE: Individual question events are already logged via logQuizQuestionEvent
+    // Quiz attempt summary will be handled by backend aggregation from user_quiz_events
+    console.log('📊 Quiz completed - Individual question events logged. Summary:', { 
+        score, 
+        totalQuestions, 
+        correctCount, 
+        wrongCount, 
+        spentTime 
+    });
+
     // Mark the activity as completed, but persist the state
     // so the user can review their answers.
     // The state will be cleared by restartCourse().
@@ -881,7 +1006,20 @@ window.markActivityCompleted = () => {
     //     vocabularyTimeTracker.endTracking();
     // }
 
+    // End tracking for dialog activity if applicable
+    if (currentActivity && currentActivity.type === 'dialog' && typeof dialogTimeTracker !== 'undefined') {
+        dialogTimeTracker.endTracking();
+    }
+
     completedActivities.add(currentActivity.id || currentActivityIndex);
+
+    // 📊 UPDATE SESSION PROGRESS: Update session with activity completion
+    if (typeof learningAnalytics !== 'undefined' && learningAnalytics.currentSessionId) {
+        console.log('📊 Updating session progress for completed activity:', currentActivity.type);
+        learningAnalytics.updateSessionProgress().catch(error => {
+            console.error('❌ Failed to update session progress:', error);
+        });
+    }
 
     // Call progress callback if provided
     if (typeof progressCallback === 'function') {
@@ -909,9 +1047,22 @@ window.markActivityCompleted = () => {
 
 window.nextActivity = () => {
     console.log('nextActivity called');
+    
+    // 📊 UPDATE SESSION ACTIVITY: Reset timeout timer on navigation
+    if (typeof learningAnalytics !== 'undefined' && learningAnalytics.currentSessionId) {
+        learningAnalytics.updateSessionProgress().catch(error => {
+            console.error('❌ Failed to update session on next activity:', error);
+        });
+    }
+    
     // End tracking for the current word before moving to the next activity
     if (learningActivities[currentActivityIndex] && learningActivities[currentActivityIndex].type === 'vocabulary') {
         vocabularyTimeTracker.endTracking();
+    }
+
+    // End tracking for dialog activity if applicable
+    if (learningActivities[currentActivityIndex] && learningActivities[currentActivityIndex].type === 'dialog' && typeof dialogTimeTracker !== 'undefined') {
+        dialogTimeTracker.endTracking();
     }
 
     if (currentActivityIndex < learningActivities.length - 1) {
@@ -924,6 +1075,18 @@ window.nextActivity = () => {
 };
 
 window.prevActivity = () => {
+    // 📊 UPDATE SESSION ACTIVITY: Reset timeout timer on navigation
+    if (typeof learningAnalytics !== 'undefined' && learningAnalytics.currentSessionId) {
+        learningAnalytics.updateSessionProgress().catch(error => {
+            console.error('❌ Failed to update session on prev activity:', error);
+        });
+    }
+    
+    // End tracking for dialog activity if applicable
+    if (learningActivities[currentActivityIndex] && learningActivities[currentActivityIndex].type === 'dialog' && typeof dialogTimeTracker !== 'undefined') {
+        dialogTimeTracker.endTracking();
+    }
+
     if (currentActivityIndex > 0) {
         showActivity(currentActivityIndex - 1);
     }

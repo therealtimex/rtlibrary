@@ -389,6 +389,14 @@ async function initMicrophone() {
 // Toggle recording function (Universal)
 async function toggleRecording() {
     debugLog('toggleRecording called. Current state: ', isRecording ? 'recording' : 'not recording');
+    
+    // 📊 UPDATE SESSION ACTIVITY: Reset timeout timer on recording interaction
+    if (typeof learningAnalytics !== 'undefined' && learningAnalytics.currentSessionId) {
+        learningAnalytics.updateSessionProgress().catch(error => {
+            console.error('❌ Failed to update session on recording:', error);
+        });
+    }
+    
     if (isRecording) {
         handleManualStop();
         if (mediaRecorder && mediaRecorder.state === 'recording') {
@@ -466,6 +474,80 @@ function cancelRecording() {
     // cleanupVoiceDetection(); // This function was not defined in the original code
 }
 
+/**
+ * Uploads an audio blob to Supabase Storage.
+ * @param {Blob} blob The audio blob to upload.
+ * @param {string} word The word being pronounced, for filename.
+ * @returns {Promise<string|null>} The public URL of the uploaded file or null on error.
+ */
+async function uploadAudioToSupabase(blob, word) {
+    debugLog(`Attempting to upload audio for word: ${word}`);
+    if (!blob) {
+        debugLog('Upload failed: Blob is null.');
+        return null;
+    }
+
+    // Ensure learningAnalytics is available to get context
+    if (typeof learningAnalytics === 'undefined' || !learningAnalytics.isInitialized) {
+        debugLog('Upload failed: LearningAnalytics not initialized.');
+        return null;
+    }
+
+    const analyticsState = learningAnalytics.getState();
+    const username = analyticsState.currentUsername;
+    const lessonId = analyticsState.currentLessonId;
+    const lessonPartId = analyticsState.currentLessonPartId; // Get lesson_part_id
+
+    if (!username || !lessonId || !lessonPartId) {
+        debugLog(`Upload failed: Missing context - username: ${username}, lessonId: ${lessonId}, lessonPartId: ${lessonPartId}`);
+        return null;
+    }
+
+    const timestamp = Date.now();
+    const fileExtension = (blob.type.split('/')[1] || 'webm').split(';')[0];
+    // New path structure
+    const filePath = `${username}/${lessonId}/${lessonPartId}/${word}_${timestamp}.${fileExtension}`;
+    // New bucket name
+    const bucketName = 'app_lang_assets_data';
+
+    try {
+        debugLog(`Uploading to Supabase Storage: bucket='${bucketName}', path='${filePath}'`);
+
+        // Use the globally available Data.supabaseClient
+        const { data, error } = await Data.supabaseClient
+            .storage
+            .from(bucketName)
+            .upload(filePath, blob, {
+                cacheControl: '3600',
+                upsert: false,
+                contentType: blob.type
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        // Get the public URL
+        const { data: urlData } = Data.supabaseClient
+            .storage
+            .from(bucketName)
+            .getPublicUrl(data.path);
+
+        if (urlData && urlData.publicUrl) {
+            debugLog(`Upload successful. Public URL: ${urlData.publicUrl}`);
+            return urlData.publicUrl;
+        } else {
+            debugLog('Upload succeeded, but failed to get public URL.');
+            return null;
+        }
+
+    } catch (error) {
+        debugLog(`Supabase upload error: ${error.message}`);
+        // Don't show alert to user, just log it
+        return null;
+    }
+}
+
 // Analyze audio with backend
 async function analyzeAudio() {
     debugLog('analyzeAudio called.');
@@ -518,6 +600,29 @@ async function analyzeAudio() {
 
         const result = await response.json();
         debugLog('API call successful. Displaying results.');
+
+        // --- Start Integration: Upload and Save Attempt ---
+        if (recordedBlob) {
+            const audioUrl = await uploadAudioToSupabase(recordedBlob, referenceText);
+
+            if (audioUrl && typeof learningAnalytics !== 'undefined') {
+                const currentActivity = learningActivities[currentActivityIndex];
+                const practiceWord = currentActivity.content.practice_words[currentWordIndex];
+
+                learningAnalytics.savePronunciationAttempt({
+                    word: referenceText,
+                    phonetic: practiceWord ? practiceWord.phonetic : null,
+                    audio_url: audioUrl,
+                    feedback: result // The full JSON from the analysis API
+                });
+            } else {
+                debugLog('Skipping pronunciation attempt save: audioUrl or analytics missing.');
+            }
+        } else {
+            debugLog('Skipping pronunciation attempt save: recordedBlob is missing.');
+        }
+        // --- End Integration ---
+
         displayResults(result);
 
     } catch (error) {

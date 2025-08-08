@@ -50,93 +50,13 @@ function detectDevice() {
     };
 }
 
-// Get a compatible MIME type for MediaRecorder
-function getCompatibleMimeType() {
-    const { isIOS } = detectDevice();
-    // iOS prefers mp4, other platforms work well with webm
-    if (isIOS) {
-        if (MediaRecorder.isTypeSupported('audio/mp4')) {
-            return 'audio/mp4';
-        }
-    }
 
-    // Try webm first (better compression)
-    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-        return 'audio/webm;codecs=opus';
-    }
-    if (MediaRecorder.isTypeSupported('audio/webm')) {
-        return 'audio/webm';
-    }
 
-    // Fallback to mp4
-    if (MediaRecorder.isTypeSupported('audio/mp4')) {
-        return 'audio/mp4';
-    }
 
-    // Last resort
-    return 'audio/wav';
-}
 
-// Check if recorded audio is valid using hybrid approach
-function isValidAudioRecording(blob, startTime, manualStop = false) {
-    // Calculate recording duration
-    const recordingDuration = (Date.now() - startTime) / 1000; // in seconds
-    debugLog(`Recording duration: ${recordingDuration.toFixed(2)}s, Size: ${blob.size} bytes, Manual stop: ${manualStop}`);
 
-    // If user manually stopped, always accept (they know they spoke)
-    if (manualStop) {
-        debugLog('Manual stop detected - accepting recording');
-        return true;
-    }
 
-    // For auto-timeout, check based on duration and size ratio
-    if (recordingDuration < 3) {
-        // Short recording: just need minimum size
-        const MIN_SHORT_SIZE = 30000; // 30KB for < 3s
-        if (blob.size < MIN_SHORT_SIZE) {
-            debugLog(`Short recording too small: ${blob.size} bytes (minimum: ${MIN_SHORT_SIZE} bytes)`);
-            return false;
-        }
-    } else {
-        // For longer recordings, calculate a minimum size based on duration.
-        // Use a conservative floor of 10KB/s.
-        const MIN_BYTES_PER_SECOND = 10000;
-        const calculatedMinSize = MIN_BYTES_PER_SECOND * recordingDuration;
 
-        // We can also set an absolute minimum floor to avoid accepting very short, noisy clips that pass the ratio.
-        const MIN_TOTAL_SIZE = Math.max(30000, calculatedMinSize);
-
-        debugLog(`Total size: ${blob.size} bytes (calculated minimum: ${MIN_TOTAL_SIZE.toFixed(0)} bytes for ${recordingDuration.toFixed(2)}s)`);
-
-        if (blob.size < MIN_TOTAL_SIZE) {
-            debugLog(`Recording too small for meaningful speech: ${blob.size} bytes < ${MIN_TOTAL_SIZE.toFixed(0)} bytes`);
-            return false;
-        }
-    }
-
-    debugLog('Recording validation passed');
-    return true;
-}
-
-// Clear recording timer
-function clearRecordingTimer() {
-    if (recordingTimer) {
-        clearTimeout(recordingTimer);
-        recordingTimer = null;
-    }
-}
-
-// Get current audio level for voice detection
-function getCurrentAudioLevel() {
-    if (!analyser || !dataArray) return 0;
-
-    analyser.getByteFrequencyData(dataArray);
-    let sum = 0;
-    for (let i = 0; i < dataArray.length; i++) {
-        sum += dataArray[i];
-    }
-    return sum / dataArray.length;
-}
 
 // Set progress callback function
 function setProgressCallback(callback) {
@@ -145,31 +65,11 @@ function setProgressCallback(callback) {
     }
 }
 
-// Save pronunciation state for current word
-function savePronunciationState(data) {
-    const wordId = `${currentActivityIndex}_${currentWordIndex}`;
-    const existingState = pronunciationState[wordId] || {};
 
-    pronunciationState[wordId] = {
-        ...existingState,
-        ...data,
-        lastUpdated: new Date().toISOString()
-    };
 
-    debugLog(`Pronunciation state saved for word ${wordId}:`, pronunciationState[wordId]);
-}
 
-// Initialize voices
-function initVoices() {
-    if ('speechSynthesis' in window) {
-        speechSynthesis.getVoices();
-        speechSynthesis.onvoiceschanged = () => {
-            speechSynthesis.getVoices();
-        };
-    }
-}
 
-// Track vocabulary audio play events
+// Track vocabulary audio play events (only for vocabulary activity)
 function trackVocabularyAudioPlay(audioPath, button) {
     // Check if we're in vocabulary activity
     if (!learningAnalytics || currentActivityIndex === undefined) return;
@@ -177,14 +77,16 @@ function trackVocabularyAudioPlay(audioPath, button) {
     const currentActivity = learningActivities[currentActivityIndex];
     if (!currentActivity) return;
 
-    // Determine the word based on activity type
+    // Only log for vocabulary activity
+    if (currentActivity.type !== 'vocabulary') {
+        console.log('📊 Skipping audio tracking for non-vocabulary activity:', currentActivity.type);
+        return;
+    }
+
+    // Get the word from vocabulary activity
     let word = 'unknown_word';
-    if (currentActivity.type === 'vocabulary' && currentActivity.content && currentActivity.content.words && currentActivity.content.words[currentWordIndex]) {
+    if (currentActivity.content && currentActivity.content.words && currentActivity.content.words[currentWordIndex]) {
         word = currentActivity.content.words[currentWordIndex].word;
-    } else if (currentActivity.type === 'pronunciation' && currentActivity.content && currentActivity.content.practice_words && currentActivity.content.practice_words[currentWordIndex]) {
-        word = currentActivity.content.practice_words[currentWordIndex].word;
-    } else if (currentActivity.type === 'warmup' && currentActivity.content && currentActivity.content.title) {
-        word = currentActivity.content.title; // For warmup, log the title
     }
 
     // Track the audio play event using logAudioEvent
@@ -220,6 +122,7 @@ function loadLessonData(jsonData) {
                 id: 'warmup',
                 type: 'warmup',
                 order: 0,
+                lesson_id: originalWarmupData.lesson_id, // Preserve lesson_id
                 content: originalWarmupData.content
             });
         }
@@ -272,7 +175,6 @@ window.debugLog = debugLog;
 window.detectDevice = detectDevice;
 window.loadLessonData = loadLessonData;
 window.setProgressCallback = setProgressCallback;
-window.savePronunciationState = savePronunciationState;
 window.trackVocabularyAudioPlay = trackVocabularyAudioPlay;
 
 // Track viewed_meaning events

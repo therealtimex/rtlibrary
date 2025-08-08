@@ -1,19 +1,26 @@
 console.log('Loading audio.js...');
 
 // Audio functionality
-function playAudioFile(audioPath, button = null) {
+function playAudioFile(audioPath, button = null, trackVocab = true) {
     console.log('🎵 playAudioFile called:', {
         audioPath,
         buttonId: button ? button.id : 'no-id',
-        currentIsPlaying: isPlaying
+        currentIsPlaying: isPlaying,
+        trackVocab: trackVocab
     });
 
-    // 📊 Track vocabulary audio play events
-    // This function needs to be defined, likely in an analytics or activities file.
-    if (typeof trackVocabularyAudioPlay === 'function') {
+    // 📊 Track vocabulary audio play events ONLY if trackVocab is true
+    if (trackVocab && typeof trackVocabularyAudioPlay === 'function') {
         trackVocabularyAudioPlay(audioPath, button);
-    } else {
-        // console.warn('trackVocabularyAudioPlay function not found');
+    } else if (trackVocab) {
+        // console.warn('trackVocabularyAudioPlay function not found, but trackVocab was true');
+    }
+
+    // 📊 UPDATE SESSION ACTIVITY: Reset timeout timer on audio interaction
+    if (typeof learningAnalytics !== 'undefined' && learningAnalytics.currentSessionId) {
+        learningAnalytics.updateSessionProgress().catch(error => {
+            console.error('❌ Failed to update session on audio play:', error);
+        });
     }
 
     stopCurrentAudio();
@@ -206,37 +213,8 @@ function stopCurrentAudio() {
     }
 }
 
-// Reset UI of all audio buttons
-function resetAllAudioButtonsUI() {
-    document.querySelectorAll('.btn-audio, .control-button').forEach(btn => {
-        btn.classList.remove('animate-pulse-ring', 'animate-audio-playing');
-        const icon = btn.querySelector('i');
-        if (icon) {
-            if (btn.dataset.originalIcon) {
-                icon.className = btn.dataset.originalIcon;
-            } else {
-                // If no original icon is stored, infer it.
-                // This is a fallback, storing the original is better.
-                if (btn.id === 'play-all-dialog-btn') {
-                    icon.className = 'fas fa-volume-up';
-                } else {
-                    icon.className = 'fas fa-play';
-                }
-            }
-        }
-    });
-}
-// Modal audio playback
-function playModalAudio() {
-    // Get current warmup activity from learningActivities
-    const currentActivity = learningActivities[currentActivityIndex];
-    if (currentActivity && currentActivity.type === 'warmup') {
-        const button = document.getElementById('modal-audio-button');
-        const audioPath = safeGetAssetUrl(currentActivity.content.audio);
-        console.log('🎵 playModalAudio called, delegating to toggleAudioPlayback');
-        toggleAudioPlayback(audioPath, button);
-    }
-}
+
+
 
 // iOS Audio Unlock: Must be triggered by a user gesture.
 const unlockAudio = () => {
@@ -272,5 +250,4 @@ window.playTextToSpeech = playTextToSpeech;
 window.toggleAudioPlayback = toggleAudioPlayback;
 window.playWarmupAudio = playWarmupAudio;
 window.stopCurrentAudio = stopCurrentAudio;
-window.resetAllAudioButtonsUI = resetAllAudioButtonsUI;
 window.initVoices = initVoices;

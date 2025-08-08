@@ -130,3 +130,62 @@ let vocabularyTimeTracker = {
         console.log('📊 Tracking reset for vocabularyTimeTracker.');
     }
 };
+
+let dialogTimeTracker = {
+    startTime: null,
+
+    startTracking() {
+        this.startTime = new Date();
+        console.log('📊 Started tracking time for dialog at', this.startTime);
+    },
+
+    async endTracking() {
+        if (!this.startTime || !learningAnalytics) {
+            console.warn('⚠️ Dialog time tracking not started or analytics not available. Skipping log.');
+            return;
+        }
+
+        const endTime = new Date();
+        const duration = Math.round((endTime - this.startTime) / 1000); // seconds
+
+        console.log('📊 Ending tracking for dialog. Duration:', duration + 's');
+
+        if (typeof learningAnalytics !== 'undefined' && learningAnalytics.logDialogEvent) {
+            await learningAnalytics.logDialogEvent(0, 'spent_time', {
+                start_time: this.startTime.toISOString(),
+                end_time: endTime.toISOString(),
+                duration: duration
+            });
+            console.log('📊 logDialogEvent (spent_time) completed.');
+        } else {
+            console.warn('⚠️ learningAnalytics.logDialogEvent not available. Event not logged for dialog spent_time.');
+        }
+
+        this.startTime = null;
+        console.log('📊 Tracking reset for dialogTimeTracker.');
+    }
+};
+
+let quizTimeTracker = {
+    startTime: null,
+
+    startTracking() {
+        this.startTime = new Date();
+        console.log('📊 Started tracking time for quiz at', this.startTime);
+    },
+
+    async endTracking() {
+        if (!this.startTime || !learningAnalytics) {
+            console.warn('⚠️ Quiz time tracking not started or analytics not available. Skipping log.');
+            return 0;
+        }
+
+        const endTime = new Date();
+        const duration = Math.round((endTime - this.startTime) / 1000); // seconds
+
+        console.log('📊 Ending tracking for quiz. Duration:', duration + 's');
+
+        this.startTime = null;
+        return duration;
+    }
+};

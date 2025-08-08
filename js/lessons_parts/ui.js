@@ -445,24 +445,7 @@ function resetAllAudioButtonsUI() {
     });
 }
 
-// Show stored pronunciation results
-function showStoredResults() {
-    const wordId = `${currentActivityIndex}_${currentWordIndex}`;
-    const wordState = pronunciationState[wordId];
 
-    if (wordState && wordState.hasAnalysis && wordState.analysisResult) {
-        debugLog('Showing stored pronunciation results');
-        showPronunciationModal(wordState.analysisResult);
-
-        // Show View Results button
-        const viewResultsBtn = document.getElementById('view-results-btn');
-        if (viewResultsBtn) {
-            viewResultsBtn.classList.remove('hidden');
-        }
-    } else {
-        debugLog('No stored results found for current word');
-    }
-}
 
 // Progress dots and navigation buttons are now in activities.js
 // Show specific activity
@@ -498,33 +481,7 @@ function showActivity(index) {
     updateNavigationButtons();
 }
 
-// Render Activity Content
-function renderActivityContent(activity) {
-    const contentDiv = document.getElementById('lesson-content');
 
-    switch (activity.type) {
-        case 'warmup':
-            renderWarmupActivity(contentDiv, activity.content);
-            break;
-        case 'vocabulary':
-            renderVocabularyActivity(contentDiv, activity.content);
-            break;
-        case 'pronunciation':
-            renderPronunciationActivity(contentDiv, activity.content);
-            break;
-        case 'dialog':
-            renderDialogActivity(contentDiv, activity.content);
-            break;
-        case 'quiz':
-            renderQuizActivity(contentDiv, activity.content);
-            break;
-        case 'congratulations':
-            renderCongratulationsActivity(contentDiv, activity.content);
-            break;
-        default:
-            contentDiv.innerHTML = `<div class="text-center text-gray-500">Unknown activity type: ${activity.type}</div>`;
-    }
-}
 
 // Render Progress Bar
 // ==== FINAL PROGRESS BAR - VOCAB HAS NO LEFT BAR ====
