@@ -18,6 +18,7 @@ class LearningAnalytics {
         this.sessionStartTime = null;
         this.lastActivityTime = null;
         this.sessionTimeoutTimer = null;
+        this.sessionEnded = false; // Prevent duplicate session ends
         this.SESSION_TIMEOUT_MINUTES = 15; // 15 minutes inactivity timeout
     }
 
@@ -111,6 +112,7 @@ class LearningAnalytics {
                 this.currentSessionId = existingSession.session_id;
                 this.sessionStartTime = new Date(existingSession.session_start_time);
                 this.lastActivityTime = new Date();
+                this.sessionEnded = false; // Reset session ended flag
                 
                 // Update last activity time when resuming session
                 await this.updateSessionRecord({
@@ -124,6 +126,7 @@ class LearningAnalytics {
                 this.currentSessionId = this.generateSessionId(this.currentUsername, lessonId);
                 this.sessionStartTime = new Date();
                 this.lastActivityTime = new Date();
+                this.sessionEnded = false; // Reset session ended flag for new session
                 
                 if (!this.currentSessionId) {
                     console.error('❌ Failed to generate session ID');
@@ -156,6 +159,13 @@ class LearningAnalytics {
                 return;
             }
             
+            // Prevent duplicate session ends
+            if (this.sessionEnded) {
+                console.log('ℹ️ Session already ended, ignoring duplicate call');
+                return;
+            }
+            
+            this.sessionEnded = true;
             console.log('🏁 Ending session:', this.currentSessionId, 'Reason:', reason);
             
             // Calculate final metrics
@@ -188,6 +198,7 @@ class LearningAnalytics {
             this.currentSessionId = null;
             this.sessionStartTime = null;
             this.lastActivityTime = null;
+            // Note: sessionEnded flag is kept true until next session starts
             
             console.log('✅ Session ended successfully. Duration:', totalDuration + 's', 'Progress:', `${completionPercentage}%`);
             
@@ -201,27 +212,33 @@ class LearningAnalytics {
      */
     async updateSessionProgress() {
         try {
-            if (!this.currentSessionId) {
-                // console.log('ℹ️ No active session to update');
+            if (!this.currentSessionId || this.sessionEnded) {
+                // Don't update if there's no session or it has already ended
                 return;
             }
             
-            // Update last activity time
+            console.log('💓 Heartbeat: Updating session progress with rolling end time...');
+
+            // Update last activity time locally
             this.lastActivityTime = new Date();
             
-            // Calculate progress (this will be enhanced when integrated with lesson flow)
-            const activitiesCompleted = completedActivities ? completedActivities.size : 0;
-            const totalActivities = learningActivities ? learningActivities.length : 0;
+            // Calculate current progress
+            const activitiesCompleted = (typeof completedActivities !== 'undefined') ? completedActivities.size : 0;
+            const totalActivities = (typeof learningActivities !== 'undefined' && learningActivities) ? learningActivities.length : 0;
             const completionPercentage = totalActivities > 0 ? 
                 Math.round((activitiesCompleted / totalActivities) * 100) : 0;
-            
-            // This function is now only for internal state updates, not DB updates.
-            // The DB update is handled by endSession.
-            
-            // console.log('📊 Session progress updated (local state):', {
-            //     activities: `${activitiesCompleted}/${totalActivities}`,
-            //     completion: `${completionPercentage}%`
-            // });
+
+            // Prepare payload for backend update
+            const updates = {
+                last_activity_time: this.lastActivityTime.toISOString(),
+                session_end_time: this.lastActivityTime.toISOString(), // Continuously update end time
+                activities_completed: activitiesCompleted,
+                completion_percentage: completionPercentage
+            };
+
+            // Update the session record in the database
+            // This makes the heartbeat actually update the backend
+            await this.updateSessionRecord(updates);
             
             // Restart timeout monitoring
             this.startTimeoutMonitoring();
