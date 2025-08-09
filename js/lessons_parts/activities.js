@@ -454,17 +454,19 @@ function renderQuizActivity(container, content) {
         return;
     }
 
-    // Initialize or reset quiz state
-    if (!window.quizState) {
+    // Initialize or reset quiz state only when starting a new quiz activity
+    const activityId = learningActivities[currentActivityIndex].id;
+    if (!window.quizState || window.quizState.activityId !== activityId) {
+        console.log('🚀 Initializing new quiz state for activity:', activityId);
         window.quizState = {
+            activityId: activityId, // Track which activity this state belongs to
             currentQuestionIndex: 0,
-            answers: {}, // Store answers for each question
-            checked: {}, // Store if question has been checked
-            showResult: false, // This might still be useful for immediate feedback
-            questions: questions, // Set the questions for the first time
+            answers: {},
+            checked: {},
+            questions: questions,
             correctAnswers: 0,
-            questionStartTimes: {}, // Track when each question was first viewed
-            questionViewLogged: {} // Track if question_viewed event was logged
+            questionStartTimes: {},
+            questionViewLogged: {}
         };
     }
 
@@ -480,28 +482,17 @@ function renderQuizActivity(container, content) {
         const isMultipleQuestions = window.quizState.questions.length > 1;
         const selectedAnswerForCurrentQuestion = window.quizState.answers[questionIndex];
         const isCheckedForCurrentQuestion = window.quizState.checked[questionIndex];
-
-        // 📊 LOG QUESTION VIEWED EVENT: Track when question is first viewed
-        if (!window.quizState.questionViewLogged[questionIndex]) {
-            window.quizState.questionStartTimes[questionIndex] = Date.now();
-            window.quizState.questionViewLogged[questionIndex] = true;
-            
-            // Log question_viewed event
-            if (typeof learningAnalytics !== 'undefined' && learningAnalytics.logQuizQuestionEvent) {
-                learningAnalytics.logQuizQuestionEvent({
-                    question_number: questionIndex + 1,
-                    question_text: currentQuestion.question,
-                    question_type: 'multiple_choice',
-                    user_answer: null,
-                    correct_answer: currentQuestion.correct_answer,
-                    is_correct: false,
-                    event_type: 'question_viewed',
-                    time_spent: 0
-                }).catch(error => {
-                    console.error('❌ Failed to log question_viewed event:', error);
-                });
-                console.log('📊 Logged question_viewed for question:', questionIndex + 1);
-            }
+        
+        // 🐛 DEBUG: Log render values
+        if (isCheckedForCurrentQuestion) {
+            console.log('🐛 DEBUG renderQuiz (after check):', {
+                questionIndex,
+                selectedAnswerForCurrentQuestion,
+                correctAnswer: currentQuestion.correct_answer,
+                isEqual: selectedAnswerForCurrentQuestion === currentQuestion.correct_answer,
+                selectedType: typeof selectedAnswerForCurrentQuestion,
+                correctType: typeof currentQuestion.correct_answer
+            });
         }
 
 
@@ -539,7 +530,7 @@ function renderQuizActivity(container, content) {
                             </div>
                         </div>
 
-                        <div class="max-w-lg mx-auto space-y-2 mb-6">
+                        <div class="quiz-options max-w-lg mx-auto space-y-2 mb-6">
                             ${currentQuestion.options.map((option, index) => {
                                 let buttonClass = `quiz-option w-full p-3 border-2 border-gray-200 rounded-lg text-left text-sm transition-all duration-300 hover:-translate-y-0.5`;
                                 if (selectedAnswerForCurrentQuestion === option) {
@@ -593,8 +584,10 @@ function renderQuizActivity(container, content) {
 
                         ${!isCheckedForCurrentQuestion ? `
                             <div id="check-answer-container" class="text-center mb-8 ${!selectedAnswerForCurrentQuestion ? 'hidden' : ''}">
-                                <button onclick="checkQuizAnswer('${currentQuestion.correct_answer.replace(/'/g, "'")}', ${questionIndex})" 
-                                        class="group relative inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-orange-500/30 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden text-sm">
+                                <button class="check-answer-btn group relative inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-orange-500/30 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden text-sm"
+                                        onclick="checkQuizAnswer('${currentQuestion.correct_answer}', ${questionIndex})"
+                                        data-correct-answer="${currentQuestion.correct_answer}" 
+                                        data-question-index="${questionIndex}">
                                     <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     <div class="relative flex items-center gap-1">
                                         <div class="w-4 h-4 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300">
@@ -645,33 +638,8 @@ window.selectQuizAnswer = (answer, buttonElement, questionIndex) => {
     // If the question has already been checked, do not allow changing the answer
     if (window.quizState.checked[questionIndex]) return;
 
-    // Check if this is an answer change
-    const previousAnswer = window.quizState.answers[questionIndex];
-    const isAnswerChange = previousAnswer && previousAnswer !== answer;
-
     // Update state for the specific question
     window.quizState.answers[questionIndex] = answer;
-
-    // 📊 LOG ANSWER CHANGE EVENT: Track when user changes their answer
-    if (isAnswerChange && typeof learningAnalytics !== 'undefined' && learningAnalytics.logQuizQuestionEvent) {
-        const currentQuestion = window.quizState.questions[questionIndex];
-        const timeSpent = window.quizState.questionStartTimes[questionIndex] ? 
-            Math.round((Date.now() - window.quizState.questionStartTimes[questionIndex]) / 1000) : 0;
-
-        learningAnalytics.logQuizQuestionEvent({
-            question_number: questionIndex + 1,
-            question_text: currentQuestion.question,
-            question_type: 'multiple_choice',
-            user_answer: answer,
-            correct_answer: currentQuestion.correct_answer,
-            is_correct: answer === currentQuestion.correct_answer,
-            event_type: 'answer_changed',
-            time_spent: timeSpent
-        }).catch(error => {
-            console.error('❌ Failed to log answer_changed event:', error);
-        });
-        console.log('📊 Logged answer_changed for question:', questionIndex + 1, 'from:', previousAnswer, 'to:', answer);
-    }
 
     // --- Efficient UI Update ---
     // 1. Remove 'selected' style from all options for the current question
@@ -699,11 +667,51 @@ window.selectQuizAnswer = (answer, buttonElement, questionIndex) => {
     }
 };
 
+
 window.checkQuizAnswer = (correctAnswer, questionIndex) => {
+    // Immediately disable the button to prevent double clicks and show a loading state.
+    const checkButtonContainer = document.getElementById('check-answer-container');
+    if (checkButtonContainer) {
+        checkButtonContainer.innerHTML = `
+            <button class="check-answer-btn group relative inline-flex items-center gap-1 px-3 py-2 bg-gray-400 text-white rounded-lg font-semibold transition-all duration-300 overflow-hidden text-sm" disabled>
+                <div class="relative flex items-center gap-1">
+                    <div class="w-4 h-4 bg-white/20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-spinner fa-spin text-white text-xs"></i>
+                    </div>
+                    <span>Checking...</span>
+                </div>
+            </button>
+        `;
+    }
+
+    // If already checked, do nothing. This prevents duplicate event logging.
+    if (window.quizState.checked[questionIndex]) {
+        console.warn('Attempted to check an already answered question. Ignoring.');
+        // Re-render to fix UI state if it's somehow inconsistent
+        const quizActivity = learningActivities.find(a => a.type === 'quiz');
+        if (quizActivity) {
+            renderQuizActivity(document.getElementById('lesson-content'), quizActivity.content);
+        }
+        return;
+    }
+
     window.quizState.checked[questionIndex] = true; // Mark this question as checked
     const selectedAnswer = window.quizState.answers[questionIndex]; // Get the selected answer for this question
     const currentQuestion = window.quizState.questions[questionIndex];
     const isCorrect = (selectedAnswer === correctAnswer);
+    
+    // 🐛 DEBUG: Log values to find the bug
+    console.log('🐛 DEBUG checkQuizAnswer:', {
+        questionIndex,
+        selectedAnswer,
+        correctAnswer,
+        isCorrect,
+        selectedAnswerType: typeof selectedAnswer,
+        correctAnswerType: typeof correctAnswer,
+        comparison: `"${selectedAnswer}" === "${correctAnswer}"`,
+        strictEqual: selectedAnswer === correctAnswer,
+        looseEqual: selectedAnswer == correctAnswer
+    });
 
     // Calculate time spent on this question
     const timeSpent = window.quizState.questionStartTimes[questionIndex] ? 
@@ -726,14 +734,21 @@ window.checkQuizAnswer = (correctAnswer, questionIndex) => {
         console.log('📊 Logged question_answered for question:', questionIndex + 1, 'Answer:', selectedAnswer, 'Correct:', isCorrect, 'Time:', timeSpent + 's');
     }
 
-    // Update state for the specific question with detailed answer
-    window.quizState.answers[questionIndex] = {
-        question_id: currentQuestion.id || questionIndex, // Use question.id if available, else index
+    // Store detailed answer info separately (don't overwrite the simple string answer)
+    if (!window.quizState.detailedAnswers) {
+        window.quizState.detailedAnswers = {};
+    }
+    
+    window.quizState.detailedAnswers[questionIndex] = {
+        question_id: currentQuestion.id || questionIndex,
         question_text: currentQuestion.question,
         selected_answer: selectedAnswer,
         correct_answer: correctAnswer,
         is_correct: isCorrect
     };
+    
+    // Keep the simple string answer for UI rendering
+    // window.quizState.answers[questionIndex] should remain as string
 
     if (isCorrect) {
         window.quizState.correctAnswers++;
@@ -743,17 +758,22 @@ window.checkQuizAnswer = (correctAnswer, questionIndex) => {
         playTextToSpeech('incorrect');
     }
     // Re-render the current quiz question to show results
+    console.log('🔄 Re-rendering quiz after answer check...');
     const quizActivity = learningActivities.find(a => a.type === 'quiz');
     if (quizActivity) {
         renderQuizActivity(document.getElementById('lesson-content'), quizActivity.content);
+        console.log('✅ Quiz re-rendered successfully');
+    } else {
+        console.error('❌ Quiz activity not found for re-rendering');
     }
 };
 
 window.nextQuizQuestion = () => {
     if (window.quizState.currentQuestionIndex < window.quizState.questions.length - 1) {
         window.quizState.currentQuestionIndex++;
-        // No need to reset selectedAnswer or showResult here, as they are now per-question
-        // and handled by the render function based on window.quizState.answers and window.quizState.checked
+        console.log('📊 Moving to next question:', window.quizState.currentQuestionIndex + 1);
+        
+        // Full re-render for navigation (this will trigger question_viewed for new question)
         const quizActivity = learningActivities.find(a => a.type === 'quiz');
         if (quizActivity) {
             renderQuizActivity(document.getElementById('lesson-content'), quizActivity.content);
@@ -767,7 +787,9 @@ window.nextQuizQuestion = () => {
 window.prevQuizQuestion = () => {
     if (window.quizState.currentQuestionIndex > 0) {
         window.quizState.currentQuestionIndex--;
-        // No need to reset selectedAnswer or showResult here
+        console.log('📊 Moving to previous question:', window.quizState.currentQuestionIndex + 1);
+        
+        // Full re-render for navigation (this will trigger question_viewed for previous question)
         const quizActivity = learningActivities.find(a => a.type === 'quiz');
         if (quizActivity) {
             renderQuizActivity(document.getElementById('lesson-content'), quizActivity.content);
@@ -881,6 +903,14 @@ function renderCongratulationsActivity(container, content) {
 
     // Trigger confetti effect
     triggerConfetti();
+
+    // 🏁 END SESSION: Mark session as completed when congratulations is shown
+    if (typeof learningAnalytics !== 'undefined' && learningAnalytics.currentSessionId) {
+        console.log('🏁 Congratulations screen shown, ending session as completed');
+        learningAnalytics.endSession('completed').catch(error => {
+            console.error('❌ Failed to end session on completion:', error);
+        });
+    }
 }
 
 // Save pronunciation state for current word
@@ -1039,6 +1069,12 @@ window.markActivityCompleted = () => {
         }, 1000);
     } else {
         console.log('All activities completed. Showing course completion...');
+        
+        // 🏁 END SESSION: Additional check to ensure session is ended when last activity is completed
+        if (typeof learningAnalytics !== 'undefined' && learningAnalytics.currentSessionId) {
+            console.log('🏁 Last activity completed, preparing to end session');
+        }
+        
         setTimeout(() => {
             showCourseCompletion();
         }, 1000);
@@ -1099,6 +1135,14 @@ window.skipActivity = () => {
 
 // Course completion function
 function showCourseCompletion() {
+    // 🏁 END SESSION: Mark session as completed when all activities are done
+    if (typeof learningAnalytics !== 'undefined' && learningAnalytics.currentSessionId) {
+        console.log('🏁 All activities completed, ending session as completed');
+        learningAnalytics.endSession('completed').catch(error => {
+            console.error('❌ Failed to end session on completion:', error);
+        });
+    }
+
     const contentDiv = document.getElementById('lesson-content');
     contentDiv.innerHTML = `
         <div class="animate-slide-in">
@@ -1168,6 +1212,14 @@ window.restartCourse = () => {
     // Reset quiz state if exists
     if (window.quizState) {
         window.quizState = null;
+    }
+
+    // 🚀 START NEW SESSION: Start a new session when restarting course
+    if (typeof learningAnalytics !== 'undefined' && learningAnalytics.currentLessonId) {
+        console.log('🚀 Restarting course, starting new session');
+        learningAnalytics.startSession(learningAnalytics.currentLessonId).catch(error => {
+            console.error('❌ Failed to start new session on restart:', error);
+        });
     }
 
     // Show first activity

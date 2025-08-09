@@ -109,6 +109,8 @@ function loadLessonData(jsonData) {
         // Sort original data
         const sortedData = jsonData.sort((a, b) => a.order - b.order);
 
+        const lessonId = sortedData.length > 0 ? sortedData[0].lesson_id : null;
+
         // Extract warmup and learning activities
         const originalWarmupData = sortedData.find(item => item.type === 'warmup');
         const originalLearningActivities = sortedData.filter(item => item.type !== 'warmup');
@@ -140,6 +142,7 @@ function loadLessonData(jsonData) {
             id: 'congratulations',
             type: 'congratulations',
             order: restructuredActivities.length,
+            lesson_id: lessonId, // Ensure congratulations activity has lesson_id
             content: {
                 title: 'Congratulations!',
                 message: 'You have completed all activities successfully!',

@@ -112,13 +112,12 @@ class LearningAnalytics {
                 this.sessionStartTime = new Date(existingSession.session_start_time);
                 this.lastActivityTime = new Date();
                 
-                // Update last activity time and increment retry count
+                // Update last activity time when resuming session
                 await this.updateSessionRecord({
-                    last_activity_time: new Date().toISOString(),
-                    retry_count: (existingSession.retry_count || 0) + 1
+                    last_activity_time: new Date().toISOString()
                 });
                 
-                console.log('📊 Session resumed with retry count:', (existingSession.retry_count || 0) + 1);
+                console.log('📊 Session resumed successfully');
                 
             } else {
                 // Create new session
@@ -159,16 +158,24 @@ class LearningAnalytics {
             
             console.log('🏁 Ending session:', this.currentSessionId, 'Reason:', reason);
             
-            // Calculate total duration
+            // Calculate final metrics
             const endTime = new Date();
             const totalDuration = this.sessionStartTime ? 
                 Math.round((endTime - this.sessionStartTime) / 1000) : 0;
-            
-            // Update session record with end data
+            const activitiesCompleted = completedActivities ? completedActivities.size : 0;
+            const totalActivities = learningActivities ? learningActivities.length : 0;
+            const completionPercentage = totalActivities > 0 ? 
+                Math.round((activitiesCompleted / totalActivities) * 100) : 0;
+
+            // Update session record with all final data
             await this.updateSessionRecord({
                 session_end_time: endTime.toISOString(),
                 total_duration: totalDuration,
-                status: reason
+                status: reason,
+                last_activity_time: endTime.toISOString(),
+                activities_completed: activitiesCompleted,
+                total_activities: totalActivities,
+                completion_percentage: completionPercentage
             });
             
             // Clear timeout timer
@@ -182,7 +189,7 @@ class LearningAnalytics {
             this.sessionStartTime = null;
             this.lastActivityTime = null;
             
-            console.log('✅ Session ended successfully. Duration:', totalDuration + 's');
+            console.log('✅ Session ended successfully. Duration:', totalDuration + 's', 'Progress:', `${completionPercentage}%`);
             
         } catch (error) {
             console.error('❌ Failed to end session:', error);
@@ -195,7 +202,7 @@ class LearningAnalytics {
     async updateSessionProgress() {
         try {
             if (!this.currentSessionId) {
-                console.log('ℹ️ No active session to update');
+                // console.log('ℹ️ No active session to update');
                 return;
             }
             
@@ -208,18 +215,13 @@ class LearningAnalytics {
             const completionPercentage = totalActivities > 0 ? 
                 Math.round((activitiesCompleted / totalActivities) * 100) : 0;
             
-            // Update session record
-            await this.updateSessionRecord({
-                last_activity_time: this.lastActivityTime.toISOString(),
-                activities_completed: activitiesCompleted,
-                total_activities: totalActivities,
-                completion_percentage: completionPercentage
-            });
+            // This function is now only for internal state updates, not DB updates.
+            // The DB update is handled by endSession.
             
-            console.log('📊 Session progress updated:', {
-                activities: `${activitiesCompleted}/${totalActivities}`,
-                completion: `${completionPercentage}%`
-            });
+            // console.log('📊 Session progress updated (local state):', {
+            //     activities: `${activitiesCompleted}/${totalActivities}`,
+            //     completion: `${completionPercentage}%`
+            // });
             
             // Restart timeout monitoring
             this.startTimeoutMonitoring();
@@ -285,7 +287,7 @@ class LearningAnalytics {
                 last_activity_time: this.lastActivityTime.toISOString(),
                 total_duration: 0,
                 activities_completed: 0,
-                total_activities: learningActivities ? learningActivities.length : 0,
+                total_activities: learningActivities ? learningActivities.filter(a => a.type !== 'warmup' && a.type !== 'congratulations').length : 0,
                 completion_percentage: 0,
                 status: 'active'
             };
@@ -440,10 +442,20 @@ class LearningAnalytics {
             console.log('✅ Event logged:', { table: tableName, payload });
             return result;
         } catch (error) {
+            // Handle specific duplicate key errors gracefully
+            if (error.message && error.message.includes('duplicate key value violates unique constraint')) {
+                console.warn('⚠️ Duplicate event ignored (already logged):', { 
+                    table: tableName, 
+                    constraint: error.message.match(/unique constraint "([^"]+)"/)?.[1] || 'unknown',
+                    payload: payload 
+                });
+                return null; // Don't retry duplicates
+            }
+
             // Fail gracefully - don't break the lesson
             console.error('❌ Failed to log event (non-critical):', error.message);
 
-            // Buffer failed events for retry
+            // Buffer failed events for retry (but not duplicates)
             this.eventBuffer.push({
                 tableName,
                 payload,
