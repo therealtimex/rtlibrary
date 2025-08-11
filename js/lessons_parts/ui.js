@@ -181,35 +181,35 @@ function updateRecordingUI(isRec) {
 
 // Get score colors
 function getScoreColor(score) {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 80) return 'text-blue-600';
-    if (score >= 70) return 'text-yellow-600';
-    if (score >= 60) return 'text-orange-600';
-    return 'text-red-600';
+    if (score >= 90) return 'text-theme-success';
+    if (score >= 80) return 'text-theme-info';
+    if (score >= 70) return 'text-theme-warning';
+    if (score >= 60) return 'text-theme-warning';
+    return 'text-theme-danger';
 }
 
 function getScoreBgColor(score) {
-    if (score >= 90) return 'bg-green-50 border-green-200';
-    if (score >= 80) return 'bg-blue-50 border-blue-200';
-    if (score >= 70) return 'bg-yellow-50 border-yellow-200';
-    if (score >= 60) return 'bg-orange-50 border-orange-200';
-    return 'bg-red-50 border-red-200';
+    if (score >= 90) return 'bg-theme-success-50 border-theme-success-200';
+    if (score >= 80) return 'bg-theme-info-50 border-theme-info-200';
+    if (score >= 70) return 'bg-theme-warning-50 border-theme-warning-200';
+    if (score >= 60) return 'bg-theme-warning-50 border-theme-warning-200';
+    return 'bg-theme-danger-50 border-theme-danger-200';
 }
 
 function getPhonemeColor(score) {
-    if (score >= 90) return 'bg-green-100 text-green-800';
-    if (score >= 80) return 'bg-blue-100 text-blue-800';
-    if (score >= 70) return 'bg-yellow-100 text-yellow-800';
-    return 'bg-red-100 text-red-800';
+    if (score >= 90) return 'bg-theme-success-100 text-theme-success-800';
+    if (score >= 80) return 'bg-theme-info-100 text-theme-info-800';
+    if (score >= 70) return 'bg-theme-warning-100 text-theme-warning-800';
+    return 'bg-theme-danger-100 text-theme-danger-800';
 }
 
 // Additional helper functions for phoneme breakdown
 function getPhonemeScoreBgColor(score) {
-    if (score >= 90) return 'bg-green-50 border-green-200';
-    if (score >= 80) return 'bg-blue-50 border-blue-200';
-    if (score >= 70) return 'bg-yellow-50 border-yellow-200';
-    if (score >= 60) return 'bg-orange-50 border-orange-200';
-    return 'bg-red-50 border-red-200';
+    if (score >= 90) return 'bg-theme-success-50 border-theme-success-200';
+    if (score >= 80) return 'bg-theme-info-50 border-theme-info-200';
+    if (score >= 70) return 'bg-theme-warning-50 border-theme-warning-200';
+    if (score >= 60) return 'bg-theme-warning-50 border-theme-warning-200';
+    return 'bg-theme-danger-50 border-theme-danger-200';
 }
 
 function getPhonemeQuality(score) {
@@ -224,10 +224,10 @@ function getPhonemeImprovementTips(word) {
     // Case 1: The word was completely missed (Omission) or has no phonemes.
     if (word.error_type === 'Omission' || word.phonemes.length === 0) {
         return `
-            <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div class="mt-4 p-3 bg-theme-warning-50 border border-theme-warning-200 rounded-lg">
                 <div class="flex items-center">
-                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
-                    <span class="text-sm text-yellow-700 font-medium">This word was not detected in your recording.</span>
+                    <i class="fas fa-exclamation-triangle text-theme-warning mr-2"></i>
+                    <span class="text-sm text-theme-warning font-medium">This word was not detected in your recording.</span>
                 </div>
             </div>
         `;
@@ -238,10 +238,10 @@ function getPhonemeImprovementTips(word) {
     if (poorPhonemes.length === 0) {
         // All phonemes are good.
         return `
-            <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div class="mt-4 p-3 bg-theme-success-50 border border-theme-success-200 rounded-lg">
                 <div class="flex items-center">
-                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                    <span class="text-sm text-green-700 font-medium">Great pronunciation! All phonemes are well pronounced.</span>
+                    <i class="fas fa-check-circle text-theme-success mr-2"></i>
+                    <span class="text-sm text-theme-success font-medium">Great pronunciation! All phonemes are well pronounced.</span>
                 </div>
             </div>
         `;
@@ -554,22 +554,22 @@ function renderProgressBar() {
         // Set indicator state and icon
         if (index < currentActivityIndex) {
             if (isWarmup) {
-                indicator.className += ' bg-red-500 text-white shadow-red-500/30';
+                indicator.className += ' bg-theme-danger text-theme-text-onprimary shadow-theme-danger/30';
                 indicator.innerHTML = `<i class="${activityInfo.icon}"></i>`;
             } else if (isCongratulations) {
-                indicator.className += ' bg-yellow-400 text-white shadow-yellow-400/30';
+                indicator.className += ' bg-theme-accent text-theme-text-onprimary shadow-theme-accent/30';
                 indicator.innerHTML = `<i class="${activityInfo.icon}"></i>`;
             } else {
-                indicator.className += ' bg-green-500 text-white shadow-green-500/30';
+                indicator.className += ' bg-theme-success text-theme-text-onprimary shadow-theme-success/30';
                 indicator.innerHTML = '<i class="fas fa-check"></i>';
             }
         } else if (index === currentActivityIndex) {
             if (isWarmup) {
-                indicator.className += ' bg-red-500 text-white scale-110 shadow-red-500/50';
+                indicator.className += ' bg-theme-danger text-theme-text-onprimary scale-110 shadow-theme-danger/50';
             } else if (isCongratulations) {
-                indicator.className += ' bg-yellow-400 text-white scale-110 shadow-yellow-400/50';
+                indicator.className += ' bg-theme-accent text-theme-text-onprimary scale-110 shadow-theme-accent/50';
             } else {
-                indicator.className += ' bg-blue-500 text-white scale-110 shadow-blue-500/50';
+                indicator.className += ' bg-theme-primary text-theme-text-onprimary scale-110 shadow-theme-primary/50';
             }
             indicator.innerHTML = `<i class="${activityInfo.icon}"></i>`;
         } else {
@@ -585,20 +585,20 @@ function renderProgressBar() {
 
         if (isMainActivity) {
             // Main activity (including vocab)
-            label.className = 'text-xs text-center min-w-[60px] cursor-pointer p-1 rounded-md transition-all duration-300 hover:bg-gray-100 flex flex-col items-center gap-1';
+            label.className = 'text-xs text-center min-w-[60px] sm:min-w-[60px] min-w-[45px] cursor-pointer p-1 rounded-md transition-all duration-300 hover:bg-gray-100 flex flex-col items-center gap-1';
 
             if (index < currentActivityIndex) {
-                label.className += ' text-green-600 font-semibold';
+                label.className += ' text-theme-success font-semibold';
             } else if (index === currentActivityIndex) {
                 label.className += ' text-blue-600 font-semibold bg-blue-50';
             } else {
                 label.className += ' text-gray-600';
             }
 
-            label.innerHTML = `<div class="text-xs">${activityInfo.name}</div>`;
+            label.innerHTML = `<div class="text-[10px] sm:text-xs">${activityInfo.name}</div>`;
         } else {
             // Milestone label (warmup, congratulations)
-            label.className = 'text-xs text-center min-w-[50px] cursor-pointer p-1 transition-all duration-300 flex flex-col items-center gap-1';
+            label.className = 'text-xs text-center min-w-[50px] sm:min-w-[50px] min-w-[40px] cursor-pointer p-1 transition-all duration-300 flex flex-col items-center gap-1';
 
             if (index < currentActivityIndex) {
                 label.className += ' text-green-600';
@@ -608,7 +608,7 @@ function renderProgressBar() {
                 label.className += ' text-gray-500';
             }
 
-            label.innerHTML = `<div class="hidden sm:block text-xs opacity-75">${activityInfo.name}</div>`;
+            label.innerHTML = `<div class="hidden sm:block text-[10px] sm:text-xs opacity-75">${activityInfo.name}</div>`;
         }
 
         label.onclick = () => showActivity(index);
@@ -618,7 +618,19 @@ function renderProgressBar() {
     // Update counter
     const progressCounter = document.getElementById('progress-counter');
     if (progressCounter) {
-        progressCounter.textContent = `${currentActivityIndex + 1} of ${learningActivities.length}`;
+        const currentActivity = learningActivities[currentActivityIndex];
+        if (!currentActivity) {
+            progressCounter.textContent = '0 of 0';
+        } else if (currentActivity.type === 'warmup') {
+            progressCounter.textContent = 'Warmup';
+        } else if (currentActivity.type === 'congratulations') {
+            progressCounter.textContent = 'Completed!';
+        } else {
+            // Count only main activities (exclude warmup and congratulations)
+            const mainActivities = learningActivities.filter(a => a.type !== 'warmup' && a.type !== 'congratulations');
+            const currentMainIndex = mainActivities.findIndex(a => a.id === currentActivity.id);
+            progressCounter.textContent = `${currentMainIndex + 1} of ${mainActivities.length}`;
+        }
     }
 }
 

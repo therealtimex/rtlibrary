@@ -54,7 +54,7 @@ function renderVocabularyActivity(container, content) {
                 <div class="bg-white rounded-3xl shadow-lg mb-4 overflow-hidden">
                     <div class="p-4 sm:p-6 pb-4 text-center border-b border-gray-100">
                         <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center justify-center gap-2 mb-2">
-                            <i class="fas fa-book-open text-blue-500"></i>
+                            <i class="fas fa-book-open text-theme-primary"></i>
                             Vocabulary Learning
                         </h2>
                         <p class="text-sm text-gray-600">Word ${currentWordIndex + 1} of ${content.words.length}</p>
@@ -63,19 +63,19 @@ function renderVocabularyActivity(container, content) {
                         <div class="text-center mb-6 sm:mb-8">
                             <img src="${getAssetUrl(word.image)}" alt="${word.word}" class="w-full max-w-72 sm:max-w-80 h-48 sm:h-56 object-cover rounded-2xl shadow-lg mx-auto mb-4 sm:mb-6">
                             <div class="flex items-center justify-center gap-2 sm:gap-3 mb-2">
-                                <div class="text-3xl sm:text-5xl font-extrabold text-blue-500">${word.word}</div>
+                                <div class="text-3xl sm:text-5xl font-extrabold text-theme-primary">${word.word}</div>
                                 <button onclick="playAudioFile('${getAssetUrl(word.audio)}', this)" 
-                                        class="btn-audio group w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:shadow-green-500/30 hover:scale-110 hover:from-green-400 hover:to-green-500 border-2 border-white/20 backdrop-blur-sm"
+                                        class="btn-audio group w-10 h-10 sm:w-12 sm:h-12 bg-theme-success rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:shadow-theme-success/30 hover:scale-110 hover:bg-theme-success-600 border-2 border-white/20 backdrop-blur-sm"
                                         title="Listen to pronunciation">
-                                    <i class="fas fa-volume-up text-white text-sm sm:text-lg group-hover:scale-110 transition-transform duration-200"></i>
+                                    <i class="fas fa-volume-up text-theme-text-onprimary text-sm sm:text-lg group-hover:scale-110 transition-transform duration-200"></i>
                                 </button>
                             </div>
-                            <div class="text-base sm:text-lg text-gray-700 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 mb-4 sm:mb-6 max-w-sm sm:max-w-md mx-auto" onmouseenter="trackMeaningView('${word.word}')" ontouchstart="trackMeaningView('${word.word}')">${word.meaning}</div>
+                            <div class="text-base sm:text-lg text-gray-700 p-3 sm:p-4 bg-gradient-to-r from-theme-primary-50 to-theme-primary-100 rounded-xl border border-theme-primary-200 mb-4 sm:mb-6 max-w-sm sm:max-w-md mx-auto" onmouseenter="trackMeaningView('${word.word}')" ontouchstart="trackMeaningView('${word.word}')">${word.meaning}</div>
                         </div>
 
-                        ${createProgressDots({ count: content.words.length, currentIndex: currentWordIndex, studiedItems: studiedWords, theme: 'blue' })}
+                        ${createProgressDots({ count: content.words.length, currentIndex: currentWordIndex, studiedItems: studiedWords, theme: 'primary' })}
 
-                        ${createNavigationButtons({ prevAction: 'prevWord()', nextAction: 'nextWord()', isFirst: currentWordIndex === 0, isLast: currentWordIndex === content.words.length - 1, theme: 'blue', activityType: 'vocabulary' })}
+                        ${createNavigationButtons({ prevAction: 'prevWord()', nextAction: 'nextWord()', isFirst: currentWordIndex === 0, isLast: currentWordIndex === content.words.length - 1, theme: 'primary', activityType: 'vocabulary' })}
                     </div>
                 </div>
             </div>
@@ -155,43 +155,43 @@ function renderPronunciationActivity(container, content) {
                 <div class="bg-white rounded-3xl shadow-lg mb-4 overflow-hidden">
                     <div class="p-4 sm:p-6 pb-4 text-center border-b border-gray-100">
                         <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center justify-center gap-2 mb-2">
-                            <i class="fas fa-microphone text-purple-500"></i>
+                            <i class="fas fa-microphone text-theme-success"></i>
                             Pronunciation Practice
                         </h2>
                         <p class="text-sm text-gray-600">Word ${currentWordIndex + 1} of ${content.practice_words.length}</p>
                     </div>
                     <div class="p-4 sm:p-6">
                         <div class="text-center mb-6 sm:mb-8">
-                            <div class="text-3xl sm:text-5xl font-extrabold text-purple-500 mb-3 sm:mb-4" id="reference-text">${word.word}</div>
+                            <div class="text-3xl sm:text-5xl font-extrabold text-theme-success mb-3 sm:mb-4" id="reference-text">${word.word}</div>
                             <div class="flex items-center justify-center gap-3 mb-3 sm:mb-4">
                                 <div class="text-lg sm:text-2xl text-gray-600 font-mono">${word.phonetic}</div>
                                 <button onclick="playAudioFile('${getAssetUrl(word.audio)}', this)" 
-                                        class="btn-audio group w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:shadow-purple-500/30 hover:scale-110 hover:from-purple-400 hover:to-pink-500 border-2 border-white/20 backdrop-blur-sm"
+                                        class="btn-audio group w-8 h-8 sm:w-10 sm:h-10 bg-theme-success rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:shadow-theme-success/30 hover:scale-110 hover:bg-theme-success-600 border-2 border-white/20 backdrop-blur-sm"
                                         title="Listen to pronunciation">
-                                    <i class="fas fa-volume-up text-white text-xs sm:text-sm group-hover:scale-110 transition-transform duration-200"></i>
+                                    <i class="fas fa-volume-up text-theme-text-onprimary text-xs sm:text-sm group-hover:scale-110 transition-transform duration-200"></i>
                                 </button>
                             </div>
-                            <div class="text-sm sm:text-lg text-gray-700 p-3 sm:p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200 mb-4 sm:mb-6 max-w-sm sm:max-w-md mx-auto">
+                            <div class="text-sm sm:text-lg text-gray-700 p-3 sm:p-4 bg-gradient-to-r from-theme-success-50 to-theme-success-100 rounded-xl border border-theme-success-200 mb-4 sm:mb-6 max-w-sm sm:max-w-md mx-auto">
                                 <strong>Tip:</strong> ${word.tips}
                             </div>
                         </div>
 
-                        <div class="bg-gradient-to-br from-gray-50 to-purple-50 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
+                        <div class="bg-gradient-to-br from-gray-50 to-theme-success-50 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
                             <h3 class="text-base sm:text-lg font-semibold mb-4 text-gray-700 text-center">
-                                <i class="fas fa-microphone text-red-500 mr-2"></i>
+                                <i class="fas fa-microphone text-theme-danger mr-2"></i>
                                 Record Your Pronunciation
                             </h3>
                             
                             <div class="text-center mb-4 sm:mb-6">
                                 <div class="relative inline-block">
-                                    <div id="glow-ring" class="absolute inset-0 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-500 opacity-20 pulse-glow"></div>
+                                    <div id="glow-ring" class="absolute inset-0 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-theme-danger opacity-20 pulse-glow"></div>
                                     <button id="record-btn" onclick="toggleRecording()"
-                                        class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white text-xl sm:text-2xl shadow-lg hover:shadow-red-500/30 hover:scale-110 transition-all duration-300 border-4 border-white animate-pulse-record z-10">
+                                        class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-theme-danger text-theme-text-onprimary text-xl sm:text-2xl shadow-lg hover:shadow-theme-danger/30 hover:scale-110 hover:bg-theme-danger-600 transition-all duration-300 border-4 border-white animate-pulse-record z-10">
                                         <i id="mic-icon" class="fas fa-microphone animate-mic-bounce"></i>
                                     </button>
                                     <div id="recording-dots" class="hidden absolute -top-2 -right-2">
-                                        <div class="w-3 h-3 sm:w-4 sm:h-4 bg-red-500 rounded-full animate-ping"></div>
-                                        <div class="absolute top-0 w-3 h-3 sm:w-4 sm:h-4 bg-red-600 rounded-full"></div>
+                                        <div class="w-3 h-3 sm:w-4 sm:h-4 bg-theme-danger rounded-full animate-ping"></div>
+                                        <div class="absolute top-0 w-3 h-3 sm:w-4 sm:h-4 bg-theme-danger rounded-full"></div>
                                     </div>
                                 </div>
                                 <p id="record-status" class="mt-3 sm:mt-4 text-gray-600 font-medium text-sm sm:text-base">
@@ -199,34 +199,34 @@ function renderPronunciationActivity(container, content) {
                                     Click to start recording
                                 </p>
                                 <div id="sound-waves" class="hidden mt-3 sm:mt-4 flex justify-center space-x-1">
-                                    <div class="w-1 bg-red-500 rounded-full animate-pulse" style="height: 16px; animation-delay: 0s;"></div>
-                                    <div class="w-1 bg-red-500 rounded-full animate-pulse" style="height: 24px; animation-delay: 0.1s;"></div>
-                                    <div class="w-1 bg-red-500 rounded-full animate-pulse" style="height: 20px; animation-delay: 0.2s;"></div>
-                                    <div class="w-1 bg-red-500 rounded-full animate-pulse" style="height: 28px; animation-delay: 0.3s;"></div>
-                                    <div class="w-1 bg-red-500 rounded-full animate-pulse" style="height: 16px; animation-delay: 0.4s;"></div>
-                                    <div class="w-1 bg-red-500 rounded-full animate-pulse" style="height: 22px; animation-delay: 0.5s;"></div>
-                                    <div class="w-1 bg-red-500 rounded-full animate-pulse" style="height: 18px; animation-delay: 0.6s;"></div>
+                                    <div class="w-1 bg-theme-danger rounded-full animate-pulse" style="height: 16px; animation-delay: 0s;"></div>
+                                    <div class="w-1 bg-theme-danger rounded-full animate-pulse" style="height: 24px; animation-delay: 0.1s;"></div>
+                                    <div class="w-1 bg-theme-danger rounded-full animate-pulse" style="height: 20px; animation-delay: 0.2s;"></div>
+                                    <div class="w-1 bg-theme-danger rounded-full animate-pulse" style="height: 28px; animation-delay: 0.3s;"></div>
+                                    <div class="w-1 bg-theme-danger rounded-full animate-pulse" style="height: 16px; animation-delay: 0.4s;"></div>
+                                    <div class="w-1 bg-theme-danger rounded-full animate-pulse" style="height: 22px; animation-delay: 0.5s;"></div>
+                                    <div class="w-1 bg-theme-danger rounded-full animate-pulse" style="height: 18px; animation-delay: 0.6s;"></div>
                                 </div>
                             </div>
 
                             <div id="audio-section" class="hidden mb-4 sm:mb-6 text-center">
                                 <audio id="recorded-audio" controls class="w-full mb-3 sm:mb-4"></audio>
                                 <button id="analyze-btn" onclick="analyzeAudio()"
-                                    class="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 text-sm sm:text-base mr-2 sm:mr-3">
+                                    class="px-4 sm:px-6 py-2 sm:py-3 bg-theme-success text-theme-text-onprimary rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 hover:bg-theme-success-600 transition-all duration-300 text-sm sm:text-base mr-2 sm:mr-3">
                                     <i class="fas fa-chart-line mr-2"></i>
                                     Analyze Pronunciation
                                 </button>
                                 <button id="view-results-btn" onclick="showStoredResults()" 
-                                    class="hidden px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 text-sm sm:text-base">
+                                    class="hidden px-3 py-2 sm:px-4 sm:py-3 bg-theme-success text-theme-text-onprimary rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 hover:bg-theme-success-600 transition-all duration-300 text-sm sm:text-base">
                                     <i class="fas fa-eye sm:mr-2"></i>
                                     <span class="hidden sm:inline">View Results</span>
                                 </button>
                             </div>
 
                             <div id="results-section" class="hidden">
-                                <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-4 sm:p-6 border border-gray-200">
+                                <div class="bg-gradient-to-br from-gray-50 to-theme-success-50 rounded-2xl p-4 sm:p-6 border border-theme-success-200">
                                     <h3 class="text-lg sm:text-xl font-bold mb-4 sm:mb-6 text-gray-800 text-center">
-                                        <i class="fas fa-chart-bar text-blue-500 mr-3"></i>
+                                        <i class="fas fa-chart-bar text-theme-success mr-3"></i>
                                         Analysis Results
                                     </h3>
                                     <div id="results-content">
@@ -236,14 +236,14 @@ function renderPronunciationActivity(container, content) {
                             </div>
 
                             <div id="loading" class="hidden text-center py-6 sm:py-8">
-                                <div class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-blue-500 mx-auto mb-3 sm:mb-4"></div>
+                                <div class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-theme-success mx-auto mb-3 sm:mb-4"></div>
                                 <p class="text-gray-600 text-sm sm:text-base">Analyzing your pronunciation...</p>
                             </div>
                         </div>
 
-                        ${createProgressDots({ count: content.practice_words.length, currentIndex: currentWordIndex, studiedItems: studiedWords, theme: 'purple' })}
+                        ${createProgressDots({ count: content.practice_words.length, currentIndex: currentWordIndex, studiedItems: studiedWords, theme: 'success' })}
 
-                        ${createNavigationButtons({ prevAction: 'prevPronunciation()', nextAction: 'nextPronunciation()', isFirst: currentWordIndex === 0, isLast: currentWordIndex === content.practice_words.length - 1, theme: 'purple', activityType: 'pronunciation' })}
+                        ${createNavigationButtons({ prevAction: 'prevPronunciation()', nextAction: 'nextPronunciation()', isFirst: currentWordIndex === 0, isLast: currentWordIndex === content.practice_words.length - 1, theme: 'success', activityType: 'pronunciation' })}
                     </div>
                 </div>
             </div>
@@ -281,7 +281,7 @@ function renderDialogActivity(container, content) {
                     <i class="fas fa-exclamation-triangle text-6xl text-yellow-400 mb-4"></i>
                     <h3 class="text-xl font-semibold text-gray-600 mb-2">Dialog Content Not Available</h3>
                     <p class="text-gray-500">The dialog conversation data is missing or invalid.</p>
-                    <button onclick="markActivityCompleted()" class="mt-4 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                    <button onclick="markActivityCompleted()" class="mt-4 px-6 py-3 bg-theme-secondary text-theme-text-onprimary rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 hover:bg-theme-secondary-600 transition-all duration-300">
                         <i class="fas fa-arrow-right mr-2"></i>
                         Continue
                     </button>
@@ -301,7 +301,7 @@ function renderDialogActivity(container, content) {
             <div class="bg-white rounded-3xl shadow-lg mb-4 overflow-hidden">
                 <div class="p-4 sm:p-6 pb-4 text-center border-b border-gray-100">
                     <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center justify-center gap-2 mb-2">
-                        <i class="fas fa-comments text-green-500"></i>
+                        <i class="fas fa-comments text-theme-secondary"></i>
                         ${content.title || 'Dialog Activity'}
                     </h2>
                     <p class="text-sm text-gray-600">${content.description || ''}</p>
@@ -310,17 +310,17 @@ function renderDialogActivity(container, content) {
                     <div class="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
                         ${content.dialog.map((line, index) => `
                             <div class="flex items-start gap-3 sm:gap-4">
-                                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full ${line.speaker === 'A' ? 'bg-blue-500' : 'bg-green-500'} flex items-center justify-center text-white font-bold text-sm sm:text-base">
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full ${line.speaker === 'A' ? 'bg-theme-secondary' : 'bg-theme-primary'} flex items-center justify-center text-theme-text-onprimary font-bold text-sm sm:text-base">
                                     ${line.speaker}
                                 </div>
                                 <div class="flex-1 max-w-xs sm:max-w-sm">
-                                    <div class="${line.speaker === 'A' ? 'bg-blue-50 border-blue-200' : 'bg-green-50 border-green-200'} rounded-2xl p-3 sm:p-4 border">
+                                    <div class="${line.speaker === 'A' ? 'bg-theme-secondary-50 border-theme-secondary-200' : 'bg-theme-primary-50 border-theme-primary-200'} rounded-2xl p-3 sm:p-4 border">
                                         <p class="text-sm sm:text-base text-gray-800 mb-2">${line.text}</p>
                                         <div class="flex items-center gap-2">
                                             <button onclick="playAndTrackDialogLine('${getAssetUrl(line.audio)}', ${index}, this)" 
-                                                    class="btn-audio group w-6 h-6 sm:w-8 sm:h-8 ${line.speaker === 'A' ? 'bg-blue-500 hover:bg-blue-600' : 'bg-green-500 hover:bg-green-600'} rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md hover:scale-110"
+                                                    class="btn-audio group w-6 h-6 sm:w-8 sm:h-8 ${line.speaker === 'A' ? 'bg-theme-secondary hover:bg-theme-secondary-600' : 'bg-theme-primary hover:bg-theme-primary-600'} rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md hover:scale-110"
                                                     title="Play audio">
-                                                <i class="fas fa-play text-white text-xs group-hover:scale-110 transition-transform duration-200"></i>
+                                                <i class="fas fa-play text-theme-text-onprimary text-xs group-hover:scale-110 transition-transform duration-200"></i>
                                             </button>
                                             <span class="text-xs text-gray-500">${line.phonetic || ''}</span>
                                         </div>
@@ -332,14 +332,14 @@ function renderDialogActivity(container, content) {
                     
                     <div class="text-center mb-6 sm:mb-8">
                         <button onclick="toggleDialogPlayback()" id="play-all-dialog-btn"
-                                class="btn-audio inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 text-sm sm:text-base">
+                                class="btn-audio inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-theme-secondary text-theme-text-onprimary rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 hover:bg-theme-secondary-600 transition-all duration-300 text-sm sm:text-base">
                             <i class="fas fa-volume-up"></i>
                             <span>Play All</span>
                         </button>
                     </div>
                     
                     <div class="text-center mt-8 mb-6">
-                        <button onclick="markActivityCompleted()" class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                        <button onclick="markActivityCompleted()" class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-theme-success text-theme-text-onprimary rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:-translate-y-0.5 hover:bg-theme-success-600 transition-all duration-300">
                             <i class="fas fa-check-circle text-xs sm:text-sm"></i>
                             <span class="hidden sm:inline">Complete Dialog</span>
                         </button>
@@ -422,13 +422,13 @@ function renderDialogActivity(container, content) {
             if (isPlaying) {
                 icon.className = 'fas fa-stop';
                 text.textContent = 'Stop';
-                button.classList.remove('bg-gradient-to-r', 'from-purple-500', 'to-pink-600');
-                button.classList.add('bg-red-500', 'hover:bg-red-600');
+                button.classList.remove('bg-theme-secondary', 'hover:bg-theme-secondary-600');
+                button.classList.add('bg-theme-danger', 'hover:bg-theme-danger-600');
             } else {
                 icon.className = 'fas fa-volume-up';
                 text.textContent = 'Play All';
-                button.classList.remove('bg-red-500', 'hover:bg-red-600');
-                button.classList.add('bg-gradient-to-r', 'from-purple-500', 'to-pink-600');
+                button.classList.remove('bg-theme-danger', 'hover:bg-theme-danger-600');
+                button.classList.add('bg-theme-secondary', 'hover:bg-theme-secondary-600');
             }
         }
     }
@@ -501,7 +501,7 @@ function renderQuizActivity(container, content) {
                 <div class="bg-white rounded-3xl shadow-lg mb-4 overflow-hidden">
                     <div class="p-6 pb-2 text-center border-b border-gray-100">
                         <h2 class="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2 mb-2">
-                            <i class="fas fa-question-circle text-orange-500"></i>
+                            <i class="fas fa-question-circle text-theme-warning"></i>
                             Quiz Time
                         </h2>
                         ${isMultipleQuestions ? `
@@ -522,7 +522,7 @@ function renderQuizActivity(container, content) {
                                 <h3 class="text-xl font-bold text-gray-800 flex items-center justify-center flex-wrap gap-2">${currentQuestion.question}
                                 ${currentQuestion.audio ? `
                                     <button onclick="playAudioFile('${getAssetUrl(currentQuestion.audio)}', this)" title="Listen to question" 
-                                            class="btn-audio group w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:shadow-orange-500/30 hover:scale-110 hover:from-orange-400 hover:to-red-500 border-2 border-white/20 backdrop-blur-sm">
+                                            class="btn-audio group w-8 h-8 bg-theme-warning rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:shadow-theme-warning/30 hover:scale-110 hover:bg-theme-warning-600 border-2 border-white/20 backdrop-blur-sm">
                                         <i class="fas fa-volume-up text-white text-xs group-hover:scale-110 transition-transform duration-200"></i>
                                     </button>
                                 ` : ''}
@@ -532,15 +532,23 @@ function renderQuizActivity(container, content) {
 
                         <div class="quiz-options max-w-lg mx-auto space-y-2 mb-6">
                             ${currentQuestion.options.map((option, index) => {
-                                let buttonClass = `quiz-option w-full p-3 border-2 border-gray-200 rounded-lg text-left text-sm transition-all duration-300 hover:-translate-y-0.5`;
-                                if (selectedAnswerForCurrentQuestion === option) {
-                                    buttonClass += ` border-orange-500 bg-orange-500 text-white`;
-                                }
+                                let buttonClass = `quiz-option w-full p-3 border-2 rounded-lg text-left text-sm transition-all duration-300 hover:-translate-y-0.5`;
+                                
                                 if (isCheckedForCurrentQuestion) {
+                                    // After checking - show correct/incorrect colors
                                     if (option === currentQuestion.correct_answer) {
-                                        buttonClass += ` border-green-500 bg-green-500 text-white`;
+                                        buttonClass += ` border-theme-success bg-theme-success text-theme-text-onprimary`;
                                     } else if (option === selectedAnswerForCurrentQuestion && option !== currentQuestion.correct_answer) {
-                                        buttonClass += ` border-red-500 bg-red-500 text-white`;
+                                        buttonClass += ` border-theme-danger bg-theme-danger text-theme-text-onprimary`;
+                                    } else {
+                                        buttonClass += ` border-gray-200 bg-white text-gray-800`;
+                                    }
+                                } else {
+                                    // Before checking - show selected vs unselected
+                                    if (selectedAnswerForCurrentQuestion === option) {
+                                        buttonClass += ` border-theme-warning bg-theme-warning text-theme-text-onprimary`;
+                                    } else {
+                                        buttonClass += ` border-gray-200 bg-white text-gray-800`;
                                     }
                                 }
                                 return `
@@ -554,11 +562,11 @@ function renderQuizActivity(container, content) {
 
                         ${isCheckedForCurrentQuestion ? `
                             <div class="text-center mb-4">
-                                <div class="p-4 rounded-lg max-w-lg mx-auto text-sm ${selectedAnswerForCurrentQuestion === currentQuestion.correct_answer ? 'bg-gradient-to-r from-green-100 to-green-200 border-2 border-green-500' : 'bg-gradient-to-r from-red-100 to-red-200 border-2 border-red-500'}">
+                                <div class="p-4 rounded-lg max-w-lg mx-auto text-sm ${selectedAnswerForCurrentQuestion === currentQuestion.correct_answer ? 'bg-theme-success-100 border-2 border-theme-success' : 'bg-theme-danger-100 border-2 border-theme-danger'}">
                                     <div class="text-3xl mb-1">
                                         ${selectedAnswerForCurrentQuestion === currentQuestion.correct_answer ? '🎉' : '😔'}
                                     </div>
-                                    <h4 class="text-lg font-bold mb-1 ${selectedAnswerForCurrentQuestion === currentQuestion.correct_answer ? 'text-green-800' : 'text-red-800'}">
+                                    <h4 class="text-lg font-bold mb-1 ${selectedAnswerForCurrentQuestion === currentQuestion.correct_answer ? 'text-theme-success-800' : 'text-theme-danger-800'}">
                                         ${selectedAnswerForCurrentQuestion === currentQuestion.correct_answer ? 'Correct!' : 'Incorrect!'}
                                     </h4>
                                     <p class="text-gray-700">
@@ -577,14 +585,14 @@ function renderQuizActivity(container, content) {
                         ${isMultipleQuestions ? `
                             <div class="flex justify-center gap-1 mb-4">
                                 ${window.quizState.questions.map((_, index) => `
-                                    <div class="w-2 h-2 rounded-full transition-all duration-300 ${index < questionIndex ? 'bg-green-500 shadow-lg shadow-green-500/30' : index === questionIndex ? 'bg-orange-500 scale-125 shadow-lg shadow-orange-500/50' : 'bg-gray-300'}"></div>
+                                    <div class="w-2 h-2 rounded-full transition-all duration-300 ${index < questionIndex ? 'bg-theme-success shadow-lg shadow-theme-success/30' : index === questionIndex ? 'bg-theme-warning scale-125 shadow-lg shadow-theme-warning/50' : 'bg-gray-300'}"></div>
                                 `).join('')}
                             </div>
                         ` : ''}
 
                         ${!isCheckedForCurrentQuestion ? `
                             <div id="check-answer-container" class="text-center mb-8 ${!selectedAnswerForCurrentQuestion ? 'hidden' : ''}">
-                                <button class="check-answer-btn group relative inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-orange-500/30 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 overflow-hidden text-sm"
+                                <button class="check-answer-btn group relative inline-flex items-center gap-1 px-3 py-2 bg-theme-warning text-theme-text-onprimary rounded-lg font-semibold hover:shadow-lg hover:shadow-theme-warning/30 hover:-translate-y-0.5 hover:scale-105 hover:bg-theme-warning-600 transition-all duration-300 overflow-hidden text-sm"
                                         onclick="checkQuizAnswer('${currentQuestion.correct_answer}', ${questionIndex})"
                                         data-correct-answer="${currentQuestion.correct_answer}" 
                                         data-question-index="${questionIndex}">
@@ -611,14 +619,14 @@ function renderQuizActivity(container, content) {
                                         <span class="hidden sm:inline">Previous</span>
                                     </button>
                                     <button onclick="${isLastQuestion ? 'completeQuiz()' : 'nextQuizQuestion()'}" 
-                                            class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg text-sm font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                                            class="inline-flex items-center gap-1 px-3 py-2 bg-theme-warning text-theme-text-onprimary rounded-lg text-sm font-semibold hover:shadow-lg hover:-translate-y-0.5 hover:bg-theme-warning-600 transition-all duration-300">
                                         ${isLastQuestion ? '<i class="fas fa-trophy text-xs"></i><span class="hidden sm:inline">Complete Quiz</span>' : '<span class="hidden sm:inline">Next</span> <i class="fas fa-arrow-right text-xs"></i>'}
                                     </button>
                                 </div>
                             ` : `
                                 <div class="text-center mb-8">
                                     <button onclick="completeQuiz()" 
-                                            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-theme-success text-theme-text-onprimary rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 hover:bg-theme-success-600 transition-all duration-300">
                                         <i class="fas fa-arrow-right"></i>
                                         Continue
                                     </button>
@@ -852,12 +860,12 @@ function renderWarmupActivity(container, content) {
                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent flex items-center justify-center">
                         <div class="flex gap-3 md:gap-6 items-center transform hover:scale-105 transition-transform duration-300">
                             <button onclick="playWarmupAudio('${audioUrl}', this)" title="Listen to description"
-                                    class="group relative w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-xl hover:scale-110 border-2 border-white/20 backdrop-blur-sm">
-                                <i class="fas fa-play text-white text-sm md:text-xl group-hover:scale-110 transition-transform duration-200 ml-0.5"></i>
+                                    class="group relative w-12 h-12 md:w-16 md:h-16 bg-theme-success rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-xl hover:scale-110 hover:bg-theme-success-600 border-2 border-white/20 backdrop-blur-sm">
+                                <i class="fas fa-play text-theme-text-onprimary text-sm md:text-xl group-hover:scale-110 transition-transform duration-200 ml-0.5"></i>
                             </button>
                             <button onclick="showDescriptionModal()" title="Read description"
-                                    class="group relative w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-xl hover:scale-110 border-2 border-white/20 backdrop-blur-sm">
-                                <i class="fas fa-eye text-white text-sm md:text-xl group-hover:scale-110 transition-transform duration-200"></i>
+                                    class="group relative w-12 h-12 md:w-16 md:h-16 bg-theme-info rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-xl hover:scale-110 hover:bg-theme-info-600 border-2 border-white/20 backdrop-blur-sm">
+                                <i class="fas fa-eye text-theme-text-onprimary text-sm md:text-xl group-hover:scale-110 transition-transform duration-200"></i>
                             </button>
                         </div>
                     </div>
@@ -865,7 +873,14 @@ function renderWarmupActivity(container, content) {
                 <div class="p-6 text-center">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to Your Lesson!</h2>
                 
-                    <p class="text-blue-600 font-medium">🌟 Wishing you an amazing learning experience! Good luck! 🚀</p>
+                    <p class="text-theme-danger font-medium">🌟 Wishing you an amazing learning experience! Good luck! 🚀</p>
+                    
+                    <!-- Swipe Hand Indicator -->
+                    <div class="swipe-hand-indicator">
+                        <div class="swipe-hand">
+                            <span class="hand-icon">👉</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -892,11 +907,11 @@ function renderCongratulationsActivity(container, content) {
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">${content.title}</h2>
                 <p class="text-lg text-gray-600 mb-8">${content.message}</p>
                 <div class="flex justify-center items-center gap-4 mb-6">
-                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                        <i class="fas fa-trophy text-white text-2xl"></i>
+                    <div class="w-16 h-16 bg-theme-accent rounded-full flex items-center justify-center">
+                        <i class="fas fa-trophy text-theme-text-onprimary text-2xl"></i>
                     </div>
                 </div>
-                <div class="text-sm text-gray-500">Activity ${learningActivities.length} of ${learningActivities.length} - Complete!</div>
+                <div class="text-sm text-gray-500">Activity ${learningActivities.filter(a => a.type !== 'warmup' && a.type !== 'congratulations').length} of ${learningActivities.filter(a => a.type !== 'warmup' && a.type !== 'congratulations').length} - Complete!</div>
             </div>
         </div>
     `;
@@ -975,7 +990,9 @@ function showStoredResults() {
 function createProgressDots({ count, currentIndex, studiedItems, theme }) {
     const themeClasses = {
         blue: 'bg-blue-500 shadow-blue-500/50',
-        purple: 'bg-purple-500 shadow-purple-500/50'
+        purple: 'bg-purple-500 shadow-purple-500/50',
+        primary: 'bg-theme-primary shadow-theme-primary/50',
+        success: 'bg-theme-success shadow-theme-success/50'
     };
     const activeClasses = themeClasses[theme] || themeClasses.blue;
 
@@ -999,8 +1016,10 @@ function createProgressDots({ count, currentIndex, studiedItems, theme }) {
 // Reusable function to create navigation buttons
 function createNavigationButtons({ prevAction, nextAction, isFirst, isLast, theme, activityType }) {
     const themeClasses = {
-        blue: 'from-blue-500 to-purple-600',
-        purple: 'from-purple-500 to-pink-600'
+        blue: 'bg-blue-500 hover:bg-blue-600',
+        purple: 'bg-purple-500 hover:bg-purple-600',
+        primary: 'bg-theme-primary hover:bg-theme-primary-600',
+        success: 'bg-theme-success hover:bg-theme-success-600'
     };
     const currentTheme = themeClasses[theme] || themeClasses.blue;
 
@@ -1012,7 +1031,7 @@ function createNavigationButtons({ prevAction, nextAction, isFirst, isLast, them
                 <span class="hidden sm:inline">Previous</span>
             </button>
             <button onclick="${nextAction}"
-                    class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gradient-to-r ${currentTheme} text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                    class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 ${currentTheme} text-theme-text-onprimary rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                 ${isLast ? '<i class="fas fa-check-circle text-xs sm:text-sm"></i><span class="hidden sm:inline">Complete</span>' : '<span class="hidden sm:inline">Next</span> <i class="fas fa-arrow-right text-xs sm:text-sm"></i>'}
             </button>
         </div>

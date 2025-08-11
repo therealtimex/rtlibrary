@@ -173,7 +173,7 @@ class LearningAnalytics {
             const totalDuration = this.sessionStartTime ? 
                 Math.round((endTime - this.sessionStartTime) / 1000) : 0;
             const activitiesCompleted = completedActivities ? completedActivities.size : 0;
-            const totalActivities = learningActivities ? learningActivities.length : 0;
+            const totalActivities = learningActivities ? learningActivities.filter(a => a.type !== 'warmup' && a.type !== 'congratulations').length : 0;
             const completionPercentage = totalActivities > 0 ? 
                 Math.round((activitiesCompleted / totalActivities) * 100) : 0;
 
