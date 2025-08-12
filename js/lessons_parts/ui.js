@@ -460,6 +460,22 @@ function showActivity(index) {
     currentActivityIndex = index;
     currentWordIndex = 0; // Reset word index for new activity
     const activity = learningActivities[currentActivityIndex];
+    
+    // Debug: Check if activity exists and has required properties
+    console.log('DEBUG: learningActivities array:', learningActivities);
+    console.log('DEBUG: Requested index:', index, 'Activity at index:', activity);
+    
+    if (!activity) {
+        console.error('Activity not found at index:', index, 'learningActivities:', learningActivities);
+        return;
+    }
+    
+    if (!activity.type) {
+        console.error('Activity missing type property:', activity);
+        console.error('Activity keys:', Object.keys(activity));
+        return;
+    }
+    
     console.log('Showing activity:', activity.type, activity.id);
 
     // Update analytics context when activity changes
@@ -518,20 +534,20 @@ function renderProgressBar() {
         const stepContainer = document.createElement('div');
 
         if (isWarmup || isCongratulations) {
-            // Milestone (centered)
-            stepContainer.className = 'flex items-center justify-center px-4';
+            // Milestone (centered) - more compact
+            stepContainer.className = 'flex items-center justify-center px-2';
             if (index === currentActivityIndex) {
                 stepContainer.className += ' animate-pulse';
             }
         } else if (isVocab) {
-            // Vocabulary: no bar, but aligned with others.
-            stepContainer.className = 'relative h-1.5 transition-all duration-300 cursor-pointer pr-4';
+            // Vocabulary: no bar, but aligned with others - more compact
+            stepContainer.className = 'relative h-1 transition-all duration-300 cursor-pointer pr-2';
             if (index === currentActivityIndex) {
                 stepContainer.className += ' animate-pulse';
             }
         } else {
-            // Main activities with full progress bar
-            stepContainer.className = 'flex-1 h-1.5 bg-gray-200 rounded-full relative transition-all duration-300 cursor-pointer hover:bg-gray-300';
+            // Main activities with full progress bar - more compact
+            stepContainer.className = 'flex-1 h-1 bg-gray-200 rounded-full relative transition-all duration-300 cursor-pointer hover:bg-gray-300';
 
             if (index < currentActivityIndex) {
                 stepContainer.className += ' bg-gradient-to-r from-green-500 to-green-600';
@@ -546,9 +562,9 @@ function renderProgressBar() {
         const indicator = document.createElement('div');
 
         if (isWarmup || isCongratulations) {
-            indicator.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-300 border-2 border-white shadow-lg';
+            indicator.className = 'w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all duration-300 border border-white shadow-md';
         } else {
-            indicator.className = 'absolute -top-3 -right-1 w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all duration-300 border-2 border-white shadow-lg';
+            indicator.className = 'absolute -top-2 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs transition-all duration-300 border border-white shadow-md';
         }
 
         // Set indicator state and icon
@@ -565,11 +581,11 @@ function renderProgressBar() {
             }
         } else if (index === currentActivityIndex) {
             if (isWarmup) {
-                indicator.className += ' bg-theme-danger text-theme-text-onprimary scale-110 shadow-theme-danger/50';
+                indicator.className += ' bg-theme-danger text-theme-text-onprimary scale-105 shadow-theme-danger/40';
             } else if (isCongratulations) {
-                indicator.className += ' bg-theme-accent text-theme-text-onprimary scale-110 shadow-theme-accent/50';
+                indicator.className += ' bg-theme-accent text-theme-text-onprimary scale-105 shadow-theme-accent/40';
             } else {
-                indicator.className += ' bg-theme-primary text-theme-text-onprimary scale-110 shadow-theme-primary/50';
+                indicator.className += ' bg-theme-primary text-theme-text-onprimary scale-105 shadow-theme-primary/40';
             }
             indicator.innerHTML = `<i class="${activityInfo.icon}"></i>`;
         } else {
@@ -584,31 +600,31 @@ function renderProgressBar() {
         const label = document.createElement('div');
 
         if (isMainActivity) {
-            // Main activity (including vocab)
-            label.className = 'text-xs text-center min-w-[60px] sm:min-w-[60px] min-w-[45px] cursor-pointer p-1 rounded-md transition-all duration-300 hover:bg-gray-100 flex flex-col items-center gap-1';
+            // Main activity (including vocab) - more compact
+            label.className = 'text-xs text-center min-w-[40px] sm:min-w-[50px] cursor-pointer px-1 py-0.5 rounded transition-all duration-300 hover:bg-gray-100 flex flex-col items-center';
 
             if (index < currentActivityIndex) {
-                label.className += ' text-theme-success font-semibold';
+                label.className += ' text-theme-success font-medium';
             } else if (index === currentActivityIndex) {
-                label.className += ' text-blue-600 font-semibold bg-blue-50';
+                label.className += ' text-blue-600 font-medium bg-blue-50';
             } else {
                 label.className += ' text-gray-600';
             }
 
-            label.innerHTML = `<div class="text-[10px] sm:text-xs">${activityInfo.name}</div>`;
+            label.innerHTML = `<div class="text-[9px] sm:text-[10px]">${activityInfo.name}</div>`;
         } else {
-            // Milestone label (warmup, congratulations)
-            label.className = 'text-xs text-center min-w-[50px] sm:min-w-[50px] min-w-[40px] cursor-pointer p-1 transition-all duration-300 flex flex-col items-center gap-1';
+            // Milestone label (warmup, congratulations) - more compact
+            label.className = 'text-xs text-center min-w-[35px] sm:min-w-[40px] cursor-pointer px-1 py-0.5 transition-all duration-300 flex flex-col items-center';
 
             if (index < currentActivityIndex) {
                 label.className += ' text-green-600';
             } else if (index === currentActivityIndex) {
-                label.className += ' text-blue-600 font-semibold';
+                label.className += ' text-blue-600 font-medium';
             } else {
                 label.className += ' text-gray-500';
             }
 
-            label.innerHTML = `<div class="hidden sm:block text-[10px] sm:text-xs opacity-75">${activityInfo.name}</div>`;
+            label.innerHTML = `<div class="hidden sm:block text-[9px] opacity-75">${activityInfo.name}</div>`;
         }
 
         label.onclick = () => showActivity(index);

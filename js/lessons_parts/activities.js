@@ -51,31 +51,40 @@ function renderVocabularyActivity(container, content) {
 
         container.innerHTML = `
             <div class="animate-slide-in">
-                <div class="bg-white rounded-3xl shadow-lg mb-4 overflow-hidden">
-                    <div class="p-4 sm:p-6 pb-4 text-center border-b border-gray-100">
-                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center justify-center gap-2 mb-2">
+                <div class="bg-white rounded-3xl mb-4 overflow-hidden" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
+                    ${currentWordIndex === 0 ? `
+                    <div class="p-3 sm:p-4 pb-3 text-center border-b border-gray-100">
+                        <h2 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center justify-center gap-2">
                             <i class="fas fa-book-open text-theme-primary"></i>
                             Vocabulary Learning
                         </h2>
-                        <p class="text-sm text-gray-600">Word ${currentWordIndex + 1} of ${content.words.length}</p>
                     </div>
-                    <div class="p-4 sm:p-6">
-                        <div class="text-center mb-6 sm:mb-8">
-                            <img src="${getAssetUrl(word.image)}" alt="${word.word}" class="w-full max-w-72 sm:max-w-80 h-48 sm:h-56 object-cover rounded-2xl shadow-lg mx-auto mb-4 sm:mb-6">
+                    ` : ''}
+                    <div class="p-3 sm:p-4 md:p-6">
+                        <div class="text-center mb-3 sm:mb-4">
+                            <img src="${getAssetUrl(word.image)}" alt="${word.word}" class="w-full max-w-64 sm:max-w-72 md:max-w-80 lg:max-w-96 h-40 sm:h-48 md:h-56 lg:h-64 object-cover rounded-2xl shadow-lg mx-auto mb-2 sm:mb-3">
                             <div class="flex items-center justify-center gap-2 sm:gap-3 mb-2">
-                                <div class="text-3xl sm:text-5xl font-extrabold text-theme-primary">${word.word}</div>
+                                <div class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-theme-primary">${word.word}</div>
                                 <button onclick="playAudioFile('${getAssetUrl(word.audio)}', this)" 
                                         class="btn-audio group w-10 h-10 sm:w-12 sm:h-12 bg-theme-success rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-lg hover:shadow-theme-success/30 hover:scale-110 hover:bg-theme-success-600 border-2 border-white/20 backdrop-blur-sm"
                                         title="Listen to pronunciation">
                                     <i class="fas fa-volume-up text-theme-text-onprimary text-sm sm:text-lg group-hover:scale-110 transition-transform duration-200"></i>
                                 </button>
                             </div>
-                            <div class="text-base sm:text-lg text-gray-700 p-3 sm:p-4 bg-gradient-to-r from-theme-primary-50 to-theme-primary-100 rounded-xl border border-theme-primary-200 mb-4 sm:mb-6 max-w-sm sm:max-w-md mx-auto" onmouseenter="trackMeaningView('${word.word}')" ontouchstart="trackMeaningView('${word.word}')">${word.meaning}</div>
+                            <div class="text-sm sm:text-base md:text-lg text-gray-700 p-3 sm:p-4 md:p-5 bg-gradient-to-r from-theme-primary-50 to-theme-primary-100 rounded-xl border border-theme-primary-200 mb-2 sm:mb-3 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto" onmouseenter="trackMeaningView('${word.word}')" ontouchstart="trackMeaningView('${word.word}')">${word.meaning}</div>
                         </div>
 
-                        ${createProgressDots({ count: content.words.length, currentIndex: currentWordIndex, studiedItems: studiedWords, theme: 'primary' })}
-
-                        ${createNavigationButtons({ prevAction: 'prevWord()', nextAction: 'nextWord()', isFirst: currentWordIndex === 0, isLast: currentWordIndex === content.words.length - 1, theme: 'primary', activityType: 'vocabulary' })}
+                        <div class="flex justify-center gap-4 sm:gap-6 md:gap-8 mb-3 sm:mb-4">
+                            <button onclick="prevWord()" ${currentWordIndex === 0 ? 'disabled' : ''}
+                                    class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-3 bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl text-sm sm:text-base md:text-base font-semibold border border-gray-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                                <i class="fas fa-arrow-left text-xs sm:text-sm md:text-sm"></i>
+                                <span class="hidden sm:inline md:inline">Previous</span>
+                            </button>
+                            <button onclick="nextWord()"
+                                    class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-3 bg-theme-primary hover:bg-theme-primary-600 text-theme-text-onprimary rounded-lg sm:rounded-xl text-sm sm:text-base md:text-base font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                                ${currentWordIndex === content.words.length - 1 ? '<i class="fas fa-check-circle text-xs sm:text-sm"></i><span class="hidden sm:inline">Complete</span>' : '<span class="hidden sm:inline">Next</span> <i class="fas fa-arrow-right text-xs sm:text-sm"></i>'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -97,23 +106,38 @@ function renderVocabularyActivity(container, content) {
     }
 
     window.nextWord = async () => {
+        // Prevent multiple rapid clicks
+        if (window.nextWordProcessing) {
+            console.log('nextWord: Already processing, ignoring duplicate call');
+            return;
+        }
+        
+        window.nextWordProcessing = true;
         console.log('nextWord called. currentWordIndex before endTracking:', currentWordIndex);
-        await vocabularyTimeTracker.endTracking();
-        console.log('nextWord: endTracking completed. currentWordIndex before increment:', currentWordIndex);
+        
+        try {
+            await vocabularyTimeTracker.endTracking();
+            console.log('nextWord: endTracking completed. currentWordIndex before increment:', currentWordIndex);
 
-        studiedWords.add(currentWordIndex);
-        if (currentWordIndex < content.words.length - 1) {
-            currentWordIndex++;
-            console.log('nextWord: currentWordIndex incremented to:', currentWordIndex);
-            renderWord();
+            studiedWords.add(currentWordIndex);
+            if (currentWordIndex < content.words.length - 1) {
+                currentWordIndex++;
+                console.log('nextWord: currentWordIndex incremented to:', currentWordIndex);
+                renderWord();
 
-            const newWord = content.words[currentWordIndex];
-            if (newWord) {
-                vocabularyTimeTracker.startTracking(newWord.word);
+                const newWord = content.words[currentWordIndex];
+                if (newWord) {
+                    vocabularyTimeTracker.startTracking(newWord.word);
+                }
+            } else {
+                console.log('nextWord: Reached last word. Calling markActivityCompleted.');
+                markActivityCompleted();
             }
-        } else {
-            console.log('nextWord: Reached last word. Calling markActivityCompleted.');
-            markActivityCompleted();
+        } finally {
+            // Reset processing flag after a short delay
+            setTimeout(() => {
+                window.nextWordProcessing = false;
+            }, 500);
         }
     };
 
@@ -1039,8 +1063,18 @@ function createNavigationButtons({ prevAction, nextAction, isFirst, isLast, them
 }
 // Activity completion and navigation
 window.markActivityCompleted = () => {
+    // Prevent multiple rapid clicks
+    if (window.markActivityCompletedProcessing) {
+        console.log('markActivityCompleted: Already processing, ignoring duplicate call');
+        return;
+    }
+    
+    window.markActivityCompletedProcessing = true;
     console.log('markActivityCompleted called');
     const currentActivity = learningActivities[currentActivityIndex];
+    
+    // Debug: Log current activity details
+    console.log('markActivityCompleted: Processing activity:', currentActivity?.type, 'at index:', currentActivityIndex);
 
     // If the current activity is vocabulary, ensure tracking for the current word is ended
     // The endTracking is primarily handled by nextWord/prevWord, so this is a safeguard.
@@ -1072,18 +1106,22 @@ window.markActivityCompleted = () => {
 
     // Call progress callback if provided
     if (typeof progressCallback === 'function') {
+        console.log('DEBUG: About to call progressCallback');
+        console.log('DEBUG: learningActivities before progressCallback:', learningActivities);
         const updatedActivity = {
             ...currentActivity,
             completed: true,
             completed_at: new Date().toISOString()
         };
         progressCallback(updatedActivity);
+        console.log('DEBUG: learningActivities after progressCallback:', learningActivities);
     }
 
     // Auto advance to next activity or show completion
     if (currentActivityIndex < learningActivities.length - 1) {
-        console.log('Advancing to next activity...');
+        console.log('Advancing to next activity...', 'Current index:', currentActivityIndex, 'Total activities:', learningActivities.length);
         setTimeout(() => {
+            console.log('About to call nextActivity(), currentActivityIndex:', currentActivityIndex);
             nextActivity();
         }, 1000);
     } else {
@@ -1098,6 +1136,11 @@ window.markActivityCompleted = () => {
             showCourseCompletion();
         }, 1000);
     }
+    
+    // Reset processing flag after completion
+    setTimeout(() => {
+        window.markActivityCompletedProcessing = false;
+    }, 1500); // Longer delay to ensure activity transition completes
 };
 
 window.nextActivity = () => {
@@ -1121,7 +1164,10 @@ window.nextActivity = () => {
     }
 
     if (currentActivityIndex < learningActivities.length - 1) {
-        showActivity(currentActivityIndex + 1);
+        const nextIndex = currentActivityIndex + 1;
+        console.log('nextActivity: Moving from index', currentActivityIndex, 'to index', nextIndex);
+        console.log('nextActivity: Next activity will be:', learningActivities[nextIndex]?.type);
+        showActivity(nextIndex);
     } else {
         console.log('Reached last activity. Calling showCourseCompletion().');
         showCourseCompletion();

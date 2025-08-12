@@ -154,6 +154,10 @@ function loadLessonData(jsonData) {
         lessonData = restructuredActivities;
         warmupData = null; // No longer separate
         learningActivities = restructuredActivities; // All activities now
+        
+        // Debug: Verify learningActivities after assignment
+        console.log('DEBUG: learningActivities after assignment:', learningActivities);
+        console.log('DEBUG: First activity type:', learningActivities[0]?.type);
 
         console.log('Data restructured:', {
             totalActivities: learningActivities.length,
@@ -162,6 +166,11 @@ function loadLessonData(jsonData) {
 
         // Render with new structure (like in original file)
         renderProgressBar();
+        
+        // Final check before showing activity
+        console.log('DEBUG: Final check - learningActivities before showActivity:', learningActivities);
+        console.log('DEBUG: Final check - learningActivities[0]:', learningActivities[0]);
+        
         showActivity(0); // Start with warmup
 
         return restructuredActivities;
