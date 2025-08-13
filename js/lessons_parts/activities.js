@@ -51,16 +51,16 @@ function renderVocabularyActivity(container, content) {
 
         container.innerHTML = `
             <div class="animate-slide-in">
-                <div class="bg-white rounded-3xl mb-4 overflow-hidden min-h-[75vh] max-h-[90vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
+                <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[75vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
                     ${currentWordIndex === 0 ? `
-                    <div class="p-[2vh] sm:p-[3vh] pb-[2vh] text-center border-b border-gray-100 flex-shrink-0">
+                    <div class="p-[1.5vh] sm:p-[2vh] pb-[1.5vh] text-center border-b border-gray-100 flex-shrink-0">
                         <h2 class="text-[clamp(1.25rem,4vw,2rem)] font-bold text-gray-800 flex items-center justify-center gap-2">
                             <i class="fas fa-book-open text-theme-primary"></i>
                             Vocabulary Learning
                         </h2>
                     </div>
                     ` : ''}
-                    <div class="p-[2vh] sm:p-[3vh] md:p-[4vh] flex-grow flex flex-col justify-center min-h-0">
+                    <div class="p-[2vh] sm:p-[3vh] md:p-[4vh] flex-grow flex flex-col justify-center min-h-0 overflow-y-auto">
                         <div class="text-center mb-[3vh] sm:mb-[4vh] flex-grow flex flex-col justify-center">
                             <img src="${getAssetUrl(word.image)}" alt="${word.word}" class="w-full max-w-[min(80vw,24rem)] h-[min(35vh,18rem)] sm:h-[min(40vh,20rem)] object-cover rounded-2xl shadow-lg mx-auto mb-[2vh] sm:mb-[3vh] flex-shrink-0">
                             <div class="flex items-center justify-center gap-[1vw] sm:gap-[2vw] mb-[1vh] sm:mb-[2vh]">
@@ -190,16 +190,16 @@ function renderPronunciationActivity(container, content) {
 
         container.innerHTML = `
             <div class="animate-slide-in">
-                <div class="bg-white rounded-3xl mb-4 overflow-hidden min-h-[75vh] max-h-[90vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
+                <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[75vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
                     ${currentWordIndex === 0 ? `
-                    <div class="p-[2vh] sm:p-[3vh] pb-[2vh] text-center border-b border-gray-100 flex-shrink-0">
-                        <h2 class="text-[clamp(1.25rem,4vw,2rem)] font-bold text-gray-800 flex items-center justify-center gap-2 mb-[1vh]">
+                    <div class="p-[1.5vh] sm:p-[2vh] pb-[1.5vh] text-center border-b border-gray-100 flex-shrink-0">
+                        <h2 class="text-[clamp(1.25rem,4vw,2rem)] font-bold text-gray-800 flex items-center justify-center gap-2">
                             <i class="fas fa-microphone text-theme-success"></i>
                             Pronunciation Practice
                         </h2>
                     </div>
                     ` : ''}
-                    <div class="p-[2vh] sm:p-[3vh] md:p-[4vh] flex-grow flex flex-col justify-center min-h-0">
+                    <div class="p-[2vh] sm:p-[3vh] md:p-[4vh] flex-grow flex flex-col justify-center min-h-0 overflow-y-auto">
                         <div class="text-center mb-[4vh] sm:mb-[6vh] flex-grow flex flex-col justify-center">
                             <div class="text-[clamp(2rem,8vw,6rem)] font-extrabold text-theme-success mb-[3vh] sm:mb-[4vh] flex-shrink-0" id="reference-text">${word.word}</div>
                             <div class="flex items-center justify-center gap-[2vw] mb-[3vh] sm:mb-[4vh] flex-shrink-0">
@@ -395,23 +395,31 @@ function renderDialogActivity(container, content) {
 
     container.innerHTML = `
         <div class="animate-slide-in">
-            <div class="bg-white rounded-3xl mb-4 overflow-hidden min-h-[75vh] max-h-[90vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
-                <div class="p-[2vh] sm:p-[3vh] pb-[2vh] text-center border-b border-gray-100 flex-shrink-0">
-                    <h2 class="text-[clamp(1.25rem,4vw,2rem)] font-bold text-gray-800 flex items-center justify-center gap-2 mb-[1vh]">
+            <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[75vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
+                <div class="p-[1.5vh] sm:p-[2vh] pb-[1.5vh] text-center border-b border-gray-100 flex-shrink-0">
+                    <h2 class="text-[clamp(1.25rem,4vw,2rem)] font-bold text-gray-800 flex items-center justify-center gap-2">
                         <i class="fas fa-comments text-theme-secondary"></i>
                         ${content.title || 'Dialog Activity'}
                     </h2>
-                    <p class="text-[clamp(0.875rem,2.5vw,1.125rem)] text-gray-600">${content.description || ''}</p>
                 </div>
-                <div class="p-[2vh] sm:p-[3vh] md:p-[4vh] flex-grow flex flex-col justify-center min-h-0 overflow-y-auto">
-                    <div class="space-y-[3vh] sm:space-y-[4vh] mb-[4vh] sm:mb-[6vh] flex-grow flex flex-col justify-center">
+                <div class="p-[2vh] sm:p-[3vh] md:p-[4vh] flex-grow flex flex-col min-h-0 overflow-y-auto">
+                    <!-- Play All Button - Top Left -->
+                    <div class="mb-3 sm:mb-4 flex-shrink-0">
+                        <button onclick="toggleDialogPlayback()" id="play-all-dialog-btn"
+                                class="btn-audio inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-theme-secondary text-theme-text-onprimary rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 hover:bg-theme-secondary-600 transition-all duration-300 text-sm sm:text-base">
+                            <i class="fas fa-volume-up"></i>
+                            <span>Play All</span>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-[2vh] sm:space-y-[2.5vh] mb-[2vh] sm:mb-[3vh]">
                         ${content.dialog.map((line, index) => `
                             <div class="flex items-start gap-[2vw] sm:gap-[3vw]">
                                 <div class="w-[clamp(3rem,8vw,4rem)] h-[clamp(3rem,8vw,4rem)] rounded-full ${line.speaker === 'A' ? 'bg-theme-secondary' : 'bg-theme-primary'} flex items-center justify-center text-[clamp(1.25rem,4vw,2rem)] flex-shrink-0">
                                     <span>${line.speaker === 'A' ? '👨' : '👩'}</span>
                                 </div>
                                 <div class="flex-1 max-w-[min(80vw,32rem)]">
-                                    <div class="relative ${line.speaker === 'A' ? 'bg-theme-secondary-50 border-theme-secondary-200' : 'bg-theme-primary-50 border-theme-primary-200'} rounded-2xl p-[2vh] sm:p-[3vh] border">
+                                    <div class="relative ${line.speaker === 'A' ? 'bg-theme-secondary-50 border-theme-secondary-200' : 'bg-theme-primary-50 border-theme-primary-200'} rounded-2xl p-[1.5vh] sm:p-[2vh] border">
                                         <p class="text-[clamp(1rem,3vw,1.5rem)] text-gray-800 pr-[2vw]">${line.text}</p>
                                         ${line.phonetic ? `<p class="text-xs text-gray-500 mt-1 pr-8">${line.phonetic}</p>` : ''}
                                         <button onclick="playAndTrackDialogLine('${getAssetUrl(line.audio)}', ${index}, this)" 
@@ -425,15 +433,9 @@ function renderDialogActivity(container, content) {
                         `).join('')}
                     </div>
                     
-                    <div class="text-center mb-6 sm:mb-8">
-                        <button onclick="toggleDialogPlayback()" id="play-all-dialog-btn"
-                                class="btn-audio inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-theme-secondary text-theme-text-onprimary rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 hover:bg-theme-secondary-600 transition-all duration-300 text-sm sm:text-base">
-                            <i class="fas fa-volume-up"></i>
-                            <span>Play All</span>
-                        </button>
-                    </div>
+
                     
-                    <div class="text-center mt-8 mb-6">
+                    <div class="text-center mt-auto mb-4 flex-shrink-0">
                         <button onclick="markActivityCompleted()" class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-theme-success text-theme-text-onprimary rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:-translate-y-0.5 hover:bg-theme-success-600 transition-all duration-300">
                             <i class="fas fa-check-circle text-xs sm:text-sm"></i>
                             <span class="hidden sm:inline">Complete Dialog</span>
@@ -601,11 +603,11 @@ function renderQuizActivity(container, content) {
 
         container.innerHTML = `
             <div class="animate-slide-in">
-                <div class="bg-white rounded-3xl mb-4 overflow-hidden min-h-[70vh] max-h-[85vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
+                <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[75vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
 
-                    <div class="p-[2vh] sm:p-[3vh] pb-[2vh] text-center border-b border-gray-100 flex-shrink-0">
+                    <div class="p-[1.5vh] sm:p-[2vh] pb-[1.5vh] text-center border-b border-gray-100 flex-shrink-0">
                         ${questionIndex === 0 ? `
-                            <h2 class="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2 mb-2">
+                            <h2 class="text-[clamp(1.25rem,4vw,2rem)] font-bold text-gray-800 flex items-center justify-center gap-2">
                                 <i class="fas fa-question-circle text-theme-warning"></i>
                                 Quiz Time
                             </h2>
@@ -992,8 +994,8 @@ function renderWarmupActivity(container, content) {
 
     container.innerHTML = `
         <div class="animate-slide-in">
-            <div class="bg-white rounded-3xl shadow-lg overflow-hidden min-h-[60vh] max-h-[80vh] flex flex-col">
-                <div class="relative w-full flex-grow overflow-hidden group">
+            <div class="bg-white rounded-3xl shadow-lg overflow-hidden h-[75vh] flex flex-col">
+                <div class="relative w-full flex-grow overflow-y-auto group">
                     <img src="${avatarUrl}" alt="Learning Image" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent flex items-center justify-center">
                         <div class="flex gap-3 md:gap-6 items-center transform hover:scale-105 transition-transform duration-300">
@@ -1036,7 +1038,7 @@ function renderWarmupActivity(container, content) {
 function renderCongratulationsActivity(container, content) {
     container.innerHTML = `
         <div class="animate-slide-in">
-            <div class="bg-white rounded-3xl shadow-lg min-h-[60vh] max-h-[80vh] flex flex-col justify-center p-8 text-center completion-screen">
+            <div class="bg-white rounded-3xl shadow-lg h-[75vh] flex flex-col justify-center p-8 text-center completion-screen overflow-y-auto">
                 <div class="text-6xl mb-6">🎉</div>
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">${content.title}</h2>
                 <p class="text-lg text-gray-600 mb-8">${content.message}</p>
