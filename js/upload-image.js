@@ -195,7 +195,7 @@ function updateProcessingDisplay(processingData) {
         const createdTime = formatDateTime(item.created_at);
 
         return `
-            <div class="bg-theme-surface rounded-lg p-4 shadow-sm border-l-4 ${statusColor}">
+            <div class="bg-theme-surface rounded-lg p-4 shadow-sm border-l-4 ${statusColor} relative">
                 <div class="flex items-start gap-3">
                     <div class="flex-shrink-0">
                         <div class="relative">
@@ -214,9 +214,6 @@ function updateProcessingDisplay(processingData) {
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
                             <span class="text-sm font-medium text-theme-text-primary">Creating English Lesson</span>
-                            <span class="text-xs px-2 py-1 rounded-full ${getStatusBadgeClass(item.status)}">
-                                ${item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'Unknown'}
-                            </span>
                         </div>
                         <p class="text-xs text-theme-text-secondary mb-2">
                             Created: ${createdTime}
@@ -230,6 +227,14 @@ function updateProcessingDisplay(processingData) {
                             <div class="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-theme-primary"></div>
                         ` : ''}
                     </div>
+                </div>
+                <div class="absolute top-2 right-2">
+                    ${item.lesson_type ? `<span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">${item.lesson_type.charAt(0).toUpperCase() + item.lesson_type.slice(1)}</span>` : ''}
+                </div>
+                <div class="absolute bottom-2 right-2">
+                    <span class="text-xs px-2 py-1 rounded-full ${getStatusBadgeClass(item.status)}">
+                        ${item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'Unknown'}
+                    </span>
                 </div>
             </div>
         `;
