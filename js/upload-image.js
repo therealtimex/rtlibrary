@@ -332,15 +332,21 @@ function formatDateTime(dateString) {
 
 function loadImageThumbnail(itemId, imageUrl) {
     const thumbnailElement = document.getElementById(`thumb-${itemId}`);
-    if (!thumbnailElement) return;
+    if (!thumbnailElement || !imageUrl) return;
 
-    Storage.getSignedUrlWithTransform(imageUrl, 3600, 64, 64, 80, 'cover')
-        .then(signedUrl => {
-            thumbnailElement.src = signedUrl;
-        })
-        .catch(error => {
-            console.error(`Failed to load thumbnail for item ${itemId}:`, error);
-        });
+    // Use public URL format for displaying images
+    const publicImageUrl = `https://app.realtimex.co/storage/v1/object/public/${imageUrl}`;
+
+    thumbnailElement.src = publicImageUrl;
+    thumbnailElement.style.display = 'block';
+    thumbnailElement.nextElementSibling.style.display = 'none';
+
+    // Handle image load error
+    thumbnailElement.onerror = function () {
+        console.error('Failed to load thumbnail for item', itemId, ':', publicImageUrl);
+        this.style.display = 'none';
+        this.nextElementSibling.style.display = 'flex';
+    };
 }
 
 // Initialize when DOM is ready
