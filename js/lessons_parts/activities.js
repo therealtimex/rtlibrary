@@ -51,7 +51,7 @@ function renderVocabularyActivity(container, content) {
 
         container.innerHTML = `
             <div class="animate-slide-in">
-                <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[75vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
+                <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[85vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
                     ${currentWordIndex === 0 ? `
                     <div class="p-[1.5vh] sm:p-[2vh] pb-[1.5vh] text-center border-b border-gray-100 flex-shrink-0">
                         <h2 class="text-[clamp(1.25rem,4vw,2rem)] font-bold text-gray-800 flex items-center justify-center gap-2">
@@ -190,7 +190,7 @@ function renderPronunciationActivity(container, content) {
 
         container.innerHTML = `
             <div class="animate-slide-in">
-                <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[75vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
+                <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[85vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
                     ${currentWordIndex === 0 ? `
                     <div class="p-[1.5vh] sm:p-[2vh] pb-[1.5vh] text-center border-b border-gray-100 flex-shrink-0">
                         <h2 class="text-[clamp(1.25rem,4vw,2rem)] font-bold text-gray-800 flex items-center justify-center gap-2">
@@ -395,7 +395,7 @@ function renderDialogActivity(container, content) {
 
     container.innerHTML = `
         <div class="animate-slide-in">
-            <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[75vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
+            <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[85vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
                 <div class="p-[1.5vh] sm:p-[2vh] pb-[1.5vh] text-center border-b border-gray-100 flex-shrink-0">
                     <h2 class="text-[clamp(1.25rem,4vw,2rem)] font-bold text-gray-800 flex items-center justify-center gap-2">
                         <i class="fas fa-comments text-theme-secondary"></i>
@@ -603,7 +603,7 @@ function renderQuizActivity(container, content) {
 
         container.innerHTML = `
             <div class="animate-slide-in">
-                <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[75vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
+                <div class="bg-white rounded-3xl mb-4 overflow-hidden h-[85vh] flex flex-col" style="box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
 
                     <div class="p-[1.5vh] sm:p-[2vh] pb-[1.5vh] text-center border-b border-gray-100 flex-shrink-0">
                         ${questionIndex === 0 ? `
@@ -994,7 +994,7 @@ function renderWarmupActivity(container, content) {
 
     container.innerHTML = `
         <div class="animate-slide-in">
-            <div class="bg-white rounded-3xl shadow-lg overflow-hidden h-[75vh] flex flex-col">
+            <div class="bg-white rounded-3xl shadow-lg overflow-hidden h-[85vh] flex flex-col">
                 <div class="relative w-full flex-grow overflow-y-auto group">
                     <img src="${avatarUrl}" alt="Learning Image" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent flex items-center justify-center">
@@ -1038,7 +1038,7 @@ function renderWarmupActivity(container, content) {
 function renderCongratulationsActivity(container, content) {
     container.innerHTML = `
         <div class="animate-slide-in">
-            <div class="bg-white rounded-3xl shadow-lg h-[75vh] flex flex-col justify-center p-8 text-center completion-screen overflow-y-auto">
+            <div class="bg-white rounded-3xl shadow-lg h-[85vh] flex flex-col justify-center p-8 text-center completion-screen overflow-y-auto">
                 <div class="text-6xl mb-6">🎉</div>
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">${content.title}</h2>
                 <p class="text-lg text-gray-600 mb-8">${content.message}</p>
