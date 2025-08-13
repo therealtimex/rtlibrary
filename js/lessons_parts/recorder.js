@@ -625,6 +625,20 @@ async function analyzeAudio() {
 
         displayResults(result);
 
+        // Mark current word as checked and show navigation buttons
+        if (window.pronunciationCheckedWords && typeof currentActivityIndex !== 'undefined' && typeof currentWordIndex !== 'undefined') {
+            const wordKey = `${currentActivityIndex}-${currentWordIndex}`;
+            window.pronunciationCheckedWords.set(wordKey, true);
+            debugLog(`Marked word ${wordKey} as checked.`);
+        }
+        
+        const navigationDiv = document.getElementById('pronunciation-navigation');
+        if (navigationDiv) {
+            navigationDiv.classList.remove('hidden');
+            navigationDiv.classList.add('animate-slide-in');
+            debugLog('Pronunciation navigation buttons shown.');
+        }
+
     } catch (error) {
         debugLog(`Error analyzing audio: ${error.message}`);
         alert('Error analyzing pronunciation. Please try again.');

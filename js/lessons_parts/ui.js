@@ -175,7 +175,7 @@ function updateRecordingUI(isRec) {
 
         if (recordingDots) recordingDots.classList.add('hidden');
         if (soundWaves) soundWaves.classList.add('hidden');
-        if (recordStatus) recordStatus.innerHTML = '<span class="inline-block animate-bounce">🎤</span> Click to start recording';
+        if (recordStatus) recordStatus.innerHTML = '';
     }
 }
 
