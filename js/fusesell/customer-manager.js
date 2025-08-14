@@ -120,7 +120,7 @@ class CustomerManager {
       }
 
       console.log('Loading data with params:', params);
-      AppLocalStorage.fetchData(JSON.stringify(params), 'customerManager.dataCallback');
+      AppLocalStorage.fetchData(JSON.stringify(params), 'dataCallback');
       
     } catch (error) {
       this.state.isLoading = false;
@@ -384,13 +384,24 @@ class CustomerManager {
 
   // Navigation functions
   navigateToScreen(screenId, args = {}, get = {}, screenNumber = "", postBody = "") {
-    const actionData = {
-      actionID: 99, orderNumber: 1, type: "act_dm_view", label: "no label",
-      screen: screenNumber || "", alias: `fusesellai_${screenId}`, args
-    };
-    if (postBody) actionData.post = postBody;
-    if (Object.keys(get).length > 0) actionData.get = get;
-    App.callActionButton(JSON.stringify(actionData));
+    try {
+      if (typeof App === 'undefined' || !App.callActionButton) {
+        throw new Error('App framework is not available or callActionButton method is missing');
+      }
+
+      const actionData = {
+        actionID: 99, orderNumber: 1, type: "act_dm_view", label: "no label",
+        screen: screenNumber || "", alias: `fusesellai_${screenId}`, args
+      };
+      if (postBody) actionData.post = postBody;
+      if (Object.keys(get).length > 0) actionData.get = get;
+      
+      console.log('Navigating with action data:', actionData);
+      App.callActionButton(JSON.stringify(actionData));
+    } catch (error) {
+      alert(`Navigation Error:\n${error.message}\n\nScreen: ${screenId}`);
+      console.error('Navigation Error:', error);
+    }
   }
 
   openGoogleSheet() {
@@ -424,5 +435,4 @@ class CustomerManager {
   }
 }
 
-// Global instance
-let customerManager;
+// Note: customerManager variable is declared globally in the HTML file
