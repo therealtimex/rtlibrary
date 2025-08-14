@@ -27,25 +27,41 @@ class CustomerManager {
 
   // Initialize the manager
   init() {
-    this.cacheElements();
-    this.setupEvents();
-    this.loadData();
+    try {
+      console.log('Initializing Customer Manager...');
+      
+      this.cacheElements();
+      this.setupEvents();
+      this.loadData();
+      
+      console.log('Customer Manager initialized successfully');
+    } catch (error) {
+      alert(`Customer Manager Init Error:\n${error.message}\n\nStack: ${error.stack}`);
+      console.error('Customer Manager Init Error:', error);
+    }
   }
 
   // Cache DOM elements
   cacheElements() {
-    this.elements = {
-      searchInput: document.getElementById('searchInput'),
-      clearSearch: document.getElementById('clearSearch'),
-      customersList: document.getElementById('customersList'),
-      customerCount: document.getElementById('customerCount'),
-      sortText: document.getElementById('sortText'),
-      loading: document.getElementById('loading'),
-      empty: document.getElementById('empty'),
-      loadMore: document.getElementById('loadMore'),
-      endIndicator: document.getElementById('endIndicator'),
-      refreshBtn: document.getElementById('refreshBtn')
-    };
+    const elementIds = ['searchInput', 'clearSearch', 'customersList', 'customerCount', 'sortText', 'loading', 'empty', 'loadMore', 'endIndicator', 'refreshBtn'];
+    
+    this.elements = {};
+    const missingElements = [];
+    
+    elementIds.forEach(id => {
+      const element = document.getElementById(id);
+      if (!element) {
+        missingElements.push(id);
+      }
+      this.elements[id] = element;
+    });
+    
+    if (missingElements.length > 0) {
+      alert(`Missing DOM Elements:\n${missingElements.join(', ')}\n\nPlease check the HTML structure.`);
+      console.error('Missing DOM elements:', missingElements);
+    }
+    
+    console.log('DOM elements cached:', Object.keys(this.elements));
   }
 
   // Setup event listeners
@@ -75,36 +91,66 @@ class CustomerManager {
 
   // Data loading
   loadData() {
-    if (this.state.isLoading || !this.state.hasMoreData) return;
-    
-    this.state.isLoading = true;
-    this.showLoading();
+    try {
+      if (this.state.isLoading || !this.state.hasMoreData) return;
+      
+      // Check dependencies
+      if (typeof AppLocalStorage === 'undefined') {
+        throw new Error('AppLocalStorage is not available');
+      }
 
-    const params = {
-      limit: this.config.itemsPerPage,
-      offset: this.state.currentPage * this.config.itemsPerPage,
-      sort_by: 'date_created',
-      sort_order: this.state.sortOrder,
-      filters: window.APP_CONFIG.filters
-    };
+      if (!window.APP_CONFIG || !window.APP_CONFIG.filters) {
+        throw new Error('APP_CONFIG is not properly configured');
+      }
+      
+      this.state.isLoading = true;
+      this.showLoading();
 
-    if (this.state.searchQuery) {
-      params.search = this.state.searchQuery;
-      params.search_fields = ['customer_name', 'contact_name', 'customer_email', 'customer_phone'];
+      const params = {
+        limit: this.config.itemsPerPage,
+        offset: this.state.currentPage * this.config.itemsPerPage,
+        sort_by: 'date_created',
+        sort_order: this.state.sortOrder,
+        filters: window.APP_CONFIG.filters
+      };
+
+      if (this.state.searchQuery) {
+        params.search = this.state.searchQuery;
+        params.search_fields = ['customer_name', 'contact_name', 'customer_email', 'customer_phone'];
+      }
+
+      console.log('Loading data with params:', params);
+      AppLocalStorage.fetchData(JSON.stringify(params), 'customerManager.dataCallback');
+      
+    } catch (error) {
+      this.state.isLoading = false;
+      this.hideLoading();
+      alert(`Load Data Error:\n${error.message}\n\nPlease check the console for more details.`);
+      console.error('Load Data Error:', error);
+      this.showError(error.message);
     }
-
-    AppLocalStorage.fetchData(JSON.stringify(params), 'customerManager.dataCallback');
   }
 
   // Data callback
   dataCallback(result) {
-    this.state.isLoading = false;
-    this.hideLoading();
+    try {
+      console.log('Data callback received:', result);
+      
+      this.state.isLoading = false;
+      this.hideLoading();
 
-    if (result.error) {
-      this.showError(result.error);
-      return;
-    }
+      if (result && result.error) {
+        alert(`Data Error:\n${result.error}\n\nPlease check your data source or try refreshing.`);
+        this.showError(result.error);
+        return;
+      }
+
+      if (!result) {
+        alert('Warning: Received null/undefined result from AppLocalStorage.\n\nThis might indicate a configuration issue.');
+        console.warn('Null result received from AppLocalStorage');
+        this.showError('No data received from storage');
+        return;
+      }
 
     if (!result || result.length === 0) {
       if (this.state.currentPage === 0) {
