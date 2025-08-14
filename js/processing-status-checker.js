@@ -149,7 +149,7 @@ window.ProcessingStatusChecker = (function () {
       label: "Del",
       jholder_code: config.jholderCode,
       remove_mode: "remove",
-      id: item.__json_id__
+      id: item.__json_id__,
     };
 
     console.log("🗑️ DEBUG: actionData prepared:", actionData);
