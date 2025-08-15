@@ -62,14 +62,14 @@ const activityTypes = {
     'quiz': { name: 'Quiz', icon: 'question-circle' }
 };
 
-// Activity type mapping with icons
+// Activity type mapping with icons - Using unified theme color
 const activityTypeIcons = {
-    'warmup': { name: 'Warmup', icon: 'fas fa-fire', color: 'text-orange-500' },
-    'vocabulary': { name: 'Vocabulary', icon: 'fas fa-book-open', color: 'text-blue-500' },
-    'pronunciation': { name: 'Pronunciation', icon: 'fas fa-microphone', color: 'text-green-500' },
-    'dialog': { name: 'Dialog', icon: 'fas fa-comments', color: 'text-purple-500' },
-    'quiz': { name: 'Quiz', icon: 'fas fa-question-circle', color: 'text-red-500' },
-    'congratulations': { name: 'Congratulations', icon: 'fas fa-trophy', color: 'text-yellow-500' }
+    'warmup': { name: 'Warmup', icon: 'fas fa-fire', color: 'text-theme-primary' },
+    'vocabulary': { name: 'Vocabulary', icon: 'fas fa-book-open', color: 'text-theme-primary' },
+    'pronunciation': { name: 'Pronunciation', icon: 'fas fa-microphone', color: 'text-theme-primary' },
+    'dialog': { name: 'Dialog', icon: 'fas fa-comments', color: 'text-theme-primary' },
+    'quiz': { name: 'Quiz', icon: 'fas fa-question-circle', color: 'text-theme-primary' },
+    'congratulations': { name: 'Congratulations', icon: 'fas fa-trophy', color: 'text-theme-success' }
 };
 
 // Store original data for restructuring

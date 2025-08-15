@@ -93,7 +93,7 @@ function processRecordedAudio() {
         debugLog('No audio data was recorded.');
         const recordStatus = document.getElementById('record-status');
         if (recordStatus) {
-            recordStatus.innerHTML = '<span class="text-orange-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>No audio recorded. Please try again.</span>';
+            recordStatus.innerHTML = '<span class="text-theme-warning font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>No audio recorded. Please try again.</span>';
         }
         return;
     }
@@ -106,9 +106,9 @@ function processRecordedAudio() {
         const recordStatus = document.getElementById('record-status');
         if (recordStatus) {
             if (isManualStop) {
-                recordStatus.innerHTML = '<span class="text-orange-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Recording too short. Please try again.</span>';
+                recordStatus.innerHTML = '<span class="text-theme-warning font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Recording too short. Please try again.</span>';
             } else {
-                recordStatus.innerHTML = '<span class="text-orange-600 font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Recording appears to be silent. Please speak clearly and try again.</span>';
+                recordStatus.innerHTML = '<span class="text-theme-warning font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Recording appears to be silent. Please speak clearly and try again.</span>';
             }
         }
         return;
@@ -376,7 +376,7 @@ async function initMicrophone() {
 
         if (recordStatus) {
             recordStatus.innerHTML = `
-                <span class="text-red-600 font-semibold">
+                <span class="text-theme-danger font-semibold">
                     <i class="fas fa-exclamation-triangle mr-2"></i>
                     ${userFriendlyMessage}
                 </span>

@@ -97,7 +97,8 @@ function closePronunciationModal() {
 
 // Confetti effect
 function triggerConfetti() {
-    const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f'];
+    // Use theme colors for confetti - variations of primary blue
+    const colors = ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#1d4ed8', '#1e40af'];
     const numConfetti = 50;
 
     for (let i = 0; i < numConfetti; i++) {
@@ -151,7 +152,7 @@ function updateRecordingUI(isRec) {
         if (glowRing) glowRing.classList.add('hidden');
         if (recordingDots) recordingDots.classList.remove('hidden');
         if (soundWaves) soundWaves.classList.remove('hidden');
-        if (recordStatus) recordStatus.innerHTML = '<span class="text-red-600 font-semibold">🔴 Recording...</span>';
+        if (recordStatus) recordStatus.innerHTML = '<span class="text-theme-danger font-semibold">🔴 Recording...</span>';
 
         if (audioSection) audioSection.classList.add('hidden');
         if (resultsSection) resultsSection.classList.add('hidden');
@@ -249,13 +250,13 @@ function getPhonemeImprovementTips(word) {
 
     // Case 3: There are specific phonemes to improve.
     return `
-        <div class="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+        <div class="mt-4 p-3 bg-theme-warning-50 border border-theme-warning-200 rounded-lg">
             <div class="flex items-start">
-                <i class="fas fa-lightbulb text-orange-500 mr-2 mt-0.5"></i>
+                <i class="fas fa-lightbulb text-theme-warning mr-2 mt-0.5"></i>
                 <div>
-                    <div class="text-sm font-medium text-orange-700 mb-1">Improvement Tips:</div>
-                    <div class="text-sm text-orange-600">
-                        Focus on these sounds: ${poorPhonemes.map(p => `<span class="font-mono bg-orange-100 px-1 rounded">/${p.phoneme}/</span>`).join(', ')}
+                    <div class="text-sm font-medium text-theme-warning-700 mb-1">Improvement Tips:</div>
+                    <div class="text-sm text-theme-warning-600">
+                        Focus on these sounds: ${poorPhonemes.map(p => `<span class="font-mono bg-theme-warning-100 px-1 rounded">/${p.phoneme}/</span>`).join(', ')}
                     </div>
                 </div>
             </div>
@@ -274,7 +275,7 @@ function displayResults(result) {
 
     if (result.error) {
         resultsHTML = `
-            <div class="text-red-600 p-4 bg-red-50 rounded-lg border border-red-200">
+            <div class="text-theme-danger p-4 bg-theme-error-background rounded-lg border border-theme-danger">
                 <i class="fas fa-exclamation-triangle mr-2"></i>
                 <strong>Error:</strong> ${result.error}
             </div>
@@ -313,14 +314,16 @@ function displayResults(result) {
             <!-- Interactive Word Breakdown -->
             <div class="mb-4 sm:mb-6">
                 <h4 class="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-700 flex items-center">
-                    <i class="fas fa-microscope text-blue-500 mr-2"></i>
+                    <i class="fas fa-microscope text-theme-primary mr-2"></i>
                     Detailed Word Analysis
                 </h4>
                 <div class="space-y-3 sm:space-y-4">
-                    ${result.words.map((word, wordIndex) => `
+                    ${result.words.map((word, wordIndex) => {
+                        console.log(`🔍 Rendering word ${wordIndex}:`, word.word, 'phonemes count:', word.phonemes?.length);
+                        return `
                         <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
                             <!-- Word Header - Mobile Optimized -->
-                            <div class="p-4 sm:p-5 cursor-pointer hover:bg-gray-50 transition-colors duration-200" onclick="togglePhonemeBreakdown(${wordIndex})">
+                            <div class="p-4 sm:p-5 cursor-pointer hover:bg-gray-50 transition-colors duration-200" onclick="window.togglePhonemeBreakdown(${wordIndex})">
                                 <!-- Main content container -->
                                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
                                     <!-- Left side: Word Name -->
@@ -348,7 +351,7 @@ function displayResults(result) {
                                 <!-- Error Type on new line -->
                                 ${word.error_type !== 'None' ? `
                                     <div class="mt-3 text-left sm:text-right">
-                                        <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
+                                        <span class="px-2 py-1 bg-theme-error-background text-theme-danger rounded text-xs font-medium">
                                             Error: ${word.error_type}
                                         </span>
                                     </div>
@@ -376,7 +379,8 @@ function displayResults(result) {
                                 </div>
                             </div>
                         </div>
-                    `).join('')}
+                    `;
+                    }).join('')}
                 </div>
             </div>
         `;
@@ -410,24 +414,198 @@ function displayResults(result) {
 
 // Toggle phoneme breakdown visibility
 window.togglePhonemeBreakdown = (wordIndex) => {
+    console.log('🔍 togglePhonemeBreakdown called with wordIndex:', wordIndex);
+    
     const phonemesDiv = document.getElementById(`phonemes-${wordIndex}`);
     const chevron = document.getElementById(`chevron-${wordIndex}`);
     const chevronDesktop = document.getElementById(`chevron-desktop-${wordIndex}`);
 
+    console.log('🔍 Elements found:', {
+        phonemesDiv: !!phonemesDiv,
+        chevron: !!chevron,
+        chevronDesktop: !!chevronDesktop
+    });
+
     if (phonemesDiv) {
-        if (phonemesDiv.classList.contains('hidden')) {
+        const isHidden = phonemesDiv.classList.contains('hidden');
+        console.log('🔍 Current state - isHidden:', isHidden);
+        
+        if (isHidden) {
             // Show phonemes
+            console.log('📖 Showing phonemes breakdown');
             phonemesDiv.classList.remove('hidden');
-            phonemesDiv.classList.add('animate-slide-in');
+            phonemesDiv.style.display = 'block'; // Force display
+            phonemesDiv.style.visibility = 'visible'; // Force visibility
+            phonemesDiv.style.height = 'auto'; // Force height
+            phonemesDiv.style.minHeight = '100px'; // Force minimum height
+            
+            // Debug: Check computed style after change
+            setTimeout(() => {
+                const computedStyle = window.getComputedStyle(phonemesDiv);
+                console.log('🔍 After show - computed display:', computedStyle.display);
+                console.log('🔍 After show - classList:', phonemesDiv.classList.toString());
+                console.log('🔍 After show - offsetHeight:', phonemesDiv.offsetHeight);
+                console.log('🔍 After show - scrollHeight:', phonemesDiv.scrollHeight);
+                console.log('🔍 After show - innerHTML length:', phonemesDiv.innerHTML.length);
+                console.log('🔍 After show - innerHTML preview:', phonemesDiv.innerHTML.substring(0, 200));
+                
+                // Fix all parent containers up the chain
+                let currentElement = phonemesDiv.parentElement;
+                let level = 0;
+                while (currentElement && level < 5) { // Check up to 5 levels up
+                    const computedStyle = window.getComputedStyle(currentElement);
+                    console.log(`🔍 Parent level ${level} - overflow:`, computedStyle.overflow, 'height:', computedStyle.height);
+                    
+                    if (computedStyle.overflow === 'hidden') {
+                        currentElement.style.overflow = 'visible';
+                        currentElement.setAttribute('data-overflow-fixed', 'true');
+                        console.log(`🔧 Fixed overflow at level ${level}`);
+                    }
+                    
+                    currentElement = currentElement.parentElement;
+                    level++;
+                }
+                
+                // Also try forcing the phonemes div itself with important styles
+                phonemesDiv.style.cssText = `
+                    display: block !important;
+                    visibility: visible !important;
+                    height: auto !important;
+                    min-height: 100px !important;
+                    opacity: 1 !important;
+                    position: relative !important;
+                    z-index: 999 !important;
+                    background: red !important;
+                    border: 2px solid blue !important;
+                `;
+                console.log('🔧 Applied force styles with red background for debugging');
+                
+                // Try to add a simple test div to see if it shows
+                const testDiv = document.createElement('div');
+                testDiv.innerHTML = 'TEST PHONEMES CONTENT - SHOULD BE VISIBLE';
+                testDiv.style.cssText = `
+                    background: yellow !important;
+                    color: black !important;
+                    padding: 20px !important;
+                    border: 3px solid green !important;
+                    font-size: 20px !important;
+                    position: fixed !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                    z-index: 99999 !important;
+                    width: 300px !important;
+                    height: 100px !important;
+                `;
+                testDiv.id = 'phoneme-test-div';
+                document.body.appendChild(testDiv);
+                console.log('🔧 Added FIXED POSITION test div to body');
+                
+                // Also show alert to confirm function is working
+                alert('Phonemes should be showing now! Check for yellow box.');
+                
+                // Create phonemes modal overlay (working solution)
+                const phonemeModal = document.createElement('div');
+                phonemeModal.id = 'phoneme-breakdown-modal';
+                phonemeModal.style.cssText = `
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 100vw !important;
+                    height: 100vh !important;
+                    background: rgba(0,0,0,0.8) !important;
+                    z-index: 999999 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    padding: 20px !important;
+                `;
+                
+                const phonemeContent = document.createElement('div');
+                phonemeContent.style.cssText = `
+                    background: white !important;
+                    padding: 24px !important;
+                    border-radius: 16px !important;
+                    max-width: 90vw !important;
+                    max-height: 80vh !important;
+                    overflow-y: auto !important;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+                    position: relative !important;
+                `;
+                phonemeContent.innerHTML = phonemesDiv.innerHTML;
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.innerHTML = '✕';
+                closeBtn.style.cssText = `
+                    position: absolute !important;
+                    top: 12px !important;
+                    right: 12px !important;
+                    background: #dc2626 !important;
+                    color: white !important;
+                    border: none !important;
+                    width: 32px !important;
+                    height: 32px !important;
+                    border-radius: 50% !important;
+                    cursor: pointer !important;
+                    font-size: 16px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                `;
+                closeBtn.onclick = () => phonemeModal.remove();
+                
+                // Close on backdrop click
+                phonemeModal.onclick = (e) => {
+                    if (e.target === phonemeModal) phonemeModal.remove();
+                };
+                
+                phonemeContent.appendChild(closeBtn);
+                phonemeModal.appendChild(phonemeContent);
+                document.body.appendChild(phonemeModal);
+                
+                console.log('✅ Created phonemes breakdown modal');
+                
+                // Remove test div after 3 seconds
+                setTimeout(() => {
+                    const testEl = document.getElementById('phoneme-test-div');
+                    if (testEl) testEl.remove();
+                }, 3000);
+                
+                // Try to scroll into view
+                phonemesDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                
+                // Also try scrolling the modal content
+                const modalContent = document.querySelector('#modal-pronunciation-results');
+                if (modalContent) {
+                    modalContent.scrollTop = modalContent.scrollTop + 100; // Scroll down a bit
+                    console.log('🔍 Modal scrollTop after adjustment:', modalContent.scrollTop);
+                }
+            }, 10);
+            
             if (chevron) chevron.classList.add('rotate-180');
             if (chevronDesktop) chevronDesktop.classList.add('rotate-180');
         } else {
             // Hide phonemes
+            console.log('📖 Hiding phonemes breakdown');
             phonemesDiv.classList.add('hidden');
-            phonemesDiv.classList.remove('animate-slide-in');
+            phonemesDiv.style.display = 'none'; // Force hide
+            
+            // Reset all parent containers
+            const fixedElements = document.querySelectorAll('[data-overflow-fixed="true"]');
+            fixedElements.forEach(element => {
+                element.style.overflow = '';
+                element.removeAttribute('data-overflow-fixed');
+            });
+            
+            // Reset phonemes div styles
+            phonemesDiv.style.cssText = '';
+            console.log('🔧 Reset all fixed styles');
+            
             if (chevron) chevron.classList.remove('rotate-180');
             if (chevronDesktop) chevronDesktop.classList.remove('rotate-180');
         }
+    } else {
+        console.error('❌ phonemesDiv not found for wordIndex:', wordIndex);
     }
 }
 
@@ -606,7 +784,7 @@ function renderProgressBar() {
             if (index < currentActivityIndex) {
                 label.className += ' text-theme-success font-medium';
             } else if (index === currentActivityIndex) {
-                label.className += ' text-blue-600 font-medium bg-blue-50';
+                label.className += ' text-theme-primary font-medium bg-theme-primary-50';
             } else {
                 label.className += ' text-gray-600';
             }
@@ -617,9 +795,9 @@ function renderProgressBar() {
             label.className = 'text-xs text-center min-w-[35px] sm:min-w-[40px] cursor-pointer px-1 py-0.5 transition-all duration-300 flex flex-col items-center';
 
             if (index < currentActivityIndex) {
-                label.className += ' text-green-600';
+                label.className += ' text-theme-success';
             } else if (index === currentActivityIndex) {
-                label.className += ' text-blue-600 font-medium';
+                label.className += ' text-theme-primary font-medium';
             } else {
                 label.className += ' text-gray-500';
             }
