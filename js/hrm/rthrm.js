@@ -9,47 +9,35 @@ function callElasticsearchApi(url, body, callbackName) {
 
 // General helper function to make secure API calls using App.callApi
 function callSecureApi(url, body, callbackName) {
-	console.log('callSecureApi called with:', { url, body, callbackName });
 	return new Promise((resolve, reject) => {
 		// Create a unique callback function name if none provided
 		const cbName = callbackName || 'apiCallback_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-		
+
 		// Define the callback function
 		window[cbName] = function(response) {
-			console.log('API callback received:', { cbName, response });
 			// Clean up the callback function
 			delete window[cbName];
-			
+
 			if (response.status === "error") {
-				console.error('API call failed with error status:', response.error);
 				reject(new Error(response.error));
 			} else {
 				try {
-					const data = typeof response.result.data === 'string' ? 
-						JSON.parse(response.result.data) : response.result.data;
-					console.log('API call successful, parsed data:', data);
+					const data = typeof response.data === 'string' ?
+						JSON.parse(response.data) : response.data;
 					resolve(data);
 				} catch (e) {
-					console.error('Error parsing API response:', e, response.result.data);
+					console.error(e);
 					reject(e);
 				}
 			}
 		};
-		
+
 		// Call the App Bridge API
-		console.log('Calling App.callApi with:', { 
-			url, 
-			method: "POST",
-			body: JSON.stringify(body),
-			headers: JSON.stringify({"Content-Type": "application/json"}),
-			async: true,
-			cbName 
-		});
 		App.callApi(
 			url,
 			"POST",
 			JSON.stringify(body),
-			JSON.stringify({"Content-Type": "application/json"}),
+			JSON.stringify({ "Content-Type": "application/json" }),
 			true,
 			cbName
 		);
@@ -144,17 +132,14 @@ function renderCombineLang() {
 
 // Hàm kiểm tra loại người dùng
 async function checkUserType() {
-	console.log('checkUserType called, USER_ORG_ID:', USER_ORG_ID);
 	const userOrgId = USER_ORG_ID;
 
 	if (userOrgId === TRIAL_ORG_ID) {
-		console.log('User is trial user (matches TRIAL_ORG_ID)');
 		userType = 'trial';
 		return 'trial';
 	}
 
 	try {
-		console.log('Fetching organization data for user type check');
 		const data = await callElasticsearchApi('https://es.rta.vn/nerp_org/_search', {
 			"size": 10000,
 			"collapse": { "field": "org_id.raw" },
@@ -162,18 +147,13 @@ async function checkUserType() {
 			"sort": [{ "endtime": { "order": "desc" } }]
 		});
 
-		console.log('Organization data fetched:', data);
 		const officialOrgIds = data.hits.hits.map(hit => hit._source.org_id);
-		console.log('Official org IDs:', officialOrgIds);
-		console.log('User org ID:', userOrgId);
 
 		if (officialOrgIds.includes(userOrgId)) {
-			console.log('User is official (org ID found in official list)');
 			userType = 'official';
 			return 'official';
 		}
 
-		console.log('User is unidentified (org ID not found in any list)');
 		return 'unidentified';
 	} catch (error) {
 		console.error("Error checking user type:", error);
@@ -183,41 +163,22 @@ async function checkUserType() {
 
 // ==== Hàm hiển thị giao diện theo loại người dùng ====
 function renderByUserType() {
-	console.log('renderByUserType called with userType:', userType);
 	const hrmMain = document.getElementById('hrm-main');
 	const combineScreen = document.getElementById('combine-user-screen');
 	const trialTag = document.getElementById('trial-user-tag');
 
 	if (userType === 'unidentified') {
 		// Hiện màn hình combine, ẩn HRM
-		console.log('Rendering UI for unidentified user');
-		if (hrmMain) {
-			hrmMain.style.display = 'none';
-			console.log('Hid hrm-main');
-		}
-		if (combineScreen) {
-			combineScreen.style.display = 'flex';
-			console.log('Showed combine-user-screen');
-		}
-		if (trialTag) {
-			trialTag.style.display = 'none';
-			console.log('Hid trial-user-tag');
-		}
+		if (hrmMain) hrmMain.style.display = 'none';
+		if (combineScreen) combineScreen.style.display = 'flex';
+		if (trialTag) trialTag.style.display = 'none';
 	} else if (userType === 'trial') {
 		// Hiện HRM, hiện tag "Người dùng trải nghiệm"
-		console.log('Rendering UI for trial user');
-		if (hrmMain) {
-			hrmMain.style.display = 'block';
-			console.log('Showed hrm-main');
-		}
-		if (combineScreen) {
-			combineScreen.style.display = 'none';
-			console.log('Hid combine-user-screen');
-		}
+		if (hrmMain) hrmMain.style.display = 'block';
+		if (combineScreen) combineScreen.style.display = 'none';
 		if (trialTag) {
 			trialTag.style.display = 'inline-block';
 			trialTag.textContent = T.trialTag;
-			console.log('Showed trial-user-tag');
 
 			// Thêm sự kiện click để mở giao diện combine
 			trialTag.onclick = function() {
@@ -227,25 +188,14 @@ function renderByUserType() {
 		}
 	} else if (userType === 'official') {
 		// Hiện HRM, ẩn tag trải nghiệm
-		console.log('Rendering UI for official user');
-		if (hrmMain) {
-			hrmMain.style.display = 'block';
-			console.log('Showed hrm-main');
-		}
-		if (combineScreen) {
-			combineScreen.style.display = 'none';
-			console.log('Hid combine-user-screen');
-		}
-		if (trialTag) {
-			trialTag.style.display = 'none';
-			console.log('Hid trial-user-tag');
-		}
+		if (hrmMain) hrmMain.style.display = 'block';
+		if (combineScreen) combineScreen.style.display = 'none';
+		if (trialTag) trialTag.style.display = 'none';
 	}
 }
 
 // ==== Hiển thị giao diện combine ====
 function showCombineScreen() {
-	console.log('showCombineScreen called with combineScreenMode:', combineScreenMode);
 	document.getElementById('hrm-main').style.display = 'none';
 	document.getElementById('combine-user-screen').style.display = 'flex';
 	document.getElementById('combine-result-screen').style.display = 'none';
@@ -263,20 +213,13 @@ function showCombineScreen() {
 
 // ==== Ẩn giao diện combine, trở về HRM ====
 function hideCombineScreen() {
-	console.log('hideCombineScreen called with userType:', userType);
 	const hrmMain = document.getElementById('hrm-main');
 	const combineScreen = document.getElementById('combine-user-screen');
 
 	if (userType === 'trial' || userType === 'official') {
-		if (hrmMain) {
-			hrmMain.style.display = 'block';
-			console.log('Showed hrm-main');
-		}
+		if (hrmMain) hrmMain.style.display = 'block';
 	}
-	if (combineScreen) {
-		combineScreen.style.display = 'none';
-		console.log('Hid combine-user-screen');
-	}
+	if (combineScreen) combineScreen.style.display = 'none';
 }
 const orgCodeInput = document.getElementById('combine-org-code');
 const clearButton = document.getElementById('combine-org-clear');
@@ -426,6 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					errorElem.style.color = '#e74c3c';
 					errorElem.textContent = T.error;
 					errorElem.style.display = 'block';
+					console.error(err);
 				}
 				this.disabled = false;
 				this.textContent = appLanguage === 'vi' ? 'Yêu cầu tham gia' : 'Request to join';
@@ -524,16 +468,17 @@ document.addEventListener('DOMContentLoaded', function() {
 							if (btnClose) btnClose.style.display = 'block';
 							if (spinner) spinner.style.display = 'none';
 						}
+						console.error(err);
 					}
 				}, pollingInterval);
 
 
 
 			} catch (err) {
-
 				errorElem.style.color = '#e74c3c';
 				errorElem.textContent = T.error;
 				errorElem.style.display = 'block';
+				console.error(err);
 			}
 			btn.disabled = false;
 			btn.textContent = T.trial;
@@ -546,7 +491,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	var btnCloseResult = document.getElementById('combine-btn-close-result');
 	if (btnCloseResult) {
 		btnCloseResult.onclick = function() {
-			console.log('Close result button clicked');
 			document.getElementById('combine-result-screen').style.display = 'none';
 			document.getElementById('combine-result-spinner').style.display = 'none';
 			btnCloseResult.style.display = 'block';
@@ -647,22 +591,17 @@ function generateRandomId(length) {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-	console.log('DOMContentLoaded event fired');
 	document.getElementById('hrm-main').style.display = 'none';
 	document.getElementById('combine-user-screen').style.display = 'none';
 	document.getElementById('trial-user-tag').style.display = 'none';
 	document.getElementById('auth-loading').style.display = 'block';
 
 	if (!USER_ORG_ID || USER_ORG_ID.trim() === '') {
-		console.error('USER_ORG_ID is missing or empty');
 		return;
 	}
 
-	console.log('Checking user type for USER_ORG_ID:', USER_ORG_ID);
 	await checkUserType();
-	console.log('User type determined:', userType);
 	renderByUserType();
-	console.log('UI rendered based on user type');
 
 	document.getElementById('auth-loading').style.display = 'none';
 	renderCombineLang();
@@ -770,6 +709,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 							console.error('Polling error:', err);
 							if (pollingCount >= maxPolling) clearPolling();
 						}
+						console.error(err);
 					}
 				}, 5000);
 
@@ -899,11 +839,9 @@ const actionBarJson = {
 };
 
 async function fetchData() {
-	console.log('fetchData called');
 	showLoading(false);
 	errorElem.style.display = 'none';
 	try {
-		console.log('Fetching attendance, leave, and holiday data');
 		const [attendanceData, leaveData, holidayData] = await Promise.all([
 			callElasticsearchApi('https://es.rta.vn/hr_checkinout_list_v4/_search', {
 				"size": 10000,
@@ -950,30 +888,25 @@ async function fetchData() {
 				"sort": [{ "endtime": { "order": "desc" } }]
 			})
 		]);
-		console.log('Data fetched successfully:', { attendanceData, leaveData, holidayData });
 		attendanceData = attendanceData.hits ? attendanceData.hits.hits.map(hit => hit._source) : [];
 		leaveData = leaveData.hits ? leaveData.hits.hits.map(hit => hit._source) : [];
 		holidayData = holidayData.hits ? holidayData.hits.hits.map(hit => hit._source) : [];
-		console.log('Data processed:', { attendanceCount: attendanceData.length, leaveCount: leaveData.length, holidayCount: holidayData.length });
-		
 		leaveData = leaveData.filter(item => [1, 2, 3, 4, 6].includes(parseInt(item.leave_status_id || 0)));
 		holidayData = holidayData.filter(item => item.erp_holiday_status_id == 1);
 		leaveData = leaveData.filter(item => parseFloat(item.nb_count || 0) > 0);
 		latestCheckin = findLatestCheckin(attendanceData);
-		console.log('Latest checkin:', latestCheckin);
 		updateLastCheckinInfo(latestCheckin);
 		updateAttendanceActions();
 		calculateZeroWorkDays();
 		showLoading(false);
 		if (attendanceData.length === 0 && leaveData.length === 0 && holidayData.length === 0) {
-			console.warn('No data found for attendance, leave, or holiday');
 			errorElem.textContent = T.notFound;
 			errorElem.style.display = 'block';
 			return;
 		}
 		renderCalendar();
 	} catch (error) {
-		console.error('Error in fetchData:', error);
+		console.error(error);
 		showLoading(false);
 		errorElem.textContent = `${T.error}: ${error.message}`;
 		errorElem.style.display = 'block';
@@ -1124,6 +1057,7 @@ function formatCheckInTime(timeString) {
 		const minutes = date.getMinutes().toString().padStart(2, '0');
 		return `${weekday} ${day}/${month}/${year} ${hours}:${minutes}`;
 	} catch (error) {
+		console.error(error);
 		return timeString;
 	}
 }
@@ -1949,18 +1883,14 @@ function showFlashMessage(msg, duration = 1800) {
 document.querySelectorAll('.action-bar-item').forEach(item => {
 	item.addEventListener('click', function() {
 		const action = this.getAttribute('data-action');
-		console.log('Action bar item clicked:', action);
 		if (actionBarJson[action]) {
 			// Gọi hàm backend nếu có
 			if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
-				console.log('Calling App.callActionButton with:', actionBarJson[action]);
 				App.callActionButton(JSON.stringify(actionBarJson[action]));
 			} else {
-				console.error('App.callActionButton not found');
 				showFlashMessage(T.noAppCallActionButton || 'App.callActionButton not found');
 			}
 		} else {
-			console.warn('Action not supported:', action);
 			showFlashMessage(T.featureNotSupported || 'Feature not supported');
 		}
 	});
@@ -2026,7 +1956,6 @@ function closeModal2() {
 	document.getElementById('modal-bg').classList.remove('show');
 }
 function autoRefreshAll() {
-	console.log('autoRefreshAll called - refreshing all data');
 	fetchData();
 	fetchDataNotif();
 	fetchAndPopulateProfile();
@@ -2042,7 +1971,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	const dashboardButton = document.getElementById('dashboard-btn'); // Đúng với HTML
 	if (dashboardButton) {
 		dashboardButton.addEventListener('click', function() {
-			console.log('Dashboard button clicked');
 			const dashboardJson = {
 				"actionID": 5,
 				"orderNumber": 5,
@@ -2052,10 +1980,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			};
 
 			if (typeof App !== 'undefined' && typeof App.callActionButton === 'function') {
-				console.log('Calling App.callActionButton for dashboard with:', dashboardJson);
 				App.callActionButton(JSON.stringify(dashboardJson));
 			} else {
-				console.error('App.callActionButton not found for dashboard');
 				showFlashMessage(T.dashboardError || 'Cannot connect to dashboard!');
 			}
 		});
@@ -2063,7 +1989,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function fetchAndPopulateProfile() {
-	console.log('fetchAndPopulateProfile called');
 	try {
 		const data = await callElasticsearchApi('https://es.rta.vn/ss_userlist_v2/_search', {
 			size: 1,
@@ -2078,34 +2003,14 @@ async function fetchAndPopulateProfile() {
 			},
 			sort: [{ added_date: { order: 'desc' } }]
 		});
-		console.log('User profile data fetched:', data);
+
 		const user = data.hits?.hits[0]?._source;
-		console.log('User profile source:', user);
 
 		if (user) {
-			const profileImage = document.querySelector('.profile-image img');
-			if (profileImage) {
-				profileImage.src = user.pr_photo_path || 'https://eventlog.rta.vn/assets/d23217dc-67cd-4f7a-9824-7dbf2b9934b3';
-				console.log('Profile image updated');
-			} else {
-				console.warn('Profile image element not found');
-			}
-			
-			const profileName = document.querySelector('.profile-name');
-			if (profileName) {
-				profileName.textContent = (user.fullname && user.fullname.trim() !== "") ? user.fullname : USER_FULLNAME;
-				console.log('Profile name updated');
-			} else {
-				console.warn('Profile name element not found');
-			}
-			
-			const profilePosition = document.querySelector('.profile-position');
-			if (profilePosition) {
-				profilePosition.textContent = `${user.title || ''} - ${user.department || ''}`;
-				console.log('Profile position updated');
-			} else {
-				console.warn('Profile position element not found');
-			}
+			document.querySelector('.profile-image img').src = user.pr_photo_path || 'https://eventlog.rta.vn/assets/d23217dc-67cd-4f7a-9824-7dbf2b9934b3';
+			document.querySelector('.profile-name').textContent =
+				(user.fullname && user.fullname.trim() !== "") ? user.fullname : USER_FULLNAME;
+			document.querySelector('.profile-position').textContent = `${user.title || ''} - ${user.department || ''}`;
 		} else {
 			console.warn('Không tìm thấy dữ liệu người dùng.');
 		}
@@ -2116,14 +2021,3 @@ async function fetchAndPopulateProfile() {
 
 // Gọi hàm sau khi DOM tải xong
 document.addEventListener('DOMContentLoaded', fetchAndPopulateProfile);
-
-// Global error handler
-window.addEventListener('error', function(event) {
-	console.error('Global error caught:', {
-		message: event.message,
-		filename: event.filename,
-		lineno: event.lineno,
-		colno: event.colno,
-		error: event.error
-	});
-});
