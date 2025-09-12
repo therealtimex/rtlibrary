@@ -842,7 +842,7 @@ async function fetchData() {
 	showLoading(false);
 	errorElem.style.display = 'none';
 	try {
-		const [attendanceData, leaveData, holidayData] = await Promise.all([
+		const [attendanceResult, leaveResult, holidayResult] = await Promise.all([
 			callElasticsearchApi('https://es.rta.vn/hr_checkinout_list_v4/_search', {
 				"size": 10000,
 				"collapse": { "field": "keyid_ins.raw" },
@@ -888,9 +888,9 @@ async function fetchData() {
 				"sort": [{ "endtime": { "order": "desc" } }]
 			})
 		]);
-		attendanceData = attendanceData.hits ? attendanceData.hits.hits.map(hit => hit._source) : [];
-		leaveData = leaveData.hits ? leaveData.hits.hits.map(hit => hit._source) : [];
-		holidayData = holidayData.hits ? holidayData.hits.hits.map(hit => hit._source) : [];
+		attendanceData = attendanceResult.hits ? attendanceResult.hits.hits.map(hit => hit._source) : [];
+		leaveData = leaveResult.hits ? leaveResult.hits.hits.map(hit => hit._source) : [];
+		holidayData = holidayResult.hits ? holidayResult.hits.hits.map(hit => hit._source) : [];
 		leaveData = leaveData.filter(item => [1, 2, 3, 4, 6].includes(parseInt(item.leave_status_id || 0)));
 		holidayData = holidayData.filter(item => item.erp_holiday_status_id == 1);
 		leaveData = leaveData.filter(item => parseFloat(item.nb_count || 0) > 0);
