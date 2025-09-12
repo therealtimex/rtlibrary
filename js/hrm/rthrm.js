@@ -22,8 +22,8 @@ function callSecureApi(url, body, callbackName) {
 				reject(new Error(response.error));
 			} else {
 				try {
-					const data = typeof response.result.data === 'string' ? 
-						JSON.parse(response.result.data) : response.result.data;
+					const data = typeof response.data === 'string' ? 
+						JSON.parse(response.data) : response.data;
 					resolve(data);
 				} catch (e) {
 					reject(e);
