@@ -5,6 +5,45 @@ let userType = checkUserType();
 function checkUserType() {
   return ['ea8018e243', '324fd'].includes(USER_ORG_ID) ? 'trial' : 'official';
 }
+
+// ====== BACKGROUND DATA INTEGRATION ======
+
+// Handle background-fetched latest check-in data from onUpdate()
+window.updateLatestCheckinFromBackground = function(record) {
+  console.log('[Background] Received latest check-in:', record);
+
+  if (!record) return;
+
+  // Update global latestCheckin variable
+  latestCheckin = record;
+
+  // Update sections 5.4 and 5.5 immediately
+  if (typeof updateLastCheckinInfo === 'function') {
+    updateLastCheckinInfo(latestCheckin);
+  }
+
+  if (typeof updateAttendanceActions === 'function') {
+    updateAttendanceActions();
+  }
+
+  console.log('[Background] Sections 5.4 and 5.5 updated instantly');
+};
+
+// Check for pending data from onUpdate() (called before this script loaded)
+if (typeof window.pendingLatestCheckin !== 'undefined') {
+  console.log('[Background] Processing pending check-in data');
+  const pendingData = window.pendingLatestCheckin;
+  delete window.pendingLatestCheckin;
+
+  // Process after DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      window.updateLatestCheckinFromBackground(pendingData);
+    });
+  } else {
+    window.updateLatestCheckinFromBackground(pendingData);
+  }
+}
 function updateCombineResultLang() {
   document.getElementById('combine-btn-close-result').textContent = LANG[appLanguage].close;
   document.getElementById('combine-btn-retry-result').textContent = LANG[appLanguage].retry;
@@ -647,7 +686,22 @@ async function fetchData(targetYear = null, targetMonth = null) {
 
     // Get latest check-in from separate query
     const latestCheckinData = latestCheckinResult.data?.hits ? latestCheckinResult.data.hits.hits.map(hit => hit._source) : [];
-    latestCheckin = latestCheckinData.length > 0 ? latestCheckinData[0] : null;
+    const fetchedLatestCheckin = latestCheckinData.length > 0 ? latestCheckinData[0] : null;
+
+    // Use background-fetched data if available and more recent, otherwise use fetched data
+    if (latestCheckin && latestCheckin.rta_time_fm) {
+      const bgTime = new Date(latestCheckin.rta_time_fm).getTime();
+      const fetchTime = fetchedLatestCheckin?.rta_time_fm ? new Date(fetchedLatestCheckin.rta_time_fm).getTime() : 0;
+
+      if (fetchTime > bgTime) {
+        console.log('[HR Optimization] Using fetched check-in (more recent)');
+        latestCheckin = fetchedLatestCheckin;
+      } else {
+        console.log('[HR Optimization] Using background check-in (already loaded)');
+      }
+    } else {
+      latestCheckin = fetchedLatestCheckin;
+    }
 
     updateLastCheckinInfo(latestCheckin);
     updateAttendanceActions();
