@@ -168,7 +168,7 @@ window.ProcessingStatusChecker = (function () {
   /**
    * Fetches the list of processed events and updates the pending items list.
    */
-  async function fetchAndFilterProcessedItems() {
+  function fetchAndFilterProcessedItems() {
     console.log(
       "🔍 DEBUG: fetchAndFilterProcessedItems() called, pendingItems.length:",
       pendingItems.length
@@ -208,29 +208,37 @@ window.ProcessingStatusChecker = (function () {
     console.log("🔍 DEBUG: Using URL:", config.checkUrl);
     console.log("🔍 DEBUG: Using response key field:", config.responseKeyField);
 
-    try {
-      const response = await fetch(config.checkUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config.requestBody),
-      });
-
-      console.log(
-        "🔍 DEBUG: Response status:",
-        response.status,
-        "ok:",
-        response.ok
+    // Use App.callApi() instead of fetch()
+    if (window.App && typeof window.App.callApi === 'function') {
+      App.callApi(
+        config.checkUrl,
+        "POST",
+        JSON.stringify(config.requestBody),
+        JSON.stringify({"Content-Type": "application/json"}),
+        true,
+        "handleProcessedItemsResponse"
       );
+    } else {
+      console.error("🔍 ERROR: App.callApi is not available, falling back to fetch");
+      // Fallback to fetch if App.callApi is not available
+      fetchWithFallback();
+    }
+  }
 
-      if (!response.ok) {
-        console.error(
-          "🔍 ERROR: Failed to fetch processed events:",
-          response.statusText
-        );
-        return;
-      }
+  /**
+   * Callback function for App.callApi() response
+   */
+  window.handleProcessedItemsResponse = function(payload) {
+    console.log("🔍 DEBUG: handleProcessedItemsResponse called");
 
-      const result = await response.json();
+    if (payload.status === "error") {
+      console.error("🔍 ERROR: Failed to fetch processed events:", payload.error);
+      renderUI();
+      return;
+    }
+
+    try {
+      const result = JSON.parse(payload.data);
       console.log("🔍 DEBUG: API response received");
 
       // Use the configurable key field to extract processed IDs
@@ -294,6 +302,46 @@ window.ProcessingStatusChecker = (function () {
         clearInterval(pollingIntervalId);
         pollingIntervalId = null;
       }
+    }
+  };
+
+  /**
+   * Fallback function using fetch() when App.callApi is not available
+   */
+  async function fetchWithFallback() {
+    try {
+      const response = await fetch(config.checkUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(config.requestBody),
+      });
+
+      console.log(
+        "🔍 DEBUG: Response status:",
+        response.status,
+        "ok:",
+        response.ok
+      );
+
+      if (!response.ok) {
+        console.error(
+          "🔍 ERROR: Failed to fetch processed events:",
+          response.statusText
+        );
+        return;
+      }
+
+      const result = await response.json();
+
+      // Convert to App.callApi response format
+      window.handleProcessedItemsResponse({
+        status: "success",
+        statusCode: response.status,
+        data: JSON.stringify(result)
+      });
+    } catch (error) {
+      console.error("🔍 ERROR: Fallback fetch exception:", error);
+      renderUI();
     }
   }
 
