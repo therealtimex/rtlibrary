@@ -255,22 +255,41 @@ async function checkOrgInfoData() {
     size: 1,
   };
 
-  try {
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(query),
-    });
+  return new Promise((resolve) => {
+    if (!window.App || typeof window.App.callApi !== 'function') {
+      console.error('App.callApi not available');
+      resolve(false);
+      return;
+    }
 
-    const data = await response.json();
-    // Check if data is returned
-    return data.hits.total.value > 0; // Return true if data exists, false otherwise
-  } catch (error) {
-    console.error("Error calling Elasticsearch API:", error);
-    return false; // Return false if an error occurs
-  }
+    const callbackName = `checkUserExistsESCallback_${Date.now()}`;
+    window[callbackName] = function(payload) {
+      delete window[callbackName];
+
+      if (payload.status === 'error') {
+        console.error("Error calling Elasticsearch API:", payload.error);
+        resolve(false);
+        return;
+      }
+
+      try {
+        const data = JSON.parse(payload.data);
+        resolve(data.hits.total.value > 0);
+      } catch (error) {
+        console.error("Error parsing Elasticsearch response:", error);
+        resolve(false);
+      }
+    };
+
+    App.callApi(
+      apiUrl,
+      'POST',
+      JSON.stringify(query),
+      JSON.stringify({'Content-Type': 'application/json'}),
+      true,
+      callbackName
+    );
+  });
 }
 
 function pollOrgUpdate(
@@ -580,11 +599,33 @@ function pollOrgUpdate(
   showProcessingUI();
 
   const checkUpdate = () => {
-    fetch(
-      `${config.projectURL}/api/dm/getData?token=your_token_here&dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${config.username}"`
-    )
-      .then((res) => res.json())
-      .then((data) => {
+    const url = `${config.projectURL}/api/dm/getData?token=your_token_here&dm_name=ss_user&max_order=0&format=json&mode=download&where=\`username\`="${config.username}"`;
+
+    if (!window.App || typeof window.App.callApi !== 'function') {
+      console.error('App.callApi not available');
+      hideProcessingUI();
+      displayRetryUI(T.org_update_timeout);
+      return;
+    }
+
+    const callbackName = `checkUpdateCallback_${Date.now()}`;
+    window[callbackName] = function(payload) {
+      delete window[callbackName];
+
+      if (payload.status === 'error') {
+        console.error('Error checking update:', payload.error);
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(checkUpdate, interval);
+        } else {
+          hideProcessingUI();
+          displayRetryUI(T.org_update_timeout);
+        }
+        return;
+      }
+
+      try {
+        const data = JSON.parse(payload.data);
         if (
           Array.isArray(data) &&
           data.length > 0 &&
@@ -622,30 +663,26 @@ function pollOrgUpdate(
             displayRetryUI(T.org_update_timeout);
           }
         }
-      })
-      .catch((err) => {
-        console.error("Lỗi polling:", err);
+      } catch (error) {
+        console.error('Error parsing update response:', error);
         attempts++;
         if (attempts < maxAttempts) {
           setTimeout(checkUpdate, interval);
         } else {
           hideProcessingUI();
-          // Enhanced error message with source identification and more details
-          const errorMsg = `
-            <div class="bg-red-50 border-l-4 border-red-500 p-3 rounded">
-              <div class="font-medium text-red-700">[ERROR SOURCE: POLLING UPDATE]</div>
-              <div>${T.org_update_error}</div>
-              <div class="text-sm text-gray-600 mt-2">
-                Error: ${err.message || "Unknown"}<br>
-                Time: ${new Date().toLocaleTimeString()}<br>
-                Attempts: ${attempts}/${maxAttempts}<br>
-                URL: ${config.projectURL}/api/dm/getData
-              </div>
-            </div>
-          `;
-          displayRetryUI(errorMsg);
+          displayRetryUI(T.org_update_timeout);
         }
-      });
+      }
+    };
+
+    App.callApi(
+      url,
+      'GET',
+      '',
+      '',
+      false,
+      callbackName
+    );
   };
 
   setTimeout(checkUpdate, 5000);
@@ -883,35 +920,51 @@ function setupEventHandlers() {
         ],
       };
 
-      fetch(config.apiEndpoints.webhook, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then(() => {
-          // Hide the entry interface completely by setting the style display = 'none'
-          const createOrgFormElem = document.getElementById("create-org-form");
-          if (createOrgFormElem) {
-            createOrgFormElem.style.display = "none";
-          }
-          const setupSelectionElem = document.getElementById("setup-selection");
-          if (setupSelectionElem) {
-            setupSelectionElem.style.display = "none";
-          }
+      if (!window.App || typeof window.App.callApi !== 'function') {
+        console.error('App.callApi not available');
+        const err = new Error('App.callApi not available');
+        handleCreateOrgError(err);
+        return;
+      }
 
-          const originalOrgId = config.userOrgId;
-          pollOrgUpdate(originalOrgId, T.notify(orgName, contactEmail));
-          // Display results screen
-          // showResult(T.notify(orgName, contactEmail));
-          orgCreateForm.reset();
-        })
-        .catch((err) => {
+      const callbackName = `createOrgWebhookCallback_${Date.now()}`;
+      window[callbackName] = function(response) {
+        delete window[callbackName];
+
+        if (response.status === 'error') {
+          console.error("Submit error:", response.error);
+          const err = new Error(response.error);
+          handleCreateOrgError(err);
+          return;
+        }
+
+        // Hide the entry interface completely by setting the style display = 'none'
+        const createOrgFormElem = document.getElementById("create-org-form");
+        if (createOrgFormElem) {
+          createOrgFormElem.style.display = "none";
+        }
+        const setupSelectionElem = document.getElementById("setup-selection");
+        if (setupSelectionElem) {
+          setupSelectionElem.style.display = "none";
+        }
+
+        const originalOrgId = config.userOrgId;
+        pollOrgUpdate(originalOrgId, T.notify(orgName, contactEmail));
+        // Display results screen
+        // showResult(T.notify(orgName, contactEmail));
+        orgCreateForm.reset();
+      };
+
+      App.callApi(
+        config.apiEndpoints.webhook,
+        'POST',
+        JSON.stringify(payload),
+        JSON.stringify({'Content-Type': 'application/json'}),
+        false,
+        callbackName
+      );
+
+      function handleCreateOrgError(err) {
           console.error("Submit error:", err);
 
           // Create a more visible and informative error message
@@ -987,7 +1040,7 @@ function setupEventHandlers() {
           `;
 
           showResult(errorDetails, "#333");
-        });
+      }
     });
   }
 
@@ -1010,57 +1063,85 @@ function setupEventHandlers() {
         }
         this.disabled = true;
         this.textContent = T.confirm_btn + "...";
-        try {
-          const response = await fetch(config.apiEndpoints.orgSearch, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              size: 1,
-              query: {
-                bool: { must: [{ term: { "org_id.raw": { value: code } } }] },
-              },
-            }),
-          });
-          const data = await response.json();
-          this.disabled = false;
-          this.textContent = T.confirm_btn;
-          if (data.hits && data.hits.hits && data.hits.hits.length > 0) {
-            foundOrg = data.hits.hits[0]._source;
-            if (errorElem) {
-              errorElem.innerHTML = `<b class="org-name-found">${
-                foundOrg.org_lb || foundOrg.org_name || code
-              }</b>`;
-              errorElem.style.display = "block";
-              errorElem.style.color = "#16a75c";
-            }
-            this.textContent = T.request_join;
-          } else {
-            if (errorElem) {
-              errorElem.textContent = T.error_notfound;
-              errorElem.style.display = "block";
-            }
-          }
-        } catch (err) {
-          console.error("Join organization search error:", err);
+
+        if (!window.App || typeof window.App.callApi !== 'function') {
+          console.error('App.callApi not available');
           this.disabled = false;
           this.textContent = T.confirm_btn;
           if (errorElem) {
-            // Create a more informative error message with source identification
-            const errorMsg = `
-              <div class="bg-red-50 p-2 rounded">
-                <div class="font-medium text-red-700">[ERROR: JOIN ORG - SEARCH]</div>
-                <div>${T.error}</div>
-                <div class="text-xs text-gray-600 mt-1">
-                  ${
-                    err.message || "Unknown error"
-                  } (${new Date().toLocaleTimeString()})
-                </div>
-              </div>
-            `;
-            errorElem.innerHTML = errorMsg;
+            errorElem.textContent = 'Feature unavailable. Please refresh the page.';
             errorElem.style.display = "block";
           }
+          return;
         }
+
+        const callbackName = `orgSearchCallback_${Date.now()}`;
+        const buttonElem = this;
+
+        window[callbackName] = function(payload) {
+          delete window[callbackName];
+
+          buttonElem.disabled = false;
+          buttonElem.textContent = T.confirm_btn;
+
+          if (payload.status === 'error') {
+            console.error("Join organization search error:", payload.error);
+            if (errorElem) {
+              const errorMsg = `
+                <div class="bg-red-50 p-2 rounded">
+                  <div class="font-medium text-red-700">[ERROR: JOIN ORG - SEARCH]</div>
+                  <div>${T.error}</div>
+                  <div class="text-xs text-gray-600 mt-1">
+                    ${payload.error} (${new Date().toLocaleTimeString()})
+                  </div>
+                </div>
+              `;
+              errorElem.innerHTML = errorMsg;
+              errorElem.style.display = "block";
+            }
+            return;
+          }
+
+          try {
+            const data = JSON.parse(payload.data);
+            if (data.hits && data.hits.hits && data.hits.hits.length > 0) {
+              foundOrg = data.hits.hits[0]._source;
+              if (errorElem) {
+                errorElem.innerHTML = `<b class="org-name-found">${
+                  foundOrg.org_lb || foundOrg.org_name || code
+                }</b>`;
+                errorElem.style.display = "block";
+                errorElem.style.color = "#16a75c";
+              }
+              buttonElem.textContent = T.request_join;
+            } else {
+              if (errorElem) {
+                errorElem.textContent = T.error_notfound;
+                errorElem.style.display = "block";
+              }
+            }
+          } catch (err) {
+            console.error("Error parsing search response:", err);
+            if (errorElem) {
+              errorElem.textContent = T.error;
+              errorElem.style.display = "block";
+            }
+          }
+        };
+
+        App.callApi(
+          config.apiEndpoints.orgSearch,
+          'POST',
+          JSON.stringify({
+            size: 1,
+            query: {
+              bool: { must: [{ term: { "org_id.raw": { value: code } } }] },
+            },
+          }),
+          JSON.stringify({'Content-Type': 'application/json'}),
+          true,
+          callbackName
+        );
       } else {
         // Hide the input interface of join-org-form
         var joinOrgFormElem = document.getElementById("join-org-form");
@@ -1070,33 +1151,45 @@ function setupEventHandlers() {
         // Disable the send button and update label
         this.disabled = true;
         this.textContent = T.sending;
-        try {
-          await fetch(config.apiEndpoints.webhook, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              event_id: `rt${config.appShortName.toLowerCase()}.user`,
-              user_trial: "0",
-              project_code: config.projectCode,
-              data: [
-                {
-                  username: config.username,
-                  fullname: config.userFullName,
-                  user_role: config.userRoledefault,
-                  cellphone:
-                    config.userPhone &&
-                    config.userPhone.trim() &&
-                    !/^n\/?a$/i.test(config.userPhone.trim())
-                      ? config.userPhone
-                      : "0",
-                  user_status: "1",
-                  email: config.userEmail,
-                  org_id: foundOrg.org_id,
-                  org_name: foundOrg.org_lb,
-                },
-              ],
-            }),
-          });
+
+        if (!window.App || typeof window.App.callApi !== 'function') {
+          console.error('App.callApi not available');
+          this.disabled = false;
+          this.textContent = T.request_join;
+          if (errorElem) {
+            errorElem.textContent = 'Feature unavailable. Please refresh the page.';
+            errorElem.style.display = "block";
+          }
+          return;
+        }
+
+        const callbackName = `joinOrgWebhookCallback_${Date.now()}`;
+        const buttonElem = this;
+
+        window[callbackName] = function(payload) {
+          delete window[callbackName];
+
+          buttonElem.disabled = false;
+          buttonElem.textContent = T.request_join;
+
+          if (payload.status === 'error') {
+            console.error("Join organization error:", payload.error);
+            if (errorElem) {
+              const errorMsg = `
+                <div class="bg-red-50 p-2 rounded">
+                  <div class="font-medium text-red-700">[ERROR: JOIN ORG - SUBMIT]</div>
+                  <div>${T.error}</div>
+                  <div class="text-xs text-gray-600 mt-1">
+                    Error joining organization. Details: ${payload.error} (${new Date().toLocaleTimeString()})
+                  </div>
+                </div>
+              `;
+              errorElem.innerHTML = errorMsg;
+              errorElem.style.display = "block";
+            }
+            return;
+          }
+
           const originalOrgId = config.userOrgId;
           pollOrgUpdate(
             originalOrgId,
@@ -1105,29 +1198,37 @@ function setupEventHandlers() {
               foundOrg.org_lb || foundOrg.org_name || code
             )
           );
-          // showResult(T.join_success.replace('{org}', foundOrg.org_lb || foundOrg.org_name || code));
-        } catch (err) {
-          console.error("Join organization error:", err);
+        };
 
-          if (errorElem) {
-            // Create a more informative error message with source identification
-            const errorMsg = `
-              <div class="bg-red-50 p-2 rounded">
-                <div class="font-medium text-red-700">[ERROR: JOIN ORG - SUBMIT]</div>
-                <div>${T.error}</div>
-                <div class="text-xs text-gray-600 mt-1">
-                  Error joining organization. Details: ${
-                    err.message || "Unknown error"
-                  } (${new Date().toLocaleTimeString()})
-                </div>
-              </div>
-            `;
-            errorElem.innerHTML = errorMsg;
-            errorElem.style.display = "block";
-          }
-        }
-        this.disabled = false;
-        this.textContent = T.request_join;
+        App.callApi(
+          config.apiEndpoints.webhook,
+          'POST',
+          JSON.stringify({
+            event_id: `rt${config.appShortName.toLowerCase()}.user`,
+            user_trial: "0",
+            project_code: config.projectCode,
+            data: [
+              {
+                username: config.username,
+                fullname: config.userFullName,
+                user_role: config.userRoledefault,
+                cellphone:
+                  config.userPhone &&
+                  config.userPhone.trim() &&
+                  !/^n\/?a$/i.test(config.userPhone.trim())
+                    ? config.userPhone
+                    : "0",
+                user_status: "1",
+                email: config.userEmail,
+                org_id: foundOrg.org_id,
+                org_name: foundOrg.org_lb,
+              },
+            ],
+          }),
+          JSON.stringify({'Content-Type': 'application/json'}),
+          false,
+          callbackName
+        );
       }
     });
   }
