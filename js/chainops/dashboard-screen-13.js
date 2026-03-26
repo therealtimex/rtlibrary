@@ -433,22 +433,92 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
         function renderRelations() {
             const container = document.getElementById("relation-tree");
             const users = state.viewableUsers || [];
-            if (!users.length) {
+            const targetUser = state.raw?.target_user || null;
+            const selfUser = state.raw?.user || null;
+
+            const getUserLabel = (u) => {
+                if (!u) return "";
+                return u.label || u.full_name || u.fullName || u.name || u.username || u.email || u.id || "";
+            };
+
+            const getParentCandidate = () => {
+                const candidates = [
+                    targetUser?.parent,
+                    targetUser?.parent_user,
+                    targetUser?.manager,
+                    targetUser?.upline,
+                    targetUser?.leader,
+                    targetUser?.referrer,
+                    selfUser?.parent,
+                    selfUser?.parent_user,
+                    selfUser?.manager,
+                    selfUser?.upline,
+                    selfUser?.leader,
+                    selfUser?.referrer
+                ].filter(Boolean);
+
+                const direct = candidates.find(Boolean);
+                if (direct) return direct;
+
+                const parentId = targetUser?.parent_id || targetUser?.parentUserId || targetUser?.manager_id || targetUser?.managerId || targetUser?.upline_id || targetUser?.leader_id || targetUser?.referrer_id || null;
+                if (!parentId) return null;
+                return users.find(u => u.id === parentId) || { id: parentId, label: `ID: ${parentId}` };
+            };
+
+            const meId = targetUser?.id || selfUser?.id || "";
+            const meLabel = getUserLabel(targetUser) || getUserLabel(selfUser) || (meId ? `ID: ${meId}` : "");
+            const parentUser = getParentCandidate();
+            const parentLabel = getUserLabel(parentUser);
+
+            const teammates = users.filter(u => u && u.id !== meId);
+
+            if (!meLabel && !teammates.length && !parentLabel) {
                 container.innerHTML = '<div class="text-center py-8 text-gray-500"><i class="fas fa-info-circle text-3xl mb-3 text-gray-300"></i><p class="text-sm">Không có dữ liệu quan hệ.</p></div>';
                 return;
             }
-            const selfId = state.raw?.user?.id || "";
+
+            const personCard = (label, icon, tone, badge = "") => `
+                <div class="flex items-center gap-2 p-3 rounded-lg border ${tone}">
+                    <i class="fas ${icon} text-xs"></i>
+                    <span class="text-sm font-medium truncate flex-1">${label || "Không rõ"}</span>
+                    ${badge}
+                </div>
+            `;
+
+            const parentBlock = parentLabel
+                ? `
+                <div>
+                    <div class="text-xs uppercase tracking-wide text-gray-500 mb-2">Tuyến trên</div>
+                    ${personCard(parentLabel, 'fa-user-tie', 'bg-amber-50 text-amber-700 border-amber-200', '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">Parent</span>')}
+                </div>`
+                : `
+                <div class="text-xs text-gray-400 italic">Chưa có dữ liệu parent/upline trong phản hồi API.</div>`;
+
+            const meBlock = meLabel
+                ? `
+                <div>
+                    <div class="text-xs uppercase tracking-wide text-gray-500 mb-2">Người đang xem</div>
+                    ${personCard(meLabel, 'fa-user-shield', 'bg-emerald-50 text-emerald-700 border-emerald-200', '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">Bạn</span>')}
+                </div>`
+                : '';
+
+            const teammateBlock = teammates.length
+                ? `
+                <div>
+                    <div class="text-xs uppercase tracking-wide text-gray-500 mb-2">Người liên quan / cùng quyền xem</div>
+                    <div class="space-y-2">
+                        ${teammates.map(u => personCard(getUserLabel(u), 'fa-user', 'bg-gray-50 text-gray-700 border-gray-200')).join('')}
+                    </div>
+                </div>`
+                : '';
+
             container.innerHTML = `
-        <div class="text-left space-y-2">
-          ${users.map(u => `
-            <div class="flex items-center gap-2 p-2 rounded-lg ${u.id === selfId ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-50 text-gray-700 border border-gray-200'}">
-              <i class="fas ${u.id === selfId ? 'fa-user-shield' : 'fa-user'} text-xs"></i>
-              <span class="text-sm truncate">${u.label || u.id}</span>
-              ${u.id === selfId ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">Bạn</span>' : ''}
-            </div>
-          `).join('')}
-        </div>
-      `;
+                <div class="text-left space-y-4">
+                    ${parentBlock}
+                    ${meBlock}
+                    ${teammateBlock}
+                </div>
+            `;
         }
 
         function setupTabs() {
