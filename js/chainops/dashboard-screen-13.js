@@ -312,35 +312,74 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
                     kpi_reward: 'fa-trophy'
                 };
                 const statusColors = {
-                    approved: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                    pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-                    paid: 'bg-blue-50 text-blue-700 border-blue-200'
+                    approved: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                    pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                    paid: 'bg-blue-100 text-blue-800 border-blue-200'
                 };
+
+                const meta = txn.metadata || {};
+                const customer = meta.customer || {};
+                const customerName = customer.name || customer.email || "Khách lẻ";
+                const productInfo = meta.products && meta.products.length ? meta.products.join(", ") : (meta.order_name || "Chi tiết đơn");
+
                 const div = document.createElement("div");
-                div.className = "bg-gray-50 rounded-lg p-3 flex items-center justify-between gap-3 border border-gray-200";
+                div.className = "bg-white rounded-xl border border-gray-200 overflow-hidden cursor-pointer hover:border-theme-primary transition-all duration-200 shadow-sm mb-3";
+                
                 div.innerHTML = `
-          <div class="flex items-start gap-3 flex-1 min-w-0">
-            <div class="w-10 h-10 rounded-lg bg-theme-primary bg-opacity-10 flex items-center justify-center flex-shrink-0">
-              <i class="fas ${typeIcons[txn.type] || 'fa-file-invoice'} text-theme-primary"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="font-semibold text-gray-800 text-sm truncate">${formatCurrency(txn.amount)}</div>
-              <div class="text-xs text-gray-600 flex items-center gap-1">
-                <i class="fas fa-user text-xs"></i>
-                <span class="truncate">${userLabel(txn.user_id)}</span>
-              </div>
-              <div class="text-xs text-gray-500 flex items-center gap-1">
-                <i class="fas fa-calendar text-xs"></i>
-                ${formatDate(txn.created_at)}
-              </div>
-              <div class="text-[11px] text-gray-500 flex items-center gap-1">
-                <i class="fas fa-tag text-[10px]"></i>
-                ${typeLabels[txn.type] || txn.type || "không rõ"}
-              </div>
-            </div>
-          </div>
-          <span class="px-2 py-1 rounded-full text-xs font-semibold border ${statusColors[txn.status] || 'bg-gray-50 text-gray-700 border-gray-200'} whitespace-nowrap">${statusLabels[txn.status] || txn.status || "không rõ"}</span>
-        `;
+                    <div class="p-3 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0 border border-gray-100">
+                                <i class="fas ${typeIcons[txn.type] || 'fa-file-invoice'} text-theme-primary text-sm"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="font-bold text-gray-900 text-sm leading-tight">${formatCurrency(txn.amount)}</div>
+                                <div class="text-[11px] text-blue-600 font-semibold truncate mt-0.5">${customerName}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase ${statusColors[txn.status] || 'bg-gray-100 text-gray-600'}">
+                                ${statusLabels[txn.status] || txn.status}
+                            </span>
+                            <i class="fas fa-chevron-down text-[10px] text-gray-400 transition-transform duration-300" id="chevron-${txn.id}"></i>
+                        </div>
+                    </div>
+
+                    <div class="hidden px-3 pb-3 pt-2 border-t border-dashed border-gray-100 bg-gray-50/50" id="details-${txn.id}">
+                        <div class="grid grid-cols-1 gap-2.5">
+                            <div class="flex items-start gap-2">
+                                <i class="fas fa-box-open text-[10px] text-gray-400 mt-1"></i>
+                                <div class="text-[11px] text-gray-600 leading-relaxed">
+                                    <span class="text-gray-400 font-medium">Sản phẩm:</span> 
+                                    <span class="font-medium text-gray-700 italic">${productInfo}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-1">
+                                <div class="flex items-center gap-1.5 text-[10px] text-gray-400">
+                                    <i class="fas fa-clock"></i>
+                                    <span>${formatDate(txn.created_at)}</span>
+                                </div>
+                                <div class="text-[10px] text-gray-300 font-mono">ID: ${txn.id.slice(-8)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                div.onclick = () => {
+                    const details = div.querySelector(`#details-${txn.id}`);
+                    const chevron = div.querySelector(`#chevron-${txn.id}`);
+                    const isHidden = details.classList.contains('hidden');
+                    
+                    if (isHidden) {
+                        details.classList.remove('hidden');
+                        chevron.classList.add('rotate-180');
+                        div.classList.add('ring-1', 'ring-theme-primary/20', 'border-theme-primary/30');
+                    } else {
+                        details.classList.add('hidden');
+                        chevron.classList.remove('rotate-180');
+                        div.classList.remove('ring-1', 'ring-theme-primary/20', 'border-theme-primary/30');
+                    }
+                };
+
                 list.appendChild(div);
             });
         }
