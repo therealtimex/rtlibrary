@@ -193,7 +193,16 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
             let summary = state.raw.summary || {};
             if (month || year) {
                 const total_commissions = monthly.reduce((sum, m) => sum + (m.total_commission || 0), 0);
-                const total_sales = monthly.reduce((sum, m) => sum + (m.personal_sales_volume || 0), 0);
+                const retail_sales = transactions
+                    .filter(tx => tx.type === "retail_sales" && ["approved", "paid"].includes(tx.status))
+                    .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+                const total_sales = monthly.reduce((sum, m) => (
+                    sum
+                    + Number(m.personal_sales_volume || 0)
+                    + Number(m.shared_out_volume || 0)
+                    + Number(m.received_volume || 0)
+                    + Number(m.f1_sales_volume || 0)
+                ), 0) || retail_sales;
                 summary = {
                     ...summary,
                     total_sales,
@@ -205,7 +214,7 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
             return { summary, transactions, monthly_stats: monthly };
         }
 
-        function computeOverview(stats, summary) {
+        function computeOverview(stats, summary, transactions) {
             const totals = (stats || []).reduce((acc, m) => {
                 acc.personal_sales_volume += Number(m.personal_sales_volume || 0);
                 acc.shared_out_volume += Number(m.shared_out_volume || 0);
@@ -231,8 +240,18 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
                 tier_rate: 0
             });
 
+            const retailSalesFromTransactions = (transactions || [])
+                .filter(tx => tx.type === "retail_sales" && ["approved", "paid"].includes(tx.status))
+                .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+            const totalRevenue = (
+                totals.personal_sales_volume
+                + totals.shared_out_volume
+                + totals.received_volume
+                + totals.f1_sales_volume
+            ) || summary?.total_sales || retailSalesFromTransactions;
+
             const kpiCards = [
-                { title: "Tổng Doanh Thu", value: formatCurrency(totals.personal_sales_volume + totals.shared_out_volume + totals.received_volume + totals.f1_sales_volume), icon: "fa-dollar-sign", color: "blue" },
+                { title: "Tổng Doanh Thu", value: formatCurrency(totalRevenue), icon: "fa-dollar-sign", color: "blue" },
                 { title: "Tổng Hoa Hồng", value: formatCurrency(totals.total_commission || summary?.total_commissions || 0), icon: "fa-coins", color: "green" },
                 { title: "Hoa Hồng Bán Lẻ", value: formatCurrency(totals.comm_direct), icon: "fa-hand-holding-usd", color: "purple" },
                 { title: "Hoa Hồng Chênh Lệch", value: formatCurrency(totals.comm_override), icon: "fa-layer-group", color: "orange" },
@@ -246,7 +265,7 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
 
         function renderAll() {
             const { summary, transactions, monthly_stats } = applyFilters();
-            const { kpiCards } = computeOverview(monthly_stats, summary);
+            const { kpiCards } = computeOverview(monthly_stats, summary, transactions);
             renderKpis(kpiCards);
             renderTransactions(transactions);
             renderTrends(monthly_stats);
