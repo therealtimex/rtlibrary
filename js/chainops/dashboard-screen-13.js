@@ -218,16 +218,7 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
             let summary = state.raw.summary || {};
             if (month || year) {
                 const total_commissions = monthly.reduce((sum, m) => sum + (m.total_commission || 0), 0);
-                const retail_sales = transactions
-                    .filter(tx => tx.type === "retail_sales" && ["approved", "paid"].includes(tx.status))
-                    .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
-                const total_sales = monthly.reduce((sum, m) => (
-                    sum
-                    + Number(m.personal_sales_volume || 0)
-                    + Number(m.shared_out_volume || 0)
-                    + Number(m.received_volume || 0)
-                    + Number(m.f1_sales_volume || 0)
-                ), 0) || retail_sales;
+                const total_sales = monthly.reduce((sum, m) => sum + Number(m.personal_sales_volume || 0), 0);
                 summary = {
                     ...summary,
                     total_sales,
@@ -239,7 +230,7 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
             return { summary, transactions, monthly_stats: monthly };
         }
 
-        function computeOverview(stats, summary, transactions) {
+        function computeOverview(stats, summary) {
             const totals = (stats || []).reduce((acc, m) => {
                 acc.personal_sales_volume += Number(m.personal_sales_volume || 0);
                 acc.shared_out_volume += Number(m.shared_out_volume || 0);
@@ -265,15 +256,10 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
                 tier_rate: 0
             });
 
-            const retailSalesFromTransactions = (transactions || [])
-                .filter(tx => tx.type === "retail_sales" && ["approved", "paid"].includes(tx.status))
-                .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
-            const totalRevenue = (
-                totals.personal_sales_volume
+            const totalRevenue = totals.personal_sales_volume
                 + totals.shared_out_volume
                 + totals.received_volume
-                + totals.f1_sales_volume
-            ) || summary?.total_sales || retailSalesFromTransactions;
+                + totals.f1_sales_volume;
             const retailCommission = totals.comm_direct || (totals.personal_sales_volume * totals.tier_rate);
 
             const kpiCards = [
@@ -291,7 +277,7 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
 
         function renderAll() {
             const { summary, transactions, monthly_stats } = applyFilters();
-            const { kpiCards } = computeOverview(monthly_stats, summary, transactions);
+            const { kpiCards } = computeOverview(monthly_stats, summary);
             renderKpis(kpiCards);
             renderTransactions(transactions);
             renderTrends(monthly_stats);
