@@ -62,6 +62,30 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
             } catch (e) { return d; }
         }
 
+        function renderUserInfo() {
+            const el = document.getElementById("user-info");
+            if (!el || !state.raw) return;
+            const user = state.raw.target_user || state.raw.user || {};
+            const name = user.full_name || user.username || user.email || "Unknown";
+            const email = user.email || user.username || "";
+            const role = (user.role || "").toLowerCase();
+            const roleMap = {
+                'admin': { label: 'Quản trị viên', icon: 'fa-user-shield', color: 'bg-red-100 text-red-700 border-red-200' },
+                'doi_tac_chien_luoc': { label: 'Đối tác chiến lược', icon: 'fa-handshake', color: 'bg-amber-100 text-amber-700 border-amber-200' },
+                'dai_ly': { label: 'Đại lý', icon: 'fa-store', color: 'bg-purple-100 text-purple-700 border-purple-200' },
+                'ctv': { label: 'Cộng tác viên', icon: 'fa-user-tag', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+                'affiliate': { label: 'Cộng tác viên', icon: 'fa-user-tag', color: 'bg-blue-100 text-blue-700 border-blue-200' }
+            };
+            const info = roleMap[role] || { label: role || 'Chưa xác định', icon: 'fa-user', color: 'bg-gray-100 text-gray-600 border-gray-200' };
+            document.getElementById("user-name").textContent = name;
+            document.getElementById("user-email").textContent = email;
+            document.getElementById("user-icon").className = 'fas ' + info.icon + ' text-theme-primary';
+            const badge = document.getElementById("user-role-badge");
+            badge.textContent = info.label;
+            badge.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border flex-shrink-0 ' + info.color;
+            el.classList.remove("hidden");
+        }
+
         function parseMonthKey(monthStr) {
             if (!monthStr || typeof monthStr !== "string") return { year: "", month: "" };
             const parts = monthStr.split("-");
@@ -128,6 +152,7 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
                     : [{ id: data.user?.id || "", label: data.user?.full_name || data.user?.username || data.user?.email || "Me" }];
                 state.targetUserId = data.target_user?.id || state.targetUserId || data.user?.id || "";
                 populateFilters(data);
+                renderUserInfo();
                 renderAll();
                 setStatus("Đã tải bảng điều khiển thành công!", false, "fa-check-circle");
                 showDebug(null);
