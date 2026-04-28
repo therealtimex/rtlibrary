@@ -249,11 +249,12 @@ const API_URL = "https://pphoiqknkmwzstuokdmz.supabase.co/functions/v1/dashboard
                 + totals.received_volume
                 + totals.f1_sales_volume
             ) || summary?.total_sales || retailSalesFromTransactions;
+            const retailCommission = totals.comm_direct || (totals.personal_sales_volume * totals.tier_rate);
 
             const kpiCards = [
                 { title: "Tổng Doanh Thu", value: formatCurrency(totalRevenue), icon: "fa-dollar-sign", color: "blue" },
                 { title: "Tổng Hoa Hồng", value: formatCurrency(totals.total_commission || summary?.total_commissions || 0), icon: "fa-coins", color: "green" },
-                { title: "Hoa Hồng Bán Lẻ", value: formatCurrency(totals.comm_direct), icon: "fa-hand-holding-usd", color: "purple" },
+                { title: "Hoa Hồng Bán Lẻ", value: formatCurrency(retailCommission), icon: "fa-hand-holding-usd", color: "purple" },
                 { title: "Hoa Hồng Chênh Lệch", value: formatCurrency(totals.comm_override), icon: "fa-layer-group", color: "orange" },
                 { title: "Chia Sẻ Ra", value: formatCurrency(totals.shared_out_volume), icon: "fa-share-alt", color: "cyan" },
                 { title: "Chia Sẻ Nhận", value: formatCurrency(totals.received_volume), icon: "fa-download", color: "indigo" },
